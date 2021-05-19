@@ -390,6 +390,7 @@ void SYS_MAIN_Init(void)
 //	    gs_OS.TK_Sleep(20);
     SYS_LED_BlinkSetAll1(2, 0, 0, 0);               //所有灯齐闪
     gs_OS.TK_Sleep(200);
+    
     SYS_LED_BlinkSetAll1(3, 0, 0, 0);               //所有灯灭
 
     SYS_LED_BlinkSet1(GPIO_LED_RUN, 1, 10, 10, 0);    //运行灯秒闪(overlay last configuration)
