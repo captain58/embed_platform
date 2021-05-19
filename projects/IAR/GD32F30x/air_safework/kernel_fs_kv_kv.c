@@ -6,6 +6,7 @@
 #include "kv_adapt.h"
 #include "kv_types.h"
 
+
 static kv_mgr_t g_kv_mgr;
 
 static void kv_gc_task(void *arg);
