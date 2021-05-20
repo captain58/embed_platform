@@ -1,0 +1,38 @@
+/*
+ *
+ * Automatically generated file; DO NOT EDIT.
+ * AliOS Things Configuration
+ *
+ */
+#define AOS_COMP_DEBUG 1
+#define OSAL_RHINO 1
+#define BSP_SUPPORT_SPI 1
+#define AOS_BUILD_BOARD "stm32l476rg-nucleo"
+#define BSP_SUPPORT_WIFI 1
+#define VFS_CONFIG_PATH_MAX 256
+#define AOS_ARCH_ARMV7M 1
+#define AOS_APP_HELLOWORLD 1
+#define BSP_SUPPORT_UART 1
+#define BSP_SUPPORT_I2C 1
+#define BSP_SUPPORT_FLASH 1
+#define BSP_SUPPORT_EXTERNAL_MODULE 1
+#define BSP_EXTERNAL_WIFI_MODULE "wifi.mk3060"
+#define AOS_COMP_KERNEL_INIT 1
+#define BSP_SUPPORT_RTC 1
+#define AOS_BOARD_STM32L476RG_NUCLEO 1
+#define BSP_SUPPORT_GPIO 1
+#define VFS_CONFIG_MAX_FILE_NUM 50
+#define AOS_COMP_ULOG 1
+#define VFS_CONFIG_FD_OFFSET 512
+#define AOS_COMP_OSAL_AOS 1
+#define AOS_COMP_RHINO 1
+#define AOS_BUILD 1
+#define DEBUG_CONFIG_CPU_USAGE_PERIOD 0
+#define AOS_COMP_VFS 1
+#define AOS_BUILD_APP "helloworld"
+#define VFS_CONFIG_DEVICE_NODES 25
+#define AOS_COMP_NEWLIB_STUB 1
+#define AOS_APP_EXAMPLE 1
+#define BSP_SUPPORT_TIMER 1
+#define OSAL_CONFIG "rhino"
+#define AOS_MCU_STM32L4XX_CUBE 1

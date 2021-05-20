@@ -111,13 +111,13 @@ size_t __write(int handle, const unsigned char *buffer, size_t size)
     }
 
     /* Send data. */
-    for (i = 0; i < size; i++) {
-        if (buffer[i] == '\n') {
-            hal_uart_send(&uart_stdio, (void *)"\r", 1, AOS_WAIT_FOREVER);
-        }
-
-        hal_uart_send(&uart_stdio, &buffer[i], 1, AOS_WAIT_FOREVER);
-    }
+//    for (i = 0; i < size; i++) {
+//        if (buffer[i] == '\n') {
+//            hal_uart_send(&uart_stdio, (void *)"\r", 1, AOS_WAIT_FOREVER);
+//        }
+//
+//        hal_uart_send(&uart_stdio, &buffer[i], 1, AOS_WAIT_FOREVER);
+//    }
 
     return size;
 }

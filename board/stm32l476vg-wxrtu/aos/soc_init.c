@@ -464,7 +464,7 @@ PUTCHAR_PROTOTYPE
 //	            hal_uart_send(&uart_0, (void *)"\r", 1, 30000);
 //            SER_SendData(PORT_UART_STD, (void *)"\r", 1, 300);
 //        }
-        SER_SendData(PORT_UART_STD, &ch, 1, 300);
+//        SER_SendData(PORT_UART_STD, &ch, 1, 300);
     }
   return ch;
 }

@@ -76,7 +76,14 @@ static void MX_I2C1_Init(void);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
-
+void SystemInit(void)
+{
+}
+__IO uint32_t uwTick;
+__weak void HAL_IncTick(void)
+{
+  uwTick++;
+}
 /**
   * @brief  The application entry point.
   *
@@ -89,7 +96,7 @@ extern void USART_DMA_TX_IRQHandler(const void* uartIns);
 void DMA1_Channel4_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    USART_DMA_TX_IRQHandler(USART1);
+//    USART_DMA_TX_IRQHandler(USART1);
     krhino_intrpt_exit();
 }
 void USART_DMA_RX_IRQHandler(const void* uartIns);
@@ -99,13 +106,13 @@ void USART_DMA_RX_IRQHandler(const void* uartIns);
 void DMA1_Channel5_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    USART_DMA_RX_IRQHandler(USART1);
+//    USART_DMA_RX_IRQHandler(USART1);
     krhino_intrpt_exit();
 }
 void DMA2_Channel3_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    USART_DMA_TX_IRQHandler(UART4);
+//    USART_DMA_TX_IRQHandler(UART4);
     krhino_intrpt_exit();
 }
 void USART_DMA_RX_IRQHandler(const void* uartIns);
@@ -115,7 +122,7 @@ void USART_DMA_RX_IRQHandler(const void* uartIns);
 void DMA2_Channel5_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    USART_DMA_RX_IRQHandler(UART4);
+//    USART_DMA_RX_IRQHandler(UART4);
     krhino_intrpt_exit();
 }
 extern DMA_HandleTypeDef hdma_adc1;
@@ -125,7 +132,7 @@ void DMA1_Channel1_IRQHandler(void)
   krhino_intrpt_enter();
 
   /* USER CODE END DMA1_Channel1_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_adc1);
+//  HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
   krhino_intrpt_exit();
 
@@ -134,6 +141,7 @@ void DMA1_Channel1_IRQHandler(void)
 /**
   * @brief This function handles LPTIM1 global interrupt.
   */
+
 extern LPTIM_HandleTypeDef hlptim1;
 void LPTIM1_IRQHandler(void)
 {
@@ -141,7 +149,7 @@ void LPTIM1_IRQHandler(void)
   krhino_intrpt_enter();
 
   /* USER CODE END LPTIM1_IRQn 0 */
-  HAL_LPTIM_IRQHandler(&hlptim1);
+//  HAL_LPTIM_IRQHandler(&hlptim1);
   /* USER CODE BEGIN LPTIM1_IRQn 1 */
   krhino_intrpt_exit();
   /* USER CODE END LPTIM1_IRQn 1 */
@@ -221,90 +229,90 @@ void LPTIM1_IRQHandler(void)
 
 void SystemClock_Config(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-
-  /** Configure LSE Drive Capability 
-  */
-  HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
-  /** Initializes the CPU, AHB and APB busses clocks 
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE
-                              |RCC_OSCILLATORTYPE_LSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-//	  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-//	  //80M
-//	  RCC_OscInitStruct.PLL.PLLM = 1;
-//	  RCC_OscInitStruct.PLL.PLLN = 20;
-//	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-//	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-//	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-//40M
-  RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 10;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;  
-//16M
-//	  RCC_OscInitStruct.PLL.PLLM = 1;
-//	  RCC_OscInitStruct.PLL.PLLN = 8;
-//	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-//	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-//	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
-
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Initializes the CPU, AHB and APB busses clocks 
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-  {
-    Error_Handler();
-  }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
-                                 | RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART5
-                                 | RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1|RCC_PERIPHCLK_ADC
-                                 | RCC_PERIPHCLK_LPTIM1;
-    PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_SYSCLK;
-    PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-    PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;   
-    PeriphClkInit.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;    
-    PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_SYSCLK;
-//	    PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
-  
-//	    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1;
-    PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;  
-    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-//	  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPTIM1;
-    PeriphClkInit.Lptim1ClockSelection = RCC_LPTIM1CLKSOURCE_LSE;
-    
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-//	  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_LSE, RCC_MCODIV_16);
-//	  HAL_RCCEx_EnableLSCO(RCC_LSCOSOURCE_LSE);
-  /** Configure the main internal regulator output voltage 
-  */
-  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
-  {
-    Error_Handler();
-  }
+//  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+//  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+//  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+//
+//  /** Configure LSE Drive Capability 
+//  */
+//  HAL_PWR_EnableBkUpAccess();
+//  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+//  /** Initializes the CPU, AHB and APB busses clocks 
+//  */
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE
+//                              |RCC_OSCILLATORTYPE_LSE;
+//  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+//  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+////	  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+////	  //80M
+////	  RCC_OscInitStruct.PLL.PLLM = 1;
+////	  RCC_OscInitStruct.PLL.PLLN = 20;
+////	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+////	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+////	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+////40M
+//  RCC_OscInitStruct.PLL.PLLM = 1;
+//  RCC_OscInitStruct.PLL.PLLN = 10;
+//  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+//  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+//  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;  
+////16M
+////	  RCC_OscInitStruct.PLL.PLLM = 1;
+////	  RCC_OscInitStruct.PLL.PLLN = 8;
+////	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+////	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+////	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
+//
+//  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//  /** Initializes the CPU, AHB and APB busses clocks 
+//  */
+//  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+//                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+//  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+//  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+//  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+//
+//  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
+//                                 | RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART5
+//                                 | RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1|RCC_PERIPHCLK_ADC
+//                                 | RCC_PERIPHCLK_LPTIM1;
+//    PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_SYSCLK;
+//    PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+//    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
+//    PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;   
+//    PeriphClkInit.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;    
+//    PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_SYSCLK;
+////	    PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
+//  
+////	    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1;
+//    PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;  
+//    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+////	  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPTIM1;
+//    PeriphClkInit.Lptim1ClockSelection = RCC_LPTIM1CLKSOURCE_LSE;
+//    
+//  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+////	  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_LSE, RCC_MCODIV_16);
+////	  HAL_RCCEx_EnableLSCO(RCC_LSCOSOURCE_LSE);
+//  /** Configure the main internal regulator output voltage 
+//  */
+//  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
 
 //	  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 
@@ -318,90 +326,90 @@ void SystemClock_Config(void)
 
 int SystemClock_Stop(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-
-  /** Configure LSE Drive Capability 
-  */
-//  HAL_PWR_EnableBkUpAccess();
-//  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
-  /** Initializes the CPU, AHB and APB busses clocks 
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE
-                              |RCC_OSCILLATORTYPE_LSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-//	  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-//	  //80M
-//	  RCC_OscInitStruct.PLL.PLLM = 1;
-//	  RCC_OscInitStruct.PLL.PLLN = 20;
-//	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-//	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-//	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-//40M
-  RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 10;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;  
-//16M
-//	  RCC_OscInitStruct.PLL.PLLM = 1;
-//	  RCC_OscInitStruct.PLL.PLLN = 8;
-//	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-//	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-//	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
-
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    return HAL_ERROR;
-  }
-  /** Initializes the CPU, AHB and APB busses clocks 
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-  {
-    return HAL_ERROR;
-  }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
-                                 | RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART5
-                                 | RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1|RCC_PERIPHCLK_ADC
-                                 | RCC_PERIPHCLK_LPTIM1;
-    PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_SYSCLK;
-    PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-    PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;   
-    PeriphClkInit.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;    
-    PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_SYSCLK;
-//	    PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
-  
-//	    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1;
-    PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;  
-    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-//	  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPTIM1;
-    PeriphClkInit.Lptim1ClockSelection = RCC_LPTIM1CLKSOURCE_LSE;
-    
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    return HAL_ERROR;
-  }
-
-  //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1);
-//  HAL_RCCEx_EnableLSCO(RCC_LSCOSOURCE_LSI);
-  /** Configure the main internal regulator output voltage 
-  */
-  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
-  {
-    return HAL_ERROR;
-  }
+//  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+//  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+//  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+//
+//  /** Configure LSE Drive Capability 
+//  */
+////  HAL_PWR_EnableBkUpAccess();
+////  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+//  /** Initializes the CPU, AHB and APB busses clocks 
+//  */
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE
+//                              |RCC_OSCILLATORTYPE_LSE;
+//  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+//  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+////	  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+////	  //80M
+////	  RCC_OscInitStruct.PLL.PLLM = 1;
+////	  RCC_OscInitStruct.PLL.PLLN = 20;
+////	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+////	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+////	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+////40M
+//  RCC_OscInitStruct.PLL.PLLM = 1;
+//  RCC_OscInitStruct.PLL.PLLN = 10;
+//  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+//  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+//  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;  
+////16M
+////	  RCC_OscInitStruct.PLL.PLLM = 1;
+////	  RCC_OscInitStruct.PLL.PLLN = 8;
+////	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+////	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+////	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
+//
+//  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+//  {
+//    return HAL_ERROR;
+//  }
+//  /** Initializes the CPU, AHB and APB busses clocks 
+//  */
+//  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+//                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+//  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+//  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+//  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+//
+//  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+//  {
+//    return HAL_ERROR;
+//  }
+//    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
+//                                 | RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART5
+//                                 | RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1|RCC_PERIPHCLK_ADC
+//                                 | RCC_PERIPHCLK_LPTIM1;
+//    PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_SYSCLK;
+//    PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+//    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
+//    PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;   
+//    PeriphClkInit.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;    
+//    PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_SYSCLK;
+////	    PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
+//  
+////	    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_LPUART1;
+//    PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;  
+//    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+////	  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPTIM1;
+//    PeriphClkInit.Lptim1ClockSelection = RCC_LPTIM1CLKSOURCE_LSE;
+//    
+//  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+//  {
+//    return HAL_ERROR;
+//  }
+//
+//  //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1);
+////  HAL_RCCEx_EnableLSCO(RCC_LSCOSOURCE_LSI);
+//  /** Configure the main internal regulator output voltage 
+//  */
+//  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
+//  {
+//    return HAL_ERROR;
+//  }
   return HAL_OK;
 }
 
@@ -465,33 +473,33 @@ int SystemClock_Stop(void)
 static void MX_I2C1_Init(void)
 {
 
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x10909CEC;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Analogue filter 
-    */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Digital filter 
-    */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+//  hi2c1.Instance = I2C1;
+//  hi2c1.Init.Timing = 0x10909CEC;
+//  hi2c1.Init.OwnAddress1 = 0;
+//  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+//  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+//  hi2c1.Init.OwnAddress2 = 0;
+//  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+//  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+//  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+//  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
+//
+//    /**Configure Analogue filter 
+//    */
+//  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
+//
+//    /**Configure Digital filter 
+//    */
+//  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
 
 }
 
@@ -499,20 +507,20 @@ static void MX_I2C1_Init(void)
 static void MX_USART1_UART_Init(void)
 {
 
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+//  huart1.Instance = USART1;
+//  huart1.Init.BaudRate = 115200;
+//  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+//  huart1.Init.StopBits = UART_STOPBITS_1;
+//  huart1.Init.Parity = UART_PARITY_NONE;
+//  huart1.Init.Mode = UART_MODE_TX_RX;
+//  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+//  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+//  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+//  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+//  if (HAL_UART_Init(&huart1) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
 
 }
 
@@ -520,20 +528,20 @@ static void MX_USART1_UART_Init(void)
 static void MX_USART2_UART_Init(void)
 {
 
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+//  huart2.Instance = USART2;
+//  huart2.Init.BaudRate = 115200;
+//  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+//  huart2.Init.StopBits = UART_STOPBITS_1;
+//  huart2.Init.Parity = UART_PARITY_NONE;
+//  huart2.Init.Mode = UART_MODE_TX_RX;
+//  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+//  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+//  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+//  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+//  if (HAL_UART_Init(&huart2) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
 
 }
 
@@ -544,37 +552,37 @@ void MX_DMA_Init(void)
 {
   /* DMA controller clock enable */
 //	    __HAL_RCC_DMA2_CLK_ENABLE();
-    __HAL_RCC_DMA1_CLK_ENABLE();
-
-    /* DMA interrupt init */
-    /* DMA1_Channel4_IRQn interrupt configuration */
-//	    HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
-//	    HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
-//	    /* DMA1_Channel5_IRQn interrupt configuration */
-//	    HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
-//	    HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
-    HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+//    __HAL_RCC_DMA1_CLK_ENABLE();
+//
+//    /* DMA interrupt init */
+//    /* DMA1_Channel4_IRQn interrupt configuration */
+////	    HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+////	    HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+////	    /* DMA1_Channel5_IRQn interrupt configuration */
+////	    HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+////	    HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
+//    HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+//    HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
 void MX_DMA_DeInit(void) 
 {
   /* DMA controller clock enable */
 //	    __HAL_RCC_DMA2_CLK_ENABLE();
-    __HAL_RCC_DMA1_CLK_DISABLE();
-
-    /* DMA interrupt init */
-    /* DMA1_Channel4_IRQn interrupt configuration */
-//	    HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
-//	    HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
-//	    /* DMA1_Channel5_IRQn interrupt configuration */
-//	    HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
-//	    HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
-    //HAL_DMA_DeInit();
-
-//	    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn, 0, 0);
-    
-    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
+//    __HAL_RCC_DMA1_CLK_DISABLE();
+//
+//    /* DMA interrupt init */
+//    /* DMA1_Channel4_IRQn interrupt configuration */
+////	    HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+////	    HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+////	    /* DMA1_Channel5_IRQn interrupt configuration */
+////	    HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+////	    HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
+//    //HAL_DMA_DeInit();
+//
+////	    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn, 0, 0);
+//    
+//    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
 
 }
 
@@ -798,133 +806,133 @@ void MX_DMA_DeInit(void)
 
 void MX_GPIO_Init(void)
 {
-      GPIO_InitTypeDef GPIO_InitStruct = {0};
-	
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-	
-  /*Configure GPIO pins : PE2 PE3 PE4 PE5 
-                           PE6 PE7 PE8 PE9 
-                           PE10 PE11 PE12 PE13 
-                           PE14 PE15 PE0 PE1 */
-                           //|GPIO_PIN_8
-  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
-                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9 
-                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_13 
-                          |GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_0|GPIO_PIN_1;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-      
-  HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
-                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9 
-                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_13 
-                          |GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_0|GPIO_PIN_1, GPIO_PIN_SET);
-	
-	
-  /*Configure GPIO pins : PC13 PC0 
-                           PC1 PC2 PC3 PC4 
-                           PC5 PC6 PC7 PC8 
-                           PC9 PC10 PC11 PC12 */
-                           //GPIO_PIN_2|GPIO_PIN_3|
-//	GPIO_PIN_0 
-//	                          |GPIO_PIN_1|     GPIO_PIN_5|                      
-  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_4 
-                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8 
-                          |GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-  
-  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13|GPIO_PIN_4 
-                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8 
-                          |GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12, GPIO_PIN_SET);
-	
-  /*Configure GPIO pins : PA0 PA1 PA2 PA3 
-                           PA4 PA5 PA6 PA7 
-                           PA8 PA9 PA10 PA11 
-                           PA12 PA15 */
-//GPIO_PIN_0|GPIO_PIN_1|   GPIO_PIN_2|                        
-  GPIO_InitStruct.Pin = GPIO_PIN_3 
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7 
-                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
-                          |GPIO_PIN_12|GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  
-  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3 
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7 
-                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
-                          |GPIO_PIN_12|GPIO_PIN_15, GPIO_PIN_SET);   
-	
-  /*Configure GPIO pins : PB0 PB1 PB2 PB10 
-                           PB11 PB12 PB13 PB14 
-                           PB15 PB3 PB4 PB5 
-                           PB6 PB7 PB8 PB9 */
-                           //GPIO_PIN_1||GPIO_PIN_6
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_2|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14 
-                          |GPIO_PIN_15|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
-                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-  
-  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0|GPIO_PIN_2|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14 
-                          |GPIO_PIN_15|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
-                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_SET);
-	
-  /*Configure GPIO pins : PD8 PD9 PD10 PD11 
-                           PD12 PD13 PD14 PD15 
-                           PD0 PD1 PD2 PD3 
-                           PD4 PD5 PD6 PD7 */
-                           //|GPIO_PIN_7
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
-                          |GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15 
-                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3 
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-  
-  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
-                          |GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15 
-                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3 
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_SET);
-	
-    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-    GPIO_InitStruct.Pin = GPIO_PIN_6;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6, GPIO_PIN_RESET);  
-	
-    GPIO_InitStruct.Pin = GPIO_PIN_8;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8, GPIO_PIN_RESET);  
-	
-    
-    GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_6|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3|GPIO_PIN_6|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET); 
-    
-    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9, GPIO_PIN_RESET);  
-    
-    GPIO_InitStruct.Pin = GPIO_PIN_7;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7, GPIO_PIN_RESET);  
-    //| GPIO_PIN_12
-    GPIO_InitStruct.Pin = GPIO_PIN_2 ;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2, GPIO_PIN_RESET);     
-	
+//      GPIO_InitTypeDef GPIO_InitStruct = {0};
+//	
+//  /* GPIO Ports Clock Enable */
+//  __HAL_RCC_GPIOE_CLK_ENABLE();
+//  __HAL_RCC_GPIOC_CLK_ENABLE();
+//  __HAL_RCC_GPIOH_CLK_ENABLE();
+//  __HAL_RCC_GPIOA_CLK_ENABLE();
+//  __HAL_RCC_GPIOB_CLK_ENABLE();
+//  __HAL_RCC_GPIOD_CLK_ENABLE();
+//	
+//  /*Configure GPIO pins : PE2 PE3 PE4 PE5 
+//                           PE6 PE7 PE8 PE9 
+//                           PE10 PE11 PE12 PE13 
+//                           PE14 PE15 PE0 PE1 */
+//                           //|GPIO_PIN_8
+//  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
+//                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9 
+//                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_13 
+//                          |GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_0|GPIO_PIN_1;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+//      
+//  HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
+//                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9 
+//                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_13 
+//                          |GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_0|GPIO_PIN_1, GPIO_PIN_SET);
+//	
+//	
+//  /*Configure GPIO pins : PC13 PC0 
+//                           PC1 PC2 PC3 PC4 
+//                           PC5 PC6 PC7 PC8 
+//                           PC9 PC10 PC11 PC12 */
+//                           //GPIO_PIN_2|GPIO_PIN_3|
+////	GPIO_PIN_0 
+////	                          |GPIO_PIN_1|     GPIO_PIN_5|                      
+//  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_4 
+//                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8 
+//                          |GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+//  
+//  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13|GPIO_PIN_4 
+//                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8 
+//                          |GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12, GPIO_PIN_SET);
+//	
+//  /*Configure GPIO pins : PA0 PA1 PA2 PA3 
+//                           PA4 PA5 PA6 PA7 
+//                           PA8 PA9 PA10 PA11 
+//                           PA12 PA15 */
+////GPIO_PIN_0|GPIO_PIN_1|   GPIO_PIN_2|                        
+//  GPIO_InitStruct.Pin = GPIO_PIN_3 
+//                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7 
+//                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
+//                          |GPIO_PIN_12|GPIO_PIN_15;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+//  
+//  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3 
+//                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7 
+//                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
+//                          |GPIO_PIN_12|GPIO_PIN_15, GPIO_PIN_SET);   
+//	
+//  /*Configure GPIO pins : PB0 PB1 PB2 PB10 
+//                           PB11 PB12 PB13 PB14 
+//                           PB15 PB3 PB4 PB5 
+//                           PB6 PB7 PB8 PB9 */
+//                           //GPIO_PIN_1||GPIO_PIN_6
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_2|GPIO_PIN_10 
+//                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14 
+//                          |GPIO_PIN_15|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
+//                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+//  
+//  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0|GPIO_PIN_2|GPIO_PIN_10 
+//                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14 
+//                          |GPIO_PIN_15|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
+//                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_SET);
+//	
+//  /*Configure GPIO pins : PD8 PD9 PD10 PD11 
+//                           PD12 PD13 PD14 PD15 
+//                           PD0 PD1 PD2 PD3 
+//                           PD4 PD5 PD6 PD7 */
+//                           //|GPIO_PIN_7
+//  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
+//                          |GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15 
+//                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3 
+//                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+//  
+//  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
+//                          |GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15 
+//                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3 
+//                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_SET);
+//	
+//    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+//    GPIO_InitStruct.Pin = GPIO_PIN_6;
+//    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6, GPIO_PIN_RESET);  
+//	
+//    GPIO_InitStruct.Pin = GPIO_PIN_8;
+//    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8, GPIO_PIN_RESET);  
+//	
+//    
+//    GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_6|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+//    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3|GPIO_PIN_6|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET); 
+//    
+//    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9;
+//    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9, GPIO_PIN_RESET);  
+//    
+//    GPIO_InitStruct.Pin = GPIO_PIN_7;
+//    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7, GPIO_PIN_RESET);  
+//    //| GPIO_PIN_12
+//    GPIO_InitStruct.Pin = GPIO_PIN_2 ;
+//    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2, GPIO_PIN_RESET);     
+//	
 //	    
 //	    GPIO_InitStruct.Pull = GPIO_PULLUP;
 //	    GPIO_InitStruct.Pin = GPIO_PIN_3;
