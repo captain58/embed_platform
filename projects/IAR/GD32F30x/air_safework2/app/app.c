@@ -765,33 +765,33 @@ void SYS_APP_Init()
 {
     UART_Init();
 //	
-    SYS_FILE_Init();
-    SYS_FILE_Start();
-#if SYS_GPO_EN > 0
-    SYS_GPO_Init();
-#endif
-#if SYS_GPI_EN > 0
-    SYS_GPI_Init();
-#endif
-#if (SYS_AD_EN > 0)    
-    SYS_AD_Init();
-#endif    
-//	    OV_LcdInit();
-    SYS_RTC_Init();
-    SYS_MSG_Init();
-    SYS_LED_Init();    
-    HB_LiveInit();
-//	    SYS_TIMER_Init();
-    Netp_PreInit(0);                    //线程
-
-    HLV_PreInit();                      //线程
-    Farp_PreInit();                     //线程
-//	    PST_PreInit();                      //线程
-    Task_PreInit();                     //线程
-
-    PST_Init();
-
-    Main_PreInit();
+//    SYS_FILE_Init();
+//    SYS_FILE_Start();
+//#if SYS_GPO_EN > 0
+//    SYS_GPO_Init();
+//#endif
+//#if SYS_GPI_EN > 0
+//    SYS_GPI_Init();
+//#endif
+//#if (SYS_AD_EN > 0)    
+//    SYS_AD_Init();
+//#endif    
+////	    OV_LcdInit();
+//    SYS_RTC_Init();
+//    SYS_MSG_Init();
+//    SYS_LED_Init();    
+//    HB_LiveInit();
+////	    SYS_TIMER_Init();
+//    Netp_PreInit(0);                    //线程
+//
+//    HLV_PreInit();                      //线程
+//    Farp_PreInit();                     //线程
+////	    PST_PreInit();                      //线程
+//    Task_PreInit();                     //线程
+//
+//    PST_Init();
+//
+//    Main_PreInit();
 
 }
 
@@ -837,7 +837,7 @@ int application_start(int argc, char *argv[])
 //#ifndef DEBUG        
 //    HAL_IWDG_Refresh(&hiwdg); //喂狗
 //#endif
-//    SYS_APP_Init();
+    SYS_APP_Init();
 //    
 //#ifndef DEBUG        
 //    HAL_IWDG_Refresh(&hiwdg); //喂狗

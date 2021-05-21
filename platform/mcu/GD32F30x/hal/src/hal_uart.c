@@ -12,13 +12,13 @@
 
 #include "aos/hal/uart.h"
 
-#include "stm32l4xx.h"
-#include "stm32l4xx_hal.h"
-#include "stm32l4xx_hal_dma.h"
+//#include "stm32l4xx.h"
+//#include "stm32l4xx_hal.h"
+//#include "stm32l4xx_hal_dma.h"
+#include "gd32f30x_usart.h"
 
 
-
-#include "hal_uart_stm32l4.h"
+#include "hal_uart.h"
 uint8 gucs_UartRevFlag[NO_OF_SERIAL];
 uint8 gucs_UartRevStart[NO_OF_SERIAL];
 uint8 gucs_UartRevByteTimeout[NO_OF_SERIAL];
