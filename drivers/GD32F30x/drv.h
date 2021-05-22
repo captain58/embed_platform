@@ -38,7 +38,7 @@
 //	    #include "dev_vfram.h"
 //	    #endif
 #include "dev_file.h"
-#include "dev_lcd.h"
+//#include "dev_lcd.h"
 
 //	#endif
 //	
@@ -52,7 +52,7 @@
 #include "frmcfg.h"
 #include "dev_frm.h"
 
-#include "dev_valve.h"
+//#include "dev_valve.h"
 
 #include "dev_lowpwr.h"
 

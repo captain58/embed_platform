@@ -19,38 +19,28 @@
 #define _HAL_H_
 
 
-//#include "chip_r7f0c00x.h"
-#include "stm32l476xx.h"
+#include "chip.h"
+//#include "bintohex.h"
+#include "hal_rtc.h"
+//#include "hal_wdt.h"
+#include "hal_freq.h"
+//	#include "hal_gpio2.h"
+#include "hal_gpio.h"
+
+#include "hal_hwtimer.h"
 
 
-#include "hal_def.h"
 
+#include "hal_uartx.h"
+#include "hal_iic_lsensor.h"
+//#include "hal_spiio.h"
+//#include "hal_mxflash.h"
+//#include "hal_fram.h"
+#include "hal_pwm.h"
 
+#include "hal_flash.h"
 
-//	#include "hal_wdt.h"
-//	#include "hal_freq.h"
-//	#include "hal_gpio.h"
-//	#include "hal_hwtimer.h"
-//	//	
-//	#include "hal_mxflash.h"
-//	//	#include "hal_fram.h"
-//	//	
-//	//	
-//	#include "hal_rtc.h"
-//	
-//	#include "hal_spiio.h"
-//	
-//	#include "hal_iic_eeprom.h"
-//	
-//	#include "hal_uartx.h"
-
-#include "hal_uart_stm32l4.h"
-#include "stm32l4xx_hal_adc.h"
-
-#include "gpio.h"
-#include "drv_spiio.h"
-#include "drv_flash.h"
-#include "flsmap.h"
+#include "hal_wdt.h"
 
 #endif
 

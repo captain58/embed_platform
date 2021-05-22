@@ -1166,15 +1166,17 @@ void SYS_UART_Init(void)
     ss.databits = DataBits_8bits;
     ss.parit = Parit_N;
     ss.stopbits = StopBits_1;
-    ss.flowctrl = FLOW_CONTROL_DISABLED;
-    ss.mode = MODE_TX_RX;
+//    ss.flowctrl = FLOW_CONTROL_DISABLED;
+//    ss.mode = MODE_TX_RX;
 //    _UartSSToUS(ss,&us);
 
     for(uint8 uc_i = 0; uc_i < NO_OF_SERIAL; uc_i++)
     {
         gucs_UartUserTkid[uc_i] = 0xFF;
 #ifndef __NO_SYS__         
-        SYS_SEM_Create(1, &gss_UartRes[uc_i]);
+//        SYS_SEM_Create(1, &gss_UartRes[uc_i]);
+        aos_sem_new(&gss_UartRes[uc_i], 1);
+
 #endif        
         gucs_UartRevFlag[uc_i] = 0;
     

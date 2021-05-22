@@ -25,24 +25,24 @@
 
 
 
-//	EXT_DEV_UART uint8 gucs_UartRevFlag[NO_OF_SERIAL];
-//	EXT_DEV_UART uint8 gucs_UartRevStart[NO_OF_SERIAL];
-//	EXT_DEV_UART uint8 gucs_UartRevByteTimeout[NO_OF_SERIAL];
+EXT_DEV_UART uint8 gucs_UartRevFlag[NO_OF_SERIAL];
+EXT_DEV_UART uint8 gucs_UartRevStart[NO_OF_SERIAL];
+EXT_DEV_UART uint8 gucs_UartRevByteTimeout[NO_OF_SERIAL];
 
 /******************************************************************************
 **串口进程管理相关
 ******************************************************************************/
-//	EXT_DEV_UART kmutex_t gss_UartRes[NO_OF_SERIAL];              //串口占用资源量,同一时刻只能被一个进程占用
-//	EXT_DEV_UART uint8  gucs_UartUserTkid[NO_OF_SERIAL];        //当前占用该端口的进程id,0xFF表示未被占用.
+EXT_DEV_UART kmutex_t gss_UartRes[NO_OF_SERIAL];              //串口占用资源量,同一时刻只能被一个进程占用
+EXT_DEV_UART uint8  gucs_UartUserTkid[NO_OF_SERIAL];        //当前占用该端口的进程id,0xFF表示未被占用.
 
 
 
 
 
-//	/******************************************************************************
-//	**串口缓存接收状态
-//	******************************************************************************/
-//	EXT_DEV_UART uint8 gucs_UartRevFlag[NO_OF_SERIAL];
+/******************************************************************************
+**串口缓存接收状态
+******************************************************************************/
+EXT_DEV_UART uint8 gucs_UartRevFlag[NO_OF_SERIAL];
 
 
 /*******************************************************************************

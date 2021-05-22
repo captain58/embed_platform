@@ -1,502 +1,597 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
-#include "stm32l4xx.h"
-#include "stm32l4xx_hal.h"
-#include <stdio.h>
-#ifdef HAL_FLASH_MODULE_ENABLED
+/******************************Copyright(c)******************************
+**                          
+**
+** File Name: innerflash.c
+** Author: 
+** Date Last Update: 2015-05-18
+** Description: 单片机内部 Flash驱动程序:
+** Note: 
+*******************************History***********************************
+** Date: 2019-11-02
+** Author: yzy
+** Description: 文件创建
+*************************************************************************/
+#define INNER_FLASH
 
-#include <k_api.h>
-#include "aos/hal/flash.h"
-#include "stm32l4xx_hal_flash.h"
-
-#define ROUND_DOWN(a,b) (((a) / (b)) * (b))
-#define MIN(a,b)        (((a) < (b)) ? (a) : (b))
-
-extern const hal_logic_partition_t hal_partitions[];
+#include "sys.h"
+#include "hal.h"
 
 
-int flash_sw_bank(void)
+#define FLS_ERR_OK      (uint8_t)0
+#define FLS_ERR_VAR     (uint8_t)1
+#define FLS_ERR_FT      (uint8_t)2
+
+#define FLS_ERR_EXSIT   (uint8)0x10
+#define FLS_ERR_READ    (uint8)0x20
+#define FLS_ERR_WRITE   (uint8)0x40
+
+
+#define FLASH_SIZE     0x040000         //128k
+#define FLASH_PAGE     512              //512
+#define FLASH_PAGE_MASK     (FLASH_PAGE-1)              //512
+
+#define FLASH_BYTE_SIZE 4     
+
+/************************************************************************
+**sector 长度
+ ************************************************************************/
+#define  LEN_FLS_SECTOR  512        //sector 长度
+
+
+/************************************************************************
+**定义FLASH Buffer
+ ************************************************************************/
+uint8* gp_ucfBuffer;
+
+//扇区擦函数(每个扇区512字节) 
+//输入参数：SectorNum   需要擦除扇区的扇区号
+//			OperateKey  flash操作验证码(出于可靠性考虑，具体数据用户自定义，存储在ee或者flash中，操作flash前读取赋值给OperateKey)
+uint8_t Flash_Erase_Sector( uint32_t address )
 {
-    int ret = 0;
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || \
-    defined (STM32L485xx) || defined (STM32L486xx) || defined (STM32L496xx) || \
-    defined (STM32L4A6xx) || defined (STM32L4R5xx) || defined (STM32L4R7xx) || \
-    defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
+	uint16_t i;
+	uint8_t Result = 0;
+	uint32_t *PFlash;
+	
+//	if(SectorNum < 32) return 2;//禁止擦除boot区
+	PFlash = (uint32_t *)(uint32_t)(address);
+//		if( OperateKey == FLASHOPKEY )
+//		{
+	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
+//		}
+	FLASH_Erase_Sector( address );
+	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
+	
+	for( i=0;i<128;i++ )
+	{
+		if( PFlash[i] != 0xFFFFFFFF ) 
+		{
+			Result = 1;
+			break;
+		}
+	}
+	
+	return Result;
+}
+//连续写flash函数
+//输入参数：prog_addr  被写flash首地址
+//			prog_data  待写数据缓冲区
+//			Len        写入长度(一次不要写入太多，以免看门狗溢出)
+//			OperateKey  flash操作验证码(出于可靠性考虑，具体数据用户自定义，存储在ee或者flash中，操作flash前读取赋值给OperateKey)
+uint8_t Flsah_Write_String( uint32_t prog_addr,uint8_t* prog_data, uint16_t Len )
+{
+	uint16_t i;
+	uint8_t Result = 0;
+	uint8_t *PFlash;
+	
+//		if( OperateKey == FLASHOPKEY )
+//		{
+	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
+//		}
+	FLASH_Prog_ByteString( prog_addr, prog_data, Len);
+	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
+	
+	PFlash = (uint8_t*)prog_addr;
+	for( i=0;i<Len;i++ )
+	{
+		if( PFlash[i] != prog_data[i] ) 
+		{
+			Result = 1;
+			break;
+		}
+	}	
+	
+	return Result;
+}
+/*******************************************************************************
+** @function_name:  ReadFlsInChip
+** @function_file:  mxflash.c
+** @描述: 从Flash指定地址读取指定长度的字节数据
+** 
+** 
+** @参数: 
+** @param: buffer(uint8*): 数据缓存
+** @param: address(uint32): 地址
+** @param: length(uint16): 读取的数据长度
+** 
+** @返回: 
+** @return:  uint8   
+** @作者: yzy (2010-05-11)
+**-----------------------------------------------------------------------------
+** @修改人: 
+** @修改说明: 
+*******************************************************************************/
+uint8 HAL_IFLASH_Read(uint8* buffer, uint32_t address, uint16_t length)
+{
 
-    FLASH_OBProgramInitTypeDef OBInit;
-    HAL_FLASH_Unlock();
-    /* Clear OPTVERR bit set on virgin samples */
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
-    /* Allow Access to option bytes sector */
-    HAL_FLASH_OB_Unlock();
-    /* Get the Dual boot configuration status */
-    HAL_FLASHEx_OBGetConfig(&OBInit);
-    /* Enable/Disable dual boot feature */
-    OBInit.OptionType = OPTIONBYTE_USER;
-    OBInit.USERType   = OB_USER_BFB2;
-    do {
-        if (((OBInit.USERConfig) & (OB_BFB2_ENABLE)) == OB_BFB2_ENABLE) {
-            printf("switch to bank1.\n");
-            OBInit.USERConfig = OB_BFB2_DISABLE;
-        }
-        else {
-            printf("switch to bank2.\n");
-            OBInit.USERConfig = OB_BFB2_ENABLE;
-        }
-        if(HAL_FLASHEx_OBProgram (&OBInit) != HAL_OK) {
-            /*
-             Error occurred while setting option bytes configuration.
-             User can add here some code to deal with this error.
-             To know the code error, user can call function 'HAL_FLASH_GetError()'
-            */
-            printf("HAL_FLASHEx_OBProgram failed\n");
-            ret = -1;
-            break;
-        }
-
-        /* Start the Option Bytes programming process */
-        if (HAL_FLASH_OB_Launch() != HAL_OK) {
-            /*
-               Error occurred while reloading option bytes configuration.
-               User can add here some code to deal with this error.
-               To know the code error, user can call function 'HAL_FLASH_GetError()'
-            */
-            printf("HAL_FLASH_OB_Launch failed\n");
-            ret = -1;
-            break;
-        }
-    } while (0);
-    HAL_FLASH_OB_Lock();
-    HAL_FLASH_Lock();
-#endif
-    return ret;
+    SYS_VAR_CHECK(buffer == NULL);
+    SYS_VAR_CHECK(length == 0);
+    
+    uint8_t *PFlash;
+    PFlash = (uint8_t*)address;
+	for( int i=0;i<length;i++ )
+	{
+	    buffer[i] = PFlash[i];
+//			if( PFlash[i] != prog_data[i] ) 
+//			{
+//				Result = 1;
+//				break;
+//			}
+	}
+    return 0;
 }
 
-/**
-  * @brief  Get the bank of a given address.
-  * @param  In: addr      Address in the FLASH Memory.
-  * @retval Bank identifier.
-  *           FLASH_BANK_1
-  *           FLASH_BANK_2
-  */
-uint32_t FLASH_get_bank(uint32_t addr)
+/*******************************************************************************
+** @function_name:  WriteFlsInChip
+** @function_file:  mxflash.c
+** @描述: Flash 写操作
+** 
+** 
+** @参数: 
+** @param: buffer(uint8*): 待写入数据的存放缓存
+** @param: address(uint32): flash片内地址
+** @param: length(uint16): 数据长度
+** @param: x(uint8): 第几片flash
+** @param: sdmode(uint8): 扇区数据保留模式.[0.保留扇区所有(默认),1.保留扇区位于待写数据之前的数据,2.删除扇区所有]
+** 
+** @返回: 
+** @return:  uint8   
+** @作者: yzy (2010-05-11)
+**-----------------------------------------------------------------------------
+** @修改人: yzy(20111-01-10)
+** @修改说明: 更改函数实现方式,简化程序
+*******************************************************************************/
+uint8 HAL_IFLASH_Write(uint8* buffer, uint32 addr, uint16 length)
 {
-    uint32_t bank = 0;
+    //uint8  sidx, eidx;                      //写入的起始页和结束页
+    uint8  fwri;                            //是否需要写入标志
+    uint8  fera;                            //是否需要擦除标志
+    uint8  m;
+    //uint8  n;
+    //uint32 addrInFlash;                     //FLASH的绝对地址
+    uint32 addrInSector;                    //段内相对地址
+    uint32 addrOfSector;                    //
+    uint16 ui_len = 0;                      //单个SECTOR中写入的长度
+                                            //读取的位置不对,不允许跨片读取
+    SYS_VAR_CHECK(length + addr > FLASH_SIZE);
+    SYS_VAR_CHECK(length == 0);
 
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || \
-    defined (STM32L485xx) || defined (STM32L486xx) || defined (STM32L496xx) || \
-    defined (STM32L4A6xx) || defined (STM32L4R5xx) || defined (STM32L4R7xx) || \
-    defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
-
-    if (READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_FB_MODE) == 0) {
-        /* No Bank swap */
-        bank = (addr < (FLASH_BASE + FLASH_BANK_SIZE)) ? FLASH_BANK_1 : FLASH_BANK_2;
-    } else {
-        /* Bank swap */
-        bank = (addr < (FLASH_BASE + FLASH_BANK_SIZE)) ? FLASH_BANK_2 : FLASH_BANK_1;
-    }
-
-#else
-    bank = FLASH_BANK_1;
-#endif
-
-    return bank;
-}
-
-/**
-  * @brief  Get the page of a given address within its FLASH bank.
-  * @param  In: addr    Address in the FLASH memory.
-  * @retval >=0 Success: Page number.
-  *          <0 Failure: The address in not mapped in the internal FLASH memory.
-  */
-uint32_t FLASH_get_pageInBank(uint32_t addr)
-{
-    uint32_t page = 0xffffffff;
-
-    if ( ((FLASH_BASE + FLASH_SIZE) > addr) && (addr >= FLASH_BASE) ) {
-        /* The address is in internal FLASH range. */
-        if ( addr < (FLASH_BASE + FLASH_BANK_SIZE) ) {
-            /* Addr in the first bank */
-            page = (addr - FLASH_BASE) / FLASH_PAGE_SIZE;
-        } else {
-            /* Addr in the second bank */
-            page = (addr - FLASH_BASE - FLASH_BANK_SIZE) / FLASH_PAGE_SIZE;
+    /************************************************************************
+    //循环处理每个需要更改的SECTOR
+    ************************************************************************/
+    while(true)                             //循环处理每个需要更改的SECTOR
+    {
+        if(length + (addr & FLASH_PAGE_MASK) > FLASH_PAGE)  //跨段
+        {
+            ui_len = FLASH_PAGE - (addr & FLASH_PAGE_MASK); //操作的数据长度
         }
-    }
-
-    return page;
-}
-
-#ifdef USING_FLAT_FLASH
-uint32_t FLASH_flat_addr(uint32_t addr)
-{
-    uint32_t flat_addr = 0;
-
-    if (addr < FLASH_BASE || addr >= FLASH_BASE + FLASH_SIZE) {
-        printf("Error: Address is invalid.\n");
-        return addr;
-    }
-
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || \
-    defined (STM32L485xx) || defined (STM32L486xx) || defined (STM32L496xx) || \
-    defined (STM32L4A6xx) || defined (STM32L4R5xx) || defined (STM32L4R7xx) || \
-    defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
-
-    if (READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_FB_MODE) == 0) {
-        /* Boot in bank1 */
-        flat_addr = addr;
-    } else {
-        /* Boot in bank2 */
-        flat_addr = addr < (FLASH_BASE + FLASH_BANK_SIZE) ? addr + FLASH_BANK_SIZE : addr - FLASH_BANK_SIZE;
-    }
-
-#else
-    flat_addr = addr;
-#endif
-
-    return flat_addr;
-}
-#endif
-
-/**
-  * @brief  Erase FLASH memory page(s) at address.
-  * @note   The range to erase shall not cross the bank boundary.
-  * @param  In: address     Start address to erase from.
-  * @param  In: len_bytes   Length to be erased.
-  * @retval  0:  Success.
-            -1:  Failure.
-  */
-int FLASH_erase_at(uint32_t address, uint32_t len_bytes)
-{
-    int ret = -1;
-    uint32_t PageError = 0;
-    FLASH_EraseInitTypeDef EraseInit;
-
-    /* L4 ROM memory map, with 2 banks split into 2kBytes pages.
-     * WARN: ABW. If the passed address and size are not page-aligned,
-     * the start of the first page and the end of the last page are erased anyway.
-     * After erase, the flash is left in unlocked state.
-     */
-    EraseInit.TypeErase = FLASH_TYPEERASE_PAGES;
-
-    EraseInit.Banks = FLASH_get_bank(address);
-    if (EraseInit.Banks != FLASH_get_bank(address + len_bytes - 1)) {
-        printf("Error: Cannot erase across FLASH banks.\n");
-    } else {
-        EraseInit.Page = FLASH_get_pageInBank(address);
-        EraseInit.NbPages = FLASH_get_pageInBank(address + len_bytes - 1) - EraseInit.Page + 1;
-
-        ret = HAL_FLASHEx_Erase(&EraseInit, &PageError);
-        if (ret == HAL_OK) {
-            ret = 0;
-        } else {
-            printf("Error erasing at 0x%08lx\n", address);
+        else                                //段内操作
+        {
+            ui_len = length;                //操作数据长度
         }
-    }
 
-    return ret;
-}
-
-/**
-  * @brief  Write to FLASH memory.
-  * @param  In: address     Destination address.
-  * @param  In: pData       Data to be programmed: Must be 8 byte aligned.
-  * @param  In: len_bytes   Number of bytes to be programmed.
-  * @retval  0: Success.
-            -1: Failure.
-  */
-int FLASH_write_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
-{
-    int i;
-    int last_bytes = len_bytes;
-    int ret = -1;
-    uint64_t *src_ptr = pData;
-    uint32_t dst_addr = address;
-    uint64_t double_word = 0;
-    while(last_bytes >= 8) {
-        #ifndef CODE_UNDER_FIREWALL
-        /* irq already mask under firewall */
-        __disable_irq();
-        #endif
-        ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, *src_ptr);
-        #ifndef CODE_UNDER_FIREWALL
-         /* irq should never be enable under firewall */
-        __enable_irq();
-        #endif
-        if (ret != HAL_OK) {
-            printf("hal flash program failed\n");
-            return -1;
-        }
-        last_bytes -= 8;
-        dst_addr += 8;
-        src_ptr++;
-    }
-    if(last_bytes) {
-        memcpy((void*)&double_word, (void*)src_ptr, last_bytes);
-        #ifndef CODE_UNDER_FIREWALL
-        /* irq already mask under firewall */
-        __disable_irq();
-        #endif
-        ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, *src_ptr);
-        #ifndef CODE_UNDER_FIREWALL
-         /* irq should never be enable under firewall */
-        __enable_irq();
-        #endif
-        if (ret != HAL_OK) {
-            printf("hal flash program failed\n");
-            return -1;
-        }
-    }
-    /* Memory check */
-    for (i = 0; i < len_bytes; i += 4) {
-        uint32_t *dst = (uint32_t *)(address + i);
-        uint32_t *src = ((uint32_t *) pData) + (i / 4);
-
-        if ( *dst != *src ) {
-#ifndef CODE_UNDER_FIREWALL
-            printf("Write failed @0x%08lx, read value=0x%08lx, expected=0x%08lx\n", (uint32_t) dst, *dst, *src);
-#endif
-            break;
-        }
-        ret = 0;
-    }
-
-    return ret;
-}
-
-/*****************************************************************/
-/**
-  * @brief  Read from FLASH memory.
-  * @param  In: address     Destination address.
-  * @param  In: pData       Data to be programmed: Must be 8 byte aligned.
-  * @param  In: len_bytes   Number of bytes to be programmed.
-  * @retval  0: Success.
-            -1: Failure.
-  */
-int FLASH_read_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
-{
-    int i;
-    int ret = -1;
-    uint32_t *src = (uint32_t *)(address);
-    uint32_t *dst = ((uint32_t *) pData);
-
-
-    for (i = 0; i < len_bytes; i += 4) {
-        *(dst + i / 4) = *(src++);
-    }
-
-    ret = 0;
-    return ret;
-}
-
-int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
-{
-    int ret = 0;
-    int remaining = size;
-    uint8_t *src_addr = (uint8_t *) data;
-    uint32_t fl_addr = 0;
-    int fl_offset = 0;
-    int len = 0;
-    uint64_t *page_cache = NULL;
-
-    page_cache = (uint64_t *)krhino_mm_alloc(FLASH_PAGE_SIZE);
-    if (page_cache == NULL) {
-        return -1;
-    }
-    memset(page_cache, 0, FLASH_PAGE_SIZE);
-
-    do {
-        fl_addr = ROUND_DOWN(dst_addr, FLASH_PAGE_SIZE);
-        fl_offset = dst_addr - fl_addr;
-        len = MIN(FLASH_PAGE_SIZE - fl_offset, remaining);
-
-        /* Load from the flash into the cache */
-        memcpy(page_cache, (void *) fl_addr, FLASH_PAGE_SIZE);
-        /* Update the cache from the source */
-        memcpy((uint8_t *)page_cache + fl_offset, src_addr, len);
-        /* Erase the page, and write the cache */
-        ret = FLASH_erase_at(fl_addr, FLASH_PAGE_SIZE);
-        if (ret != 0) {
-            printf("Error erasing at 0x%08lx\n", fl_addr);
-        } else {
-            ret = FLASH_write_at(fl_addr, page_cache, FLASH_PAGE_SIZE);
-            if (ret != 0) {
-                printf("Error writing %lu bytes at 0x%08lx\n", FLASH_PAGE_SIZE, fl_addr);
-            } else {
-                dst_addr += len;
-                src_addr += len;
-                remaining -= len;
+                                            //读取一段数据
+        //while(SYS_ERR_OK != ReadFlsInChip(gp_ucfBuffer, addr & (~FLASH_PAGE_MASK), FLASH_PAGE));
+        HAL_IFLASH_Read(gp_ucfBuffer, addr & (~FLASH_PAGE_MASK), FLASH_PAGE);
+        /************************************************************************
+        //循环判断是否需改写,改写前是否需擦除
+        ************************************************************************/
+        fwri = 0;                           //复位标志位
+        fera = 0;
+                                            //循环判断是否需改写部分是否需要擦除
+        for(uint32 k = 0; k < ui_len; k++)
+        {
+            uint8 uc_data = gp_ucfBuffer[(addr & FLASH_PAGE_MASK) + k];
+            if(uc_data != buffer[k])        //判断是否与原有数据一致
+            {
+                fwri = 0x01;
+                if((uc_data & buffer[k]) != buffer[k])//(uc_data != 0xFF)         //既与原有数据不一致又不是FF则需要擦除
+                {
+                    fera = 0x01;
+                    break;
+                }
             }
         }
-    } while ((ret == 0) && (remaining > 0));
+        
+        /************************************************************************
+        //写入
+        ************************************************************************/
+        if(fwri)                            //需要写入
+        {
+            addrOfSector = addr & (~FLASH_PAGE_MASK);
+            addrInSector = addr & FLASH_PAGE_MASK;
 
-    krhino_mm_free(page_cache);
-    return ret;
+            if(fera)                        //需要擦除
+            {
+                Flash_Erase_Sector(addrOfSector);
+                                                //转移需要写入的数据
+                memcpy_s(gp_ucfBuffer + addrInSector, buffer, ui_len);
+                                                // 
+                for(m = 0; m < 3; m++)          //循环写,最多写3次
+                {
+                    if(Flsah_Write_String(addrOfSector, gp_ucfBuffer, FLASH_PAGE) != FLS_ERR_OK)
+                    {
+                        Flash_Erase_Sector(addrOfSector);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                
+                }
+            }
+            else                            //需要写入的页
+            {
+//	                sidx = addrInSector >> 8;
+//	                eidx = (addrInSector + ui_len) >> 8;
+//	                if((addrInSector + ui_len) & 0xFF)
+//	                {
+//	                    eidx += 1;
+//	                }
+                for(m = 0; m < 3; m++)          //循环写,最多写3次
+                {
+                    if(Flsah_Write_String(addr, buffer, ui_len) != FLS_ERR_OK)
+                    {
+//	                        Flash_Erase_Sector(addrOfSector);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                
+                }
+
+            }
+                                            //转移需要写入的数据
+//	            MoveBuffer(buffer, gcp_FlsBuffer + addrInSector, ui_len);
+//	                                            // 
+//	            for(m = 0; m < 3; m++)          //循环写,最多写3次
+//	            {
+//	
+//	                if(Flsah_Write_String(gcp_FlsBuffer, addrOfSector, FLASH_PAGE) != FLS_ERR_OK)
+//	                {
+//	                    Flash_Erase_Sector(addrOfSector);
+//	                }
+//	                else
+//	                {
+//	                    break;
+//	                }
+//	  
+//	            }
+            
+            if(m >= 3)
+            {
+                //guc_FlashErrStt |= FLS_ERR_WRITE;//标志写入数据发生错误
+                return FLS_ERR_FT;          //返回写入数据错误
+            }
+        }
+
+        /************************************************************************
+        //杂
+        ************************************************************************/
+        length -= ui_len;                   //待操作数据长度递减
+        if(length == 0)                     //数据已经操作完毕
+        {
+            SYS_OK();                        //返回写入成功
+        }
+
+        buffer += ui_len;                   //操作数据指针前移
+        addr += ui_len;                     //实际操作地址
+    }
+    //SYS_OK();
 }
 
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+/*******************************************************************************
+** @function_name:  HAL_IFLASH_Set
+** @function_file:  Iflash.c
+** @描述: 将Flash某块区域置为特定值 
+** 
+** 
+** @参数: 
+** @param: templet(uint8): 置入的数据
+** @param: address(uint32): 写入数据的地址
+** @param: length(uint16): 写入数据的长度
+** @param: x(uint8): flash芯片编号
+** 
+** @返回: 
+** @return:  uint8   
+** @作者: yzy (2010-05-11)
+**-----------------------------------------------------------------------------
+** @修改人: yzy
+** @修改说明: 操作机制同 WriteFlsInChip()
+*******************************************************************************/
+uint8 HAL_IFLASH_Set(uint8 templet, uint32 addr, uint16 length)
 {
-    hal_logic_partition_t *logic_partition;
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || \
-    defined (STM32L485xx) || defined (STM32L486xx) || defined (STM32L496xx) || \
-    defined (STM32L4A6xx) || defined (STM32L4R5xx) || defined (STM32L4R7xx) || \
-    defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
+//    uint8  sidx;
+//    uint8_t eidx;                      //写入的起始页和结束页
+    uint8  fwri;                            //是否需要写入标志
+    uint8  fera;                            //是否需要擦除标志
+    uint8  m;
+//    uint8  n;
+    //uint32 addrInFlash;                     //FLASH的绝对地址
+    uint32 addrInSector;                    //段内相对地址
+    uint32 addrOfSector;                    //
+    uint16 ui_len = 0;                      //单个SECTOR中写入的长度
+                                            //读取的位置不对,不允许跨片读取
+    SYS_VAR_CHECK(length + addr > FLASH_SIZE);
+    SYS_VAR_CHECK(length == 0);
 
-    hal_partition_t new_pno = pno;
-    uint32_t memrmp = 0;
-    uint32_t current_bank = 0;
-    memrmp = READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_FB_MODE);
-    current_bank = memrmp ? FLASH_BANK_2 : FLASH_BANK_1;
-    if(current_bank == FLASH_BANK_2) {//userbin2
-        if(pno == HAL_PARTITION_APPLICATION) {
-            new_pno = HAL_PARTITION_OTA_TEMP;
+    /************************************************************************
+    //循环处理每个需要更改的SECTOR
+    ************************************************************************/
+    while(true)                             //循环处理每个需要更改的SECTOR
+    {
+        if(length + (addr & FLASH_PAGE_MASK) > FLASH_PAGE)  //跨段
+        {
+            ui_len = FLASH_PAGE - (addr & FLASH_PAGE_MASK); //操作的数据长度
         }
-        else if(pno == HAL_PARTITION_OTA_TEMP) {
-            new_pno = HAL_PARTITION_APPLICATION;
+        else                                //段内操作
+        {
+            ui_len = length;                //操作数据长度
         }
+        
+                                            //读取一段数据
+//	        while(SYS_ERR_OK != ReadFlsInChip(gcp_FlsBuffer, addr & (~0xFFF), 4096, x));
+        
+        HAL_IFLASH_Read(gp_ucfBuffer, addr & (~FLASH_PAGE_MASK), FLASH_PAGE);
+        /************************************************************************
+        //循环判断是否需改写,改写前是否需擦除
+        ************************************************************************/
+        fwri = 0;                           //复位标志位
+        fera = 0;
+                                            //循环判断是否需改写部分是否需要擦除
+        for(uint32 k = 0; k < ui_len; k++)
+        {
+            uint8 uc_data = gp_ucfBuffer[(addr & FLASH_PAGE_MASK) + k];//gcp_FlsBuffer[(addr & 0xFFF) + k];
+            if(uc_data != templet)          //判断是否与原有数据一致
+            {
+                fwri = 0x01;
+                if((uc_data & templet) != templet)//(uc_data != 0xFF)         //既与原有数据不一致又不是FF则需要擦除
+                {
+                    fera = 0x01;
+                    break;
+                }
+            }
+        }
+     
+        /************************************************************************
+        //写入
+        ************************************************************************/
+        if(fwri)                            //需要写入
+        {
+            addrOfSector = addr & (~FLASH_PAGE_MASK);
+            addrInSector = addr & FLASH_PAGE_MASK;
+            memset_s(gp_ucfBuffer + addrInSector, templet, ui_len);
+
+            if(fera)                        //需要擦除
+            {
+                Flash_Erase_Sector(addrOfSector);
+                                                //转移需要写入的数据
+//	                memcpy_s(gp_ucfBuffer + addrInSector, buffer, ui_len);
+                                                // 
+                for(m = 0; m < 3; m++)          //循环写,最多写3次
+                {
+                    if(Flsah_Write_String(addrOfSector, gp_ucfBuffer, FLASH_PAGE) != FLS_ERR_OK)
+                    {
+                        Flash_Erase_Sector(addrOfSector);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                
+                }            
+//	                EraseFlsSectorInChip(addrOfSector, x);
+//	                sidx = 0;                   //整段需要重新写入
+//	                eidx = 16;
+            }
+            else                            //需要写入的页
+            {
+
+                for(m = 0; m < 3; m++)          //循环写,最多写3次
+                {
+                    if(Flsah_Write_String(addr, gp_ucfBuffer + addrInSector, ui_len) != FLS_ERR_OK)
+                    {
+//                          Flash_Erase_Sector(addrOfSector);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                
+                }
+
+
+            
+//	                sidx = addrInSector >> 8;
+//	                eidx = (addrInSector + ui_len) >> 8;
+//	                if((addrInSector + ui_len) & 0xFF)
+//	                {
+//	                    eidx += 1;
+//	                }
+            }
+                                                //置位需要写入的数据
+//	            memset(gcp_FlsBuffer + (addr & 0xFFF), templet, ui_len);
+//	            
+//	            for(m = 0; m < 3; m++)          //循环写,最多写3次
+//	            {
+//	                for(n = sidx; n < eidx; n++)//逐页写入
+//	                {
+//	                    if(WriteFlsPageInChip(gcp_FlsBuffer + (n << 8), addrOfSector + (n << 8), 256, x) != FLS_ERR_OK)
+//	                    {
+//	                        EraseFlsSectorInChip(addrOfSector, x);
+//	                        sidx = 0;
+//	                        eidx = 16;
+//	                        break;
+//	                    }
+//	                }
+//	                
+//	                if(n >= eidx)               //写入成功,返回
+//	                {
+//	                    break;
+//	                }
+//	            }
+//	            
+            if(m >= 3)
+            {
+//	                guc_FlashErrStt |= FLS_ERR_WRITE;//标志写入数据发生错误
+                return FLS_ERR_FT;          //返回写入数据错误
+            }
+        }
+
+        /************************************************************************
+        //杂
+        ************************************************************************/
+        length -= ui_len;                   //待操作数据长度递减
+        if(length == 0)                     //数据已经操作完毕
+        {
+            SYS_OK();                        //返回写入成功
+        }
+        
+        addr += ui_len;                     //实际操作地址
     }
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ new_pno ];
-#else
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
-#endif
-    return logic_partition;
 }
 
-int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , uint32_t buf_size)
+/*******************************************************************************
+** @function_name:  HAL_IFLASH_Erase
+** @function_file:  Iflash.c
+** @描述: MX Flash 檫除操作
+** 
+** 
+** @参数: 
+** @param: address: 起始地址
+** @param: sectornum 扇区数量
+** 
+** @返回: 
+** @return:  uint8   
+** @作者: yzy (2010-05-10)
+**-----------------------------------------------------------------------------
+** @修改人: 
+** @修改说明: 
+*******************************************************************************/
+uint8 HAL_IFLASH_Erase(uint32 address, uint32 sectornum)
 {
-    int ret = 0;
-    uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
-    hal_partition_t real_pno;
-
-    if (HAL_FLASH_Unlock() != 0) {
-        printf("HAL_FLASH_Unlock return %d\n", ret);
-        return -1;
+    uint32 ul_i = 0;
+    
+    if(address & FLASH_PAGE_MASK)
+    {
+        return FLS_ERR_VAR;
     }
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
+                                        //循环擦除
+    while(ul_i < sectornum)
+    {
+        //                              //喂狗:避免执行该函数时,喂狗进程等待资源时间过长,导致复位
+        IWDT_Clr();//HAL_WDT_Feed();
+        //
+        
+        Flash_Erase_Sector(address);
+        ul_i++;
+        address += FLASH_PAGE;
+    }
 
-    real_pno = pno;
-    partition_info = hal_flash_get_info( real_pno );
-    start_addr = partition_info->partition_start_addr + *poff;
+    return FLS_ERR_OK;
+}
+/*******************************************************************************
+** @function_name:  HAL_IFLASH_WriteSpec
+** @function_file:  Iflash.c
+** @描述: Flash 写操作
+** 
+** 
+** @参数: 
+** @param: buffer(unsigned char*): 待写入数据的存放缓存
+** @param: address(unsigned long): flash片内地址
+** @param: length(unsigned short): 数据长度
+** @param: sdmode(unsigned char): 扇区数据保留模式.[0.保留扇区所有(默认),1.保留扇区位于待写数据之前的数据,2.删除扇区所有]
+** 
+** @返回: 
+** @return:  unsigned char   
+** @作者: yzy (2010-05-11)
+**-----------------------------------------------------------------------------
+** @修改人: yzy(20111-01-10)
+** @修改说明: 更改函数实现方式,简化程序
+*******************************************************************************/
+unsigned char HAL_IFLASH_WriteSpec(unsigned char* buffer, unsigned long addr, unsigned short length, unsigned char sdmode)
+{
+    //unsigned char  sidx, eidx;                      //写入的起始页和结束页
+   // unsigned char  fstt = 0;
+    unsigned char  m;
+    //unsigned char  n;
+    unsigned long addrInSector;                    //段内相对地址
+    //unsigned long addrOfSector;                    //
+    unsigned short ui_len = 0;                      //单个SECTOR中写入的长度
+    //unsigned short ui_tmp;
+                                            //读取的位置不对,不允许跨片读取
+    SYS_VAR_CHECK(length + addr > FLASH_SIZE);//只能使用一半容量
+    SYS_VAR_CHECK(length == 0);
+    SYS_VAR_CHECK(sdmode != 1);
 
-#ifdef USING_FLAT_FLASH
-    start_addr = FLASH_flat_addr(start_addr);
-#endif
-
-    if(real_pno == HAL_PARTITION_OTA_TEMP || 
-        real_pno == HAL_PARTITION_APPLICATION ) {
-        if(FLASH_write_at(start_addr, buf, buf_size) != 0) {
-           ret = -1;
-           printf("FLASH_update failed!\n");
+    /************************************************************************
+    //循环处理每个需要更改的SECTOR
+    ************************************************************************/
+    while(true)                             //循环处理每个需要更改的SECTOR
+    {
+        //addrOfSector = addr & (~0xFFF);
+        addrInSector = addr & FLASH_PAGE_MASK;
+        if(length + addrInSector > FLASH_PAGE)    //跨段
+        {
+            ui_len = FLASH_PAGE - addrInSector;   //操作的数据长度
+        }
+        else                                //段内操作
+        {
+            ui_len = length;                //操作数据长度
         }
 
-     }
-     else {
-        if (FLASH_update(start_addr, buf, buf_size) != 0) {
-            ret = -1;
-            printf("FLASH_update failed!\n");
+        for(m = 0; m < 3; m++)          //循环写,最多写3次
+        {
+            if(Flsah_Write_String(addr, buffer, ui_len) == FLS_ERR_OK)
+//	            if(FLS_WritePage(buffer, addr, ui_len) == SYS_ERR_OK)
+            {
+                break;
+            }
         }
-    }
-    if (ret == 0) {
-        *poff += buf_size;
-     }
+        
+        if(m >= 3)
+        {
+//	            guc_FlashErrStt |= FLS_ERR_WRITE;//标志写入数据发生错误
+            return SYS_ERR_FT;          //返回写入数据错误
+        }
+        /************************************************************************
+        //修改传入参数,准备下次循环
+        ************************************************************************/
+        length -= ui_len;                   //待操作数据长度递减
+        if(length == 0)                     //数据已经操作完毕
+        {
+            SYS_OK();                        //返回写入成功
+        }
 
-    if (HAL_FLASH_Lock() != 0) {
-        printf("HAL_FLASH_Lock return %d\n", ret);
-        ret = -1;
+        buffer += ui_len;                   //操作数据指针前移
+        addr += ui_len;                     //实际操作地址
     }
-
-    return ret;
 }
 
-int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t buf_size)
+uint8 HAL_IFlash_Init(void)
 {
-    uint32_t start_addr, len;
-    hal_logic_partition_t *partition_info;
-    hal_partition_t real_pno;
-    uint64_t *pdata;
-
-    real_pno = pno;
-
-    partition_info = hal_flash_get_info( real_pno );
-
-    if (poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length) {
-        return -1;
-    }
-    start_addr = partition_info->partition_start_addr + *poff;
-
-#ifdef USING_FLAT_FLASH
-    start_addr = FLASH_flat_addr(start_addr);
-#endif
-
-    len = (((buf_size % 8) == 0) ? buf_size : (ROUND_DOWN(buf_size, 8) + 8));
-    pdata = (uint64_t *)krhino_mm_alloc(len);
-    if (pdata == NULL) {
-        return -1;
-    }
-    memset(pdata, 0, len);
-    FLASH_read_at(start_addr, pdata, len);
-    memcpy((uint8_t *)buf, (uint8_t *)pdata, buf_size);
-
-    *poff += buf_size;
-    krhino_mm_free(pdata);
-    pdata = NULL;
-
+    gp_ucfBuffer = (uint8*)m_malloc(LEN_FLS_SECTOR);
+    
     return 0;
 }
 
-int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
-                        uint32_t size)
-{
-    int ret = 0;
-    uint32_t start_addr;
-    uint32_t erase_size;
-    hal_logic_partition_t *partition_info;
-    hal_partition_t real_pno;
-
-    ret = HAL_FLASH_Unlock();
-    if (ret != 0) {
-        printf("HAL_FLASH_Unlock return %d\n", ret);
-        return -1;
-    }
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
-
-    real_pno = pno;
-    partition_info = hal_flash_get_info( real_pno );
-    if (size + off_set > partition_info->partition_length) {
-        return -1;
-    }
-
-    start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), FLASH_PAGE_SIZE);
-    erase_size = partition_info->partition_start_addr + off_set - start_addr + size;
-
-#ifdef USING_FLAT_FLASH
-    start_addr = FLASH_flat_addr(start_addr);
-#endif
-
-    ret = FLASH_erase_at(start_addr, erase_size);
-    if (ret != 0) {
-        printf("FLASH_erase_at return failed\n");
-    }
-
-    ret = HAL_FLASH_Lock();
-    if (ret != 0) {
-        printf("HAL_FLASH_Lock return %d\n", ret);
-        return -1;
-    }
-
-    return 0;
-}
-
-int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
-{
-    return 0;
-}
-
-int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
-{
-    return 0;
-}
-
-#endif
