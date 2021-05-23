@@ -56,7 +56,7 @@
 
 #include "dev_lowpwr.h"
 
-#include "dev_hwtimer.h"
+//#include "dev_hwtimer.h"
 
 #include "dev_ble.h"
 
