@@ -164,8 +164,8 @@ typedef struct
 //		uint32 modefunc:18;                 //Function and mode     //来自PINMUX_GRP_T成员
     //
     uint16_t port;
-    GPIO_TypeDef * gpio;
-    ADC_TypeDef* adc;                     //ADC寄存器
+    //GPIO_TypeDef * gpio;
+    //ADC_TypeDef* adc;                     //ADC寄存器
    // uint8_t adcChan;
     uint32_t channel;
     uint16_t vref;                        //参考电压
@@ -181,7 +181,7 @@ typedef struct
 
 typedef struct
 {
-    ADC_HandleTypeDef * adhandle;
+    //ADC_HandleTypeDef * adhandle;
     uint8_t chnum;
     uint8_t choffset;
     ADItem * item;

@@ -200,6 +200,35 @@
 
 #endif
 
+
+/******************************************************************************
+**GPIO
+******************************************************************************/
+#define SYS_GPO_EN   1                   //通用端口输出模块使能
+#define SYS_GPI_EN   1                   //通用端口输入模块使能
+
+#define SYS_LGPI_EN  1                   //慢速通用端口输入模块使能
+#define SYS_FGPI_EN  0                   //快速通用端口输入模块使能
+
+#define SYS_GPIEVT_EN  1                 //GPI消息分发使能
+
+#if (SYS_GPO_EN > 0)
+    #define GPO_PORT_NUM    1
+#endif
+
+#if (SYS_LGPI_EN > 0)
+    #define LGPI_PORT_NUM   1
+    #define LGPI_GATE       1               //按键扫描门限
+    #define LGPI_LAST       20              //按键长按门限
+
+#endif
+
+#if (SYS_FGPI_EN > 0)
+    #define FGPI_PORT_NUM   1
+    #define FGPI_GATE       3               //快速输入口扫描门限
+#endif
+
+
 /******************************************************************************
 **无线猫功能
 ******************************************************************************/

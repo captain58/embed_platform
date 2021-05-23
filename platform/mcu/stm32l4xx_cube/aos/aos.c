@@ -49,20 +49,20 @@ extern void stm32_soc_peripheral_init(void);
 
 static void sys_init(void)
 {
-//    stm32_soc_peripheral_init();
+    stm32_soc_peripheral_init();
 #ifdef BOOTLOADER
     main();
 #else
-//    hw_start_hal();
-//    board_init();
-//    var_init();
-//#ifdef AOS_COMP_CPLUSPLUS
-//    cpp_init();
-//#endif
-//#if defined (AOS_OTA_RECOVERY_TYPE)
-//    sys_clear_ota_flag();
-//#endif
-//    aos_components_init(&kinit);
+    hw_start_hal();
+    board_init();
+    var_init();
+#ifdef AOS_COMP_CPLUSPLUS
+    cpp_init();
+#endif
+#if defined (AOS_OTA_RECOVERY_TYPE)
+    sys_clear_ota_flag();
+#endif
+    aos_components_init(&kinit);
 
     
 #ifndef AOS_BINS
@@ -82,7 +82,7 @@ static void sys_start(void)
 {
     aos_heap_set();
     
-//    stm32_soc_init();
+    stm32_soc_init();
 //	    HAL_LPTIM_Counter_Start_IT(&hlptim1, 50000);
 //	
 //	    while(1)

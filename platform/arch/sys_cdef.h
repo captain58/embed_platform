@@ -165,12 +165,12 @@ typedef struct
 *************************************************************************/
 typedef struct
 {
-    uint8 uart_no;                      //物理串口号(软串口固定为0xff)
-    uint8 irqPri;                       //串口中断优先级
-    IRQn_Type irqn;
+    uint8_t uart_no;                      //物理串口号(软串口固定为0xff)
+    uint8_t irqPri;                       //串口中断优先级
+    uint8_t irqn;
     uint8_t * inited;
     
-    USART_TypeDef * pUART;
+    uint8_t uart;//USART_TypeDef * pUART;
     TCallback   pinConfig;               //串口管脚配置函数宏
 //    uint8_t rs485;//
     TCallback   msp;
@@ -179,7 +179,7 @@ typedef struct
     SerialBuffer*  buffer;              //串口缓存
     uint8* recvFlag;                    //数据接收完毕标志
     uint16 recvBufLen;                  //串口接收缓存长度
-    UART_HandleTypeDef * phandle;
+//    UART_HandleTypeDef * phandle;
 #if (SYS_UART_ACCT > 0)                  //(accelerate buffer用于提升短数据连续发送时的系统性能)
     uint16 accBufLen;                   //串口发送加速缓存长度(1.大于硬件FIFO长度,2.大于单个systick传送的字节数)
 #endif

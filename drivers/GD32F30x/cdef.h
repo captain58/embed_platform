@@ -112,6 +112,46 @@ typedef struct
 }SerialBuffer;
 
 
+
+/************************************************************************
+**串口分离的信息体
+*************************************************************************/
+typedef struct
+{
+    uint8_t uart_no;                      //物理串口号(软串口固定为0xff)
+    uint8_t irqPri;                       //串口中断优先级
+    uint8_t irqn;
+    uint8_t * inited;
+    
+    uint8_t uart;//USART_TypeDef * pUART;
+    TCallback   pinConfig;               //串口管脚配置函数宏
+//    uint8_t rs485;//
+    TCallback   msp;
+
+//    SerialTRC* rs485;                   //RS485的收发切换操作(无效赋值__NULL)
+    SerialBuffer*  buffer;              //串口缓存
+    uint8* recvFlag;                    //数据接收完毕标志
+    uint16 recvBufLen;                  //串口接收缓存长度
+//    UART_HandleTypeDef * phandle;
+#if (SYS_UART_ACCT > 0)                  //(accelerate buffer用于提升短数据连续发送时的系统性能)
+    uint16 accBufLen;                   //串口发送加速缓存长度(1.大于硬件FIFO长度,2.大于单个systick传送的字节数)
+#endif
+#if (SYS_UARTSEM_EN > 0)
+//	    TESRes * rx_sem;
+//	    TESRes * tx_sem;
+    TESRes * uart_mutex;
+
+    TESRes * uart_tx_mutex;
+    TESRes * uart_rx_mutex;
+    TESRes * uart_rx_sem;
+    TESRes * uart_tx_sem;    
+#endif
+
+    uint32_t       overSampling;
+    uint32_t       OneBitSampling;
+    uint32_t       AdvFeatureInit;    
+
+}SerialID;
 /******************************************************************************
 **数据块操作属性
 ******************************************************************************/

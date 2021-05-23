@@ -46,6 +46,8 @@
 ********************************************************************************************************/
 #define EXT_SIMPLECALCLIB
  
+#include <stdint.h>
+
 #include "aos/bdef.h"
 #include "cdef.h"
 

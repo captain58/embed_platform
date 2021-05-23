@@ -21,7 +21,7 @@
 #define _BDEF_H_
 
 
-
+#include <stdint.h>
 /**********************************************************************************************************
 *                   数据类型1
 **********************************************************************************************************/
@@ -229,11 +229,11 @@ typedef union{
 #define LBIT(X)      ((uint32)1 << X)
 
  
-//#ifdef __CC_ARM
-//#define INLINE  __inline
-//#else
-//#define INLINE inline
-//#endif
+#ifdef __CC_ARM
+#define INLINE  __inline
+#else
+#define INLINE inline
+#endif
 
 /* Static data/function define */
 #define STATIC static

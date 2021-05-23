@@ -42,23 +42,23 @@ typedef struct _SUart
 
 
 #include "ext.h"
-#include "uart.h"
+//#include "uart.h"
 
 
 /******************************************************************************
 **串口分离的信息体
 ******************************************************************************/
-typedef struct
-{
-    //uart的相关操作
-    uart_dev_t * handle;
-    uint8 port;                         //uart结构体索引 
-    USART_TypeDef *  USARTx;             //串口句柄
-    uint8* uart_RecvFlag;               //数据接收完毕标志
-    uint8* uart_ByteTimeout;//接收字节间超时
-    uint8* uart_RecvStart;//接收启动标志
-
-}SerialID;
+//typedef struct
+//{
+//    //uart的相关操作
+//    uart_dev_t * handle;
+//    uint8 port;                         //uart结构体索引 
+//    uint8_t *  USARTx;             //串口句柄
+//    uint8* uart_RecvFlag;               //数据接收完毕标志
+//    uint8* uart_ByteTimeout;//接收字节间超时
+//    uint8* uart_RecvStart;//接收启动标志
+//
+//}SerialID;
 
 
 /******************************************************************************
@@ -84,7 +84,8 @@ typedef struct
     TCallback intx_Disable;        //禁能
     TCallback intx_Priority;        //中断优先级
     //
-    GPIO_TypeDef   *    INTx;             //中断口句柄
+//    GPIO_TypeDef   *    INTx;             //中断口句柄
+    uint8_t * INTx;
     TCallback  pinConfig;          //中断口管脚配置函数宏
 }InterruptID;
 
@@ -147,7 +148,9 @@ typedef struct
 //	    TCallback timerx_Disable;        //禁能
 //	    TCallback timerx_Priority;        //中断优先级
     //
-    GPIO_TypeDef   *    INTx;             //中断口句柄
+//    GPIO_TypeDef   *    INTx;             //中断口句柄
+    uint8_t * INTx;
+
     TCallback  pinConfig;          //中断口管脚配置函数宏
 }TimerID;
 

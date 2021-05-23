@@ -217,7 +217,7 @@ typedef struct
     uint8 di;
     uint8 nfrm;
     uint8_t ss;
-    ST_Netp_FW * fw;
+//    ST_Netp_FW * fw;
 }ST_RDMT_CMD;    //√¸¡ÓIDºØ∫œ
 
 

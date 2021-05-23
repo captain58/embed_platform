@@ -1802,7 +1802,8 @@ EXT_APIS const _F_RTC gs_RealTime;
 //	}_F_DEV;
 //	
 //	EXT_APIS const _F_DEV gs_DEVProc;
-
+#include "frmcfg.h"
+#include "dev_frm.h"
 
 typedef struct 
 {
@@ -1844,7 +1845,7 @@ typedef struct
      *-----------------------------------------------------------------------
      * @修改人: 
      ************************************************************************/
-    uint8 (*Channel)(PORT_UART_TYPE channel, uint8* buffer, uint16 length, uint8* protocol);
+    uint8 (*Channel)(uint8_t channel, uint8* buffer, uint16 length, uint8* protocol);
     
     /************************************************************************
      * @function: PST_DoneFrame
@@ -1883,7 +1884,7 @@ typedef struct
      * @修改人: 
      * @修改说明: 
      ******************************************************************************/
-    uint8 (*Decode)(uint8 protocal, uint8* rbuffer, uint8* sbuffer, uint16 sbuflen, PST_Frame* frm);
+    uint8 (*Decode)(uint8 protocal, uint8* rbuffer, uint8* sbuffer, uint16 sbuflen, PST_Frame * frm);
     
     /*******************************************************************************
      * @function_name:  FRM_Proc
@@ -2008,7 +2009,7 @@ typedef struct
      *-----------------------------------------------------------------------
      * @修改人: 
      ************************************************************************/
-    int32 (*Init)(uint8 ch, uart_config_t * ss); 
+    int32 (*Init)(uint8 ch, void * ss); 
      
     /************************************************************************
      * @function: ReadByte

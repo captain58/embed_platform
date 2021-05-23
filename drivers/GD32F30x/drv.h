@@ -58,7 +58,7 @@
 
 //#include "dev_hwtimer.h"
 
-#include "dev_ble.h"
+//#include "dev_ble.h"
 
 #endif
 

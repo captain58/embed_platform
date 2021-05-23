@@ -127,63 +127,63 @@
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-STATIC INLINE bool HAL_GPIO_GetPinState(GPIO_TypeDef * GPIOx, uint8 pin)
-{
-    return (bool)(HAL_GPIO_ReadPin(GPIOx, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
-}
-
-
-
-/************************************************************************
- * @Function: HAL_GPIO_SetPinState
- * @Description: 设置管脚输出
- * 
- * @Arguments: 
- * @param: port 组号
- * @param: pin 具体管脚编号
- * 
- * @Return: bool  
- * @Auther: yzy
- * Date: 2015/5/8
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-STATIC INLINE void HAL_GPIO_SetPinState(GPIO_TypeDef  * GPIOx, uint8 pin, uint8_t setting)
-{
-    HAL_GPIO_WritePin(GPIOx, 1 << pin, (GPIO_PinState)setting);
-}
-
-
-
-
-/************************************************************************
- * @Function: HAL_InitGPIO
- * @Description: 初始化GPIO端口
- * @Arguments: 
- * @Auther: yzy
- * Date: 2015/5/8
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-void HAL_InitGPIO(void);
-
-
-
-
-/************************************************************************
- * @Function: HAL_GPIO_PinConfig
- * @Description: 配置某个管脚的工作参数
- * 
- * @Arguments: 
- * @param: port 组号
- * @param: pin 管脚
- * @param: mode 配置 
- * @Auther: yzy
- * Date: 2015/5/8
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-void HAL_GPIO_PinConfig(GPIO_TypeDef * GPIOx, uint8 pin, uint32 mode, uint8_t dir);
+//STATIC INLINE bool HAL_GPIO_GetPinState(GPIO_TypeDef * GPIOx, uint8 pin)
+//{
+//    return (bool)(HAL_GPIO_ReadPin(GPIOx, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
+//}
+//
+//
+//
+///************************************************************************
+// * @Function: HAL_GPIO_SetPinState
+// * @Description: 设置管脚输出
+// * 
+// * @Arguments: 
+// * @param: port 组号
+// * @param: pin 具体管脚编号
+// * 
+// * @Return: bool  
+// * @Auther: yzy
+// * Date: 2015/5/8
+// *-----------------------------------------------------------------------
+// * @History: 
+// ************************************************************************/
+//STATIC INLINE void HAL_GPIO_SetPinState(GPIO_TypeDef  * GPIOx, uint8 pin, uint8_t setting)
+//{
+//    HAL_GPIO_WritePin(GPIOx, 1 << pin, (GPIO_PinState)setting);
+//}
+//
+//
+//
+//
+///************************************************************************
+// * @Function: HAL_InitGPIO
+// * @Description: 初始化GPIO端口
+// * @Arguments: 
+// * @Auther: yzy
+// * Date: 2015/5/8
+// *-----------------------------------------------------------------------
+// * @History: 
+// ************************************************************************/
+//void HAL_InitGPIO(void);
+//
+//
+//
+//
+///************************************************************************
+// * @Function: HAL_GPIO_PinConfig
+// * @Description: 配置某个管脚的工作参数
+// * 
+// * @Arguments: 
+// * @param: port 组号
+// * @param: pin 管脚
+// * @param: mode 配置 
+// * @Auther: yzy
+// * Date: 2015/5/8
+// *-----------------------------------------------------------------------
+// * @History: 
+// ************************************************************************/
+//void HAL_GPIO_PinConfig(GPIO_TypeDef * GPIOx, uint8 pin, uint32 mode, uint8_t dir);
 
 
 

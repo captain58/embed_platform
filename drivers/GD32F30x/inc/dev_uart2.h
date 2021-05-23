@@ -20,7 +20,7 @@
 
 
 
-
+#include "aos/kernel.h"
 
 /******************************************************************************
 **串口接收数据导出的回调函数原型
@@ -29,12 +29,12 @@ typedef void (*TDataExport) (uint8 port, uint8* buffer, uint16 length);
 
 
 
-#if (SYS_UART_EN > 0)
+#if (SYS_SER_EN > 0)
 
 /******************************************************************************
 **串口进程管理相关
 ******************************************************************************/
-EXT_DEV_UART TESRes gss_UartRes[NO_OF_SERIAL];              //串口占用资源量,同一时刻只能被一个进程占用
+EXT_DEV_UART aos_sem_t gss_UartRes[NO_OF_SERIAL];              //串口占用资源量,同一时刻只能被一个进程占用
 EXT_DEV_UART uint8  gucs_UartUserTkid[NO_OF_SERIAL];        //当前占用该端口的进程id,0xFF表示未被占用.
 
 

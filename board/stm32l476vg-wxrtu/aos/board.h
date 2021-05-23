@@ -157,12 +157,12 @@ typedef enum
 ******************************************************************************/
 typedef struct
 {
-    //
+//
 //		uint32 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员
 //		uint32 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
 //		uint32 pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
 //		uint32 modefunc:18;                 //Function and mode     //来自PINMUX_GRP_T成员
-    //
+//    
     uint16_t port;
     GPIO_TypeDef * gpio;
     ADC_TypeDef* adc;                     //ADC寄存器

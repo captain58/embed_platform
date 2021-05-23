@@ -48,9 +48,9 @@
 #include "public.h"
 #include "app.h"
 #include "pst.h"
-#include "hlv.h"
-#include "farp.h"
-#include "netp.h"
+//#include "hlv.h"
+//#include "farp.h"
+//#include "netp.h"
 #include "task.h"
 /*******************************************************************************
 **用户程序版本号
@@ -444,8 +444,8 @@ void KeyProc(uint8 key)
             //蓝牙断开建立
 //	            hal_gpio_output_low(&brd_gpio_table[GPO_BLE_UART_CTL]);
             gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,false);
-            if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
-                g_ucPutcharEn = 1;
+//            if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
+//                g_ucPutcharEn = 1;
             gs_SysVar.terstt.bit.blecheck = 0;
 	        LOG_DEBUG("key 2 !\n");
         }
@@ -827,7 +827,7 @@ void SYS_APP_Start()
 //	uint32_t aa[8];
 //	uint8_t * bb;
 //	}test_struct, *ptest_struct;
-extern IWDG_HandleTypeDef hiwdg;
+//extern IWDG_HandleTypeDef hiwdg;
 int application_start(int argc, char *argv[])
 {
     int count = 0;
@@ -872,16 +872,16 @@ void SYS_MAIN_Task(void * arg)
     ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
     
     g_ucPutcharEn = 0;
-    HAL_BLE_Init(&gs_MainQueue, ble_name, 14);
-    if(SYS_GPI_GetStt(0) & 0x02)
-    {
-        g_ucPutcharEn = 0;
-    }
-    else
-    {
-        if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
-            g_ucPutcharEn = 1;
-    }
+//    HAL_BLE_Init(&gs_MainQueue, ble_name, 14);
+//    if(SYS_GPI_GetStt(0) & 0x02)
+//    {
+//        g_ucPutcharEn = 0;
+//    }
+//    else
+//    {
+//        if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
+//            g_ucPutcharEn = 1;
+//    }
 //	    char tmp = 0;
 //	char *ABC = &tmp;
 //	
@@ -894,9 +894,9 @@ void SYS_MAIN_Task(void * arg)
 //    ADD     R3, R2, #1
     SYS_MAIN_Init();
                                             //申请获取时间消息
-    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
-    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_GPIO);
-    SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
+//    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
+//    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_GPIO);
+//    SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
 
     LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
     //Flash_Test();
@@ -916,7 +916,7 @@ void SYS_MAIN_Task(void * arg)
                 
             case MSG_MIN:
 //	                HB_TaskLiveReq();           //*监控其他进程
-                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_MAIN;
+//                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_MAIN;
 
                 LOG_DEBUG("%02d-%02d-%02d %02d:%02d:%02d %02d!\n",((TIME *)GetTime())->year, 
                     ((TIME *)GetTime())->month, ((TIME *)GetTime())->dmon, 
@@ -924,7 +924,7 @@ void SYS_MAIN_Task(void * arg)
                     ((TIME *)GetTime())->sec, ((TIME *)GetTime())->dweek);
                 
                 HAL_BLE_Init_Delayed_Action(NULL);
-                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_MAIN;
+//                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_MAIN;
                 
 //	                MAIN_MinProc();
                 break;

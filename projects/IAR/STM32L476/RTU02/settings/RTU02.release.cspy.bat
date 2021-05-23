@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"E:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "D:\project\alios\AliOS-Things-2\projects\IAR\STM32L476\RTU02\settings\RTU02.release.general.xcl" --backend -f "D:\project\alios\AliOS-Things-2\projects\IAR\STM32L476\RTU02\settings\RTU02.release.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "D:\project\embed_platform\projects\IAR\STM32L476\RTU02\settings\RTU02.release.general.xcl" --backend -f "D:\project\embed_platform\projects\IAR\STM32L476\RTU02\settings\RTU02.release.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"E:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "D:\project\alios\AliOS-Things-2\projects\IAR\STM32L476\RTU02\settings\RTU02.release.general.xcl" "--debug_file=%~1" --backend -f "D:\project\alios\AliOS-Things-2\projects\IAR\STM32L476\RTU02\settings\RTU02.release.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "D:\project\embed_platform\projects\IAR\STM32L476\RTU02\settings\RTU02.release.general.xcl" "--debug_file=%~1" --backend -f "D:\project\embed_platform\projects\IAR\STM32L476\RTU02\settings\RTU02.release.driver.xcl" 
 
 @echo off 
 :end

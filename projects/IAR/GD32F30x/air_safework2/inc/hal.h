@@ -20,6 +20,9 @@
 
 
 #include "chip.h"
+
+#include "hal_def.h"
+
 //#include "bintohex.h"
 #include "hal_rtc.h"
 //#include "hal_wdt.h"

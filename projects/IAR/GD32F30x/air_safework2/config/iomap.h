@@ -145,59 +145,59 @@ typedef enum
 /******************************************************************************
 **GPI端口输入结构体信息
 ******************************************************************************/
-#ifdef EXT_DEV_GPI                        //GPI的端口定义
-
-    /******************************************************************************
-    **LGPI端口信息
-    ******************************************************************************/
-    const COMPORT gs_GpiKey1      = {13, 7,  1, (IOCON_FUNC0 ),    0};//key1
-    const COMPORT gs_GpiKey2      = {0x3, 1,  1, (IOCON_FUNC0 ),    0};//key2
-    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
-    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
-    const COMPORT gs_GpiHall2      = {0, 2,  1, (IOCON_FUNC0 ),    0};//Hall2
-    const COMPORT gs_GpiCardSda    = {3, 4,  1, (IOCON_FUNC0 ),    0};//Hall2
-    const COMPORT gs_GpiEsamSda    = {1, 7,  1, (IOCON_FUNC0 ),    0};//Hall2
-    
-    const GPI_PORTS gs_LGPIPort[] = 
-    {
-        {(COMPORT*)&gs_GpiKey1,       false, 0, 0},      //key1
-        {(COMPORT*)&gs_GpiKey2,       false, 0, 0},      //key2
-        {(COMPORT*)&gs_GpiCardInt,    false, 0, 0},      //key3     
-        {(COMPORT*)&gs_GpiHall1,      false, 0, 0},      //key1
-        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
-        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu卡sda脚
-        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda脚
-//	        {0x3, 1,  1, (IOCON_FUNC0 ),    0},      //
-    };
-
-    const uint8 LGPI_PORT_NUM = (sizeof(gs_LGPIPort) / sizeof(GPI_PORTS));
-    
-     /******************************************************************************
-    **FGPI端口信息
-    ******************************************************************************/
-    
-//	    const GPI_PORTS gs_FGPIPort[] = 
-//	    {
-//	        {(COMPORT*)&gs_GpiHall1,       false, 0, 0},      //key1
-//	    
-//	    };
-//	    
-//	    const uint8 FGPI_PORT_NUM = (sizeof(gs_FGPIPort) / sizeof(COMPORT));
-    
-#else
-    
-    /******************************************************************************
-    **输入口状态位宏定义
-    ******************************************************************************/
-    #define LGPI_STT_YX1        0x00000001
-    
-    //
-    #define FGPI_STT_ENG        0x00000001         //置位表示供电正常
-    
-    extern const COMPORT gs_LGPIPort[];
-    extern const uint8 LGPI_PORT_NUM;
-    
-#endif       
+//#ifdef EXT_DEV_GPI                        //GPI的端口定义
+//
+//    /******************************************************************************
+//    **LGPI端口信息
+//    ******************************************************************************/
+//    const COMPORT gs_GpiKey1      = {13, 7,  1, (IOCON_FUNC0 ),    0};//key1
+//    const COMPORT gs_GpiKey2      = {0x3, 1,  1, (IOCON_FUNC0 ),    0};//key2
+//    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
+//    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
+//    const COMPORT gs_GpiHall2      = {0, 2,  1, (IOCON_FUNC0 ),    0};//Hall2
+//    const COMPORT gs_GpiCardSda    = {3, 4,  1, (IOCON_FUNC0 ),    0};//Hall2
+//    const COMPORT gs_GpiEsamSda    = {1, 7,  1, (IOCON_FUNC0 ),    0};//Hall2
+//    
+//    const GPI_PORTS gs_LGPIPort[] = 
+//    {
+//        {(COMPORT*)&gs_GpiKey1,       false, 0, 0},      //key1
+//        {(COMPORT*)&gs_GpiKey2,       false, 0, 0},      //key2
+//        {(COMPORT*)&gs_GpiCardInt,    false, 0, 0},      //key3     
+//        {(COMPORT*)&gs_GpiHall1,      false, 0, 0},      //key1
+//        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
+//        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu卡sda脚
+//        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda脚
+////	        {0x3, 1,  1, (IOCON_FUNC0 ),    0},      //
+//    };
+//
+//    const uint8 LGPI_PORT_NUM = (sizeof(gs_LGPIPort) / sizeof(GPI_PORTS));
+//    
+//     /******************************************************************************
+//    **FGPI端口信息
+//    ******************************************************************************/
+//    
+////	    const GPI_PORTS gs_FGPIPort[] = 
+////	    {
+////	        {(COMPORT*)&gs_GpiHall1,       false, 0, 0},      //key1
+////	    
+////	    };
+////	    
+////	    const uint8 FGPI_PORT_NUM = (sizeof(gs_FGPIPort) / sizeof(COMPORT));
+//    
+//#else
+//    
+//    /******************************************************************************
+//    **输入口状态位宏定义
+//    ******************************************************************************/
+//    #define LGPI_STT_YX1        0x00000001
+//    
+//    //
+//    #define FGPI_STT_ENG        0x00000001         //置位表示供电正常
+//    
+//    extern const COMPORT gs_LGPIPort[];
+//    extern const uint8 LGPI_PORT_NUM;
+//    
+//#endif       
 
 
 

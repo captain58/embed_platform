@@ -38,20 +38,21 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32l4xx_hal.h"
+//#include "stm32l4xx_hal.h"
 #include "k_api.h"
 #include "aos/kernel.h"
+#include "gd32f30x.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c1;
-
-UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_usart1_rx;
-DMA_HandleTypeDef hdma_usart1_tx;
+//	I2C_HandleTypeDef hi2c1;
+//	
+//	UART_HandleTypeDef huart1;
+//	UART_HandleTypeDef huart2;
+//	DMA_HandleTypeDef hdma_usart1_rx;
+//	DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -125,7 +126,7 @@ void DMA2_Channel5_IRQHandler(void)
 //    USART_DMA_RX_IRQHandler(UART4);
     krhino_intrpt_exit();
 }
-extern DMA_HandleTypeDef hdma_adc1;
+//extern DMA_HandleTypeDef hdma_adc1;
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
@@ -142,7 +143,7 @@ void DMA1_Channel1_IRQHandler(void)
   * @brief This function handles LPTIM1 global interrupt.
   */
 
-extern LPTIM_HandleTypeDef hlptim1;
+//extern LPTIM_HandleTypeDef hlptim1;
 void LPTIM1_IRQHandler(void)
 {
   /* USER CODE BEGIN LPTIM1_IRQn 0 */
@@ -410,7 +411,7 @@ int SystemClock_Stop(void)
 //  {
 //    return HAL_ERROR;
 //  }
-  return HAL_OK;
+  return 0;//HAL_OK;
 }
 
 

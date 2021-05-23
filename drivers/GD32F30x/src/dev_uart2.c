@@ -19,6 +19,8 @@
 #ifdef __MODULE__
 #include "WOSsys.h"
 #endif
+
+
 #include "sys.h"
 #include "hal.h"
 #include "bsp.h"
@@ -172,28 +174,28 @@ bool SYS_SER_OpenCallBack(uint8 port, bool isAnsyc, TCallback cbs)
         return false;
     }
     
-    if(isAnsyc)                         //如果是异步的
-    {
-        if(SYS_SEM_Accept(&gss_UartRes[_ucPortMap[port]]) > 0)
-        {
-            gfs_SerialCallBack[_ucPortMap[port]] = cbs;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else                                //同步等待
-    {
-        if(SYS_SEM_Wait(&gss_UartRes[_ucPortMap[port]], 0) == SYS_ERR_OK)
-        {
-            gfs_SerialCallBack[_ucPortMap[port]] = cbs;
-        }
-    }
-#ifndef __NO_SYS__     
-                                        //为当前用户进程编号
-    gucs_UartUserTkid[_ucPortMap[port]] = gs_TkTcbCur->tkid;
-#endif    
+//    if(isAnsyc)                         //如果是异步的
+//    {
+//        if(SYS_SEM_Accept(&gss_UartRes[_ucPortMap[port]]) > 0)
+//        {
+//            gfs_SerialCallBack[_ucPortMap[port]] = cbs;
+//        }
+//        else
+//        {
+//            return false;
+//        }
+//    }
+//    else                                //同步等待
+//    {
+//        if(SYS_SEM_Wait(&gss_UartRes[_ucPortMap[port]], 0) == SYS_ERR_OK)
+//        {
+//            gfs_SerialCallBack[_ucPortMap[port]] = cbs;
+//        }
+//    }
+//#ifndef __NO_SYS__     
+//                                        //为当前用户进程编号
+//    gucs_UartUserTkid[_ucPortMap[port]] = gs_TkTcbCur->tkid;
+//#endif    
     return true;                        //返回打开串口成功
 }
 
@@ -245,19 +247,19 @@ void SYS_SER_Close(uint8 port)
         return;
     }
 #ifndef __NO_SYS__ 
-    if(gucs_UartUserTkid[_ucPortMap[port]] == gs_TkTcbCur->tkid)
-    {
-        gucs_UartUserTkid[_ucPortMap[port]] = 0xFF;      //恢复成初始值
-        SYS_SEM_Release(&gss_UartRes[_ucPortMap[port]]);   //释放这个信号量
-
-//	#if (SYS_UARTSEM_EN > 0)
-//	        SYS_SEM_Release((TESRes *)gss_UartSID[_ucPortMap[port]]->uart_rx_sem);
-//	        SYS_SEM_Release((TESRes *)gss_UartSID[_ucPortMap[port]]->uart_tx_sem);
-//	#endif
-
-        
-        return;
-    }
+//    if(gucs_UartUserTkid[_ucPortMap[port]] == gs_TkTcbCur->tkid)
+//    {
+//        gucs_UartUserTkid[_ucPortMap[port]] = 0xFF;      //恢复成初始值
+//        SYS_SEM_Release(&gss_UartRes[_ucPortMap[port]]);   //释放这个信号量
+//
+////	#if (SYS_UARTSEM_EN > 0)
+////	        SYS_SEM_Release((TESRes *)gss_UartSID[_ucPortMap[port]]->uart_rx_sem);
+////	        SYS_SEM_Release((TESRes *)gss_UartSID[_ucPortMap[port]]->uart_tx_sem);
+////	#endif
+//
+//        
+//        return;
+//    }
 #else
 //	    Uartx_Close(gss_UartSID[_ucPortMap[port]]);
 #endif    
@@ -288,10 +290,10 @@ void SYS_SER_Clear(uint8_t port)
     }
 #ifndef __NO_SYS__     
                                     //判断串口是否已被其他进程占用
-    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
-    {
-        return;
-    }
+//    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
+//    {
+//        return;
+//    }
 #endif    
 #if UART_CLEAR_HOOK_EN > 0
     uint16 count;
@@ -346,10 +348,10 @@ void SYS_SER_ReadDataExport(uint8 port, TDataExport func)
     }
 #ifndef __NO_SYS__     
                                     //判断串口是否已被其他进程占用
-    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
-    {
-        return;
-    }
+//    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
+//    {
+//        return;
+//    }
 #endif
 #if (true)
     uint16 count;
@@ -397,10 +399,10 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
     }
 #ifndef __NO_SYS__     
                                     //判断串口是否已被其他进程占用
-    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
-    {
-        return SYS_ERR_FT;
-    }
+//    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
+//    {
+//        return SYS_ERR_FT;
+//    }
 #endif 
 
     return hal_uart_send(gss_UartSID[_ucPortMap[port]], buffer, length, 3000);
@@ -523,10 +525,10 @@ uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length)
     }
 #ifndef __NO_SYS__     
                                     //判断串口是否已被其他进程占用
-    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
-    {
-        return 0;
-    }
+//    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
+//    {
+//        return 0;
+//    }
 #endif    
     SYS_ENTER_AllSCRT();
     count = uart->rcnt;
@@ -720,11 +722,11 @@ uint16 SYS_SER_Peek(uint8 port, uint8* buffer, uint16 start, uint16 length)
         return 0;
     }
 #ifndef __NO_SYS__     
-                                    //判断串口是否已被其他进程占用
-    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
-    {
-        return 0;
-    }
+//                                    //判断串口是否已被其他进程占用
+//    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
+//    {
+//        return 0;
+//    }
 #endif
     SYS_ENTER_AllSCRT();
     if((start + length) < uart->rcnt)//"待读取长度"与"串口缓存中实际可读数据数"的比较
@@ -858,10 +860,10 @@ uint16 SYS_SER_Line(uint8 port, uint8* buffer, uint16 length)
     }
 #ifndef __NO_SYS__     
                                     //判断串口是否已被其他进程占用
-    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
-    {
-        return 0;
-    }
+//    if(gucs_UartUserTkid[_ucPortMap[port]] != gs_TkTcbCur->tkid)
+//    {
+//        return 0;
+//    }
 #endif
     SYS_ENTER_AllSCRT();
     count = uart->rcnt;             //未处理数据长度
@@ -966,10 +968,10 @@ uint16 SYS_SER_LineLen(uint8 port)
     }
 #ifndef __NO_SYS__ 
                                         //判断串口是否已被其他进程占用
-    if(gucs_UartUserTkid[port] != gs_TkTcbCur->tkid)
-    {
-        return 0;
-    }
+//    if(gucs_UartUserTkid[port] != gs_TkTcbCur->tkid)
+//    {
+//        return 0;
+//    }
 #endif            
     count = uart->rcnt;                 //未处理数据长度
     pr = uart->pr;                      //处理指针
@@ -1145,7 +1147,8 @@ uint8 SYS_SER_PrintValue(uint8 port, string str, uint32 value)
 }
 
 
-
+void UART_Init(void)
+{}
 
 /************************************************************************
  * @Function: SYS_UART_Init
