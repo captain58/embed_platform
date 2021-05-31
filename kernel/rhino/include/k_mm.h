@@ -147,6 +147,10 @@ void krhino_mm_free(void *ptr);
  */
 void *krhino_mm_realloc(void *oldmem, size_t newsize);
 
+
+#define m_malloc krhino_mm_alloc
+#define m_free  krhino_mm_free
+
 #else
 
 #include <stdlib.h>

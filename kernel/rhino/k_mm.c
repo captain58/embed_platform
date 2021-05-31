@@ -848,5 +848,36 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
     return tmp;
 }
 
+
+//
+//
+//void * m_malloc(unsigned int size)
+//{
+//    void *tmp = NULL;
+//
+//    if (size == 0) {
+//        return NULL;
+//    }
+//
+//#if (K_CONFIG_MM_DEBUG > 0u)
+//    tmp = krhino_mm_alloc(size | AOS_UNSIGNED_INT_MSB);
+//    k_owner_return_addr(tmp);
+//#else
+//    tmp = krhino_mm_alloc(size);
+//#endif
+//
+//    return tmp;
+//}
+//
+//void m_free(void *mem)
+//{
+//    if (mem == NULL) {
+//        return;
+//    }
+//
+//    krhino_mm_free(mem);
+//}
+
+
 #endif
 

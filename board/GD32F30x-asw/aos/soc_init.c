@@ -375,7 +375,7 @@ void SYS_FeedDOG()
 void stm32_soc_init(void)
 {
     //
-    HAL_Init();
+//    HAL_Init();
       /* Configure the system clock */
     SystemClock_Config();
 //	    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);

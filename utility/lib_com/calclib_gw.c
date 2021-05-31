@@ -232,47 +232,47 @@ const uint16 cfgbaud[8] = {32, 64, 384, 4, 8, 16, 1, 2};
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 PentCfgToSS(uint8 cfg, uart_config_t * ss)
+uint8 PentCfgToSS(uint8 cfg, void * ss)
 {
-    ss->baud_rate = cfgbaud[cfg & 0x07] * 300;
-    if(cfg & 0x80)
-    {
-        ss->stop_bits = STOP_BITS_2;
-    }
-    else
-    {
-        ss->stop_bits = STOP_BITS_1;
-    }
-
-    if(cfg & 0x40)
-    {
-        ss->parity = (cfg & 0x20) ? ODD_PARITY : EVEN_PARITY;
-        if((cfg & 0x18) == 0x10)
-        {
-            ss->data_width = DATA_WIDTH_8BIT;
-        }
-        else
-        {
-            ss->data_width = DATA_WIDTH_9BIT;
-        }  
-    }
-    else
-    {
-        ss->parity = NO_PARITY;
-        if((cfg & 0x18) == 0x10)
-        {
-            ss->data_width = DATA_WIDTH_7BIT;
-        }
-        else
-        {
-            ss->data_width = DATA_WIDTH_8BIT;
-        }        
-    }
-                                        //通讯参数(只支持7/8数据位)
-
-    ss->flow_control = FLOW_CONTROL_DISABLED;
-    ss->mode = MODE_TX_RX;
-    
+//    ss->baud_rate = cfgbaud[cfg & 0x07] * 300;
+//    if(cfg & 0x80)
+//    {
+//        ss->stop_bits = STOP_BITS_2;
+//    }
+//    else
+//    {
+//        ss->stop_bits = STOP_BITS_1;
+//    }
+//
+//    if(cfg & 0x40)
+//    {
+//        ss->parity = (cfg & 0x20) ? ODD_PARITY : EVEN_PARITY;
+//        if((cfg & 0x18) == 0x10)
+//        {
+//            ss->data_width = DATA_WIDTH_8BIT;
+//        }
+//        else
+//        {
+//            ss->data_width = DATA_WIDTH_9BIT;
+//        }  
+//    }
+//    else
+//    {
+//        ss->parity = NO_PARITY;
+//        if((cfg & 0x18) == 0x10)
+//        {
+//            ss->data_width = DATA_WIDTH_7BIT;
+//        }
+//        else
+//        {
+//            ss->data_width = DATA_WIDTH_8BIT;
+//        }        
+//    }
+//                                        //通讯参数(只支持7/8数据位)
+//
+//    ss->flow_control = FLOW_CONTROL_DISABLED;
+//    ss->mode = MODE_TX_RX;
+//    
     SYS_OK();
 }
 

@@ -105,7 +105,7 @@ uint8 CheckFileHead(uint8* head)
 
 extern const char g_programarray[];
 #endif
-extern IWDG_HandleTypeDef hiwdg;
+//extern IWDG_HandleTypeDef hiwdg;
 /***********************************************************
  * @function_name: ES_APP_IAP_Check
  * @function_file: iap_file.c
@@ -287,27 +287,27 @@ int Upgrade_Netp_FW(uint32_t len)
     ST_NETP_FW_BASE tmp;
     uint32_t addr = 256;
     
-    while (len >= sizeof(ST_NETP_FW_BASE))
-    {
-        
-        if(SYS_FILE_DB_Open(DB_UPDATE, &db, TDB_MODE_RW) != SYS_ERR_OK)
-        {
-            return -1;
-        }  
-        if(SYS_ERR_OK != SYS_FILE_DB_ReadFrom(&db, (uint8_t * )&tmp, sizeof(ST_NETP_FW_BASE), addr))
-        {
-            SYS_FILE_DB_Close(&db); 
-            return -1;
-        }
-        SYS_FILE_DB_Close(&db); 
-        if(SYS_ERR_OK != Netp_Register_Set(&tmp))
-        {
-            return -1;
-
-        }
-        len -= sizeof(ST_NETP_FW_BASE);
-        addr += sizeof(ST_NETP_FW_BASE);
-    }
+//    while (len >= sizeof(ST_NETP_FW_BASE))
+//    {
+//        
+//        if(SYS_FILE_DB_Open(DB_UPDATE, &db, TDB_MODE_RW) != SYS_ERR_OK)
+//        {
+//            return -1;
+//        }  
+//        if(SYS_ERR_OK != SYS_FILE_DB_ReadFrom(&db, (uint8_t * )&tmp, sizeof(ST_NETP_FW_BASE), addr))
+//        {
+//            SYS_FILE_DB_Close(&db); 
+//            return -1;
+//        }
+//        SYS_FILE_DB_Close(&db); 
+//        if(SYS_ERR_OK != Netp_Register_Set(&tmp))
+//        {
+//            return -1;
+//
+//        }
+//        len -= sizeof(ST_NETP_FW_BASE);
+//        addr += sizeof(ST_NETP_FW_BASE);
+//    }
 
     
 
@@ -649,7 +649,7 @@ int Task_Ftp(void)
 //	        g_ulFtp_Timeout = 15;//15秒超时
         //校验文件
         
-        if(SYS_FILE_DB_Open(DB_UPDATE, &db, TDB_MODE_RW) != SYS_ERR_OK)
+        if(SYS_FILE_DB_Open( DB_UPDATE, &db, TDB_MODE_RW) != SYS_ERR_OK)
         {
             return 0;
         }  

@@ -127,7 +127,7 @@ void SYS_LED_BlinkSetAll(uint8 type, uint8 interval, uint8 time);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SYS_LED_BlinkSet1(LedNo led, uint8 type, uint8 oninterval, uint8 offinterval, uint8 time);
+void SYS_Dev_OptBlinkSet(LedNo led, uint8 type, uint8 oninterval, uint8 offinterval, uint8 time);
 
 
 /************************************************************************
@@ -145,7 +145,7 @@ void SYS_LED_BlinkSet1(LedNo led, uint8 type, uint8 oninterval, uint8 offinterva
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SYS_LED_BlinkSetAll1(uint8 type, uint8 oninterval, uint8 offinterval, uint8 time);
+void SYS_Dev_OptBlinkSetAll(uint8 type, uint8 oninterval, uint8 offinterval, uint8 time);
 
 /************************************************************************
  * @function: SYS_LED_TIMEROC

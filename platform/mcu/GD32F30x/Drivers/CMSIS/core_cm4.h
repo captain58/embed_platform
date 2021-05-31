@@ -1782,6 +1782,12 @@ __STATIC_INLINE int32_t ITM_CheckChar (void) {
     return (1);                                 /*    character available */
   }
 }
+#define SYS_ENTER_SCRT()     __asm("CPSID I");//__disable_interrupt()//
+#define SYS_EXIT_SCRT()      __asm("CPSIE I");//__enable_interrupt()//
+
+
+#define SYS_ENTER_AllSCRT()  __asm("CPSID I");//__disable_interrupt()//          	    //禁止所有中断(就关掉所有可屏蔽的异常,只剩下NMI和硬fault可以响应)
+#define SYS_EXIT_AllSCRT()   __asm("CPSIE I"); //__enable_interrupt()//              //使能所有中断(PRIMASK?)
 
 /*@} end of CMSIS_core_DebugFunctions */
 

@@ -27,7 +27,16 @@
 EXT_DEV_MSGLOOP uint8 gucs_MsgUartTkMap[NO_OF_SERIAL][SYS_TK_NUM >> 3];
 
 #endif
-
+/******************************************************************************
+**需要分发的消息类别
+******************************************************************************/
+//#define MSG_CLS_IN      0x00            //内部通道的消息类别
+//#define MSG_CLS_OU      0x01            //外部通道的消息类别
+#define MSG_CLS_UART    0x02            //串口消息的消息类别
+#define MSG_CLS_GPIO    0x03            //GPIO的消息类别    
+#define MSG_CLS_TM      0x04            //时间组建的消息类别
+#define MSG_CLS_MD      0x05            //Modem通道的消息类别
+#define MSG_CLS_ETH     0x06            //以太网通道的消息
 //其他消息申请进程信息
 //	#ifndef __NO_SYS__
 EXT_DEV_MSGLOOP uint8 gucs_MsgApplied[SYS_TK_NUM];

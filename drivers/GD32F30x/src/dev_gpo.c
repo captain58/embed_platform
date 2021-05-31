@@ -41,7 +41,7 @@
  *资源量
  ************************************************************************/
 #if (SYS_GPO_EN > 0)
-TESRes gs_GPORes;
+aos_sem_t gs_GPORes;
 #endif
 
 
@@ -67,19 +67,19 @@ void SYS_GPO_Init(void)
         gpo = (COMPORT*)gs_GpoPort + uc_i;//GPO端口指针
         _IF_TRUE_DO(gpo == __NULL, continue);
                                             //配置端口功能,并设为输出模式
-        HAL_GPIO_PinConfig(&gpo->gpio[gpo->pingrp], gpo->pinnum, gpo->modefunc, gpo->dir);
-                                            
-        if(gpo->rvs != gpo->ival)           //等同于异或
-        {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 1);
-        }
-        else
-        {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 0);
-        }
+//        HAL_GPIO_PinConfig(&gpo->gpio[gpo->pingrp], gpo->pinnum, gpo->modefunc, gpo->dir);
+//                                            
+//        if(gpo->rvs != gpo->ival)           //等同于异或
+//        {
+//            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 1);
+//        }
+//        else
+//        {
+//            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 0);
+//        }
     }
 #ifndef __NO_SYS__
-    SYS_SEM_Create(1, &gs_GPORes);
+    aos_sem_new(&gs_GPORes, 1);
 #endif    
 #endif
 }
@@ -102,29 +102,30 @@ void SYS_GPO_Init(void)
 void SYS_GPO_Out(uint32 gpo_name, bool oc)
 {
 #if (SYS_GPO_EN > 0)
-    COMPORT* gpo;
+    GPO_PORTS* gpo;
     _IF_TRUE_RETURN_VOID(gpo_name >= GPO_PORT_NUM);//参数检验
     
-    gpo = (COMPORT*)gs_GpoPort + gpo_name;//端口信息指针
+    gpo = (GPO_PORTS*)gs_GpoPort + gpo_name;//端口信息指针
     _IF_TRUE_RETURN_VOID(gpo == __NULL);
 #ifndef __NO_SYS__
-    SYS_SEM_Wait(&gs_GPORes, 0);             //申请资源
+//    SYS_SEM_Wait(&gs_GPORes, 0);             //申请资源
+    krhino_sem_take(&gs_GPORes, RHINO_WAIT_FOREVER);
 #endif
 
-    HAL_GPIO_PinConfig(&gpo->gpio[gpo->pingrp], gpo->pinnum, gpo->modefunc, gpo->dir);
+    HAL_GPIO_PinConfig(gpo->port);
 
     if(oc)                                  //输出高电平
     {
         if(gpo->rvs)                        //逻辑电平翻转
         {
 //	            HAL_GPIO_SetPinState(gpo->cp->GPIOx, gpo->cp->pin, false);
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 0);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
             
         }
         else
         {
 //	            HAL_GPIO_SetPinState(gpo->cp->port, gpo->cp->pin, true);
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 1);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
             
         }
     }
@@ -133,18 +134,18 @@ void SYS_GPO_Out(uint32 gpo_name, bool oc)
         if(gpo->rvs)
         {
             //HAL_GPIO_SetPinState(gpo->cp->port, gpo->cp->pin, true); 
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 1);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
             
         }
         else
         {
             //HAL_GPIO_SetPinState(gpo->cp->port, gpo->cp->pin, false);
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 0);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
             
         }
     }
 #ifndef __NO_SYS__    
-    SYS_SEM_Release(&gs_GPORes);             //释放资源
+    krhino_sem_give(&gs_GPORes);             //释放资源
 #endif
 #endif
 }
@@ -152,22 +153,22 @@ void SYS_GPO_Out(uint32 gpo_name, bool oc)
 void SYS_GPO_WakeUp(void)
 {
 #if (SYS_GPO_EN > 0)
-    COMPORT* gpo;
+    GPO_PORTS* gpo;
                                             //循环初始化各个GPO端口
     for(uint32 uc_i = 0; uc_i < GPO_PORT_NUM; uc_i++)
     {
-        gpo = (COMPORT*)gs_GpoPort + uc_i;//GPO端口指针
+        gpo = (GPO_PORTS*)gs_GpoPort + uc_i;//GPO端口指针
         _IF_TRUE_DO(gpo == __NULL, continue);
                                             //配置端口功能,并设为输出模式
-        HAL_GPIO_PinConfig(&gpo->gpio[gpo->pingrp], gpo->pinnum, gpo->modefunc, gpo->dir);
+        HAL_GPIO_PinConfig(gpo->port);
                                             
         if(gpo->rvs != gpo->ival)           //等同于异或
         {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 1);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
         }
         else
         {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 0);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
         }
     }
    

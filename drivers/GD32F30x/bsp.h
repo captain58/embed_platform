@@ -68,7 +68,7 @@
 #endif
 
 
-#if SYS_LED_EN > 0
+#if SYS_LED_BEEP_EN > 0
 #include "dev_led.h"
 #endif
 

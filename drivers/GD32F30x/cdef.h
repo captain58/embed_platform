@@ -164,7 +164,12 @@ typedef enum
     TDB_MODE_R_O = 0x10,     //只读
     TDB_MODE_W_O = 0x20,     //只写
 }TDB_MODE;
-
+typedef enum
+{
+    TDB_PERMS_SYS = 1,       //系统权限
+    TDB_PERMS_SUSER = 2,       //超级用户
+    TDB_PERMS_USER = 3,      //普通用户
+}TDB_PERMS;
 /******************************************************************************
 **定时器操作属性
 ******************************************************************************/
@@ -230,16 +235,17 @@ typedef struct
 /******************************************************************************
 **系统时间结构体定义
 ******************************************************************************/
-typedef struct
+typedef struct 
 {
-    uint8 sec;
-    uint8 min;
-    uint8 hour;
-    uint8 dmon;
-    uint8 month;
-    uint8 year;
-    uint8 dweek;                        //写入内部RTC时人工计算(0-6)
-//	    uint16 dyear;                       //写入内部RTC时人工计算(0-365)
+	uint8   sec;       //秒
+	uint8   min;       //分
+	uint8   hour;      //时
+	uint8   day;       //日
+	uint8   month;     //月
+	uint8   year;      //低字节年
+	uint8   yearh;     //高字节年
+	uint8   week;      //BIT7:夏令时标识，bit0~bit3：周
+    uint16 dyear;       //写入内部RTC时人工计算(0-365)s
 }TIME;
 
 
@@ -254,10 +260,11 @@ typedef struct
 	uint32 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员
 	uint32 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
 	uint32 pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
-	uint32 modefunc:18;                 //Function and mode     //来自PINMUX_GRP_T成员
+	uint32 modefunc:8;                 //Function and mode     //来自PINMUX_GRP_T成员
+    uint32_t speed:10;
     //
     uint8 dir;                          //1:输出,0:输入
-	
+
 }COMPORT;
 
 
@@ -289,7 +296,10 @@ typedef struct
 {
     COMPORT* port;                      //端口配置
     uint8  set;                      //初始电平
-    uint8  rvs;                         //高低电平翻转:0正序,1逆序
+//    uint8  rvs;                         //高低电平翻转:0正序,1逆序
+    uint8_t rvs;                         //高低电平翻转:0正序,1逆序
+    uint8_t  ival;   //逻辑初始值:0(低),1(高)
+    
 }GPO_PORTS;
 
 /*****************************************************************************
@@ -298,6 +308,7 @@ typedef struct
 typedef struct
 {
     COMPORT* port;                      //端口配置
+    uint8_t     filter:1; //是否需要去抖
     uint8  pullup;                         //是否存在漏电保护
     
 	uint16 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员

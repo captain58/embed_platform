@@ -39,10 +39,10 @@
         #warning "LGPI扫描门限宏错误"
     #endif
 
-    #if !defined(ID_SWTIMER_LGPI)
-        #define ID_SWTIMER_LGPI    0xff
-        #warning "请定义LGPI扫描定时器ID编号宏"
-    #endif
+//    #if !defined(ID_SWTIMER_LGPI)
+//        #define ID_SWTIMER_LGPI    0xff
+//        #warning "请定义LGPI扫描定时器ID编号宏"
+//    #endif
     
 #endif
 
@@ -83,6 +83,9 @@
 
 
 #if (SYS_LGPI_EN > 0)
+                               
+static ktimer_t     timer_Lgpi;                               
+                               
 /************************************************************************
  * @Function: SYS_LGPI_Scan
  * @Description: 慢速输入端口扫描定时处理函数
@@ -110,58 +113,58 @@ void SYS_LGPI_Scan(void)
         
         _IF_TRUE_DO(gpi == __NULL, continue);
         
-        if(gpi->filter)                             //(含去抖功能及按键保持判断)(典型应用:按键)
-        {
-            if(gsp_GpioStt->gpistt & (0x01 << uc_i))//当前高电平.判断下降事件
-            {
-                if(!HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))
-                {
-                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
-                }
-                else                                //清计数器
-                {
-                    gsp_GpioStt->cnt[uc_i] = 0;
-                }
-                gsp_GpioStt->lastcnt[uc_i] = 0;     //高电平状态下按键保持计数器清零
-            }
-            else                                    //当前低电平
-            {
-                if(HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))//高
-                {
-                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
-                }
-                else                                //低电平
-                {
-                    gsp_GpioStt->cnt[uc_i] = 0;     //计数器清零
-                    gsp_GpioStt->lastcnt[uc_i]++;   //低电平状态下按键保持计数器累加
-                }
-            }
-                                                    //按键事件
-            if(gsp_GpioStt->cnt[uc_i] >= LGPI_GATE)
-            {                                       //下降沿事件
-                gsp_GpioStt->keyfevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);
-                gsp_GpioStt->gpistt ^= (0x01 << uc_i);//状态取反
-                gsp_GpioStt->keyrevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);//上升沿事件
-                gsp_GpioStt->cnt[uc_i] = 0;         //计数器清零
-            }
-                                                    //按键保持事件判断
-            if(gsp_GpioStt->lastcnt[uc_i] == LGPI_LAST)
-            {
-//                gsp_GpioStt->lastcnt[uc_i] = LGPI_LAST - LGPI_GATE;
-                gsp_GpioStt->keylevt |= (0x01 << uc_i);
-            }
-        }
-        else                                        //普通GPI输入端口扫描(无去抖功能)
-        {
-            if(HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))//高
-            {
-                gsp_GpioStt->gpistt |= (0x01 << uc_i);
-            }
-            else                                    //低
-            {
-                gsp_GpioStt->gpistt &= ~(0x01 << uc_i);
-            }
-        }
+//        if(gpi->filter)                             //(含去抖功能及按键保持判断)(典型应用:按键)
+//        {
+//            if(gsp_GpioStt->gpistt & (0x01 << uc_i))//当前高电平.判断下降事件
+//            {
+//                if(!HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))
+//                {
+//                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
+//                }
+//                else                                //清计数器
+//                {
+//                    gsp_GpioStt->cnt[uc_i] = 0;
+//                }
+//                gsp_GpioStt->lastcnt[uc_i] = 0;     //高电平状态下按键保持计数器清零
+//            }
+//            else                                    //当前低电平
+//            {
+//                if(HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))//高
+//                {
+//                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
+//                }
+//                else                                //低电平
+//                {
+//                    gsp_GpioStt->cnt[uc_i] = 0;     //计数器清零
+//                    gsp_GpioStt->lastcnt[uc_i]++;   //低电平状态下按键保持计数器累加
+//                }
+//            }
+//                                                    //按键事件
+//            if(gsp_GpioStt->cnt[uc_i] >= LGPI_GATE)
+//            {                                       //下降沿事件
+//                gsp_GpioStt->keyfevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);
+//                gsp_GpioStt->gpistt ^= (0x01 << uc_i);//状态取反
+//                gsp_GpioStt->keyrevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);//上升沿事件
+//                gsp_GpioStt->cnt[uc_i] = 0;         //计数器清零
+//            }
+//                                                    //按键保持事件判断
+//            if(gsp_GpioStt->lastcnt[uc_i] == LGPI_LAST)
+//            {
+////                gsp_GpioStt->lastcnt[uc_i] = LGPI_LAST - LGPI_GATE;
+//                gsp_GpioStt->keylevt |= (0x01 << uc_i);
+//            }
+//        }
+//        else                                        //普通GPI输入端口扫描(无去抖功能)
+//        {
+//            if(HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))//高
+//            {
+//                gsp_GpioStt->gpistt |= (0x01 << uc_i);
+//            }
+//            else                                    //低
+//            {
+//                gsp_GpioStt->gpistt &= ~(0x01 << uc_i);
+//            }
+//        }
     }
     
 //	    return true;
@@ -280,7 +283,7 @@ void SYS_GPI_Init(void)
 #endif
                                             //申请缓存
     gsp_GpioStt = &__GpioStt;//(GPIO_IN*)m_malloc(sizeof(GPIO_IN));
-    memset_s((uint8*)gsp_GpioStt, 0, sizeof(GPIO_IN));
+    memset((uint8*)gsp_GpioStt, 0, sizeof(GPIO_IN));
     gsp_GpioStt->gpistt = 0xFFFFFFFF;       //慢速GPI端口初始状态
     gsp_GpioStt->fgpistt = 0xFFFFFFFF;      //快速GPI端口初始状态
     
@@ -314,7 +317,7 @@ void SYS_GPI_Init(void)
                                             //配置端口功能,并设为输入模式
 //	        HAL_GPIO_PinConfig(gpi->cp->port, gpi->cp->pin, gpi->cp->mode);
 //	        HAL_GPIO_SetPinDIR(gpi->cp->port, gpi->cp->pin, false);
-        HAL_GPIO_PinConfig(&gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->type, gpi->analog, gpi->dir);
+        HAL_GPIO_PinConfig(gpi->port);
 //	        if(gpi->handleen)
 //	        {
 //	            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_LGPI_Scan, NULL);
@@ -329,15 +332,15 @@ void SYS_GPI_Init(void)
 //          HAL_GPIO_PinConfig(gpi->cp->port, gpi->cp->pin, gpi->cp->mode);
 //          HAL_GPIO_SetPinDIR(gpi->cp->port, gpi->cp->pin, false);
 //	        HAL_GPIO_PinConfig(&gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->type, gpi->analog, gpi->dir);
-        if(gpi->handleen)
-        {
-#ifdef __NO_SYS__    
-            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_GPI_GoScan, NULL);
-#else
-            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_LGPI_Scan, NULL);
-#endif
+//        if(gpi->handleen)
+//        {
+//#ifdef __NO_SYS__    
+//            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_GPI_GoScan, NULL);
+//#else
+//            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_LGPI_Scan, NULL);
+//#endif
 //	            interuptSwitch = 1;
-        }
+//        }
 
     }
 //	    if(interuptSwitch) NVIC_EnableIRQ(GPIO_IRQn);
@@ -346,7 +349,11 @@ void SYS_GPI_Init(void)
     timeout = SYS_TICK_PER_SEC / 10;
     timeout = (timeout < 1) ? 1 : timeout;
      
-    SYS_Timer_Create(SYS_LGPI_Scan, __NULL, timeout, ID_SWTIMER_LGPI, false);
+//    SYS_Timer_Create(SYS_LGPI_Scan, __NULL, timeout, ID_SWTIMER_LGPI, false);
+//    krhino_timer_create(&timer_Fgpi, "timer_Fgpi", SYS_FGPI_Scan,
+//                            10, 1, 0, 1);   
+    krhino_timer_create(&timer_Lgpi, "timer_Lgpi", SYS_LGPI_Scan,
+                            2, 2, 0, 1);         
 #endif
 #endif
 }
@@ -365,16 +372,16 @@ void SYS_GPI_WakeUp(void)
         gpi = (GPI_PORTS*)gs_LGPIPort + uc_i;
         _IF_TRUE_DO(gpi == __NULL, continue);
                                             //配置端口功能,并设为输入模式
-        if(gpi->handleen)
-        {
-            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_GPI_GoScan, NULL);
-//	            interuptSwitch = 1;
-        }
+//        if(gpi->handleen)
+//        {
+//            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_GPI_GoScan, NULL);
+////	            interuptSwitch = 1;
+//        }
 
     }
 //	    if(interuptSwitch) 
     //水气表有霍尔中断常开
-    NVIC_EnableIRQ(GPIO_IRQn);
+//    NVIC_EnableIRQ(GPIO_IRQn);
 #endif
 }
 

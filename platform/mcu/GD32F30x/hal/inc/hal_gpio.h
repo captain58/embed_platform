@@ -58,7 +58,14 @@
 //#define GPIO_PIN_7      7        
 
 
-
+//typedef struct _GPIO_CFG_ST_
+//{
+//    uint32_t GPIOx;
+//    uint32_t mode;
+//    uint32_t speed;
+//    uint8_t pin;
+//    uint8_t dir;
+//}GPIO_CFG_ST;
 
 
 
@@ -148,10 +155,11 @@
 // *-----------------------------------------------------------------------
 // * @History: 
 // ************************************************************************/
-//STATIC INLINE void HAL_GPIO_SetPinState(GPIO_TypeDef  * GPIOx, uint8 pin, uint8_t setting)
-//{
+STATIC INLINE void HAL_GPIO_SetPinState(void  * GPIOx, uint8 pin, uint8_t setting)
+{
+    gpio_bit_write(((COMPORT *)GPIOx)->pingrp, 1 << pin, (bit_status)setting);
 //    HAL_GPIO_WritePin(GPIOx, 1 << pin, (GPIO_PinState)setting);
-//}
+}
 //
 //
 //
@@ -170,20 +178,20 @@
 //
 //
 //
-///************************************************************************
-// * @Function: HAL_GPIO_PinConfig
-// * @Description: 配置某个管脚的工作参数
-// * 
-// * @Arguments: 
-// * @param: port 组号
-// * @param: pin 管脚
-// * @param: mode 配置 
-// * @Auther: yzy
-// * Date: 2015/5/8
-// *-----------------------------------------------------------------------
-// * @History: 
-// ************************************************************************/
-//void HAL_GPIO_PinConfig(GPIO_TypeDef * GPIOx, uint8 pin, uint32 mode, uint8_t dir);
+/************************************************************************
+ * @Function: HAL_GPIO_PinConfig
+ * @Description: 配置某个管脚的工作参数
+ * 
+ * @Arguments: 
+ * @param: port 组号
+ * @param: pin 管脚
+ * @param: mode 配置 
+ * @Auther: yzy
+ * Date: 2015/5/8
+ *-----------------------------------------------------------------------
+ * @History: 
+ ************************************************************************/
+void HAL_GPIO_PinConfig(COMPORT * pGpio);
 
 
 

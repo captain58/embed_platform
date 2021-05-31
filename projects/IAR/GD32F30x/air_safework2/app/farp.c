@@ -495,7 +495,7 @@ void Farp_WMSecondProc(void)
 
     gs_FarpVar.wmst |= WMS_STT_GSM;
     gs_FarpVar.mcsq = modemstt.bit.signl;
-    SYS_LED_BlinkSet1(GPIO_LED_GPRS, 1, 10, 10, 0);  //注册GSM网络成功，1HZ闪烁
+    SYS_Dev_OptBlinkSet(GPIO_LED_GPRS, 1, 10, 10, 0);  //注册GSM网络成功，1HZ闪烁
     
     if(!(modemstt.bit.pppoe))       //是否完成PPP链接
     {

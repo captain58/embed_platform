@@ -31,7 +31,7 @@
 
 #ifdef EXT_DEV_LED                          //LED端口定义
 
-    const COMPORT gs_LedRun       = {0x1, 2,  1, (IOCON_FUNC0 ),    1};
+    const COMPORT gs_LedRun       = {0x1, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    1};
 
     
     
@@ -40,10 +40,10 @@
     ******************************************************************************/
     const GPO_PORTS gs_LedPort[] = 
     {
-        {(COMPORT*)&gs_LedRun,     false, 0},     //true:低电平点亮
+        {(COMPORT*)&gs_LedRun,     0, 1, 1},     //true:低电平点亮
     };
 
-    #define LED_NUM (sizeof(gs_LedPort) / sizeof(GPO_PORTS))
+    #define LED_NUM 1// (sizeof(gs_LedPort) / sizeof(GPO_PORTS))
 
 #endif                                      //#ifdef EXT_DEV_LED
 
@@ -79,16 +79,16 @@ typedef enum
 
 #ifdef EXT_DEV_GPO                      //GPO的端口定义
 
-    const COMPORT gs_GpoAdcCtl      = {0x2, 1,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoModemOnOff  = {12,  5,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoValveSleep  = {0x0, 7,  0, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoValveOpen   = {0x0, 6,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoValveClose  = {0x0, 5,  1, (IOCON_FUNC0 ),    1};    
-    const COMPORT gs_GpoEsamPwr     = {0x1, 5,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoCardPwr     = {0x6, 1,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoCardRst     = {12,  6,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_GpoEsamRst     = {0x1, 4,  1, (IOCON_FUNC0 ),    1};
+    const COMPORT gs_GpoAdcCtl      = {0x2, 1,  1, 0,    1};
+//    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_GpoModemOnOff  = {12,  5,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_GpoValveSleep  = {0x0, 7,  0, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_GpoValveOpen   = {0x0, 6,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_GpoValveClose  = {0x0, 5,  1, (IOCON_FUNC0 ),    1};    
+//    const COMPORT gs_GpoEsamPwr     = {0x1, 5,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_GpoCardPwr     = {0x6, 1,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_GpoCardRst     = {12,  6,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_GpoEsamRst     = {0x1, 4,  1, (IOCON_FUNC0 ),    1};
     
     /******************************************************************************
     **GPO输出端口定义
@@ -96,15 +96,15 @@ typedef enum
     const GPO_PORTS gs_GpoPort[] = 
     {
         {(COMPORT*)&gs_GpoAdcCtl,       false, false},      //adc采样开关
-        {(COMPORT*)&gs_GpoModemPwr,     false, false},      //gprs电源脚
-        {(COMPORT*)&gs_GpoModemOnOff,   false, false},      //gprs Power Key脚
-        {(COMPORT*)&gs_GpoValveSleep,   false, false},      //阀门芯片休眠 低电平休眠
-        {(COMPORT*)&gs_GpoValveOpen,    false, false},      //阀门芯片IN1
-        {(COMPORT*)&gs_GpoValveClose,   false, false},      //阀门芯片IN2
-        {(COMPORT*)&gs_GpoEsamPwr,      false, false},      //esam电源开关
-        {(COMPORT*)&gs_GpoCardPwr,      false, false},      //卡电源开关
-        {(COMPORT*)&gs_GpoCardRst,      false, false},      //卡复位开关
-        {(COMPORT*)&gs_GpoEsamRst,      false, false},      //Esam复位开关
+//        {(COMPORT*)&gs_GpoModemPwr,     false, false},      //gprs电源脚
+//        {(COMPORT*)&gs_GpoModemOnOff,   false, false},      //gprs Power Key脚
+//        {(COMPORT*)&gs_GpoValveSleep,   false, false},      //阀门芯片休眠 低电平休眠
+//        {(COMPORT*)&gs_GpoValveOpen,    false, false},      //阀门芯片IN1
+//        {(COMPORT*)&gs_GpoValveClose,   false, false},      //阀门芯片IN2
+//        {(COMPORT*)&gs_GpoEsamPwr,      false, false},      //esam电源开关
+//        {(COMPORT*)&gs_GpoCardPwr,      false, false},      //卡电源开关
+//        {(COMPORT*)&gs_GpoCardRst,      false, false},      //卡复位开关
+//        {(COMPORT*)&gs_GpoEsamRst,      false, false},      //Esam复位开关
         
     };
     
@@ -145,59 +145,59 @@ typedef enum
 /******************************************************************************
 **GPI端口输入结构体信息
 ******************************************************************************/
-//#ifdef EXT_DEV_GPI                        //GPI的端口定义
-//
-//    /******************************************************************************
-//    **LGPI端口信息
-//    ******************************************************************************/
-//    const COMPORT gs_GpiKey1      = {13, 7,  1, (IOCON_FUNC0 ),    0};//key1
+#ifdef EXT_DEV_GPI                        //GPI的端口定义
+
+    /******************************************************************************
+    **LGPI端口信息
+    ******************************************************************************/
+    const COMPORT gs_GpiKey1      = {3, 7,  1, 0,    0};//key1
 //    const COMPORT gs_GpiKey2      = {0x3, 1,  1, (IOCON_FUNC0 ),    0};//key2
 //    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
 //    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
 //    const COMPORT gs_GpiHall2      = {0, 2,  1, (IOCON_FUNC0 ),    0};//Hall2
 //    const COMPORT gs_GpiCardSda    = {3, 4,  1, (IOCON_FUNC0 ),    0};//Hall2
 //    const COMPORT gs_GpiEsamSda    = {1, 7,  1, (IOCON_FUNC0 ),    0};//Hall2
-//    
-//    const GPI_PORTS gs_LGPIPort[] = 
-//    {
-//        {(COMPORT*)&gs_GpiKey1,       false, 0, 0},      //key1
+    
+    const GPI_PORTS gs_LGPIPort[] = 
+    {
+        {(COMPORT*)&gs_GpiKey1,       false, 0, 0},      //key1
 //        {(COMPORT*)&gs_GpiKey2,       false, 0, 0},      //key2
 //        {(COMPORT*)&gs_GpiCardInt,    false, 0, 0},      //key3     
 //        {(COMPORT*)&gs_GpiHall1,      false, 0, 0},      //key1
 //        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
 //        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu卡sda脚
 //        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda脚
-////	        {0x3, 1,  1, (IOCON_FUNC0 ),    0},      //
-//    };
-//
+//	        {0x3, 1,  1, (IOCON_FUNC0 ),    0},      //
+    };
+
 //    const uint8 LGPI_PORT_NUM = (sizeof(gs_LGPIPort) / sizeof(GPI_PORTS));
-//    
-//     /******************************************************************************
-//    **FGPI端口信息
-//    ******************************************************************************/
-//    
-////	    const GPI_PORTS gs_FGPIPort[] = 
-////	    {
-////	        {(COMPORT*)&gs_GpiHall1,       false, 0, 0},      //key1
-////	    
-////	    };
-////	    
-////	    const uint8 FGPI_PORT_NUM = (sizeof(gs_FGPIPort) / sizeof(COMPORT));
-//    
-//#else
-//    
-//    /******************************************************************************
-//    **输入口状态位宏定义
-//    ******************************************************************************/
-//    #define LGPI_STT_YX1        0x00000001
-//    
-//    //
-//    #define FGPI_STT_ENG        0x00000001         //置位表示供电正常
-//    
-//    extern const COMPORT gs_LGPIPort[];
+    
+     /******************************************************************************
+    **FGPI端口信息
+    ******************************************************************************/
+    
+//	    const GPI_PORTS gs_FGPIPort[] = 
+//	    {
+//	        {(COMPORT*)&gs_GpiHall1,       false, 0, 0},      //key1
+//	    
+//	    };
+//	    
+//	    const uint8 FGPI_PORT_NUM = (sizeof(gs_FGPIPort) / sizeof(COMPORT));
+    
+#else
+    
+    /******************************************************************************
+    **输入口状态位宏定义
+    ******************************************************************************/
+    #define LGPI_STT_YX1        0x00000001
+    
+    //
+    #define FGPI_STT_ENG        0x00000001         //置位表示供电正常
+    
+    extern const COMPORT gs_LGPIPort[];
 //    extern const uint8 LGPI_PORT_NUM;
-//    
-//#endif       
+    
+#endif       
 
 
 

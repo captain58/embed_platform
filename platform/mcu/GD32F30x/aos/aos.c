@@ -63,7 +63,7 @@ static void sys_init(void)
 //#if defined (AOS_OTA_RECOVERY_TYPE)
 //    sys_clear_ota_flag();
 //#endif
-//    aos_components_init(&kinit);
+    aos_components_init(&kinit);
 
     
 #ifndef AOS_BINS
@@ -78,11 +78,32 @@ void delay(uint32_t count)
 }
 extern void aos_heap_set(void);
 extern void stm32_soc_init(void);
+
+/*!
+    \brief      configure systick
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void systick_config(void)
+{
+    uint32_t ahb_frequency = 0;
+    ahb_frequency = rcu_clock_freq_get(CK_AHB);
+    /* setup systick timer for 1000Hz interrupts */
+    if (SysTick_Config(ahb_frequency / RHINO_CONFIG_TICKS_PER_SECOND)){
+        /* capture error */
+        while (1){
+        }
+    }
+    /* configure the systick handler priority */
+    NVIC_SetPriority(SysTick_IRQn, 0x00U);
+    NVIC_SetPriority(PendSV_IRQn, 0x00U);
+}
 //    extern LPTIM_HandleTypeDef hlptim1;
 static void sys_start(void)
 {
     aos_heap_set();
-    
+    systick_config();
 //    stm32_soc_init();
 //	    HAL_LPTIM_Counter_Start_IT(&hlptim1, 50000);
 //	

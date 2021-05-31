@@ -20,7 +20,7 @@
 #include "bsp.h"
 //	#include "string.h"
 #include "apis.h"
-
+#include "tasks.h"
 /******************************************************************************
 **记录当前时间的变量
 ******************************************************************************/
@@ -32,8 +32,9 @@ TIME gs_TimeBk;                             //备份时钟
 /******************************************************************************
 **时钟操作资源
 ******************************************************************************/
-TESRes gs_RealTimeRes;
-
+//aos_sem_t gs_RealTimeRes;
+ksem_t gs_RealTimeRes;
+ktimer_t     g_s_timer;
 
 
 /******************************************************************************
@@ -494,7 +495,7 @@ uint8 SYS_MCU_WriteDateTime(TIME* datetime)
     {
         datetime->dyear++;
     }
-    datetime->week = CalcWeek((uint8*)&datetime->day);
+    datetime->week = CalcWeek((uint8*)&datetime->day,0);
     
 #if (SYS_RTC_EN == 0)
     _setVirtualTime(datetime);
@@ -593,9 +594,12 @@ uint8 SYS_WriteDateTime(TIME* datetime)
 {
     uint8 result;
 #ifndef __NO_SYS__     
-    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+//    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+    krhino_sem_take(&gs_RealTimeRes, RHINO_WAIT_FOREVER);
+
     result = RTC_ProcTEsMsg(HRTC_RW_WH, datetime);
-    SYS_SEM_Release(&gs_RealTimeRes);
+//    SYS_SEM_Release(&gs_RealTimeRes);
+    krhino_sem_give(&gs_RealTimeRes);
 #else
     result = RTC_ProcTEsMsg(HRTC_RW_WH, datetime);
 #endif
@@ -621,9 +625,12 @@ uint8 SYS_WriteBCDDateTime(TIME* datetime)
 {
     uint8 result;
 #ifndef __NO_SYS__     
-    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+//    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+    krhino_sem_take(&gs_RealTimeRes, RHINO_WAIT_FOREVER);
+    
     result = RTC_ProcTEsMsg(HRTC_RW_WB, datetime);
-    SYS_SEM_Release(&gs_RealTimeRes);
+//    SYS_SEM_Release(&gs_RealTimeRes);
+    krhino_sem_give(&gs_RealTimeRes);
 #else
     result = RTC_ProcTEsMsg(HRTC_RW_WB, datetime);
 #endif    
@@ -649,9 +656,12 @@ uint8 SYS_ReadDateTime(TIME* datetime)
 {
     uint8 result;
 #ifndef __NO_SYS__ 
-    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+//    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+    krhino_sem_take(&gs_RealTimeRes, RHINO_WAIT_FOREVER);
+    
     result = RTC_ProcTEsMsg(HRTC_RW_RH, datetime);
-    SYS_SEM_Release(&gs_RealTimeRes);
+//    SYS_SEM_Release(&gs_RealTimeRes);
+    krhino_sem_give(&gs_RealTimeRes);
 #else
     result = RTC_ProcTEsMsg(HRTC_RW_RH, datetime);
 #endif
@@ -676,9 +686,12 @@ uint8 SYS_ReadBCDDateTime(TIME* datetime)
 {
     uint8 result;
 #ifndef __NO_SYS__ 
-    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+//    SYS_SEM_Wait(&gs_RealTimeRes, 0);
+    krhino_sem_take(&gs_RealTimeRes, RHINO_WAIT_FOREVER);
+    
     result = RTC_ProcTEsMsg(HRTC_RW_RB, datetime);
-    SYS_SEM_Release(&gs_RealTimeRes);
+//    SYS_SEM_Release(&gs_RealTimeRes);
+    krhino_sem_give(&gs_RealTimeRes);
 #else
     result = RTC_ProcTEsMsg(HRTC_RW_RB, datetime);
 #endif    
@@ -804,13 +817,13 @@ bool SYS_RTC_SecProc(void* pdata)
     gul_SysRunSecs++;
     
 #if (true)                                  //事件分发
-    extern const TESTcbDeclare __TKDeclare[SYS_TK_NUM];
-    const TESTcbDeclare* dec = __TKDeclare + 1;
+    extern const KTaskDeclare __TKDeclare[SYS_TK_NUM];
+    const KTaskDeclare* dec = __TKDeclare + 1;
 
     for(uint32 uc_i = 1; uc_i < (SYS_TK_NUM - 1); uc_i++, dec++)
     {
                                             //如果该进程不存在则不发送
-        if(dec->tcbc == __NULL || dec->stklen == 0)
+        if(dec->ktask == __NULL || dec->stklen == 0)
         {
             continue;
         }
@@ -820,7 +833,7 @@ bool SYS_RTC_SecProc(void* pdata)
             continue;
         }
         
-        if(dec->tcbc->tbl != 0)             //时间消息仅针对消息进程
+        if(dec->ktask->tbl != 0)             //时间消息仅针对消息进程
         {
             if(gs_TimeBk.year != gs_Time.year) //年事件
             {
@@ -946,6 +959,8 @@ void SYS_RTC_SecProc(void)
 
 
 #endif
+
+
 /************************************************************************
  * @Function: SYS_RTC_Init
  * @Description: 设备模块初始化
@@ -970,9 +985,16 @@ void SYS_RTC_Init(void)
 #endif
  #ifndef __NO_SYS__ 
     //创建用户资源
-    SYS_SEM_Create(1, &gs_RealTimeRes);
+//    SYS_SEM_Create(1, &gs_RealTimeRes);
+    krhino_sem_create(&gs_RealTimeRes, "RealTime", 1);
+
+                                            //创建一个定时器(定时时间1s)
+    gul_SysRunSecs = 0;
+    
     //创建一个定时器(定时时间1s)    
-    SYS_Timer_Create(SYS_RTC_SecProc, __NULL, SYS_TICK_PER_SEC, ID_SWTIMER_RTC, false);
+//    SYS_Timer_Create(SYS_RTC_SecProc, __NULL, SYS_TICK_PER_SEC, ID_SWTIMER_RTC, false);
+    krhino_timer_create(&g_s_timer, "sec_timer", SYS_RTC_SecProc,
+                        krhino_ms_to_ticks(1000), krhino_ms_to_ticks(1000), 0, 1);    
 #endif	
 
     gul_SysRunSecs = 0;

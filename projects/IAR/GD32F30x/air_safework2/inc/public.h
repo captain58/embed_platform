@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "ext.h"
 #include "hal.h"
 
 
@@ -41,7 +42,7 @@
 
 #include "apis.h"
 
-
+#include "bsp.h"
 
 #include "tasks.h"
 #include "msgid.h"

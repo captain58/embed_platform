@@ -21,6 +21,10 @@
 #define _EXT_H_
 
 
+/*******************************************************************************
+**定义每秒钟的tick数
+********************************************************************************/
+#define  SYS_TICK_PER_SEC   100
 
 #define SYS_TK_NUM 10
 #define MSG_BUFF_LEN        128
@@ -44,17 +48,39 @@
 
 
 /******************************************************************************
+**文件系统相关
+*******************************************************************************/
+#define SYS_FILE_EN      1
+#define CBB_FILE_EN SYS_FILE_EN
+
+/******************************************************************************
 **GPIO
 ******************************************************************************/
 #define SYS_GPO_EN   1                   //通用端口输出模块使能
 #define SYS_GPI_EN   1                   //通用端口输入模块使能
 
-#if SYS_GPI_EN > 0
-    #define SYS_LGPI_EN  1                   //慢速通用端口输入模块使能
-    #define SYS_FGPI_EN  0                   //快速通用端口输入模块使能
-    #define SYS_AD_EN    1                   //AD使能
-    #define SYS_HALL_EN 0
+#define SYS_LGPI_EN  1                   //慢速通用端口输入模块使能
+#define SYS_FGPI_EN  0                   //快速通用端口输入模块使能
+
+#define SYS_GPIEVT_EN  1                 //GPI消息分发使能
+
+#if (SYS_GPO_EN > 0)
+    #define GPO_PORT_NUM    1
 #endif
+
+#if (SYS_LGPI_EN > 0)
+    #define LGPI_PORT_NUM   2
+    #define LGPI_GATE       1               //按键扫描门限
+    #define LGPI_LAST       20              //按键长按门限
+
+#endif
+
+#if (SYS_FGPI_EN > 0)
+    #define FGPI_PORT_NUM   1
+    #define FGPI_GATE       3               //快速输入口扫描门限
+#endif
+
+
 
 /*******************************************************************************
 **下面表示系统的串口所需要的资源的定义
@@ -204,29 +230,29 @@
 /******************************************************************************
 **GPIO
 ******************************************************************************/
-#define SYS_GPO_EN   1                   //通用端口输出模块使能
-#define SYS_GPI_EN   1                   //通用端口输入模块使能
-
-#define SYS_LGPI_EN  1                   //慢速通用端口输入模块使能
-#define SYS_FGPI_EN  0                   //快速通用端口输入模块使能
-
-#define SYS_GPIEVT_EN  1                 //GPI消息分发使能
-
-#if (SYS_GPO_EN > 0)
-    #define GPO_PORT_NUM    1
-#endif
-
-#if (SYS_LGPI_EN > 0)
-    #define LGPI_PORT_NUM   1
-    #define LGPI_GATE       1               //按键扫描门限
-    #define LGPI_LAST       20              //按键长按门限
-
-#endif
-
-#if (SYS_FGPI_EN > 0)
-    #define FGPI_PORT_NUM   1
-    #define FGPI_GATE       3               //快速输入口扫描门限
-#endif
+//#define SYS_GPO_EN   1                   //通用端口输出模块使能
+//#define SYS_GPI_EN   1                   //通用端口输入模块使能
+//
+//#define SYS_LGPI_EN  1                   //慢速通用端口输入模块使能
+//#define SYS_FGPI_EN  0                   //快速通用端口输入模块使能
+//
+//#define SYS_GPIEVT_EN  1                 //GPI消息分发使能
+//
+//#if (SYS_GPO_EN > 0)
+//    #define GPO_PORT_NUM    1
+//#endif
+//
+//#if (SYS_LGPI_EN > 0)
+//    #define LGPI_PORT_NUM   1
+//    #define LGPI_GATE       1               //按键扫描门限
+//    #define LGPI_LAST       20              //按键长按门限
+//
+//#endif
+//
+//#if (SYS_FGPI_EN > 0)
+//    #define FGPI_PORT_NUM   1
+//    #define FGPI_GATE       3               //快速输入口扫描门限
+//#endif
 
 
 /******************************************************************************

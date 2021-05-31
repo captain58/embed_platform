@@ -52,7 +52,7 @@ typedef struct
 #endif
 }GPIO_IN;
 
-EXT_DEV_GPI GPIO_IN* gsp_GpioStt;
+EXT_DEV_GPI GPIO_IN * gsp_GpioStt;
 
 
 

@@ -388,12 +388,12 @@ void SYS_MAIN_Init(void)
 //	    gs_OS.TK_Sleep(200);
 //	    SYS_LED_BlinkSetAll(0, 2, 1);
 //	    gs_OS.TK_Sleep(20);
-    SYS_LED_BlinkSetAll1(2, 0, 0, 0);               //所有灯齐闪
+    SYS_Dev_OptBlinkSetAll(2, 0, 0, 0);               //所有灯齐闪
     gs_OS.TK_Sleep(200);
     
-    SYS_LED_BlinkSetAll1(3, 0, 0, 0);               //所有灯灭
+    SYS_Dev_OptBlinkSetAll(3, 0, 0, 0);               //所有灯灭
 
-    SYS_LED_BlinkSet1(GPIO_LED_RUN, 1, 10, 10, 0);    //运行灯秒闪(overlay last configuration)
+    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 10, 10, 0);    //运行灯秒闪(overlay last configuration)
 //	    
 
      //SER_Open(UART_CHANNEL_DEBUG, TDB_MODE_R | TDB_MODE_W);
@@ -765,21 +765,22 @@ void SYS_APP_Init()
 {
     UART_Init();
 //	
-//    SYS_FILE_Init();
+    SYS_FILE_Init();
 //    SYS_FILE_Start();
-//#if SYS_GPO_EN > 0
-//    SYS_GPO_Init();
-//#endif
-//#if SYS_GPI_EN > 0
-//    SYS_GPI_Init();
-//#endif
+#if SYS_GPO_EN > 0
+    SYS_GPO_Init();
+#endif
+#if SYS_GPI_EN > 0
+    SYS_GPI_Init();
+#endif
 //#if (SYS_AD_EN > 0)    
 //    SYS_AD_Init();
 //#endif    
 ////	    OV_LcdInit();
 //    SYS_RTC_Init();
 //    SYS_MSG_Init();
-//    SYS_LED_Init();    
+//    SYS_LED_Init(); 
+    SYS_BlinkDev_Init();
 //    HB_LiveInit();
 ////	    SYS_TIMER_Init();
 //    Netp_PreInit(0);                    //线程
@@ -820,7 +821,7 @@ void SYS_APP_Start()
 #include <stdio.h>
 
 #include <aos/kernel.h>
-#include <network/network.h>
+//#include <network/network.h>
 
 //	#pragma pack(1)
 //	typedef struct {
@@ -919,11 +920,11 @@ void SYS_MAIN_Task(void * arg)
 //                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_MAIN;
 
                 LOG_DEBUG("%02d-%02d-%02d %02d:%02d:%02d %02d!\n",((TIME *)GetTime())->year, 
-                    ((TIME *)GetTime())->month, ((TIME *)GetTime())->dmon, 
+                    ((TIME *)GetTime())->month, ((TIME *)GetTime())->day, 
                     ((TIME *)GetTime())->hour, ((TIME *)GetTime())->min, 
-                    ((TIME *)GetTime())->sec, ((TIME *)GetTime())->dweek);
+                    ((TIME *)GetTime())->sec, ((TIME *)GetTime())->week);
                 
-                HAL_BLE_Init_Delayed_Action(NULL);
+//                HAL_BLE_Init_Delayed_Action(NULL);
 //                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_MAIN;
                 
 //	                MAIN_MinProc();
@@ -931,7 +932,7 @@ void SYS_MAIN_Task(void * arg)
                 
             case MSG_LIFEVT:                //按键下降沿
                 KeyProc(MSG_LIFEVT);
-                time.dmon = 13;
+                time.day = 13;
                 time.year = 18;
                 time.month = 3;
                 time.hour = 15;
@@ -961,7 +962,7 @@ void SYS_MAIN_Task(void * arg)
                 break;
             case MSG_PSTP:                  //串口消息
 //	                PST_RecvProc();
-                Setp_RecvProc();
+//                Setp_RecvProc();
                 break;
             case MSG_CARD_INSERT:
                 break;
@@ -970,25 +971,25 @@ void SYS_MAIN_Task(void * arg)
                 break;
             case MSG_MAIN_BLE_CHK:
                 
-                ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
-                g_ucPutcharEn = 0;
-
-                HAL_BLE_Init(&gs_MainQueue, ble_name, 14);
-                if(SYS_GPI_GetStt(0) & 0x02)
-                {
-                    g_ucPutcharEn = 0;
-                }
-                else
-                {
-#ifndef DEBUG
-                    if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
-#endif
-                        g_ucPutcharEn = 1;
-                }
+//                ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
+//                g_ucPutcharEn = 0;
+//
+//                HAL_BLE_Init(&gs_MainQueue, ble_name, 14);
+//                if(SYS_GPI_GetStt(0) & 0x02)
+//                {
+//                    g_ucPutcharEn = 0;
+//                }
+//                else
+//                {
+//#ifndef DEBUG
+//                    if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
+//#endif
+//                        g_ucPutcharEn = 1;
+//                }
             
                 break;
             case MSG_PST_VAR:
-                PST_UpdateVar(); 
+//                PST_UpdateVar(); 
                 LOG_DEBUG("******MSG_PST_VAR******** !!!!\n");
             default:
                 break;
@@ -1096,7 +1097,7 @@ void SuspendSleep()
 //	    gs_Uart.Close(PORT_UART_STD);      
     gs_GPIO.GPO_Out(GPO_485_PWR,false);  
     gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,false);
-    SYS_LED_BlinkSetAll1(3, 0, 0, 0); 
+    SYS_Dev_OptBlinkSetAll(3, 0, 0, 0); 
 //	    brd_gpio_suspend();
     //hal_rtc_finalize(&g_stRtcDev);
 
@@ -1129,7 +1130,7 @@ void ResumeSleep()
 //	    at_reset_uart();
     
 //	    gs_Uart.Init(PORT_UART_STD, NULL);
-    SYS_FILE_Start();
+//    SYS_FILE_Start();
 #ifndef DEBUG        
     HAL_IWDG_Refresh(&hiwdg); //喂狗
 #endif

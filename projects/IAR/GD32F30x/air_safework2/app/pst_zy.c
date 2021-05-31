@@ -1164,7 +1164,7 @@ uint8 ZY_OpTime(const PST_TableStr* tbl, PST_Frame* frm)
         frame->send[0] = ByteHexToBcd(time->sec);
         frame->send[1] = ByteHexToBcd(time->min);
         frame->send[2] = ByteHexToBcd(time->hour);
-        frame->send[3] = ByteHexToBcd(time->dmon);
+        frame->send[3] = ByteHexToBcd(time->day);
         frame->send[4] = ByteHexToBcd(time->month);
         frame->send[5] = ByteHexToBcd(time->year);
         frame->len = 6;
@@ -1798,7 +1798,7 @@ uint8 ZY_Test(const PST_TableStr* tbl, PST_Frame* frm)
 
         frame->send[m++] = curTime.year;
         frame->send[m++] = curTime.month;
-        frame->send[m++] = curTime.dmon;
+        frame->send[m++] = curTime.day;
         frame->send[m++] = curTime.hour;
         frame->send[m++] = curTime.min;
         frame->send[m++] = curTime.sec;
@@ -1858,7 +1858,7 @@ uint8 ZY_Test(const PST_TableStr* tbl, PST_Frame* frm)
         TIME curTime;
         curTime.year    = frame->recv[m++];
         curTime.month   = frame->recv[m++];
-        curTime.dmon    = frame->recv[m++];
+        curTime.day    = frame->recv[m++];
         curTime.hour    = frame->recv[m++];
         curTime.min     = frame->recv[m++];
         curTime.sec     = frame->recv[m++];
@@ -2519,7 +2519,7 @@ uint8 ParaPrepayInfo(const PST_TableStr* tbl, PST_Frame* frm)
         const TIME* time = GetTime();
         frame->send[m++] = ByteHexToBcd(time->year);
         frame->send[m++] = ByteHexToBcd(time->month);
-        frame->send[m++] = ByteHexToBcd(time->dmon);
+        frame->send[m++] = ByteHexToBcd(time->day);
         frame->send[m++] = ByteHexToBcd(time->hour);
         frame->send[m++] = ByteHexToBcd(time->min);        
         frame->send[m++] = ByteHexToBcd(time->sec);
@@ -2555,7 +2555,7 @@ uint8 ParaPrepayInfo(const PST_TableStr* tbl, PST_Frame* frm)
                     stDlmscmd.port = gss_CDATATst[k].pt;
                     stDlmscmd.addr = gss_CDATATst[k].info.main_addr;  
                     stDlmscmd.addr_len = 1;
-                    stDlmscmd.fw = fw;
+//                    stDlmscmd.fw = fw;
                     stDlmscmd.baud_cfg = gss_CDATATst[k].bs;
                     stDlmscmd.di = 0;
                     fw->frameDtaStr[0].item[0].mult = k;
@@ -2633,7 +2633,7 @@ uint8 ParaPrepayInfo(const PST_TableStr* tbl, PST_Frame* frm)
                     stDlmscmd.port = gss_CDATATst[xh-1].pt;
                     stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
                     stDlmscmd.addr_len = 1;
-                    stDlmscmd.fw = fw;
+//                    stDlmscmd.fw = fw;
                     stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
                     stDlmscmd.di = 0;
                     fw->frameDtaStr[0].item[0].mult = xh - 1;
@@ -2756,7 +2756,7 @@ uint8 ParaRechargeInfo(const PST_TableStr* tbl, PST_Frame* frm)
                     stDlmscmd.port = gss_CDATATst[xh-1].pt;
                     stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
                     stDlmscmd.addr_len = 1;
-                    stDlmscmd.fw = fw;
+//                    stDlmscmd.fw = fw;
                     stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
                     stDlmscmd.di = 0;
                     memset(tmp,0,10);
@@ -2931,7 +2931,7 @@ uint8 ParaPriceAdjustInfo(const PST_TableStr* tbl, PST_Frame* frm)
         const TIME* time = GetTime();
         frame->send[m++] = ByteHexToBcd(time->year);
         frame->send[m++] = ByteHexToBcd(time->month);
-        frame->send[m++] = ByteHexToBcd(time->dmon);
+        frame->send[m++] = ByteHexToBcd(time->day);
         frame->send[m++] = ByteHexToBcd(time->hour);
         frame->send[m++] = ByteHexToBcd(time->min);        
         frame->send[m++] = ByteHexToBcd(time->sec);
@@ -2954,7 +2954,7 @@ uint8 ParaPriceAdjustInfo(const PST_TableStr* tbl, PST_Frame* frm)
                     stDlmscmd.port = gss_CDATATst[k].pt;
                     stDlmscmd.addr = gss_CDATATst[k].info.main_addr;  
                     stDlmscmd.addr_len = 1;
-                    stDlmscmd.fw = fw;
+//                    stDlmscmd.fw = fw;
                     stDlmscmd.baud_cfg = gss_CDATATst[k].bs;
                     stDlmscmd.di = 0;
                     fw->frameDtaStr[0].item[0].mult = k;
@@ -3034,7 +3034,7 @@ uint8 ParaPriceAdjustInfo(const PST_TableStr* tbl, PST_Frame* frm)
                     stDlmscmd.port = gss_CDATATst[xh-1].pt;
                     stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
                     stDlmscmd.addr_len = 1;
-                    stDlmscmd.fw = fw;
+//                    stDlmscmd.fw = fw;
                     stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
                     stDlmscmd.di = 0;
 //	                    fw->frameDtaStr[0].item[0].b = xh - 1;
@@ -3262,7 +3262,7 @@ uint8_t ZY_Valve_Ctr(const PST_TableStr* tbl, PST_Frame* frm)
                 stDlmscmd.port = gss_CDATATst[xh-1].pt;
                 stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
                 stDlmscmd.addr_len = 1;
-                stDlmscmd.fw = fw;
+//                stDlmscmd.fw = fw;
                 stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
                 stDlmscmd.di = 0;
 
@@ -3574,7 +3574,7 @@ uint8 ParamLoad_Ftp(void)
 //	    memcpy((uint8_t *)&getT, buff, 6);
     getT.year = ByteBcdToHex(buff[0]);
     getT.month = ByteBcdToHex(buff[1]);
-    getT.dmon = ByteBcdToHex(buff[2]);
+    getT.day = ByteBcdToHex(buff[2]);
     getT.hour = ByteBcdToHex(buff[3]);
     getT.min = ByteBcdToHex(buff[4]);
     getT.sec = ByteBcdToHex(buff[5]);    
@@ -3983,20 +3983,20 @@ ERR_FTP:
  ************************************************************************/
 uint8 PentTrans485(uint8 port, uint8 cfg, uint16* length, uint8* sbuff, uint8* rbuff, uint16 overtime)
 {
-    uart_config_t ss;                          //超时时间:单位100ms
+//    uart_config_t ss;                          //超时时间:单位100ms
     uint8 result;
     
     
-    PentCfgToSS(cfg, &ss);
-                                            //将发送数据移入接收缓存
-    
-                                            //执行.注意,该函数收发使用同一缓存
-    result = Netp_PentTran(sbuff, length, &ss, overtime, port);
-    if(result == SYS_ERR_OK && (*length > 0))
-    {
-        
-        MoveBuffer(sbuff, rbuff , *length);
-    }                                        
+//    PentCfgToSS(cfg, &ss);
+//                                            //将发送数据移入接收缓存
+//    
+//                                            //执行.注意,该函数收发使用同一缓存
+//    result = Netp_PentTran(sbuff, length, &ss, overtime, port);
+//    if(result == SYS_ERR_OK && (*length > 0))
+//    {
+//        
+//        MoveBuffer(sbuff, rbuff , *length);
+//    }                                        
     return result;
 }
 
@@ -4922,7 +4922,7 @@ uint8 LoadSystemParam(uint16 PType)
     SYS_OK();
 
 }
-extern IWDG_HandleTypeDef hiwdg;
+//extern IWDG_HandleTypeDef hiwdg;
 
 /************************************************************************
  * @function: RstSystemParam
@@ -5095,7 +5095,7 @@ uint8 VS_BuildLinkFrm(uint8 type, uint16_t id, uint8* buffer)
     
     buffer[m++] = sectime.year;
     buffer[m++] = sectime.month;
-    buffer[m++] = sectime.dmon;
+    buffer[m++] = sectime.day;
     buffer[m++] = sectime.hour;
     buffer[m++] = sectime.min;
     buffer[m++] = sectime.sec;
@@ -5191,7 +5191,7 @@ uint8_t VS_BuildReportFrm(uint8_t type, uint16_t id, uint16_t err, uint8* buffer
     
     buffer[m++] = sectime.year;
     buffer[m++] = sectime.month;
-    buffer[m++] = sectime.dmon;
+    buffer[m++] = sectime.day;
     buffer[m++] = sectime.hour;
     buffer[m++] = sectime.min;
     buffer[m++] = sectime.sec;
@@ -5325,7 +5325,7 @@ uint8 PST_ZY_Proc(PST_Frame* frm)
     TIME curTime;
     curTime.year = frame->time[0];
     curTime.month = frame->time[1];
-    curTime.dmon = frame->time[2];
+    curTime.day = frame->time[2];
     curTime.hour = frame->time[3];
     curTime.min = frame->time[4];
     curTime.sec = frame->time[5];
@@ -5462,7 +5462,7 @@ uint8 PST_ZY_Pack(PST_Frame* frame, uint8 err, uint16* length)
 
     frm->send[11] = curTime.year;
     frm->send[12] = curTime.month;
-    frm->send[13] = curTime.dmon;
+    frm->send[13] = curTime.day;
     frm->send[14] = curTime.hour;
     frm->send[15] = curTime.min;
     frm->send[16] = curTime.sec;

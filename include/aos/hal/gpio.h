@@ -96,7 +96,7 @@ int32_t hal_gpio_init(gpio_dev_t *gpio);
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t hal_gpio_output_high(gpio_dev_t *gpio);
+//int32_t hal_gpio_output_high(gpio_dev_t *gpio);
 
 /**
  * Sets an output GPIO pin low

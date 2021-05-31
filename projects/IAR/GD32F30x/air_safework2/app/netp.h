@@ -287,7 +287,7 @@ void Netp_PreInit(uint8 index);
  *-----------------------------------------------------------------------
  * @ÐÞ¸ÄÈË: 
  ************************************************************************/
-uint8 Netp_PentTran(uint8* buffer, uint16* length, uart_config_t* ss, uint16 overtime, uint8 port);
+uint8 Netp_PentTran(uint8* buffer, uint16* length, void* ss, uint16 overtime, uint8 port);
 
 /************************************************************************
  * @function: Netp_Trans
@@ -508,7 +508,7 @@ void Netp_chktimeisok(void);  //
 //uint8 Netp_Send(uint8_t phyport, uint8_t * buffer, uint16* len, 
 //                    uint8_t overtime, uart_config_t *ss, ST_Netp_FW * fw);
 uint8 Netp_Send(uint8_t phyport, uint8* buffer, uint16* len, 
-                uint8 overtime, uart_config_t *ss, NetpFrameStr * frameStr);
+                uint8 overtime, void *ss, NetpFrameStr * frameStr);
 
 uint8 Netp_Check(uint8_t port);
 

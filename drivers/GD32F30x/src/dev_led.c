@@ -27,7 +27,7 @@
 /************************************************************************
  * @模块编译提示
  ************************************************************************/
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
     
     #if !defined(LED_NUM) || (LED_NUM < 1)
         #define LED_NUM  1
@@ -35,10 +35,10 @@
     #endif
      
     
-    #if !defined(ID_SWTIMER_LED)
-        #define ID_SWTIMER_LED    0xff
-        #warning "请定义LED扫描定时器ID编号宏"
-    #endif
+//    #if !defined(ID_SWTIMER_LED)
+//        #define ID_SWTIMER_LED    0xff
+//        #warning "请定义LED扫描定时器ID编号宏"
+//    #endif
 #endif
 
 
@@ -59,7 +59,7 @@ typedef struct
 
 LedLights* gsp_LedLights;
 
-
+static ktimer_t     gst_LedTimer; 
 
 /************************************************************************
  * @Function: SYS_BlinkDev_OnOff
@@ -76,30 +76,30 @@ LedLights* gsp_LedLights;
  ************************************************************************/
 void SYS_BlinkDev_OnOff(uint32 led, bool oc)
 {
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
     _IF_TRUE_RETURN_VOID(led >= LED_NUM);   //参数检验
                                             //获取LED端口指针
-    COMPORT *gp = (COMPORT*)gs_LedPort + led;
+    GPO_PORTS *gp = (GPO_PORTS*)gs_LedPort + led;
     if(oc)                                  //输出高电平
     {
         if(gp->rvs)                         //逻辑电平翻转
         {
-            HAL_GPIO_SetPinState(&gp->gpio[gp->pingrp], gp->pinnum, false);
+            HAL_GPIO_SetPinState(gp->port, gp->port->pinnum, false);
         }
         else
         {
-            HAL_GPIO_SetPinState(&gp->gpio[gp->pingrp], gp->pinnum, true);
+            HAL_GPIO_SetPinState(gp->port, gp->port->pinnum, true);
         }
     }
     else                                    //输出低电平
     {
         if(gp->rvs)
         {
-            HAL_GPIO_SetPinState(&gp->gpio[gp->pingrp], gp->pinnum, true);
+            HAL_GPIO_SetPinState(gp->port, gp->port->pinnum, true);
         }
         else
         {
-            HAL_GPIO_SetPinState(&gp->gpio[gp->pingrp], gp->pinnum, false);
+            HAL_GPIO_SetPinState(gp->port, gp->port->pinnum, false);
         }
     }
 #endif
@@ -108,7 +108,7 @@ void SYS_BlinkDev_OnOff(uint32 led, bool oc)
 
 
 
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
 /************************************************************************
  * @Function: LED_Server
  * @Description: LED定时服务程序(tick周期)
@@ -200,54 +200,58 @@ bool LED_Server(void* pdata)
 
 void SYS_BlinkDev_Init(void)
 {
-#if (SYS_LED_EN > 0)
-    COMPORT* gpo;
+#if (SYS_LED_BEEP_EN > 0)
+    GPO_PORTS* gpo;
     
     //循环初始化各个LED端口
     for(uint32 uc_i = 0; uc_i < LED_NUM; uc_i++)
     {
-        gpo = (COMPORT*)gs_LedPort + uc_i;//LED端口信息
+        gpo = (GPO_PORTS*)gs_LedPort + uc_i;//LED端口信息
                                             //配置端口功能,并设为输出模式
 //        HAL_GPIO_PinConfig(gpo->cp->port, gpo->cp->pin, gpo->cp->mode);
 //        HAL_GPIO_SetPinDIR(gpo->cp->port, gpo->cp->pin, true);
-        HAL_GPIO_PinConfig(&gpo->gpio[gpo->pingrp], gpo->pinnum, gpo->type, gpo->analog, gpo->dir);        
+        HAL_GPIO_PinConfig(gpo->port);        
         if(gpo->rvs != gpo->ival)           //等同于异或
         {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 1);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
         }
         else
         {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 0);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
         }
     }
                                             //申请缓存
     gsp_LedLights = (LedLights*)m_malloc(sizeof(LedLights) * LED_NUM);
-    memset_s((uint8*)gsp_LedLights, 0, sizeof(LedLights) * LED_NUM);
+    memset((uint8*)gsp_LedLights, 0, sizeof(LedLights) * LED_NUM);
 #ifndef __NO_SYS__
     //创建亮灯服务定时器
-    SYS_Timer_Create(LED_Server, __NULL, 10, ID_SWTIMER_LED, false);
+//    SYS_Timer_Create(LED_Server, __NULL, 10, ID_SWTIMER_LED, false);
+    
+    krhino_timer_create(&gst_LedTimer, "gst_LedTimer", LED_Server,
+                        2, 10, 0, 1);   
+    
 #endif
 #endif
 }
 
 void SYS_BlinkDev_Idel()
 {
-#if (SYS_LED_EN > 0)
-    COMPORT* gpo;
+#if (SYS_LED_BEEP_EN > 0)
+    GPO_PORTS* gpo;
 
     //循环初始化各个LED端口
     for(uint32 uc_i = 0; uc_i < LED_NUM; uc_i++)
     {
-        gpo = (COMPORT*)gs_LedPort + uc_i;//LED端口信息
+        gpo = (GPO_PORTS*)gs_LedPort + uc_i;//LED端口信息
                                             //配置端口功能,并设为输出模式
-        HAL_GPIO_PinConfig(&gpo->gpio[gpo->pingrp], gpo->pinnum, gpo->type, gpo->analog, gpo->dir);        
+        HAL_GPIO_PinConfig(gpo->port);        
         if(gpo->rvs != gpo->ival)           //等同于异或
         {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 1);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
         }
         else
         {
-            HAL_GPIO_SetPinState(&gpo->gpio[gpo->pingrp], gpo->pinnum, 0);
+            HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
         }
     }
 
@@ -256,7 +260,7 @@ void SYS_BlinkDev_Idel()
 }
 //	void SYS_BlinkDev_WakeUp()
 //	{
-//	#if (SYS_LED_EN > 0)
+//	#if (SYS_LED_BEEP_EN > 0)
 //	    COMPORT* gpo;
 //	
 //	    //循环初始化各个LED端口
@@ -296,7 +300,7 @@ void SYS_BlinkDev_Idel()
  ************************************************************************/
 void SYS_Dev_HalfBlinkSet(uint32_t led, uint8_t type, uint8_t interval, uint16_t time)
 {
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
 
     uint8 ont;
     uint8 offt;
@@ -337,7 +341,7 @@ void SYS_Dev_HalfBlinkSet(uint32_t led, uint8_t type, uint8_t interval, uint16_t
  ************************************************************************/
 void SYS_Dev_HalfBlinkSetAll(uint8_t type, uint8_t interval, uint16_t time)
 {
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
 
     uint8 ont;
     uint8 offt;
@@ -381,7 +385,7 @@ void SYS_Dev_HalfBlinkSetAll(uint8_t type, uint8_t interval, uint16_t time)
  ************************************************************************/
 void SYS_Dev_OptBlinkSet(uint32_t led, uint8_t type, uint8_t oninterval, uint8_t offinterval, uint16_t time)
 {
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
     _IF_TRUE_RETURN_VOID(led >= LED_NUM);    //参数检验
     
     SYS_ENTER_SCRT();
@@ -432,7 +436,7 @@ void SYS_Dev_OptBlinkSet(uint32_t led, uint8_t type, uint8_t oninterval, uint8_t
  ************************************************************************/
 void SYS_Dev_OptBlinkSetAll(uint8_t type, uint8_t oninterval, uint8_t offinterval, uint16_t time)
 {
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
     LedLights* ll;
     uint32 bak;
     
@@ -492,14 +496,16 @@ void SYS_Dev_OptBlinkSetAll(uint8_t type, uint8_t oninterval, uint8_t offinterva
  ************************************************************************/
 void SYS_LED_TIMEROC(bool oc)
 {
-#if (SYS_LED_EN > 0)
+#if (SYS_LED_BEEP_EN > 0)
     if(oc)
     {
-        SYS_Timer_Start(ID_SWTIMER_LED);
+//        SYS_Timer_Start(ID_SWTIMER_LED);
+        krhino_timer_start(&gst_LedTimer);
     }
     else
     {
-        SYS_Timer_Stop(ID_SWTIMER_LED); 
+//        SYS_Timer_Stop(ID_SWTIMER_LED); 
+        krhino_timer_stop(&gst_LedTimer);
     }
 #endif
 }

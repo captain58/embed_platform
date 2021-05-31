@@ -24,7 +24,7 @@
 #include "saextapi.h"
 #include "alert.h"
 #include "inp.h"
-#include "dev_ble.h"
+//#include "dev_ble.h"
 #include "task.h"
 cpu_stack_t  gs_TKHlvStack[TASK_HLV_STKL];
 ktask_t      gs_TKHlvHandle;
@@ -126,10 +126,10 @@ void HLV_SecProc(void)
                 if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
                     g_ucPutcharEn = 1;
             }
-            if(!HAL_BLE_Status().bit.chnrdy)
-            {
-                HAL_BLE_Reset();
-            }
+//            if(!HAL_BLE_Status().bit.chnrdy)
+//            {
+//                HAL_BLE_Reset();
+//            }
             ALRT_ERC14(0);                  //系统运行过程中的上电记录
             if(aos_now_ms() > 5000)//掉电恢复时补报数据，上电5秒前认为是复位
             {
@@ -661,7 +661,7 @@ void HLV_PreInit(void)
     LoadSystemParam(PARA_TYPE_TASK);
 //	    LoadFramMisData();  
     int evtNum = 0;
-    CBB_FILE_Read_Event_Num(DB_FLASH, &evtNum, &gs_FramMisData.e1cnt);
+//    CBB_FILE_Read_Event_Num(DB_FLASH, &evtNum, &gs_FramMisData.e1cnt);
     gs_FramMisData.e1pt = gs_FramMisData.e1cnt;
     //其他初始化
     HLV_LDProc();                           //启动时对停上电的处理

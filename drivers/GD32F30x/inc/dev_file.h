@@ -1,16 +1,20 @@
-/******************************Copyright(c)******************************
-**                         
+/****************************************Copyright (c)**************************************************
+**                                  ________科技有限公司
+**                                          开发部
 **
-** File Name: dev_file.h
-** Author: 
-** Date Last Update: 2019-11-02
-** Description: 
-** Note: 
-*******************************History***********************************
-** Date: 2019-11-02
-** Author: yzy
-** Description: 文件创建
-*************************************************************************/
+**
+**--------------文件信息--------------------------------------------------------------------------------
+**文   件   名: dev_file.h
+**创   建   人: yzy
+**最后修改日期: 2010年11月11日
+**描        述: 数据存储系统的头文件
+**注        意: 
+***--------------历史版本信息----------------------------------------------------------------------------
+** 创建人: yzy
+** 版  本: v1.0
+** 日　期: 2010年2月15日
+** 描　述: 更改文件系统,采用固定数据块模式
+********************************************************************************************************/ 
 #ifndef _DEV_FILE_H_
 #define _DEV_FILE_H_
 
@@ -18,17 +22,27 @@
 #define EXT_DEV_FILE extern
 #endif
 
-
-
 /******************************************************************************
-**flash总线资源
+**文件操作资源
 ******************************************************************************/
-//#define gs_FileRes  gs_SpiioRes
-#define gs_FramRes  gs_SpiioRes
+EXT_DEV_FILE ksem_t gs_FileRes;
+
+EXT_DEV_FILE ktask_t * guc_FileUserTkid;        //当前占用资源的进程id,NULL表示未被占用.
+
+EXT_DEV_FILE ksem_t gs_EepromRes;
+
+EXT_DEV_FILE ktask_t * guc_EepromUserTkid;        //当前占用资源的进程id,NULL表示未被占用.
 
 
-#define guc_FileUserTkid    guc_SpiioUserTkid
-#define guc_FramUserTkid    guc_SpiioUserTkid
+//	/******************************************************************************
+//	**flash总线资源
+//	******************************************************************************/
+//	#define gs_FileRes  gs_SpiioRes
+//	#define gs_EepromRes  gs_I2CioRes
+//	
+//	
+//	#define guc_FileUserTkid    guc_SpiioUserTkid
+//	#define guc_EepromUserTkid    guc_I2CioUserTkid
 
 
 
@@ -55,28 +69,46 @@ enum
     DEV_FLS_RW_S = 2,       //设置一样的数据
     DEV_FLS_RW_E = 3,       //擦除
     DEV_FLS_RW_WS = 4,      //特殊写函数
+    
+    DEV_FLS_RW_BE = 5,       //擦除
 };
 
 enum
 {
     DEV_FLS_TYPE_FLS = 0,   //操作Flash
-    DEV_FLS_TYPE_FRAM = 1,  //操作FRAM
-    DEV_FLS_TYPE_VFRAM = 2, //操作虚拟FRAM
-    DEV_FLS_TYPE_E2 = 3,    //操作E2
-    DEV_FLS_TYPE_IFLS = 4,  //操作内部flash
-    
+    DEV_FLS_TYPE_EEPROM = 1,   //操作eeprom
+    DEV_FLS_TYPE_FRAM = 2,  //操作FRAM
+    DEV_FLS_TYPE_VFRAM = 3, //操作虚拟FRAM
+    DEV_FLS_TYPE_IDEL = 4, //操作虚拟FRAM
 };
 
+#define DB_FLASH            0x1//     flash
+#define DB_EEPROM           0x2//   eeprom
+#define DT_EVENT_DATA_LEN   128//事件长度
+#define DT_EVENT_DATA_NUM      256
 
+#define DT_RECHARGE_DATA_LEN   64//事件长度
+#define DT_RECHARGE_DATA_NUM      1024
+
+#define CON_FILE_OPEN 0xAA
+#define CON_FILE_CLOSE 0x55
+
+
+
+#define CBB_ERR_VAR SYS_ERR_VAR
+#define CBB_ERR_FT SYS_ERR_FT
+#define CBB_ERR_OK SYS_ERR_OK
+#define CBB_ERR_CLOSE SYS_ERR_EXIST
+#define CBB_ERR_EXIST SYS_ERR_EXIST
 
 uint8 DevFls_ProcMSG(TDevFlsOP* op);
 TResult SYS_FILE_Write(uint8* buffer, uint32 addr, uint32 length);
 TResult SYS_FILE_Read(uint8* buffer, uint32 addr, uint32 length);
 uint32 SYS_FILE_Test(void);
 
-void SYS_FILE_Open(void);
+TResult SYS_FILE_Open(void);
 void SYS_FILE_Close(void);
-TResult SYS_FILE_DB_Open(uint16_t user,uint16 ID, TDataBlock* db, TDB_MODE RW);
+TResult SYS_FILE_DB_Open(uint16 ID, TDataBlock* db, TDB_MODE RW);
 void SYS_FILE_DB_Close(TDataBlock* db);
 TResult SYS_FILE_DB_ReadFrom(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
 TResult SYS_FILE_DB_ReadWithCRC(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
@@ -88,6 +120,7 @@ TResult SYS_FILE_DB_WriteWithBackup(TDataBlock* db, uint8* buffer, uint32 length
 TResult SYS_FILE_DB_WriteSpec(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
 TResult SYS_FILE_DB_BufferCheck(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
 TResult SYS_FILE_DB_Erase(TDataBlock* db, uint32 sectorfrom, uint32 sectornum);
+TResult SYS_FILE_DB_BErase(TDataBlock* db, uint32 sectorfrom, uint32 sectornum);
 
 TResult SYS_FRAM_Open(void);
 void SYS_FRAM_Close(void);
@@ -98,62 +131,10 @@ TResult SYS_FRAM_SafeRead(uint8* data, uint16 num);
 uint8 Fram_SafeRead(uint8* data, uint16 sno, uint16 len);
 uint8 Fram_SafeWrite(uint8* data, uint16 sno, uint16 len);
 
-TResult SYS_IFILE_DB_WriteFrom(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
-TResult SYS_IFILE_DB_ReadFrom(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
-/***********************************************************
- * @function_name: SYS_IFILE_DB_SetFrom
- * @function_file: es_file.c
- * @描述:设置相同数据
- * 
- * 
- * @参数: 
- * @param:db    
- * @param:addr 
- * @param:length
- * @param:templet
- * 
- * @返回: 
- * @return: TResult 
- * @作者:
- *---------------------------------------------------------
- * @修改人: yzy (2010/2/22)
- **********************************************************/
-TResult SYS_IFILE_DB_SetFrom(TDataBlock* db, uint32 addr, uint32 length, uint8 templet);
-TResult SYS_IFILE_DB_WriteWithBackup(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
-TResult SYS_IFILE_DB_ReadWithBackup(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr);
-
-/************************************************************************
- * @function: SYS_E2_SafeWrite
- * @描述: 向一个e2条目中写入数据
- * 
- * @参数: 
- * @param: data 欲写入的内容
- * @param: num 铁电条目编号
- * 
- * @返回: 
- * @return: TResult
- * @说明: 
- * @作者: yzy (2013/10/28)
- *-----------------------------------------------------------------------
- * @修改人: 
- ************************************************************************/
-uint8 SYS_E2_SafeWrite(uint8* data, uint32_t addr, uint32_t len);
-/************************************************************************
- * @function: SYS_E2_SafeRead
- * @描述: 从一个e2条目中读取数据
- * 
- * @参数: 
- * @param: data 一个铁电条目,大小至少为32字节,否则会导致缓存溢出
- * @param: num 铁电条目编号
- * 
- * @返回: 
- * @return: TResult  
- * @说明: 
- * @作者: yzy (2013/10/28)
- *-----------------------------------------------------------------------
- * @修改人: 
- ************************************************************************/
-uint8 SYS_E2_SafeRead(uint8* data, uint32_t addr, uint32_t len);
+TResult SYS_EEPROM_Open(void);
+void SYS_EEPROM_Close(void);
+uint8 Eeprom_SafeRead(uint8* data, uint32 addr, uint16 len);
+uint8 Eeprom_SafeWrite(uint8* data, uint32 addr, uint16 len);
 
 
 /************************************************************************
@@ -167,8 +148,30 @@ uint8 SYS_E2_SafeRead(uint8* data, uint32_t addr, uint32_t len);
  * @修改人: 
  ************************************************************************/
 void SYS_FILE_Init(void);
+/************************************************************************
+ * @function: SYS_FILE_Start
+ * @描述: 文件设备开始
+ * @参数: 
+ * @返回: 
+ * @说明: 
+ * @作者: yzy (2014/6/21)
+ *-----------------------------------------------------------------------
+ * @修改人: 
+ ************************************************************************/
+void SYS_FILE_Start(void);
 
+/************************************************************************
+ * @function: SYS_FILE_Stop
+ * @描述: 文件设备关闭
+ * @参数: 
+ * @返回: 
+ * @说明: 
+ * @作者: yzy (2014/6/21)
+ *-----------------------------------------------------------------------
+ * @修改人: 
+ ************************************************************************/
 
+void SYS_FILE_Stop(void);
 
 
 

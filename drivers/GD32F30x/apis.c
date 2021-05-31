@@ -165,15 +165,15 @@ const _F_OS gs_OS =
 #if (SYS_GPI_EN > 0) || (SYS_GPO_EN > 0)
 const _F_GPIO gs_GPIO=
 {
-    SYS_LED_Init,
-    SYS_LED_BlinkSet,
-    SYS_LED_BlinkSetAll,
-    SYS_LED_BlinkSet1,
-    SYS_LED_BlinkSetAll1,
+    SYS_BlinkDev_Init,
+    SYS_Dev_HalfBlinkSet,
+    SYS_Dev_HalfBlinkSetAll,
+    SYS_Dev_OptBlinkSet,
+    SYS_Dev_OptBlinkSetAll,
     SYS_GPI_Init,
     SYS_GPI_GetStt,
     SYS_GPI_Event,
-    SYS_GPI_Get_PinStt,
+    SYS_GPI_GetStt,
     SYS_GPO_Init,
     SYS_GPO_Out,
 };
@@ -193,16 +193,16 @@ const _F_RTC gs_RealTime=
 #if SYS_SER_EN >0
 const _F_UART gs_Uart=
 {
-    SER_Open,
-    SER_Close,
-    SER_Clear,
-    SER_Init,  
+    SYS_SER_Open,
+    SYS_SER_Close,
+    SYS_SER_Clear,
+    SYS_SER_Init,  
 //	    SER_ReadByte,
-    SER_RecvData,
+    SYS_SER_Read,
 //	    SER_Line,
 //	    SER_LineLen,
-    SER_SendData,
-    SER_ToBeRead_By_Port,
+    SYS_SER_Write,
+    SYS_SER_ToBeRead,//    SYS_SER_ToBeRead_By_Port,
 //	    SER_PrintValue,
 //	    SER_Peek,
 };
