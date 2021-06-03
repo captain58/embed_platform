@@ -112,7 +112,16 @@ typedef struct
 }SerialBuffer;
 
 
+/************************************************************************
+**rs485额外操作
 
+*************************************************************************/
+typedef struct
+{
+    TCallback setModeRecv;        //切换为接收状态的函数宏
+    TCallback setModeSend;        //切换为发送状态的函数宏
+    TCallback setModeInit;        //配置收发模式切换的IO口函数宏
+}SerialTRC;
 /************************************************************************
 **串口分离的信息体
 *************************************************************************/
@@ -123,12 +132,13 @@ typedef struct
     uint8_t irqn;
     uint8_t * inited;
     
-    uint8_t uart;//USART_TypeDef * pUART;
+    uint32_t pUART;//USART_TypeDef * pUART;
+    uint32_t clk;
     TCallback   pinConfig;               //串口管脚配置函数宏
 //    uint8_t rs485;//
     TCallback   msp;
 
-//    SerialTRC* rs485;                   //RS485的收发切换操作(无效赋值__NULL)
+    SerialTRC* rs485;                   //RS485的收发切换操作(无效赋值__NULL)
     SerialBuffer*  buffer;              //串口缓存
     uint8* recvFlag;                    //数据接收完毕标志
     uint16 recvBufLen;                  //串口接收缓存长度
@@ -147,9 +157,9 @@ typedef struct
     TESRes * uart_tx_sem;    
 #endif
 
-    uint32_t       overSampling;
-    uint32_t       OneBitSampling;
-    uint32_t       AdvFeatureInit;    
+//    uint32_t       overSampling;
+//    uint32_t       OneBitSampling;
+//    uint32_t       AdvFeatureInit;    
 
 }SerialID;
 /******************************************************************************

@@ -20,7 +20,7 @@
 #include "bsp.h"
 
 
-
+#include "tasks.h"
 
 
 /************************************************************************
@@ -397,108 +397,163 @@ void SYS_GPI_WakeUp(void)
  * @History: 
  ************************************************************************/
 
+//void SYS_GPI_EvtMessageLoop(void)
+//{
+//#if (SYS_GPIEVT_EN > 0)
+//    uint8 tkid;
+//    uint8 evtchg = 0;
+//    
+//    SYS_ENTER_SCRT();        //yzy:解决以下风险:当判断到第N个进程时,evt发生变化,这该变化无法在前N个进程中得到体现
+//                                            //快速端口下降沿
+//    if(gsp_GpioStt->fgpifevt & ~gsp_GpioStt->fgpifevtbak)
+//    {
+//        gsp_GpioStt->fgpifevtbak = gsp_GpioStt->fgpifevt;
+//        evtchg |= 0x01;
+//    }
+//                                            //快速端口上升沿
+//    if(gsp_GpioStt->fgpirevt & ~gsp_GpioStt->fgpirevtbak)
+//    {
+//        gsp_GpioStt->fgpirevtbak = gsp_GpioStt->fgpirevt;
+//        evtchg |= 0x02;
+//    }
+//                                            //慢速端口下降沿
+//    if(gsp_GpioStt->keyfevt & ~gsp_GpioStt->keyfevtbak)
+//    {
+//        gsp_GpioStt->keyfevtbak = gsp_GpioStt->keyfevt;
+//        evtchg |= 0x04;
+//    }
+//                                            //慢速端口上升沿
+//    if(gsp_GpioStt->keyrevt & ~gsp_GpioStt->keyrevtbak)
+//    {
+//        gsp_GpioStt->keyrevtbak = gsp_GpioStt->keyrevt;
+//        evtchg |= 0x08;
+//    }
+//                                            //慢速端口保持
+//    if(gsp_GpioStt->keylevt & ~gsp_GpioStt->keylevtbak)
+//    {
+//        gsp_GpioStt->keylevtbak = gsp_GpioStt->keylevt;
+//        evtchg |= 0x10;
+//    } 
+//    SYS_EXIT_SCRT();         //yzy
+//    
+//    
+//    for(tkid = 0; tkid < SYS_TK_NUM; tkid++)
+//    {
+//        if(guc_MsgApplied[tkid] & Bit_Map8[MSG_CLS_GPIO])
+//        {
+//#ifndef __NO_SYS__ 
+//        
+//            if(evtchg & 0x01)               //快速端口下降沿
+//            {
+//                SYS_Message_Send(MSG_FIFEVT , tkid);
+//            }
+//            if(evtchg & 0x02)               //快速端口上升沿
+//            {
+//                SYS_Message_Send(MSG_FIREVT, tkid);
+//            }
+//            if(evtchg & 0x04)                   //慢速端口下降沿
+//            {
+//                SYS_Message_Send(MSG_LIFEVT, tkid);
+//            }
+//            if(evtchg & 0x08)                   //慢速端口上升沿
+//            {
+//                SYS_Message_Send(MSG_LIREVT, tkid);
+//            }
+//            if(evtchg & 0x10)                   //慢速端口保持
+//            {
+//                SYS_Message_Send(MSG_LILEVT, tkid);
+//            }
+//#else
+//            if(evtchg & 0x01)               //快速端口下降沿
+//            {
+//                SysSndMsg(tkid,  MSG_FIFEVT);
+//            }
+//            if(evtchg & 0x02)               //快速端口上升沿
+//            {
+//                SysSndMsg(tkid,  MSG_FIREVT);
+//            }
+//            if(evtchg & 0x04)                   //慢速端口下降沿
+//            {
+//                SysSndMsg(tkid,  MSG_LIFEVT);
+//            }
+//            if(evtchg & 0x08)                   //慢速端口上升沿
+//            {
+//                SysSndMsg(tkid,  MSG_LIREVT);
+//            }
+//            if(evtchg & 0x10)                   //慢速端口保持
+//            {
+//                SysSndMsg(tkid,  MSG_LILEVT);
+//            }
+//
+//
+////	
+////	            if(evtchg != 0)
+////	            {
+////	                SysSndMsg(tkid,  MSG_GPI);
+////	            }
+//#endif
+//        }
+//        
+//    }
+//#endif
+//}
+
 void SYS_GPI_EvtMessageLoop(void)
 {
-#if (SYS_GPIEVT_EN > 0)
     uint8 tkid;
-    uint8 evtchg = 0;
+    uint8 msg = 0xff;
     
-    SYS_ENTER_SCRT();        //yzy:解决以下风险:当判断到第N个进程时,evt发生变化,这该变化无法在前N个进程中得到体现
-                                            //快速端口下降沿
-    if(gsp_GpioStt->fgpifevt & ~gsp_GpioStt->fgpifevtbak)
-    {
-        gsp_GpioStt->fgpifevtbak = gsp_GpioStt->fgpifevt;
-        evtchg |= 0x01;
-    }
-                                            //快速端口上升沿
-    if(gsp_GpioStt->fgpirevt & ~gsp_GpioStt->fgpirevtbak)
-    {
-        gsp_GpioStt->fgpirevtbak = gsp_GpioStt->fgpirevt;
-        evtchg |= 0x02;
-    }
-                                            //慢速端口下降沿
-    if(gsp_GpioStt->keyfevt & ~gsp_GpioStt->keyfevtbak)
-    {
-        gsp_GpioStt->keyfevtbak = gsp_GpioStt->keyfevt;
-        evtchg |= 0x04;
-    }
-                                            //慢速端口上升沿
-    if(gsp_GpioStt->keyrevt & ~gsp_GpioStt->keyrevtbak)
-    {
-        gsp_GpioStt->keyrevtbak = gsp_GpioStt->keyrevt;
-        evtchg |= 0x08;
-    }
-                                            //慢速端口保持
-    if(gsp_GpioStt->keylevt & ~gsp_GpioStt->keylevtbak)
-    {
-        gsp_GpioStt->keylevtbak = gsp_GpioStt->keylevt;
-        evtchg |= 0x10;
-    } 
-    SYS_EXIT_SCRT();         //yzy
-    
+    extern const KTaskDeclare __TKDeclare[SYS_TK_NUM];
+    const KTaskDeclare* dec = __TKDeclare;
     
     for(tkid = 0; tkid < SYS_TK_NUM; tkid++)
     {
-        if(gucs_MsgApplied[tkid] & Bit_Map8[MSG_CLS_GPIO])
+        msg = 0xff;
+        if(guc_MsgApplied[tkid] & Bit_Map8[MSG_CLS_GPIO])
         {
-#ifndef __NO_SYS__ 
-        
-            if(evtchg & 0x01)               //快速端口下降沿
+            if(gsp_GpioStt->fgpifevt & ~gsp_GpioStt->fgpifevtbak)          //快速端口下降沿
             {
-                SYS_Message_Send(MSG_FIFEVT , tkid);
+                msg = MSG_FIFEVT;
+                
             }
-            if(evtchg & 0x02)               //快速端口上升沿
+            if(gsp_GpioStt->fgpirevt & ~gsp_GpioStt->fgpirevtbak)          //快速端口上升沿
             {
-                SYS_Message_Send(MSG_FIREVT, tkid);
+                msg = MSG_FIREVT;
+//	                SYS_Message_Send(MSG_FIREVT, tkid);
             }
-            if(evtchg & 0x04)                   //慢速端口下降沿
+            if(gsp_GpioStt->keyfevt & ~gsp_GpioStt->keyfevtbak)           //慢速端口下降沿
             {
-                SYS_Message_Send(MSG_LIFEVT, tkid);
+                msg = MSG_LIFEVT;
+//	                SYS_Message_Send(MSG_LIFEVT, tkid);
             }
-            if(evtchg & 0x08)                   //慢速端口上升沿
+            if(gsp_GpioStt->keyrevt & ~gsp_GpioStt->keyrevtbak)           //慢速端口上升沿
             {
-                SYS_Message_Send(MSG_LIREVT, tkid);
+                msg = MSG_LIREVT;
+//	                SYS_Message_Send(MSG_LIREVT, tkid);
             }
-            if(evtchg & 0x10)                   //慢速端口保持
+            if(gsp_GpioStt->keylevt & ~gsp_GpioStt->keylevtbak)           //慢速端口保持
             {
-                SYS_Message_Send(MSG_LILEVT, tkid);
+                msg = MSG_LILEVT;
+//	                SYS_Message_Send(MSG_LILEVT, tkid);
             }
-#else
-            if(evtchg & 0x01)               //快速端口下降沿
+            if(msg != 0xff)
             {
-                SysSndMsg(tkid,  MSG_FIFEVT);
+                krhino_buf_queue_send(dec[tkid].ktask->msg, &msg, 1);
             }
-            if(evtchg & 0x02)               //快速端口上升沿
-            {
-                SysSndMsg(tkid,  MSG_FIREVT);
-            }
-            if(evtchg & 0x04)                   //慢速端口下降沿
-            {
-                SysSndMsg(tkid,  MSG_LIFEVT);
-            }
-            if(evtchg & 0x08)                   //慢速端口上升沿
-            {
-                SysSndMsg(tkid,  MSG_LIREVT);
-            }
-            if(evtchg & 0x10)                   //慢速端口保持
-            {
-                SysSndMsg(tkid,  MSG_LILEVT);
-            }
-
-
-//	
-//	            if(evtchg != 0)
-//	            {
-//	                SysSndMsg(tkid,  MSG_GPI);
-//	            }
-#endif
         }
-        
     }
-#endif
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
+            //yzy:解决以下风险:当判断到第N个进程时,evt发生变化,这该变化无法在前N个进程中得到体现
+    gsp_GpioStt->fgpifevtbak = gsp_GpioStt->fgpifevt;
+    gsp_GpioStt->fgpirevtbak = gsp_GpioStt->fgpirevt;
+    gsp_GpioStt->keyfevtbak = gsp_GpioStt->keyfevt;
+    gsp_GpioStt->keyrevtbak = gsp_GpioStt->keyrevt;
+    gsp_GpioStt->keylevtbak = gsp_GpioStt->keylevt;
+    
+    RHINO_CPU_INTRPT_ENABLE();
+    
 }
-
-
 
 
 
@@ -584,3 +639,11 @@ uint32 SYS_GPI_Event(uint8 type)
    
 }
 
+void SYS_GPI_Event_Clear(void)
+{
+    gsp_GpioStt->fgpirevt = 0;
+    gsp_GpioStt->fgpifevt= 0;
+    gsp_GpioStt->keylevt= 0;
+    gsp_GpioStt->keyrevt = 0;
+    gsp_GpioStt->keyfevt = 0;
+}

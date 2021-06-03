@@ -139,7 +139,7 @@ uint32 SYS_GPI_GetStt(uint8 type);
  ************************************************************************/
 uint32 SYS_GPI_Event(uint8 type);
 
-
+void SYS_GPI_Event_Clear(void);
 
 
 #endif

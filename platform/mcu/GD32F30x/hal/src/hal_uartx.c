@@ -223,380 +223,7 @@ bool UartACCTransmitProc(const SerialID* sid)
 }
 #endif
 
-static int32_t uart_send_it(const SerialID* sid, const void *data, uint32_t size,uint32_t timeout)
-{
-    HAL_StatusTypeDef sendRlt = HAL_BUSY;
 
-    SYS_SEM_Wait((TESRes*)sid->uart_tx_mutex, 0);
-
-    sendRlt = HAL_UART_Transmit_IT(sid->phandle, (uint8_t *)data, size);
-
-    SYS_SEM_Wait((TESRes*)sid->uart_tx_sem, timeout);
-    SYS_SEM_Release((TESRes*)sid->uart_tx_mutex);
-
-    return (sendRlt==HAL_OK)?0:-1;
-}
-
-static int32_t uart_send_dma(const SerialID* sid, const void *data, uint32_t size,uint32_t timeout)
-{
-    HAL_StatusTypeDef sendRlt = HAL_BUSY;
-    
-    SYS_SEM_Wait((TESRes*)&sid->uart_tx_mutex, 0);
-
-    sendRlt = HAL_UART_Transmit_DMA(sid->phandle, (uint8_t *)data, size);
-
-    /*wait for the end of transfer*/
-    SYS_SEM_Wait((TESRes*)sid->uart_tx_sem, timeout);
-    SYS_SEM_Release((TESRes*)sid->uart_tx_mutex);
-
-
-    return (sendRlt==HAL_OK)?0:-1;
-}
-
-int32_t hal_uart_send(const SerialID* sid, const void *data, uint32_t size, uint32_t timeout)
-{
-    int32_t ret = -1;
-    UART_HandleTypeDef *handle = NULL;
-    
-    if ((sid == NULL) || (data == NULL)) {
-        return -1;
-    }    
-
-    handle = sid->phandle;//uart_get_handle(uart->port);
-    if (handle == NULL) {
-        return -1;
-    }
-    if(*(sid->inited)!=1)
-    {
-        return -1;
-    }
-    if(sid->rs485)
-    {
-        casHwTimerStop(ID_CASHWTIMR_UARTTRC(sid->uart_no));//停止定时器
-        ((void(*)())sid->rs485->setModeSend)();//转到发送口的状态
-    }
-
-    /* if  UART Tx DMA Handle is NULL, then start data send in interrupt mode
-     * otherwise in DMA mode
-     */
-    if(handle->hdmatx ==NULL)
-        ret = uart_send_it(sid,data, size, timeout);
-    else
-        ret = uart_send_dma(sid,data, size, timeout);
-
-    return ret;
-}
-extern const SerialID* const gss_UartSID[NO_OF_SERIAL];
-
-static SerialID *  GetAppPortFromPhyInstanse(const void* uartIns)
-{
-    SerialID * rc = NULL;
-    int8_t i = 0;
-    for(i = 0; i<NO_OF_SERIAL; i++)
-    {
-        if( (USART_TypeDef*)gss_UartSID[i]->pUART == (USART_TypeDef*)uartIns)
-        {
-            rc = (SerialID *)gss_UartSID[i];
-            break;
-        }
-    }
-    return rc;
-}
-
-static void UART_DMA_RxCpltCallback(SerialID * ids)//PORT_UART_TYPE appPort, uint32_t max_buffer_size)
-{
-    UART_HandleTypeDef huart = *ids->phandle;//stm32_uart[appPort].hal_uart_handle;
-    SerialBuffer * gsp_uart = ids->buffer;
-    uint32_t max_buffer_size = gsp_uart->rlen;
-    //switch DMA Destination to another buffer region
-    if(huart.hdmarx->Instance->CMAR == (uint32_t)&gsp_uart->rbuff[0])//(uint32_t)&stm32_uart[appPort].UartRxBuf[0])
-    {
-        if(gsp_uart->rcnt < max_buffer_size/2)
-        {
-            HAL_UART_Receive_DMA(&huart,(uint8_t*)&gsp_uart->rbuff[max_buffer_size/2],max_buffer_size/2);
-            gsp_uart->uart_dma_stop =0;
-            gsp_uart->previous_dma_leftbyte = max_buffer_size/2;
-        } else {
-            gsp_uart->uart_dma_stop =1;
-        }
-        gsp_uart->rp = (uint16_t)max_buffer_size/2;
-        if(gsp_uart->rp == gsp_uart->rcnt)
-            gsp_uart->RxBuf_is_full =1;
-    } else {
-        if(gsp_uart->rcnt >= max_buffer_size/2)
-        {
-            HAL_UART_Receive_DMA(&huart,(uint8_t*)&gsp_uart->rbuff[0],max_buffer_size/2);
-            gsp_uart->uart_dma_stop =0;
-            gsp_uart->rp =0;
-            gsp_uart->previous_dma_leftbyte = max_buffer_size/2;
-        } else {
-            gsp_uart->uart_dma_stop =1;
-            gsp_uart->rp = 0;//in case uart_rx_in = uart_rx_out, should take in account of "RxBuf_is_full" to identify if buffer is full
-            if(gsp_uart->rp == gsp_uart->rcnt)
-                gsp_uart->RxBuf_is_full =1;
-        }
-    }
-}
-
-
-static void UART_IT_RxCpltCallback(SerialID * sid)
-{
-    SerialBuffer * gsp_Uartx = sid->buffer;
-    //TODO:
-    //should take care to avoid UART_RX_IN get accross UART_RX_OUT, which will loss unread data
-    //if receive buffer is too small, or application read data out of receive buffer at very low frequence
-    //this situation may happen
-    if(++gsp_Uartx->rp >= gsp_Uartx->rlen)//卷绕复位
-        gsp_Uartx->rp = 0;
-    gsp_Uartx->rcnt++;          //数量+1
-                                //判断是否已经超出缓存
-//	    if(gsp_Uartx->rp >= gsp_Uartx->rlen)
-//	    {
-//	        gsp_Uartx->rp = 0;      //卷绕复位
-//	    }
-//	    if(rflag)
-    {
-        casHwTimerStart(ID_CASHWTIMR_UARTROT(sid->uart_no));
-    }
-
-    HAL_UART_Receive_IT(sid->phandle, &gsp_Uartx->rbuff[gsp_Uartx->rp], 1);
-
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    const SerialID * sid = GetAppPortFromPhyInstanse(huart->Instance);
-//	    UART_MAPPING* uartIns = GetUARTMapping(appPort);
-//    SerialBuffer*  gsp_Uartx = sid->buffer;
-
-    //check if it is called from UART_DMAReceiveCplt
-    if(sid->phandle->hdmarx != NULL)
-        UART_DMA_RxCpltCallback((SerialID *)sid);//uartIns->attr.max_buf_bytes);
-    else
-        UART_IT_RxCpltCallback((SerialID *)sid);
-
-//	    SerialID * ids = __Uart_Find(appPort);
-//	    
-//	    if( NULL != ids ){ 
-//	        *(ids->uart_RecvStart) = 1;
-//	        *(ids->uart_ByteTimeout) = 0;
-//	    }
-//	    aos_sem_signal(&stm32_uart[appPort].uart_rx_sem);
-}
-
-
-/**
-  * @brief  Tx Transfer completed callback
-  * @param  huart: UART handle. 
-  * @note   This example shows a simple way to report end of DMA Tx transfer, and 
-  *         you can add your own implementation. 
-  * @retval None
-  */
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    const SerialID * sid = GetAppPortFromPhyInstanse(huart->Instance);
-    if(sid->rs485 > 0)
-    {                           //启动定时从而来判断是否已经发送完最后的字节
-        casHwTimerStart(ID_CASHWTIMR_UARTTRC(sid->uart_no));
-    }
-
-//	    aos_sem_signal(&stm32_uart[appPort].uart_tx_sem);
-    if(0 == huart->TxXferCount)
-        SYS_SEM_Release((TESRes*)sid->uart_tx_sem);
-}
-
-
-
-int32_t uart_dataWidth_transform(uint8_t data_width_hal,
-        uint32_t *data_width_stm32l4)
-{
-    uint32_t data_width = 0;
-    int32_t ret = 0;
-#if defined(USART_CR1_M1)
-    if(data_width_hal == DataBits_7bits)
-    {
-        data_width = UART_WORDLENGTH_7B;
-    }
-    else 
-#endif      
-    if(data_width_hal == DataBits_8bits)
-    {
-        data_width = UART_WORDLENGTH_8B;
-    }
-    else if(data_width_hal == DataBits_9bits)
-    {
-        data_width = UART_WORDLENGTH_9B;
-    }
-    else
-    {
-        ret = -1;
-    }
-
-    if(ret == 0)
-    {
-        *data_width_stm32l4 = data_width;
-    }
-
-    return ret;
-}
-
-int32_t uart_parity_transform(uint8_t parity_hal,
-        uint32_t *parity_stm32l4)
-{
-    uint32_t parity = 0;
-    int32_t ret = 0;
-
-    if(parity_hal == Parit_N)
-    {
-        parity = UART_PARITY_NONE;
-    }
-    else if(parity_hal == Parit_O)
-    {
-        parity = UART_PARITY_ODD;
-    }
-    else if(parity_hal == Parit_E)
-    {
-        parity = UART_PARITY_EVEN;        
-    }
-    else
-    {
-        ret = -1;
-    }
-
-    if(ret == 0)
-    {
-        *parity_stm32l4 = parity;
-    }
-
-    return ret;
-}
-
-int32_t uart_stop_bits_transform(uint8_t stop_bits_hal,
-        uint32_t *stop_bits_stm32l4)
-{
-    uint32_t stop_bits = 0;
-    int32_t ret = 0;
-
-    if(stop_bits_hal == StopBits_1)
-    {
-        stop_bits = UART_STOPBITS_1;
-    }
-    else if(stop_bits_hal == StopBits_2)
-    {
-        stop_bits = UART_STOPBITS_2;
-    }
-    else
-    {
-        ret = -1;
-    }
-
-    if(ret == 0)
-    {
-        *stop_bits_stm32l4 = stop_bits;
-    }
-
-    return ret;
-}
-
-int32_t uart_flow_control_transform(uint8_t flow_control_hal,
-        uint32_t *flow_control_stm32l4)
-{
-    uint32_t flow_control = 0;
-    int32_t ret = 0;
-
-    if(flow_control_hal == FLOW_CONTROL_DISABLED)
-    {
-        flow_control = UART_HWCONTROL_NONE;
-    }
-    else if(flow_control_hal == FLOW_CONTROL_CTS)
-    {
-        flow_control = UART_HWCONTROL_CTS;
-    }
-    else if(flow_control_hal == FLOW_CONTROL_RTS)
-    {
-        flow_control = UART_HWCONTROL_RTS;
-    }
-    else if(flow_control_hal == FLOW_CONTROL_RTS)
-    {
-        flow_control = UART_HWCONTROL_RTS_CTS;
-    }
-    else
-    {
-        ret = -1;
-    }
-
-    if(ret == 0)
-    {
-        *flow_control_stm32l4 = flow_control;
-    }
-
-    return ret;
-}
-int32_t uart_mode_transform(uint8_t mode_hal, uint32_t *mode_stm32l4)
-{
-    uint32_t mode = 0;
-    int32_t ret = 0;
-
-    if(mode_hal == MODE_TX)
-    {
-        mode = UART_MODE_TX;
-    }
-    else if(mode_hal == MODE_RX)
-    {
-        mode = UART_MODE_RX;
-    }
-    else if(mode_hal == MODE_TX_RX)
-    {
-        mode = UART_MODE_TX_RX;
-    }
-    else
-    {
-        ret = -1;
-    }
-
-    if(ret == 0)
-    {
-        *mode_stm32l4 = mode;
-    }
-
-    return ret;
-}
-
-static int32_t uart_receive_start_it(const SerialID* sid, uint32_t max_buffer_size)
-{
-    UART_HandleTypeDef *pstuarthandle = NULL;
-
-    pstuarthandle = sid->phandle;
-    //HAL_UART_RxCpltCallback is called per 1 byte, to update uart_rx_in
-    if(HAL_UART_Receive_IT(pstuarthandle,(uint8_t*)sid->buffer->rbuff,1)!= HAL_OK)
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-static int32_t uart_receive_start_dma(const SerialID* sid, uint32_t max_buffer_size)
-{
-    UART_HandleTypeDef *pstuarthandle = NULL;
-    uint32_t temp_reg;
-
-    pstuarthandle = sid->phandle;//&stm32_uart[uart_port].hal_uart_handle;
-//	    printf("uart %d enter uart_receive_start_dma instance 0x%x", 
-//	        uart_port, pstuarthandle->Instance);
-    //enable IDLE interrupt
-    if(HAL_UART_Receive_DMA(pstuarthandle,(uint8_t*)sid->buffer->rbuff,max_buffer_size/2)!= HAL_OK)
-    {
-        return -1;
-    }
-
-    temp_reg = READ_REG(pstuarthandle->Instance->CR1);
-    temp_reg |= USART_CR1_IDLEIE;
-    WRITE_REG(pstuarthandle->Instance->CR1, temp_reg);
-//	    stm32_uart[uart_port].previous_dma_leftbyte = max_buffer_size/2;
-
-    return 0;
-}
 /************************************************************************
  * @function: Uartx_Config
  * @描述: 配置串口的通讯参数
@@ -613,7 +240,8 @@ static int32_t uart_receive_start_dma(const SerialID* sid, uint32_t max_buffer_s
 int Uartx_Config(SerialSets * ss, const SerialID* sid)
 {
 //    uint32 config = 0;
-    UART_HandleTypeDef *pstuarthandle = NULL;
+    
+//  UART_HandleTypeDef *pstuarthandle = NULL;
     
     int32_t ret = -1;
     SYS_ENTER_SCRT();
@@ -625,48 +253,62 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
         ((void(*)())sid->rs485->setModeInit)();
         ((void(*)())sid->rs485->setModeRecv)();//高收、低发,默认为接收状态
     }
-    pstuarthandle = sid->phandle;
+//    pstuarthandle = sid->phandle;
+//
+//    pstuarthandle->Init.BaudRate               = ss->baudrate;
+//    ret = uart_dataWidth_transform(ss->databits, &pstuarthandle->Init.WordLength);
+//    ret |= uart_parity_transform(ss->parit, &pstuarthandle->Init.Parity);
+//    ret |= uart_stop_bits_transform(ss->stopbits, &pstuarthandle->Init.StopBits);
+//    ret |= uart_flow_control_transform(ss->flowctrl, &pstuarthandle->Init.HwFlowCtl);
+//    ret |= uart_mode_transform(ss->mode, &pstuarthandle->Init.Mode);
+//    if (ret) {
+////        LOG_ERROR("invalid uart data \r\n");
+////	        memset(pstuarthandle, 0, sizeof(*pstuarthandle));
+////	        m_free(sid->phandle);
+//        return -1;
+//    } 
+//    pstuarthandle->Instance = (USART_TypeDef*)sid->pUART;
+//    pstuarthandle->Init.OverSampling = sid->overSampling;
+//    pstuarthandle->Init.OneBitSampling         = sid->OneBitSampling;
+//    pstuarthandle->AdvancedInit.AdvFeatureInit = sid->AdvFeatureInit;
+//
+//
+//    /* init uart */
+//    ret = HAL_UART_Init(pstuarthandle);
+//    if (ret != HAL_OK) {
+////          LOG_ERROR("uart %d init fail \r\n", uart->port);
+////          aos_free(stm32_uart[uart->port].UartRxBuf);
+////          stm32_uart[uart->port].UartRxBuf = NULL;
+////	        m_free(sid->phandle);
+//        return ret;
+//    }
+//
+//    if(pstuarthandle->hdmarx ==NULL)
+//        ret = uart_receive_start_it(sid,sid->recvBufLen);
+//    else
+//        ret = uart_receive_start_dma(sid,sid->recvBufLen);
+//
+//    if (ret) {
+//    }
+    
+    rcu_periph_clock_enable(sid->clk);
+    /* USART configure */
+    usart_deinit(sid->pUART);
+    usart_baudrate_set(sid->pUART, 115200U);
+    usart_receive_config(sid->pUART, USART_RECEIVE_ENABLE);
+    usart_transmit_config(sid->pUART, USART_TRANSMIT_ENABLE);
+    usart_enable(sid->pUART);
+    
+    
 
-    pstuarthandle->Init.BaudRate               = ss->baudrate;
-    ret = uart_dataWidth_transform(ss->databits, &pstuarthandle->Init.WordLength);
-    ret |= uart_parity_transform(ss->parit, &pstuarthandle->Init.Parity);
-    ret |= uart_stop_bits_transform(ss->stopbits, &pstuarthandle->Init.StopBits);
-    ret |= uart_flow_control_transform(ss->flowctrl, &pstuarthandle->Init.HwFlowCtl);
-    ret |= uart_mode_transform(ss->mode, &pstuarthandle->Init.Mode);
-    if (ret) {
-//        LOG_ERROR("invalid uart data \r\n");
-//	        memset(pstuarthandle, 0, sizeof(*pstuarthandle));
-//	        m_free(sid->phandle);
-        return -1;
-    } 
-    pstuarthandle->Instance = (USART_TypeDef*)sid->pUART;
-    pstuarthandle->Init.OverSampling = sid->overSampling;
-    pstuarthandle->Init.OneBitSampling         = sid->OneBitSampling;
-    pstuarthandle->AdvancedInit.AdvFeatureInit = sid->AdvFeatureInit;
-
-
-    /* init uart */
-    ret = HAL_UART_Init(pstuarthandle);
-    if (ret != HAL_OK) {
-//          LOG_ERROR("uart %d init fail \r\n", uart->port);
-//          aos_free(stm32_uart[uart->port].UartRxBuf);
-//          stm32_uart[uart->port].UartRxBuf = NULL;
-//	        m_free(sid->phandle);
-        return ret;
-    }
-
-    if(pstuarthandle->hdmarx ==NULL)
-        ret = uart_receive_start_it(sid,sid->recvBufLen);
-    else
-        ret = uart_receive_start_dma(sid,sid->recvBufLen);
-
-    if (ret) {
-    }
-
-
-    HAL_NVIC_DisableIRQ(sid->irqn);    
-    HAL_NVIC_SetPriority(sid->irqn, sid->irqPri , 0);
-    HAL_NVIC_EnableIRQ(sid->irqn);
+    *(sid->inited) = 1;
+    /* enable USART0 receive interrupt */
+    usart_interrupt_enable(sid->pUART, USART_INT_RBNE);
+    
+    /* enable USART0 transmit interrupt */
+    usart_interrupt_enable(sid->pUART, USART_INT_TBE);
+    
+    nvic_irq_enable(USART0_IRQn, 0, 0);
 
     SYS_EXIT_SCRT();
 
@@ -676,7 +318,7 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
 int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
 {
     int32_t ret = -1;
-    UART_HandleTypeDef *pstuarthandle = NULL;
+//    UART_HandleTypeDef *pstuarthandle = NULL;
 //	    UART_MAPPING* uartIns = NULL;
 
     SYS_VAR_CHECK(sid->uart_no >= UART_MAX_RX);
@@ -708,50 +350,59 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
     
 //	    memset(&stm32_uart[uart->port],0,sizeof(stm32_uart_t));
     
-    pstuarthandle = sid->phandle;
-    memset((uint8_t *)pstuarthandle,0,sizeof(UART_HandleTypeDef));
-
-    pstuarthandle->Init.BaudRate               = ss->baudrate;
-    ret = uart_dataWidth_transform(ss->databits, &pstuarthandle->Init.WordLength);
-    ret |= uart_parity_transform(ss->parit, &pstuarthandle->Init.Parity);
-    ret |= uart_stop_bits_transform(ss->stopbits, &pstuarthandle->Init.StopBits);
-    ret |= uart_flow_control_transform(ss->flowctrl, &pstuarthandle->Init.HwFlowCtl);
-    ret |= uart_mode_transform(ss->mode, &pstuarthandle->Init.Mode);
-    if (ret) {
-//	        printf("invalid uart data \r\n");
-        memset(pstuarthandle, 0, sizeof(*pstuarthandle));
-        m_free(sid->phandle);
-        return -1;
-    }    
-
-//	    if(NULL == stm32_uart[uart->port].UartRxBuf){
-//	        stm32_uart[uart->port].UartRxBuf = aos_malloc(uartIns->attr.max_buf_bytes);
-//	    }
-//	    
-//	    if (NULL == stm32_uart[uart->port].UartRxBuf) {
-//	        printf("Fail to malloc memory size %d at %s %d \r\n", uartIns->attr.max_buf_bytes, __FILE__, __LINE__);
-//	        return -1;
-//	    }
-//	    memset(stm32_uart[uart->port].UartRxBuf, 0, uartIns->attr.max_buf_bytes);
-
-    //uart->priv = pstuarthandle; //priv must not be used in uart driver
-
-    pstuarthandle->Instance = (USART_TypeDef*)sid->pUART;
-    pstuarthandle->Init.OverSampling = sid->overSampling;
-    pstuarthandle->Init.OneBitSampling         = sid->OneBitSampling;
-    pstuarthandle->AdvancedInit.AdvFeatureInit = sid->AdvFeatureInit;
-
-
-    /* init uart */
-    ret = HAL_UART_Init(pstuarthandle);
-    if (ret != HAL_OK) {
-//          printf("uart %d init fail \r\n", uart->port);
-//          aos_free(stm32_uart[uart->port].UartRxBuf);
-//          stm32_uart[uart->port].UartRxBuf = NULL;
-        m_free(sid->phandle);
-        return ret;
-    }
-        
+    
+    rcu_periph_clock_enable(sid->clk);
+    /* USART configure */
+    usart_deinit(sid->pUART);
+    usart_baudrate_set(sid->pUART, 115200U);
+    usart_receive_config(sid->pUART, USART_RECEIVE_ENABLE);
+    usart_transmit_config(sid->pUART, USART_TRANSMIT_ENABLE);
+    usart_enable(sid->pUART);
+    
+//    pstuarthandle = sid->phandle;
+//    memset((uint8_t *)pstuarthandle,0,sizeof(UART_HandleTypeDef));
+//
+//    pstuarthandle->Init.BaudRate               = ss->baudrate;
+//    ret = uart_dataWidth_transform(ss->databits, &pstuarthandle->Init.WordLength);
+//    ret |= uart_parity_transform(ss->parit, &pstuarthandle->Init.Parity);
+//    ret |= uart_stop_bits_transform(ss->stopbits, &pstuarthandle->Init.StopBits);
+//    ret |= uart_flow_control_transform(ss->flowctrl, &pstuarthandle->Init.HwFlowCtl);
+//    ret |= uart_mode_transform(ss->mode, &pstuarthandle->Init.Mode);
+//    if (ret) {
+////	        printf("invalid uart data \r\n");
+//        memset(pstuarthandle, 0, sizeof(*pstuarthandle));
+//        m_free(sid->phandle);
+//        return -1;
+//    }    
+//
+////	    if(NULL == stm32_uart[uart->port].UartRxBuf){
+////	        stm32_uart[uart->port].UartRxBuf = aos_malloc(uartIns->attr.max_buf_bytes);
+////	    }
+////	    
+////	    if (NULL == stm32_uart[uart->port].UartRxBuf) {
+////	        printf("Fail to malloc memory size %d at %s %d \r\n", uartIns->attr.max_buf_bytes, __FILE__, __LINE__);
+////	        return -1;
+////	    }
+////	    memset(stm32_uart[uart->port].UartRxBuf, 0, uartIns->attr.max_buf_bytes);
+//
+//    //uart->priv = pstuarthandle; //priv must not be used in uart driver
+//
+//    pstuarthandle->Instance = (USART_TypeDef*)sid->pUART;
+//    pstuarthandle->Init.OverSampling = sid->overSampling;
+//    pstuarthandle->Init.OneBitSampling         = sid->OneBitSampling;
+//    pstuarthandle->AdvancedInit.AdvFeatureInit = sid->AdvFeatureInit;
+//
+//
+//    /* init uart */
+//    ret = HAL_UART_Init(pstuarthandle);
+//    if (ret != HAL_OK) {
+////          printf("uart %d init fail \r\n", uart->port);
+////          aos_free(stm32_uart[uart->port].UartRxBuf);
+////          stm32_uart[uart->port].UartRxBuf = NULL;
+//        m_free(sid->phandle);
+//        return ret;
+//    }
+//        
         
 
     
@@ -780,21 +431,25 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
     /* if UART Rx DMA Handle is NULL, then start data receive in interrupt mode
      * otherwise in DMA mode
      */
-    if(pstuarthandle->hdmarx ==NULL)
-        ret = uart_receive_start_it(sid,sid->recvBufLen);
-    else
-        ret = uart_receive_start_dma(sid,sid->recvBufLen);
-
-    if (ret) {
-        m_free(sid->phandle);
-        m_free(sid->buffer->rbuff);
-    } 
-    else 
+//    if(pstuarthandle->hdmarx ==NULL)
+//        ret = uart_receive_start_it(sid,sid->recvBufLen);
+//    else
+//        ret = uart_receive_start_dma(sid,sid->recvBufLen);
+//
+//    if (ret) {
+////        m_free(sid->phandle);
+//        m_free(sid->buffer->rbuff);
+//    } 
+//    else 
     {
         *(sid->inited) = 1;
-        HAL_NVIC_DisableIRQ(sid->irqn);    
-        HAL_NVIC_SetPriority(sid->irqn, sid->irqPri , 0);
-        HAL_NVIC_EnableIRQ(sid->irqn);
+        /* enable USART0 receive interrupt */
+        usart_interrupt_enable(sid->pUART, USART_INT_RBNE);
+        
+        /* enable USART0 transmit interrupt */
+        usart_interrupt_enable(sid->pUART, USART_INT_TC);
+        
+        nvic_irq_enable(USART0_IRQn, 0, 0);
 
     }
     return ret;
@@ -802,12 +457,12 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
 
 uint8 Uartx_DeInit(const SerialID* sid)
 {
-    UARTx_Type *pUART = sid->pUART;
-
-    HAL_HalfDuplex_Init(sid->phandle);
+//    UARTx_Type *pUART = sid->pUART;
+//
+//    HAL_HalfDuplex_Init(sid->phandle);
 
     casHwTimerClose(0);
-    m_free(sid->phandle);
+//    m_free(sid->phandle);
     m_free(sid->buffer->rbuff);
     sid->buffer->rbuff = NULL;
 #if (SYS_UART_ACCT > 0)
@@ -824,110 +479,296 @@ uint8 Uartx_DeInit(const SerialID* sid)
   * @retval None
   */
 
-void HAL_UART_IdleCallback(const SerialID* sid)//(UART_HandleTypeDef *huart)
+//void HAL_UART_IdleCallback(const SerialID* sid)//(UART_HandleTypeDef *huart)
+//{
+//    uint32_t left_byte;
+//    SerialBuffer * gsp_Uartx = sid->buffer;
+//
+////	    const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(huart->Instance);
+////	    UART_MAPPING* uartIns = GetUARTMapping(appPort);
+//
+//    if (sid == NULL) {
+//        return;
+//    }
+//
+//    if (gsp_Uartx->uart_dma_stop) {
+//        if (gsp_Uartx->uart_error_count < 0xffffffff) {
+//            gsp_Uartx->uart_error_count++;
+//        }
+//    } else {
+//        left_byte = __HAL_DMA_GET_COUNTER(sid->phandle->hdmarx);
+//        /* if left_byte=0, means DMA transfer complete interrupt maybe has happened
+//         * uart_rx_in will be update in DMA TC interrupt
+//         * don't do it repeatedly 
+//         */
+//        if(left_byte < gsp_Uartx->previous_dma_leftbyte && left_byte!=0)
+//        {
+//            gsp_Uartx->rp += gsp_Uartx->previous_dma_leftbyte -left_byte;
+////	            stm32_uart[appPort].uart_rx_in += stm32_uart[appPort].previous_dma_leftbyte -left_byte;
+////	            if(stm32_uart[appPort].uart_rx_in == uartIns->attr.max_buf_bytes)
+//            if(gsp_Uartx->rp == gsp_Uartx->rlen) gsp_Uartx->rp = 0;
+////	                stm32_uart[appPort].uart_rx_in =0;
+//            gsp_Uartx->previous_dma_leftbyte = left_byte;
+////	            if(stm32_uart[appPort].uart_rx_in == stm32_uart[appPort].uart_rx_out)
+////	                stm32_uart[appPort].RxBuf_is_full =1;
+//            if(gsp_Uartx->rp == gsp_Uartx->rcnt)
+//                gsp_Uartx->RxBuf_is_full =1;
+//
+//        }
+//    }
+////	    aos_sem_signal(&stm32_uart[appPort].uart_rx_sem);  
+//
+//}
+//
+//static void UartIdleHandler(const SerialID* sid)//( const USART_TypeDef* ins)
+//{
+//    uint32_t isrflags = 0;
+//    uint32_t icrflags = 0;
+//    UART_HandleTypeDef* huart_handle;
+////	    const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(ins);
+//
+//    huart_handle = sid->phandle;//&(stm32_uart[appPort].hal_uart_handle);
+//
+//    isrflags = READ_REG(huart_handle->Instance->ISR);
+//
+//    if(isrflags & USART_ISR_IDLE)
+//    {
+//        //clear IDLE bit
+//        SET_BIT(huart_handle->Instance->ICR, USART_ICR_IDLECF_Msk);
+//
+//        HAL_UART_IdleCallback(sid);
+//    }
+//
+//}
+//
+//
+//static void UartIRQProcessor(const SerialID* sid)//(const USART_TypeDef* ins )
+//{
+////	    const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(ins);
+//    uint32_t isrflags   = READ_REG(sid->pUART->ISR);
+//    uint32_t cr1its     = READ_REG(sid->pUART->CR1);
+//    //deal with IDLE interrupt, HAL_UART_IRQHandler doesn't do it , we don't want to change HAL_UART_IRQHandler
+//    if(((isrflags & USART_ISR_IDLE) != RESET) && ((cr1its & USART_CR1_IDLEIE) != RESET))
+//        UartIdleHandler(sid);
+//
+//    if( sid!=NULL ) 
+//    {
+//        HAL_UART_IRQHandler(sid->phandle);  
+//    }
+//
+//}
+
+/************************************************************************
+ * @Function: UartN_Handler
+ * @Description: 中断处理(包含接收\发送及状态变更)
+ * 
+ * @Arguments: 
+ * @param: sid 
+ * @Note: 
+ * @Auther: yzy
+ * Date: 2015/5/25
+ *-----------------------------------------------------------------------
+ * @History: 
+ ************************************************************************/
+void UartN_Handler(const SerialID* sid)
 {
-    uint32_t left_byte;
-    SerialBuffer * gsp_Uartx = sid->buffer;
+    volatile uint8 dd;
+    uint8 rflag = 0;
+    
+    SerialBuffer* gsp_Uartx = sid->buffer;
+//    UART_TypeDef *pUART = (UART_TypeDef*)sid->pUART;//_LpcUSART[sid->uart_no];
+    
+    
 
-//	    const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(huart->Instance);
-//	    UART_MAPPING* uartIns = GetUARTMapping(appPort);
-
-    if (sid == NULL) {
-        return;
-    }
-
-    if (gsp_Uartx->uart_dma_stop) {
-        if (gsp_Uartx->uart_error_count < 0xffffffff) {
-            gsp_Uartx->uart_error_count++;
+	//发送中断处理
+//		if((ENABLE == UART_UARTIE_RxTxIE_GetableEx(pUART, TxInt))
+//			&&(SET == UART_UARTIF_RxTxIF_ChkEx(pUART, TxInt)))
+//		{
+//			//发送中断标志可通过写txreg寄存器清除或txif写1清除
+//			//发送指定长度的数据
+//			if(UARTxOp[0].TxOpc < UARTxOp[0].TxLen)
+//			{
+//				UARTx_TXREG_Write(UART0, UARTxOp[0].TxBuf[UARTxOp[0].TxOpc]); //发送一个数据
+//				UARTxOp[0].TxOpc++;
+//			}
+//			UART_UARTIF_RxTxIF_ClrEx(UART0);	//清除发送中断标志
+//		}
+//	
+//	    if(true)
+//  	if(pUART->INTSTS & UART_INTSTS_TXDONEIF)
+    if(RESET != usart_interrupt_flag_get(sid->pUART, USART_INT_FLAG_TC))
+    {
+        /*
+        TXRDY:
+        Transmitter Ready flag. 
+        When 1, this bit indicates that data may be written to the transmit buffer. 
+        Previous data may still be in the process of being transmitted.
+        Cleared when data is written to TXDAT. 
+        Set when the data is moved from the transmit buffer to the transmit shift register.
+        */
+//        pUART->INTSTS |= UART_INTSTS_TXDONEIF;
+//        gsp_Uartx->sflag = 0x55;
+//	        while((gsp_Uartx->tcnt > 0) && 
+//	               (pUART->INTSTS & UART_INTSTS_TXDONEIF))
+        usart_interrupt_flag_clear(sid->pUART, USART_INT_FLAG_TC);
+        if(gsp_Uartx->tcnt > 0)
+        {                                   //发送一个字节
+        
+//            pUART->INTSTS |= UART_INTSTS_TXDONEIF;
+           
+            if(gsp_Uartx->tp < gsp_Uartx->tlen)
+            {
+                dd = gsp_Uartx->tbuff[gsp_Uartx->tp++];
+//	                UARTx_TXREG_Write(pUART, dd);
+//                pUART->DATA = dd;
+                usart_data_transmit(sid->pUART, dd);
+            }
+            
+            if(gsp_Uartx->tp >= gsp_Uartx->tlen)
+            {                               //卷绕复位
+                gsp_Uartx->tp = 0;
+            }
+                                            //所需要发送的数据减少
+            gsp_Uartx->tcnt--;
         }
-    } else {
-        left_byte = __HAL_DMA_GET_COUNTER(sid->phandle->hdmarx);
-        /* if left_byte=0, means DMA transfer complete interrupt maybe has happened
-         * uart_rx_in will be update in DMA TC interrupt
-         * don't do it repeatedly 
-         */
-        if(left_byte < gsp_Uartx->previous_dma_leftbyte && left_byte!=0)
+        if(gsp_Uartx->tcnt == 0)
         {
-            gsp_Uartx->rp += gsp_Uartx->previous_dma_leftbyte -left_byte;
-//	            stm32_uart[appPort].uart_rx_in += stm32_uart[appPort].previous_dma_leftbyte -left_byte;
-//	            if(stm32_uart[appPort].uart_rx_in == uartIns->attr.max_buf_bytes)
-            if(gsp_Uartx->rp == gsp_Uartx->rlen) gsp_Uartx->rp = 0;
-//	                stm32_uart[appPort].uart_rx_in =0;
-            gsp_Uartx->previous_dma_leftbyte = left_byte;
-//	            if(stm32_uart[appPort].uart_rx_in == stm32_uart[appPort].uart_rx_out)
-//	                stm32_uart[appPort].RxBuf_is_full =1;
-            if(gsp_Uartx->rp == gsp_Uartx->rcnt)
-                gsp_Uartx->RxBuf_is_full =1;
+            if(sid->rs485 > 0)
+            {                           //启动定时从而来判断是否已经发送完最后的字节
+                casHwTimerStart(ID_CASHWTIMR_UARTTRC(sid->uart_no));
+            }
+//	            Chip_UARTN_IntDisable(pUART, UARTN_INTEN_TXRDY);
+        }
+//	        pUART->INTSTS |= UART_INTSTS_TXDONEIF;
+                                            //数据帧发送完毕
+	}
 
+    //接收处理
+	//接收中断处理
+//		if((ENABLE == UART_UARTIE_RxTxIE_GetableEx(UART0, RxInt))
+//			&&(SET == UART_UARTIF_RxTxIF_ChkEx(UART0, RxInt)))
+//		{
+//			//中断转发接收到的数据
+//			tmp08 = UARTx_RXREG_Read(UART0);//接收中断标志仅可通过读取rxreg寄存器清除
+//			UARTx_TXREG_Write(UART0, tmp08);
+//		}    
+//	    if((ENABLE == UART_UARTIE_RxTxIE_GetableEx(pUART, RxInt))
+//	            &&(SET == UART_UARTIF_RxTxIF_ChkEx(pUART, RxInt)))
+            
+//  	if(pUART->INTSTS&UART_INTSTS_RXIF)
+    if(RESET != usart_interrupt_flag_get(sid->pUART, USART_INT_FLAG_RBNE))
+    {                                   //注意:intstatus和status不一样
+    
+        
+//        do
+        {
+            rflag = 1;
+            
+//            pUART->INTSTS |= UART_INTSTS_RXIF;
+            dd = (uint8_t)usart_data_receive(sid->pUART);//pUART->DATA;//UARTx_RXREG_Read(pUART);
+            if((gsp_Uartx->rlen == 0)/* || (gsp_Uartx->rcnt >= gsp_Uartx->rlen)*/)
+            {
+                //do nothing
+            }
+            else
+            {
+//                guc_count++;
+                                            //否则开始接收数据
+                gsp_Uartx->rbuff[gsp_Uartx->rp++] = dd;
+
+
+                                            //判断是否已经超出缓存
+                if(gsp_Uartx->rp >= gsp_Uartx->rlen)
+                {
+                    gsp_Uartx->rp = 0;      //卷绕复位
+                }
+                
+                if(gsp_Uartx->rcnt < gsp_Uartx->rlen)
+                {
+                    gsp_Uartx->rcnt++;          //数量+1
+                }
+                else
+                {
+                    gsp_Uartx->pr = gsp_Uartx->rp;//读指针也要卷绕
+                }
+
+            }
+//            casHwTimerStart(ID_CASHWTIMR_UARTROT(sid->uart_no));
+        }//while(pUART->INTSTS&UART_INTSTS_RXIF);
+                                            //启动定时从而来判断是否接收完一帧
+        if(rflag)
+        {
+            casHwTimerStart(ID_CASHWTIMR_UARTROT(sid->uart_no));
         }
     }
-//	    aos_sem_signal(&stm32_uart[appPort].uart_rx_sem);  
 
 }
 
-static void UartIdleHandler(const SerialID* sid)//( const USART_TypeDef* ins)
+
+
+/*!
+    \brief      this function handles USART0 exception
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void USART0_IRQHandler(void)
 {
-    uint32_t isrflags = 0;
-    uint32_t icrflags = 0;
-    UART_HandleTypeDef* huart_handle;
-//	    const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(ins);
-
-    huart_handle = sid->phandle;//&(stm32_uart[appPort].hal_uart_handle);
-
-    isrflags = READ_REG(huart_handle->Instance->ISR);
-
-    if(isrflags & USART_ISR_IDLE)
+    krhino_intrpt_enter();
+    if((gps_uartInfoList[0] != __NULL)
+       && (gps_uartInfoList[0]->uart_no == 0))
     {
-        //clear IDLE bit
-        SET_BIT(huart_handle->Instance->ICR, USART_ICR_IDLECF_Msk);
-
-        HAL_UART_IdleCallback(sid);
+        UartN_Handler(gps_uartInfoList[0]);
     }
-
+    krhino_intrpt_exit();
+    
+//    if(RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_RBNE)){
+//        /* read one byte from the receive data register */
+//        rx_buffer[rx_counter++] = (uint8_t)usart_data_receive(USART0);
+//
+//        if(rx_counter >= nbr_data_to_read)
+//        {
+//            /* disable the USART0 receive interrupt */
+//            usart_interrupt_disable(USART0, USART_INT_RBNE);
+//        }
+//    }
+//       
+//    if(RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_TBE)){
+//        /* write one byte to the transmit data register */
+//        usart_data_transmit(USART0, tx_buffer[tx_counter++]);
+//
+//        if(tx_counter >= nbr_data_to_send)
+//        {
+//            /* disable the USART0 transmit interrupt */
+//            usart_interrupt_disable(USART0, USART_INT_TBE);
+//        }
+//    }
 }
 
-
-static void UartIRQProcessor(const SerialID* sid)//(const USART_TypeDef* ins )
-{
-//	    const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(ins);
-    uint32_t isrflags   = READ_REG(sid->pUART->ISR);
-    uint32_t cr1its     = READ_REG(sid->pUART->CR1);
-    //deal with IDLE interrupt, HAL_UART_IRQHandler doesn't do it , we don't want to change HAL_UART_IRQHandler
-    if(((isrflags & USART_ISR_IDLE) != RESET) && ((cr1its & USART_CR1_IDLEIE) != RESET))
-        UartIdleHandler(sid);
-
-    if( sid!=NULL ) 
-    {
-        HAL_UART_IRQHandler(sid->phandle);  
-    }
-
-}
-
-
-void USART1_IRQHandler(void)
-{
-    //引入gps_uartInfoList是为了隔离，防止hal驱动直接引用外部 gs_Uart1SID。
-    SYS_LockMMTK();
-    if((gps_uartInfoList[1] != __NULL)
-       && (gps_uartInfoList[1]->uart_no == 1))
-    {
-        UartIRQProcessor(gps_uartInfoList[1]);
-    }
-       
-    SYS_UnLockMMTK();
-}
-void USART2_IRQHandler(void)
-{
-    //引入gps_uartInfoList是为了隔离，防止hal驱动直接引用外部 gs_Uart1SID。
-    SYS_LockMMTK();
-    if((gps_uartInfoList[2] != __NULL)
-       && (gps_uartInfoList[2]->uart_no == 2))
-    {
-        UartIRQProcessor(gps_uartInfoList[2]);
-    }
-       
-    SYS_UnLockMMTK();
-}
+//void USART1_IRQHandler(void)
+//{
+//    //引入gps_uartInfoList是为了隔离，防止hal驱动直接引用外部 gs_Uart1SID。
+//    SYS_LockMMTK();
+//    if((gps_uartInfoList[1] != __NULL)
+//       && (gps_uartInfoList[1]->uart_no == 1))
+//    {
+//        UartIRQProcessor(gps_uartInfoList[1]);
+//    }
+//       
+//    SYS_UnLockMMTK();
+//}
+//void USART2_IRQHandler(void)
+//{
+//    //引入gps_uartInfoList是为了隔离，防止hal驱动直接引用外部 gs_Uart1SID。
+//    SYS_LockMMTK();
+//    if((gps_uartInfoList[2] != __NULL)
+//       && (gps_uartInfoList[2]->uart_no == 2))
+//    {
+//        UartIRQProcessor(gps_uartInfoList[2]);
+//    }
+//       
+//    SYS_UnLockMMTK();
+//}
 
 
 

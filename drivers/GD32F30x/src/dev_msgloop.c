@@ -1,280 +1,255 @@
-/******************************Copyright(c)******************************
-**                          
+/****************************************Copyright (c)*************************
+**                               	________科技有限公司
+**                                     		开发部
 **
-** File Name: dev_msgloop.c
-** Author: 
-** Date Last Update: 2019-11-02
-** Description: 消息循环机制
-** Note: 
-*******************************History***********************************
-** Date: 2019-11-02
-** Author: yzy
-** Description: 文件创建
-*************************************************************************/
+**
+**--------------文件信息-------------------------------------------------------
+**文   件   名: dev_messageloop.c
+**创   建   人: yzy
+**最后修改日期: 2011年04月27日
+**描        述: 各状态量处理管理进程
+**注        意:
+**--------------历史版本信息---------------------------------------------------
+** 创建人: yzy
+** 版  本: v1.0
+** 日　期: 2011年04月27日
+** 描　述: 原始版本
+******************************************************************************/
 #define EXT_DEV_MSGLOOP
-#ifdef __MODULE__
-#include "WOSsys.h"
-#endif
-#include "sys.h"
+
+#include "aos/include.h"
+//	#include "k_types.h"
+//	#include "k_api.h"
+//	//	#include "lib_app.h"
 #include "hal.h"
 #include "bsp.h"
-#include "apis.h"
+#include "tasks.h"
 
+extern uint8 gucs_UartRevFlag[NO_OF_SERIAL];
 /************************************************************************
- * @模块编译提示
- ************************************************************************/
-#if !defined(ID_SWTIMER_MSG)
-    #define ID_SWTIMER_MSG    0xff
-    #warning "请定义消息循环扫描定时器ID编号宏"
-#endif
-
-
-#ifndef __NO_SYS__ 
-
-
-
-
-/************************************************************************
- * @Function: MSG_Server
- * @Description: 消息分发定时处理
+ * @function: UartRevMessageDelivery
+ * @描述: 将某个串口接收消息,分发给申请该消息的进程
  * 
- * @Arguments: 
- * @param: pdata 
- * 
- * @Note: 
- * @Return: bool  
- * @Auther: yzy
- * Date: 2015/5/27
+ * @参数: 
+ * @param: uartidx 串口
+ * @param: msg_recv 对应的串口接收消息
+ * @返回: 
+ * @说明: 
+ * @作者: yzy (2013/11/4)
  *-----------------------------------------------------------------------
- * @History: 
+ * @修改人: 
  ************************************************************************/
-bool MSG_Server(void* pdata)
+void UartRevMessageDelivery(uint8 uartidx, uint8 msg_recv)
 {
-#if (SYS_GPI_EN > 0)
+    uint8 subtk;
+    uint8 tkmap;
+    
+    extern const KTaskDeclare __TKDeclare[SYS_TK_NUM];
+    const KTaskDeclare* dec = __TKDeclare;
+    
+    for(uint8 uc_i = 0; uc_i < sizeof(guc_MsgUartTkMap[0]); uc_i++)
+    {
+        tkmap = guc_MsgUartTkMap[uartidx][uc_i];
+        while(tkmap)
+        {
+            subtk = Bit_Maps[tkmap];
+//	            SYS_Message_Send(msg_recv, (uc_i << 3) + subtk);
+//	
+//	            msg = MSG_YEAR;
+//	            dec+=(uc_i << 3) + subtk;
+            krhino_buf_queue_send(dec[(uc_i << 3) + subtk].ktask->msg, &msg_recv, 1);
+
+            
+            tkmap &= ~Bit_Map8[subtk];
+        }
+    }
+}
+
+
+
+/*******************************************************************************
+ * @function_name:  SYS_UART_RevMessageLoop
+ * @function_file:  dev_msgloop.c
+ * @描述: UART串口数据接收消息分发机制
+ * 
+ * 
+ * @参数: 
+ * 
+ * @返回:
+ * @作者: yzy (2018年3月22日)
+ *-----------------------------------------------------------------------------
+ * @修改人: 
+ * @修改说明: 
+ ******************************************************************************/
+void SYS_UART_RevMessageLoop(void)
+{
+    for(uint8 uartidx = 0; uartidx < NO_OF_SERIAL; uartidx++)
+    {
+//	        if(SER_ToBeRead_By_Port(uartidx) > 0)
+        if(gucs_UartRevFlag[uartidx])
+        {                               //存在回调函数,则执行
+//	            if(gfs_SerialCallBack[uartidx] != __NULL)
+//	            {
+//	                gfs_SerialCallBack[uartidx]();
+//	            }
+//	            else                        //否则,进行接收消息分发
+//	            {
+            UartRevMessageDelivery(uartidx, MSG_UART0 + uartidx);
+//	            }
+            gucs_UartRevFlag[uartidx] = 0;
+        }
+    }
+}
+
+
+
+/*******************************************************************************
+* @function_name:  MSG_Server
+* @function_file:  dev_messageloop.c
+* @描述: 消息分配管理进程处理函数
+* 
+* 
+* @参数: 
+* 
+* @返回: 
+* @作者: yzy (2011-02-24)
+*-----------------------------------------------------------------------------
+* @修改人: 
+* @修改说明: 
+******************************************************************************/
+void MSG_Server(void *timer, void *arg)
+{
+#if SYS_GPI_EN > 0
     SYS_GPI_EvtMessageLoop();
 #endif
- 
-#if (SYS_UART_EN > 0)
-    SYS_UART_EvtMessageLoop();
+#if SYS_SER_EN > 0
+//    SYS_SER_RevMessageLoop();
+
+    SYS_UART_RevMessageLoop();
 #endif
-    return true;
+#if (SYS_LGPI_EN > 0)
+    extern void SYS_LGPI_Scan(void *timer, void *arg);
+
+    SYS_LGPI_Scan(timer, arg);
+#endif
+
+#if (SYS_FGPI_EN > 0)
+    extern void SYS_FGPI_Scan(void *timer, void *arg);
+
+    SYS_FGPI_Scan(timer, arg);
+#endif
+    
+#if (SYS_LED_BEEP_EN > 0)
+    extern void LED_Server(void *timer, void *arg);
+	
+    LED_Server(timer,arg);
+#endif    
 }
 
 
-void SYS_MSG_PreInit(void)
-{
-
-}
+ktimer_t     g_msg_server_timer;
 
 
-/************************************************************************
- * @Function: SYS_MSG_Init
- * @Description: 消息分发模块初始化
- * @Arguments: 
- * @Note: 
- * @Auther: yzy
- * Date: 2015/5/27
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
+/*******************************************************************************
+* @function_name:  SYS_MSG_Init
+* @function_file:  dev_messageloop.c
+* @描述: 消息分配管理初始化
+* 
+* 
+* @参数: 
+* 
+* @返回: 
+* @作者: yzy (2011-02-24)
+*-----------------------------------------------------------------------------
+* @修改人: 
+* @修改说明: 
+******************************************************************************/
 void SYS_MSG_Init(void)
 {
-    memset_s(gucs_MsgApplied, 0, sizeof(gucs_MsgApplied));
-#if (SYS_UART_EN > 0)
-    memset_s((uint8*)gucs_MsgUartTkMap, 0, sizeof(gucs_MsgUartTkMap));
-#endif
+    ClearBuffer(guc_MsgApplied, sizeof(guc_MsgApplied));
+    ClearBuffer((uint8*)guc_MsgUartTkMap, sizeof(guc_MsgUartTkMap));
     
     //创建消息分发服务定时器
-    SYS_Timer_Create(MSG_Server, __NULL, 1, ID_SWTIMER_MSG, false);
+//	    SYS_Timer_Create(MSG_Server, __NULL, 1, TIMER_ID_MSG, false);
+    krhino_timer_create(&g_msg_server_timer, "msg_server_timer", MSG_Server,
+                        krhino_ms_to_ticks(100), krhino_ms_to_ticks(100), 0, 1);
+
+
 }
 
 
 
 
-
-
-
-
-#else
-#include "define.h"
-//#include "common\Sys\SysMsk\SMsk.h"
-//#include "common\Sys\SysMsk\SMskExt.h"
-/************************************************************************
- * @Function: MSG_Server
- * @Description: 消息分发定时处理
- * 
- * @Arguments: 
- * @param: pdata 
- * 
- * @Note: 
- * @Return: bool  
- * @Auther: yzy
- * Date: 2015/5/27
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-void MSG_Server(void * para)
+/*******************************************************************************
+* @function_name:  SYS_MSG_Apply
+* @function_file:  dev_messageloop.c
+* @描述: 申请消息
+* 
+* 
+* @参数: msgcls 消息大类
+* @返回:  
+* @作者: yzy (2011-02-24)
+******************************************************************************/
+uint8_t SYS_MSG_Apply(uint32_t tkid, uint8_t msgcls)
 {
-#if (SYS_GPI_EN > 0)
-    SYS_GPI_EvtMessageLoop();
-#endif
- 
-#if (SYS_UART_EN > 0)
-    SYS_UART_EvtMessageLoop();
-#endif
-    //return true;
-    
-//	#if (SYS_LGPI_EN > 0)
-//	    extern void SYS_LGPI_Scan(void *arg);
-//	
-//	    SYS_LGPI_Scan(NULL);
-//	#endif
-
-#if (SYS_LED_EN > 0)
-    extern bool LED_Server(void* pdata);
-    
-    LED_Server(NULL);
-#endif  
-
-}
-
-void SYS_MSG_PreInit(void)
-{
-    memset_s(gucs_MsgApplied, 0, sizeof(gucs_MsgApplied));
-#if (SYS_UART_EN > 0)
-    memset_s((uint8*)gucs_MsgUartTkMap, 0, sizeof(gucs_MsgUartTkMap));
-#endif
-}
-#define HWTIMER_MSGLOOP_ID 13
-/************************************************************************
- * @Function: SYS_MSG_Init
- * @Description: 消息分发模块初始化
- * @Arguments: 
- * @Note: 
- * @Auther: yzy
- * Date: 2015/5/27
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-void SYS_MSG_Init(void)
-{
-
-#ifdef  __NO_SYS__    
-//	    s_S_MSK_INT_TYPE sTmType;
-//	
-//	    sTmType.ucType = SYS_TM_125ms;
-//	    sTmType.ucPri = 0;  ///
-//	    //创建消息分发服务定时器
-//	//	    SYS_Timer_Create(MSG_Server, __NULL, 1, ID_SWTIMER_MSG, false);
-//	    SMskSetTmFunc(sTmType, MSG_Server);
-    
-    casHwTimerCreate(MSG_Server, NULL, HWTIMER_MSGLOOP_ID, 100);
-    casHwTimerStart(HWTIMER_MSGLOOP_ID);
-
-#else
-    SYS_Timer_Create(MSG_Server, __NULL, 1, ID_SWTIMER_MSG, false);
-#endif
-}
-
-void SYS_MSG_DeInit(void)
-{
-//    s_S_MSK_INT_TYPE sTmType;
-//	    sTmType.ucType = SYS_TM_125ms;
-//	    sTmType.ucPri = 0;  ///
-//	    SMskClrTmFunc(SYS_TM_125ms);
-    casHwTimerClose(HWTIMER_MSGLOOP_ID);
-}
-
-#endif
-/************************************************************************
- * @Function: SYS_MSG_Apply
- * @Description: 申请消息
- * 
- * @Arguments: 
- * @param: msgcls 消息大类
- * 
- * @Note: 
- * @Return: bool  
- * @Auther: yzy
- * Date: 2015/5/27
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-bool SYS_MSG_Apply(uint8 tkid, uint8 msgcls)
-{
-//#ifndef __NO_SYS__ 
-//    uint8 tkid = gs_TkTcbCur->tkid;
-//#else
-//    uint8 tkid = SMskGetMdlNo();
-//    if(tkid == 0xff)
-//    {
-//        tkid = 0;
-//    }
-//#endif
-
     
     if(msgcls >= 8)
     {
         return false;
     }
+
     
-#if (SYS_UART_EN > 0)                        //串口类消息,标记子类为串口编号
     if(msgcls == MSG_CLS_UART)
     {
         for(uint8 index = 0; index < NO_OF_SERIAL; index++)
         {
-            STR_SetBit(gucs_MsgUartTkMap[index], tkid);
+            STR_SetBit(guc_MsgUartTkMap[index], tkid);
         }
     }
-#endif
                                             //标记大类
-    gucs_MsgApplied[tkid] |= Bit_Map8[msgcls];
+    guc_MsgApplied[tkid] |= Bit_Map8[msgcls];
+    if(msgcls == MSG_CLS_GPIO)
+    {
+        SYS_GPI_Event_Clear();
+    }
+    return true;
+}
+
+
+/*******************************************************************************
+* @function_name:  SYS_MSG_ApplyUartRecv
+* @function_file:  dev_messageloop.c
+* @描述: 申请消息(扩充函数)
+* 
+* 
+* @参数: msgcls 消息大类
+*        subcls 消息小类,当大类为串口消息时,小类为串口号
+* @返回:  
+* @作者: yzy (2011-02-24)
+******************************************************************************/
+uint8 SYS_MSG_ApplyExt(uint8 tkid, uint8 msgcls, uint8 subcls )
+{
+//	    uint8 tkid = gs_TkTcbCur->tkid;
+//	    
+    if(msgcls >= 8)
+    {
+        return false;
+    }
+                                            //串口类消息,标记子类为串口编号
+    if(msgcls == MSG_CLS_UART)
+    {
+//        uint8_t port = ((SerialID*)__Uart_Find(subcls))->port;
+//        if(port > NO_OF_SERIAL)
+//        {
+//            return false;
+//        }
+        STR_SetBit(guc_MsgUartTkMap[subcls], tkid);
+    }
+                                            //标记大类
+    guc_MsgApplied[tkid] |= Bit_Map8[msgcls];
         
     return true;
 }
 
-/************************************************************************
- * @Function: SYS_MSG_ApplyExt
- * @Description: 申请消息(扩充函数)
- * 
- * @Arguments: 
- * @param: msgcls 消息大类
- * @param: subcls 消息小类,当大类为串口消息时,小类为串口号
- * 
- * @Note: 
- * @Return: bool  
- * @Auther: yzy
- * Date: 2015/5/27
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-uint8_t SYS_MSG_ApplyExt(uint8 tkid, uint8_t msgcls, uint8_t subcls)
-{
-#ifndef __NO_SYS__ 
-    tkid = gs_TkTcbCur->tkid;
-//#else
-//    uint8 tkid = SMskGetMdlNo();
-#endif
-    if(msgcls >= 8)
-    {
-        return 1;
-    }
-    
-#if (SYS_UART_EN > 0)                        //串口类消息,标记子类为串口编号
-    extern const uint8_t _ucPortMap[];
-    if(msgcls == MSG_CLS_UART)
-    {
-        if(_ucPortMap[subcls] > NO_OF_SERIAL)
-        {
-            return 1;
-        }
-        STR_SetBit(gucs_MsgUartTkMap[_ucPortMap[subcls]], tkid);
-    }
-#endif
-                                            //标记大类
-    gucs_MsgApplied[tkid] |= Bit_Map8[msgcls];
-        
-    return 0;
-}
 
 

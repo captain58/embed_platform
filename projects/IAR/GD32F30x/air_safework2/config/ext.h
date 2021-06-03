@@ -92,7 +92,7 @@
 **定义物理串口接收缓存大小
 ******************************************************************************/
 
-#define LEN_OF_RECV0    0x90
+#define LEN_OF_RECV0    256
 #define LEN_OF_SND0     1
 
 #define LEN_OF_RECV1    256
@@ -110,12 +110,12 @@
 
 
 #if SYS_SER_EN > 0
-#define SYS_UART0_EN     0               //UART0串口使能
-#define SYS_UART1_EN     1               //UART1串口使能
-#define SYS_UART2_EN     1               //UART2串口使能
-#define SYS_UART3_EN     1               //UART3串口使能
-#define SYS_UART4_EN     1               //UART4串口使能
-#define SYS_UART5_EN     1               //UART5串口使能
+#define SYS_UART0_EN     1               //UART0串口使能
+#define SYS_UART1_EN     0               //UART1串口使能
+#define SYS_UART2_EN     0               //UART2串口使能
+#define SYS_UART3_EN     0               //UART3串口使能
+#define SYS_UART4_EN     0               //UART4串口使能
+#define SYS_UART5_EN     0               //UART5串口使能
 #define SYS_UART9_EN     0               //UART9虚拟串口使能
 #define SYS_UART10_EN    0               //UART10空串口使能
 
@@ -226,7 +226,17 @@
 
 #endif
 
+#define PRI_UART0       2                  //UART0中断 优先级
+#define PRI_UART1       (PRI_UART0)         //UART1中断 优先级
+#define PRI_UART2       (PRI_UART1)         //UART2中断 优先级
+#define PRI_UART3       (PRI_UART2)         //UART3中断 优先级
+#define PRI_UART4       (PRI_UART3)         //UART4中断 优先级
+#define PRI_UART5       (PRI_UART4)         //UART4中断 优先级
 
+#define PRI_HWTIMER      (PRI_UART5)         //定时器3中断 优先级
+#define PRI_EINT0       (PRI_HWTIMER)        //外部中断0中断 优先级
+#define PRI_EINT1       (PRI_EINT0)         //外部中断1中断 优先级
+#define PRI_EINT3       (PRI_EINT1)         //外部中断3中断 优先级
 /******************************************************************************
 **GPIO
 ******************************************************************************/

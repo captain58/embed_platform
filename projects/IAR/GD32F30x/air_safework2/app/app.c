@@ -777,8 +777,8 @@ void SYS_APP_Init()
 //    SYS_AD_Init();
 //#endif    
 ////	    OV_LcdInit();
-//    SYS_RTC_Init();
-//    SYS_MSG_Init();
+    SYS_RTC_Init();
+    SYS_MSG_Init();
 //    SYS_LED_Init(); 
     SYS_BlinkDev_Init();
 //    HB_LiveInit();
@@ -844,8 +844,8 @@ int application_start(int argc, char *argv[])
 //    HAL_IWDG_Refresh(&hiwdg); //喂狗
 //#endif
 //    
-//    printf("nano entry here!\r\n");
-//    SYS_TASKS_Init();
+    printf("nano entry here!\r\n");
+    SYS_TASKS_Init();
     
 
     while(1) {
@@ -895,7 +895,7 @@ void SYS_MAIN_Task(void * arg)
 //    ADD     R3, R2, #1
     SYS_MAIN_Init();
                                             //申请获取时间消息
-//    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
+    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
 //    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_GPIO);
 //    SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
 
@@ -1124,7 +1124,7 @@ void ResumeSleep()
 //	//	
 //	    MX_ADC1_Init();
     
-    stm32_soc_peripheral_init();
+//    stm32_soc_peripheral_init();
 //	//	    hal_rtc_init(&g_stRtcDev);
 //	//	//	    brd_gpio_resume();
 //	    at_reset_uart();

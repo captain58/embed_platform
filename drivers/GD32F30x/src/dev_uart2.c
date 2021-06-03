@@ -26,7 +26,8 @@
 #include "bsp.h"
 //#include <string.h>
 #include "apis.h"
-
+#include "tasks.h"
+#include "uartcfg.h"
 #if (NO_OF_SERIAL == 0)
     #error "没有串口不需要包含此文件!"
 #endif
@@ -1148,7 +1149,9 @@ uint8 SYS_SER_PrintValue(uint8 port, string str, uint32 value)
 
 
 void UART_Init(void)
-{}
+{
+    SYS_UART_Init();
+}
 
 /************************************************************************
  * @Function: SYS_UART_Init
@@ -1239,10 +1242,10 @@ void SYS_UART_DeInit(void)
 
 
 
-#if (SYS_UARTEVT_EN > 0)
-#ifdef __NO_SYS__
-#include "define.h"
-#endif
+//#if (SYS_UARTEVT_EN > 0)
+//#ifdef __NO_SYS__
+//#include "define.h"
+//#endif
 /************************************************************************
  * @Function: _UartRevMessageDelivery
  * @Description: 检查各个进程是否有申请该串口消息,有则发送消息
@@ -1256,34 +1259,59 @@ void SYS_UART_DeInit(void)
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
+//void _UartRevMessageDelivery(uint8 uartidx, uint8 msg_recv)
+//{
+//    uint8 grptk;
+//    uint8 subtk;
+//    uint8 tkmap;
+//    int extPort = -1;
+//    for(grptk = 0; grptk < sizeof(gucs_MsgUartTkMap[uartidx]); grptk++)
+//    {
+//        tkmap = gucs_MsgUartTkMap[uartidx][grptk];
+//        extPort = _FindExtPort(uartidx);
+//        if(extPort < 0)
+//            return;
+//        while(tkmap)
+//        {
+//            subtk = FBit_Maps(tkmap);
+//#ifndef __NO_SYS__ 
+//            SYS_Message_Send(msg_recv+extPort, (grptk << 3) + subtk);
+//#else
+//            //extern uint8_t  gucSMskEvt[S_MSK_MAXMDL];
+////	            gucSMskEvt[ (grptk << 3) + subtk] |= 1 << uartidx;
+//            SysSndMsg( (grptk << 3) + subtk,  msg_recv + extPort);
+//#endif
+//            tkmap &= ~Bit_Map8[subtk];
+//        }
+//    }
+//}
+//#endif
+
 void _UartRevMessageDelivery(uint8 uartidx, uint8 msg_recv)
 {
-    uint8 grptk;
     uint8 subtk;
     uint8 tkmap;
-    int extPort = -1;
-    for(grptk = 0; grptk < sizeof(gucs_MsgUartTkMap[uartidx]); grptk++)
+    
+    extern const KTaskDeclare __TKDeclare[SYS_TK_NUM];
+    const KTaskDeclare* dec = __TKDeclare;
+    
+    for(uint8 uc_i = 0; uc_i < sizeof(guc_MsgUartTkMap[0]); uc_i++)
     {
-        tkmap = gucs_MsgUartTkMap[uartidx][grptk];
-        extPort = _FindExtPort(uartidx);
-        if(extPort < 0)
-            return;
+        tkmap = guc_MsgUartTkMap[uartidx][uc_i];
         while(tkmap)
         {
-            subtk = FBit_Maps(tkmap);
-#ifndef __NO_SYS__ 
-            SYS_Message_Send(msg_recv+extPort, (grptk << 3) + subtk);
-#else
-            //extern uint8_t  gucSMskEvt[S_MSK_MAXMDL];
-//	            gucSMskEvt[ (grptk << 3) + subtk] |= 1 << uartidx;
-            SysSndMsg( (grptk << 3) + subtk,  msg_recv + extPort);
-#endif
+            subtk = Bit_Maps[tkmap];
+//	            SYS_Message_Send(msg_recv, (uc_i << 3) + subtk);
+//	
+//	            msg = MSG_YEAR;
+//	            dec+=(uc_i << 3) + subtk;
+            krhino_buf_queue_send(dec[(uc_i << 3) + subtk].ktask->msg, &msg_recv, 1);
+
+            
             tkmap &= ~Bit_Map8[subtk];
         }
     }
 }
-#endif
-
 
 
 /************************************************************************

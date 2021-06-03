@@ -39,7 +39,8 @@ EXT_DEV_MSGLOOP uint8 gucs_MsgUartTkMap[NO_OF_SERIAL][SYS_TK_NUM >> 3];
 #define MSG_CLS_ETH     0x06            //以太网通道的消息
 //其他消息申请进程信息
 //	#ifndef __NO_SYS__
-EXT_DEV_MSGLOOP uint8 gucs_MsgApplied[SYS_TK_NUM];
+EXT_DEV_MSGLOOP uint8 guc_MsgApplied[SYS_TK_NUM];
+EXT_DEV_MSGLOOP uint8 guc_MsgUartTkMap[NO_OF_SERIAL][SYS_TK_NUM >> 3];
 //	#else
 //	typedef struct _STMsgApply
 //	{
@@ -82,7 +83,7 @@ void SYS_MSG_DeInit(void);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-bool SYS_MSG_Apply(uint8_t tkid, uint8_t msgcls);
+uint8_t SYS_MSG_Apply(uint32_t tkid, uint8_t msgcls);
 
 /************************************************************************
  * @Function: SYS_MSG_ApplyExt

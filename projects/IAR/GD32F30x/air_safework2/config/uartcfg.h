@@ -54,133 +54,74 @@
         
     };
 
-//	    void Uart0SendEnable(void)
-//	    {
-//	        STIF0 = 0U;    /* clear INTST0 interrupt flag */
-//	        STMK0 = 0U;    /* enable INTST0 interrupt */
-//	        SO0 |= _0001_SAU_CH0_DATA_OUTPUT_1;    /* output level normal */
-//	        SOE0 |= _0001_SAU_CH0_OUTPUT_ENABLE;    /* enable UART0 output */
-//	        SS0 |= _0002_SAU_CH1_START_TRG_ON | _0001_SAU_CH0_START_TRG_ON;    /* enable UART0 receive and transmit */
-//	        Chip_INT0_Clear_Flag(gs_Uart1SID.usart_Int_Snd);//STIF1 = 0U;    /* clear INTST1 interrupt flag */
-//	        Chip_INT0_Set_Enable(gs_Uart1SID.usart_Int_Snd);//STMK1 = 0U;    /* enable INTST1 interrupt */
-//	        Chip_UART_Set_SO_Output(gs_Uart1SID.ch, gs_Uart1SID.USARTx, 0x01<<((gs_Uart1SID.ch & 0x01)*2));//_0001_SAU_CH0_DATA_OUTPUT_1);//SO0 |= _0004_SAU_CH2_DATA_OUTPUT_1;    /* output level normal */
-//	        Chip_UART_Set_SOE_Output_Enable(gs_Uart1SID.ch, gs_Uart1SID.USARTx, 0x01<<((gs_Uart1SID.ch & 0x01)*2));//_0001_SAU_CH0_OUTPUT_ENABLE);//SOE0 |= _0004_SAU_CH2_OUTPUT_ENABLE;    /* enable UART1 output */
-//	        Chip_UART_Set_SS_Output_Start(gs_Uart1SID.ch, gs_Uart1SID.USARTx);//SS0 |= _0008_SAU_CH3_START_TRG_ON | _0004_SAU_CH2_START_TRG_ON;    /* enable UART1 receive and transmit */
-//	        
-//	    }
-//	    
-//	    void Uart0SendDisable(void)
-//	    {
-//	        ST0 |= _0001_SAU_CH0_STOP_TRG_ON;    /* disable UART0 transmit */
-//	        SOE0 &= ~_0001_SAU_CH0_OUTPUT_ENABLE;    /* disable UART0 output */
-//	        STMK0 = 1U;    /* disable INTST0 interrupt */
-//	        STIF0 = 0U;    /* clear INTST0 interrupt flag */
-//	        
-//	    }
-//	    
-//	    void Uart0ReceiveEnable(void)
-//	    {
-//	        SRIF0 = 0U;    /* clear INTSR0 interrupt flag */
-//	        //SRMK0 = 0U;    /* enable INTSR0 interrupt */
-//	        Chip_INT0_Set_Enable(RENSE_INT_PRI_SRPR0);
-//	        SO0 |= _0001_SAU_CH0_DATA_OUTPUT_1;    /* output level normal */
-//	        SOE0 |= _0001_SAU_CH0_OUTPUT_ENABLE;    /* enable UART0 output */
-//	        SS0 |= _0002_SAU_CH1_START_TRG_ON | _0001_SAU_CH0_START_TRG_ON;    /* enable UART0 receive and transmit */
-//	
-//	
-//	
-//	    }
-//	    
-//	    void Uart0ReceiveDisable(void)
-//	    {
-//	        ST0 |= _0002_SAU_CH1_STOP_TRG_ON;    /* disable UART0 receive */
-//	        SRMK0 = 1U;    /* disable INTSR0 interrupt */
-//	        SRIF0 = 0U;    /* clear INTSR0 interrupt flag */
-//	    }
-//	   
+
     void Uart0_PinCfg(void)
     {
-//	        SAU0EN = 1U;    /* supply SAU0 clock */
-//          Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 0, (IOCON_FUNC1 | IOCON_MODE_PULLUP));
-//          Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 1, (IOCON_FUNC1 | IOCON_MODE_PULLUP));
-        /* Set RxD0 pin */
-//	        PFSEG5 &= 0xF7U;
-//	        PM1 |= 0x80U;
-//	        //PFSEG3 &= 0xEFU;  //端口第二功能
-//	        //PM4 |= 0x80U;     //端口第二功能
-//	        /* Set TxD0 pin */
-//	        PFSEG5 &= 0xEFU;
-//	        P0 |= 0x01U;
-//	        PM0 &= 0xFEU;
-        Chip_Clock_EnablePeriphClock(1<< RENSE_CLOCK_PLL_SAU0);
-
-        Chip_GPIO_SetPinPFSEG(0,0,1);
-        Chip_GPIO_SetPinPFSEG(1,7,1);
-        Chip_GPIO_SetPinDIROutput(0,0);
-        Chip_GPIO_SetPinDIRInput(1,7);
-        Chip_GPIO_SetPinState(0,0,1);
+       
+        /* enable GPIO clock */
+        rcu_periph_clock_enable(RCU_GPIOB);
+        
+        gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_9);
+        /* connect port to USARTx_Rx */
+        gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_10);
     
     };
-    void Uart0Send(uint8 data)
+        void Uart0_Msp(void)
     {
-//	        TXD0 = data;
-        RENSE_UART_SDR0(0) = (RENSE_UART_SDR0(0) & 0xff00) | data;
-        
+//        __HAL_RCC_USART1_CLK_ENABLE();
     }
-    void Uart0Rcv(uint8 * data)
-    {
-        *data = RENSE_UART_SDR0(1)&0xFF;
-    }
+//    void Uart0Send(uint8 data)
+//    {
+////	        TXD0 = data;
+//        RENSE_UART_SDR0(0) = (RENSE_UART_SDR0(0) & 0xff00) | data;
+//        
+//    }
+//    void Uart0Rcv(uint8 * data)
+//    {
+//        *data = RENSE_UART_SDR0(1)&0xFF;
+//    }
     const SerialID gs_Uart0SID = 
     {
         0,
-        SYS_UART0_IDX,
-        UART0_485_EN,
-        RENSE_INT_PRI_CSIPR0_IICPR0_STPR0,
-        0x03,
-        RENSE_INT_PRI_SRPR0,
-        0x03,
-        RENSE_INT_PRI_SREPR0_TMPR01H,
-        Uart0_RS485_SetModeRcv,
-        Uart0_RS485_SetModeSnd,
-        Uart0_RS485_SetModeInit,
-        Uart0Send,
-        Uart0Rcv,
-        
-        0xFF,
-        //
-        NULL,//RENSE_UART,
-        NULL,//RENSE_UART0_SDR,
-//	            UART1_IRQn,
-//	            PRI_UART1,
+        PRI_UART0,
+        USART0_IRQn,
+        &gucs_UartInited[SYS_UART0_IDX],
+        USART0,
+        RCU_USART0,
         Uart0_PinCfg,
+        Uart0_Msp,
+        NULL,//(SerialTRC *)&_rs485_usart2,
         &gs_Uart0Buffer,
         &gucs_UartRevFlag[SYS_UART0_IDX],
-        &gucs_UartRevByteTimeout[SYS_UART0_IDX],
-        &gucs_UartRevStart[SYS_UART0_IDX],
-        
-        guc_Uart0BufRcv,
-        guc_Uart0BufSnd,
-        LEN_OF_RECV0,
+        LEN_OF_RECV0,  
+//        &gs_Uart1Handle,
+//        &gs_Uart1Mutex,
+//        &gs_Uart1RxMutex,
+//        &gs_Uart1TxMutex,
+//        &gs_Uart1RxSem,
+//        &gs_Uart1TxSem,
+//        UART_OVERSAMPLING_16,
+//        UART_ONE_BIT_SAMPLE_DISABLE,
+//        UART_ADVFEATURE_NO_INIT,
     };
     
-    void UART0_IRQHandler_Send(void)
-    {
-        CPSR_ALLOC();
-        RHINO_CPU_INTRPT_DISABLE();
-        RHINO_CPU_INTRPT_ENABLE();
-    
-        Uartx_Handler_Send(&gs_Uart0SID);
-    }
-
-    void UART0_IRQHandler_Recv(void)
-    {
-        CPSR_ALLOC();
-        RHINO_CPU_INTRPT_DISABLE();
-        RHINO_CPU_INTRPT_ENABLE();
-    
-        Uartx_Handler_Rcv(&gs_Uart0SID);
-    }
+//    void UART0_IRQHandler_Send(void)
+//    {
+//        CPSR_ALLOC();
+//        RHINO_CPU_INTRPT_DISABLE();
+//        RHINO_CPU_INTRPT_ENABLE();
+//    
+//        Uartx_Handler_Send(&gs_Uart0SID);
+//    }
+//
+//    void UART0_IRQHandler_Recv(void)
+//    {
+//        CPSR_ALLOC();
+//        RHINO_CPU_INTRPT_DISABLE();
+//        RHINO_CPU_INTRPT_ENABLE();
+//    
+//        Uartx_Handler_Rcv(&gs_Uart0SID);
+//    }
         
 #else
 

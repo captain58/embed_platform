@@ -69,165 +69,22 @@ void _sysTimerDoNothing(void *a)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-//	void TIMER32_0_IRQHandler(void)
-//	{
-//	    if(Chip_TIMER_MatchPending(LPC_HWTIMER, 0))  //判断是否为比较器0的中断
-//	    {        
-//	        Chip_TIMER_ClearMatch(LPC_HWTIMER, 0);   //清除中断标记
-//	                                                //下一次定时时间
-//	        //暂不使用库函数
-//	        //Chip_TIMER_SetMatch(LPC_HWTIMER, 0, Chip_TIMER_ReadCount(LPC_HWTIMER) + gul_HwTimerDelay[0]);
-//	        //Chip_TIMER_Enable(LPC_HWTIMER);
-//	        LPC_HWTIMER->MR[0] = LPC_HWTIMER->TC + gul_HwTimerDelay[0];
-//	        LPC_HWTIMER->TCR = TIMER_ENABLE;         //重新使能定时器
-//	        
-//	        gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
-//	    }
-//	    else if(Chip_TIMER_MatchPending(LPC_HWTIMER, 1))
-//	    {
-//	        Chip_TIMER_ClearMatch(LPC_HWTIMER, 1);
-//	                                                //
-//	        LPC_HWTIMER->MR[1] = LPC_HWTIMER->TC + gul_HwTimerDelay[1];
-//	        LPC_HWTIMER->TCR = TIMER_ENABLE;
-//	                                                //
-//	        gfs_hwTimerDelay[1](paraHwTimerDelay[1]);
-//	    }
-//	    else if(Chip_TIMER_MatchPending(LPC_HWTIMER, 2)) 
-//	    {              
-//	        Chip_TIMER_ClearMatch(LPC_HWTIMER, 2);
-//	                                                //
-//	        LPC_HWTIMER->MR[2] = LPC_HWTIMER->TC + gul_HwTimerDelay[2];
-//	        LPC_HWTIMER->TCR = TIMER_ENABLE;
-//	                                                //
-//	        gfs_hwTimerDelay[2](paraHwTimerDelay[2]);
-//	    }
-//	    else if(Chip_TIMER_MatchPending(LPC_HWTIMER, 3))
-//	    {        
-//	        Chip_TIMER_ClearMatch(LPC_HWTIMER, 3);
-//	                                                //
-//	        LPC_HWTIMER->MR[3] = LPC_HWTIMER->TC + gul_HwTimerDelay[3];
-//	        LPC_HWTIMER->TCR = TIMER_ENABLE;
-//	                                                //
-//	        gfs_hwTimerDelay[3](paraHwTimerDelay[3]);
-//	    }
-//	    else                                //其它未知原因
-//	    {
-//	        LPC_HWTIMER->IR = 0xFF;          //清除所有标记
-//	                                        //防止错误标记未清除而频繁进中断
-//	    }
-//	    
-//	}
-
-//	void ETIM1_IRQHandler(void)
-//	{
-//	    SYS_LockMMTK();
-//	
-//		if(SET == ETIMx_ETxIF_OVIF_Chk(ETIM1))
-//		{
-//			ETIMx_ETxIF_OVIF_Clr(ETIM1);
-//	
-//	        //gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
-//		}
-//	    SYS_UnLockMMTK();
-//	}
-//	
-//	void ETIM2_IRQHandler(void)
-//	{
-//	    SYS_LockMMTK();
-//	
-//		if(SET == ETIMx_ETxIF_OVIF_Chk(ETIM2))
-//		{
-//			ETIMx_ETxIF_OVIF_Clr(ETIM2);
-//			gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
-//		}
-//	    SYS_UnLockMMTK();
-//	    
-//	}
-//		
-//	void ETIM3_IRQHandler(void)
-//	{
-//	    SYS_LockMMTK();
-//	
-//		if(SET == ETIMx_ETxIF_OVIF_Chk(ETIM3))
-//		{
-//			ETIMx_ETxIF_OVIF_Clr(ETIM3);
-//			gfs_hwTimerDelay[1](paraHwTimerDelay[1]);	
-//		}
-//	    
-//	    SYS_UnLockMMTK();
-//	}
-//	
-//	void ETIM4_IRQHandler(void)
-//	{
-//	    SYS_LockMMTK();
-//	
-//		if(SET == ETIMx_ETxIF_OVIF_Chk(ETIM4))
-//		{
-//			ETIMx_ETxIF_OVIF_Clr(ETIM4);
-//			gfs_hwTimerDelay[2](paraHwTimerDelay[2]);	
-//		}
-//	    
-//	    SYS_UnLockMMTK();
-//	}
-
-static TIM_HandleTypeDef htim3;
-static TIM_HandleTypeDef htim1;
-
-
-void TIM3_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM3_IRQn 0 */
-  SYS_LockMMTK();
-
-  /* USER CODE END TIM3_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim3);
-  /* USER CODE BEGIN TIM3_IRQn 1 */
-
-  /* USER CODE END TIM3_IRQn 1 */
-  SYS_UnLockMMTK();
-}
-#if 0
-uint32_t g_tim1ticktest = 0;
+#ifndef GD32F30X_HD
+    void TIMER0_TRG_CMT_TIMER10_IRQHandler(void)
+#else
+    void TIMER0_TRG_CMT_IRQHandler(void)
 #endif
-/**
-  * @brief This function handles TIM1 break, update, trigger and commutation interrupts.
-  */
-void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 0 */
-  SYS_LockMMTK();
-#if 0
-  g_tim1ticktest++;
-#endif
-  /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim1);
-  /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 1 */
-  SYS_UnLockMMTK();
+    /* clear TIMER interrupt flag */
+    timer_interrupt_flag_clear(TIMER0,TIMER_INT_FLAG_CMT);
 
-  /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 1 */
-}
-/**
-  * @brief This function handles TIM1 capture compare interrupt.
-  */
-void TIM1_CC_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM1_CC_IRQn 0 */
-  SYS_LockMMTK();
+    krhino_intrpt_enter();
+    gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
+    krhino_intrpt_exit();
+    
 
-  /* USER CODE END TIM1_CC_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim1);
-  /* USER CODE BEGIN TIM1_CC_IRQn 1 */
-  SYS_UnLockMMTK();
-
-  /* USER CODE END TIM1_CC_IRQn 1 */
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	if (htim->Instance == TIM1) {
-        gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
-	}
-}
 
 
 /************************************************************************
@@ -283,172 +140,74 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
     switch(tmrIdx)
     {
         case 0:
-        {
+            {
               
-            TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-            TIM_MasterConfigTypeDef sMasterConfig = {0};
-            TIM_OC_InitTypeDef sConfigOC = {0};
-            TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
-            __HAL_RCC_TIM1_CLK_ENABLE();
-            /* USER CODE BEGIN TIM1_Init 1 */
+                 /* -----------------------------------------------------------------------
+                TIMER0 configuration:
+                generate 3 complementary PWM signal.
+                TIMER0CLK is fixed to systemcoreclock, the TIMER0 prescaler is equal to 119 
+                so the TIMER0 counter clock used is 1MHz.
+                insert a dead time equal to 200/systemcoreclock =1.67us 
+                configure the break feature, active at low level, and using the automatic
+                output enable feature.
+                use the locking parameters level 0.
+                ----------------------------------------------------------------------- */
+                timer_oc_parameter_struct timer_ocintpara;
+                timer_parameter_struct timer_initpara;
+                timer_break_parameter_struct timer_breakpara;
 
-            /* USER CODE END TIM1_Init 1 */
-            htim1.Instance = TIM1;
-            htim1.Init.Prescaler = (uint32_t)(SystemCoreClock/1000000) - 1;
-            htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-            htim1.Init.Period = cycle*1000;
-            htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-            htim1.Init.RepetitionCounter = 0;
-            htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-            if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
-            {
-            Error_Handler();
-            }
-            sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-            if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
-            {
-            Error_Handler();
-            }
-            if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
-            {
-            Error_Handler();
-            }
-            sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-            sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-            if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-            {
-            Error_Handler();
-            }
-            sConfigOC.OCMode = TIM_OCMODE_TIMING;
-            sConfigOC.Pulse = 0;
-            sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-            sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-            sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-            sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-            sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-            if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-            {
-            Error_Handler();
-            }
-            sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-            sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-            sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-            sBreakDeadTimeConfig.DeadTime = 0;
-            sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-            sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-            sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-            if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
-            {
-            Error_Handler();
-            }
+                rcu_periph_clock_enable(RCU_TIMER0);
+
+                timer_deinit(TIMER0);
+
+                /* TIMER0 configuration */
+                timer_initpara.prescaler         = 119;
+                timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
+                timer_initpara.counterdirection  = TIMER_COUNTER_UP;
+                timer_initpara.period            = 599;
+                timer_initpara.clockdivision     = TIMER_CKDIV_DIV1;
+                timer_initpara.repetitioncounter = 0;
+                timer_init(TIMER0,&timer_initpara);
+
+                 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
+                timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
+                timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
+                timer_ocintpara.ocpolarity   = TIMER_OC_POLARITY_HIGH;
+                timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
+                timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
+                timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
+
+                timer_channel_output_config(TIMER0,TIMER_CH_0,&timer_ocintpara);
+                timer_channel_output_config(TIMER0,TIMER_CH_1,&timer_ocintpara);
+                timer_channel_output_config(TIMER0,TIMER_CH_2,&timer_ocintpara);
+
+                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_0,299);
+                timer_channel_output_mode_config(TIMER0,TIMER_CH_0,TIMER_OC_MODE_TIMING);
+                timer_channel_output_shadow_config(TIMER0,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
+
+                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_1,299);
+                timer_channel_output_mode_config(TIMER0,TIMER_CH_1,TIMER_OC_MODE_TIMING);
+                timer_channel_output_shadow_config(TIMER0,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
+
+                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_2,299);
+                timer_channel_output_mode_config(TIMER0,TIMER_CH_2,TIMER_OC_MODE_TIMING);
+                timer_channel_output_shadow_config(TIMER0,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
 
 
-            
-//	                TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-//	                TIM_MasterConfigTypeDef sMasterConfig = {0};
-//	                TIM_OC_InitTypeDef sConfigOC = {0};
-//	                TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
-//	                __HAL_RCC_TIM1_CLK_ENABLE();
-//	                /* USER CODE BEGIN TIM1_Init 1 */
-//	                
-//	                /* USER CODE END TIM1_Init 1 */
-//	                htim1.Instance = TIM1;
-//	                htim1.Init.Prescaler = 2000;(uint32_t)(SystemCoreClock/1000000) - 1;
-//	                htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-//	                htim1.Init.Period = 200;//cycle*1000;
-//	                htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-//	                htim1.Init.RepetitionCounter = 0;
-//	                htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-//	                if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
-//	                {
-//	                    Error_Handler();
-//	                }
-//	
-//	                sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-//	                if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
-//	                {
-//	                    Error_Handler();
-//	                }
-//	   
-//	                sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-//	                sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-//	                if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-//	                {
-//	                  Error_Handler();
-//	                }
-//	                sConfigOC.OCMode = TIM_OCMODE_TIMING;
-//	                sConfigOC.Pulse = 0;
-//	                sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-//	                sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-//	                sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-//	                sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-//	                sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-//	                if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-//	                {
-//	                  Error_Handler();
-//	                }
-//	                sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-//	                sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-//	                sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-//	                sBreakDeadTimeConfig.DeadTime = 0;
-//	                sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-//	                sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-//	                sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-//	                if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
-//	                {
-//	                  Error_Handler();
-//	                }
-
-
-
-
+                /* automatic output enable, break, dead time and lock configuration*/
+                timer_breakpara.runoffstate      = TIMER_ROS_STATE_ENABLE;
+                timer_breakpara.ideloffstate     = TIMER_IOS_STATE_ENABLE ;
+                timer_breakpara.deadtime         = 164;
+                timer_breakpara.breakpolarity    = TIMER_BREAK_POLARITY_LOW;
+                timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
+                timer_breakpara.protectmode      = TIMER_CCHP_PROT_OFF;
+                timer_breakpara.breakstate       = TIMER_BREAK_DISABLE;
+                timer_break_config(TIMER0,&timer_breakpara);
                 
-//	            TIM_MasterConfigTypeDef sMasterConfig = {0};
-//	              TIM_OC_InitTypeDef sConfigOC = {0};
-//	              TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
-//	                __HAL_RCC_TIM1_CLK_ENABLE();
-//	              /* USER CODE BEGIN TIM1_Init 1 */
-//	            
-//	              /* USER CODE END TIM1_Init 1 */
-//	              htim1.Instance = TIM1;
-//	              htim1.Init.Prescaler = (uint32_t)(SystemCoreClock/1000000) - 1;
-//	              htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-//	              htim1.Init.Period = cycle*1000;
-//	              htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-//	              htim1.Init.RepetitionCounter = 0;
-//	              htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-//	              if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
-//	              {
-//	                Error_Handler();
-//	              }
-//	              sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-//	              sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-//	              if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-//	              {
-//	                Error_Handler();
-//	              }
-//	              sConfigOC.OCMode = TIM_OCMODE_TIMING;
-//	              sConfigOC.Pulse = 0;
-//	              sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-//	              sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-//	              sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-//	              sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-//	              sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-//	              if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-//	              {
-//	                Error_Handler();
-//	              }
-//	              sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-//	              sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-//	              sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-//	              sBreakDeadTimeConfig.DeadTime = 0;
-//	              sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-//	              sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-//	              sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-//	              if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
-//	              {
-//	                Error_Handler();
-//	              }
+                /* TIMER0 primary output function enable */
+                timer_primary_output_config(TIMER0,ENABLE);
+
+
 
 
             }
@@ -456,38 +215,7 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
         case 1:
             {
                 //信号源参数
-                TIM_MasterConfigTypeDef sMasterConfig = {0};
-                TIM_OC_InitTypeDef sConfigOC = {0};
-                __HAL_RCC_TIM3_CLK_ENABLE();
 
-                /* USER CODE BEGIN TIM3_Init 1 */
-
-                /* USER CODE END TIM3_Init 1 */
-                htim3.Instance = TIM3;
-                htim3.Init.Prescaler = (uint32_t)(SystemCoreClock/1000000) - 1;
-                htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-                htim3.Init.Period = cycle*1000;
-                htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-                htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-                if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
-                {
-                    Error_Handler();
-                }
-                sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-                sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-                if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-                {
-                    Error_Handler();
-                }
-                sConfigOC.OCMode = TIM_OCMODE_TIMING;
-                sConfigOC.Pulse = 0;
-                sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-                sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-                if (HAL_TIM_OC_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-                {
-                    Error_Handler();
-                }      
-                /* TIM3 interrupt Init */
             }
             break;
 
@@ -554,22 +282,22 @@ uint8 SysTimer_DlyStart(uint8 tmrIdx)
     {
     case 0:
         //信号源参数
-//	        ETIMx = (ETIMx_Type*)ETIM2;
-//	        NVIC_EnableIRQ(ETIM2_IRQn);
-        HAL_TIM_Base_Start_IT(&htim1);
-        HAL_NVIC_SetPriority(TIM1_BRK_UP_TRG_COM_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
-//	        HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
-//	        HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
+        /* TIMER0 channel control update interrupt enable */
+        timer_interrupt_enable(TIMER0,TIMER_INT_CMT);
+        /* TIMER0 break interrupt disable */
+        timer_interrupt_disable(TIMER0,TIMER_INT_BRK);
+
+        /* TIMER0 counter enable */
+        timer_enable(TIMER0);
 
         break;
     case 1:
         //信号源参数
 //	        ETIMx = (ETIMx_Type*)ETIM2;
 //	        NVIC_EnableIRQ(ETIM2_IRQn);
-        HAL_TIM_Base_Start_IT(&htim3);
-        HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TIM3_IRQn);
+//        HAL_TIM_Base_Start_IT(&htim3);
+//        HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+//        HAL_NVIC_EnableIRQ(TIM3_IRQn);
 
         break;        
     default:
@@ -600,14 +328,18 @@ uint8 SysTimer_DlyStop(uint8 tmrIdx)
     switch(tmrIdx)                      //根据号码进行散转
     {
         case 0:                         //关闭中断功能
-//	            HAL_TIM_Base_Stop_IT(&htim1);
-//	            HAL_NVIC_DisableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
-//	            HAL_NVIC_DisableIRQ(TIM1_CC_IRQn);
+            /* TIMER0 channel control update interrupt enable */
+            timer_interrupt_disable(TIMER0,TIMER_INT_CMT);
+            /* TIMER0 break interrupt disable */
+            timer_interrupt_disable(TIMER0,TIMER_INT_BRK);
+
+            /* TIMER0 counter enable */
+            timer_disable(TIMER0);
 
             break;
         case 1:                         //关闭中断功能
-            HAL_TIM_Base_Stop_IT(&htim3);
-            HAL_NVIC_DisableIRQ(TIM3_IRQn);
+//            HAL_TIM_Base_Stop_IT(&htim3);
+//            HAL_NVIC_DisableIRQ(TIM3_IRQn);
 
             break;
 
@@ -645,16 +377,16 @@ bool SysTimer_GetStatus(uint8 tmrIdx)
     switch(tmrIdx)
     {
         case 0:
-            stt = HAL_TIM_Base_GetState(&htim1);
+            stt = timer_flag_get(TIMER0, TIMER_INT_FLAG_CMT);
             break;
         case 1:
-            stt = HAL_TIM_Base_GetState(&htim3);
+//            stt = HAL_TIM_Base_GetState(&htim3);
             break;       
         default:
             return false;
             break;
     }
-    if(HAL_TIM_STATE_BUSY != stt)
+    if(SET != stt)
     {
         return false;
     }

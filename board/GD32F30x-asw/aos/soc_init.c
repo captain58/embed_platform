@@ -372,36 +372,36 @@ void SYS_FeedDOG()
 }
 
 
-void stm32_soc_init(void)
-{
-    //
-//    HAL_Init();
-      /* Configure the system clock */
-    SystemClock_Config();
-//	    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-
-    /**Configure the Systick 
-    */
-    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-//	
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-    
-    /**Configure the Systick interrupt time */
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-
-    MX_GPIO_Init();
-
-    MX_DMA_Init();
-
-    MX_ADC1_Init();
-
-    MX_LPTIM1_Init();
-
-//	    __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);    
-#ifndef DEBUG    
-    MX_IWDG_Init();
-#endif
-}
+//void stm32_soc_init(void)
+//{
+//    //
+////    HAL_Init();
+//      /* Configure the system clock */
+//    SystemClock_Config();
+////	    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+//
+//    /**Configure the Systick 
+//    */
+//    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+////	
+//    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+//    
+//    /**Configure the Systick interrupt time */
+//    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+//
+//    MX_GPIO_Init();
+//
+//    MX_DMA_Init();
+//
+//    MX_ADC1_Init();
+//
+//    MX_LPTIM1_Init();
+//
+////	    __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);    
+//#ifndef DEBUG    
+//    MX_IWDG_Init();
+//#endif
+//}
 
 void stm32_soc_peripheral_init(void)
 {
@@ -442,6 +442,7 @@ static void pstuart_init(void)
 /**
 * @brief This function handles System tick timer.
 */
+extern void HAL_IncTick(void);
 void SysTick_Handler(void)
 {
   krhino_intrpt_enter();

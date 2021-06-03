@@ -44,7 +44,7 @@ EXT_DEV_UART uint8  gucs_UartUserTkid[NO_OF_SERIAL];        //当前占用该端口的进
 ******************************************************************************/
 EXT_DEV_UART uint8_t gucs_UartRevFlag[NO_OF_SERIAL];
 EXT_DEV_UART uint8_t gucs_UartInited[NO_OF_SERIAL];
-
+EXT_DEV_UART uint8_t gucs_UartInited[NO_OF_SERIAL];
 
 /*******************************************************************************
 **串口处理回调函数
@@ -53,6 +53,8 @@ EXT_DEV_UART TCallback gfs_SerialCallBack[NO_OF_SERIAL];    //__NULL表示无回调函
 
 
 #endif              //#if (SYS_UART_EN > 0)
+
+void UART_Init(void);
 
 /************************************************************************
  * @Function: SYS_SER_Init

@@ -547,8 +547,8 @@ uint8 RTC_ProcTEsMsg(uint8 OpType, TIME* obj)
             
         case HRTC_RW_WB:                    //写入BCD格式时间
 #if SYS_HRTC_EN > 0
-            memcpy_s(time, (uint8*)obj, 3);//秒分时
-            memcpy_s(time + 4,(uint8*)obj + 3,  3);//日月年
+            memcpy(time, (uint8*)obj, 3);//秒分时
+            memcpy(time + 4,(uint8*)obj + 3,  3);//日月年
             time[3] = CalcWeek(time + 4);          //周
             result = I2C_HRTC_WriteBcdTime(time);
 #endif
@@ -557,8 +557,8 @@ uint8 RTC_ProcTEsMsg(uint8 OpType, TIME* obj)
             
         case HRTC_RW_WH:                    //写入HEX格式时间
 #if SYS_HRTC_EN > 0
-            memcpy_s(time, (uint8*)obj, 3);//秒分时
-            memcpy_s(time + 4, (uint8*)obj + 3, 3);//日月年
+            memcpy(time, (uint8*)obj, 3);//秒分时
+            memcpy(time + 4, (uint8*)obj + 3, 3);//日月年
             time[3] = CalcWeek(time + 4);          //周
             result = I2C_HRTC_WriteHexTime(time);
 #endif
@@ -763,13 +763,13 @@ uint8 SYS_RTC_CheckTime(void)
     
     if(I2C_HRTC_ReadHexTime(buff) == SYS_ERR_OK)  //读取硬时钟时间
     {
-        memcpy_s(time, buff, 3);               //秒分时
-        memcpy_s(time + 3, buff + 4, 3);       //日月年(跳过周)
+        memcpy(time, buff, 3);               //秒分时
+        memcpy(time + 3, buff + 4, 3);       //日月年(跳过周)
         sec = CalcSecs(time, false);
         
         I2C_HRTC_ReadHexTime(buff);
-        memcpy_s(time, buff, 3);               //秒分时
-        memcpy_s(time + 3, buff + 4, 3);       //日月年(跳过周)
+        memcpy(time, buff, 3);               //秒分时
+        memcpy(time + 3, buff + 4, 3);       //日月年(跳过周)
         sec1 = CalcSecs(time, false);
         if(AbsVal(sec1 - sec) <= 2)		        //两次读取硬件RTC的时间差在2秒以内才写入MCU的RTC
         {                                       //转换数据格式
@@ -803,11 +803,85 @@ uint8 SYS_RTC_CheckTime(void)
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-bool SYS_RTC_SecProc(void* pdata)
+//bool SYS_RTC_SecProc(void* pdata)
+//{
+//#if (SYS_RTC_EN == 0)
+//    _virtualTimeSecProc();
+//#endif
+//                                            //读取内部RTC时间
+//    if(SYS_MCU_ReadDateTime(&gs_Time) != SYS_ERR_OK)
+//    {
+//        SYS_MCU_ReadDateTime(&gs_Time);
+//    }
+//                                            //系统运行时间增一
+//    gul_SysRunSecs++;
+//    
+//#if (true)                                  //事件分发
+//    extern const KTaskDeclare __TKDeclare[SYS_TK_NUM];
+//    const KTaskDeclare* dec = __TKDeclare + 1;
+//
+//    for(uint32 uc_i = 1; uc_i < (SYS_TK_NUM - 1); uc_i++, dec++)
+//    {
+//                                            //如果该进程不存在则不发送
+//        if(dec->ktask == __NULL || dec->stklen == 0)
+//        {
+//            continue;
+//        }
+//        
+//        if(!(guc_MsgApplied[uc_i] & Bit_Map8[MSG_CLS_TM]))
+//        {
+//            continue;
+//        }
+//        
+//        if(dec->ktask->tbl != 0)             //时间消息仅针对消息进程
+//        {
+//            if(gs_TimeBk.year != gs_Time.year) //年事件
+//            {
+//                SYS_Message_Send(MSG_YEAR, uc_i);
+//            }
+//            if(gs_TimeBk.month != gs_Time.month)//月事件
+//            {
+//                SYS_Message_Send(MSG_MON, uc_i);
+//            }
+//            if(gs_TimeBk.day != gs_Time.day) //天事件
+//            {
+//                SYS_Message_Send(MSG_DAY, uc_i);
+//            }
+//            if(gs_TimeBk.hour != gs_Time.hour) //小时事件
+//            {
+//                SYS_Message_Send(MSG_HOUR, uc_i);
+//            }
+//            if(gs_TimeBk.min != gs_Time.min)   //分事件
+//            {
+//				f_timecheck = true;			//过分后第30秒允许RTC校时
+//                SYS_Message_Send(MSG_MIN, uc_i);
+//            }
+//            SYS_Message_Send(MSG_SEC, uc_i); //发送秒消息
+//        }
+//    }
+//#endif
+//
+//#if SYS_HRTC_EN > 0
+//    if((gs_Time.sec >= 30) && (gs_Time.sec <= 50) && f_timecheck)          	//在第30秒校时.每分钟校时一次.
+//    {
+//        SYS_RTC_CheckTime();
+//        f_timecheck = false;
+//    }
+//#endif
+//                                            //备份时间
+//    memcpy((uint8*)&gs_TimeBk, (uint8*)&gs_Time, sizeof(TIME));
+//
+//    return true;
+//}
+
+void SYS_RTC_SecProc(void *timer, void *arg)
 {
 #if (SYS_RTC_EN == 0)
-    _virtualTimeSecProc();
+    VirtualTimeSecProc();
 #endif
+    uint8_t msg = 0;
+    //printf("SYS_RTC_SecProc = %d\n", gul_SysRunSecs);
+
                                             //读取内部RTC时间
     if(SYS_MCU_ReadDateTime(&gs_Time) != SYS_ERR_OK)
     {
@@ -816,11 +890,10 @@ bool SYS_RTC_SecProc(void* pdata)
                                             //系统运行时间增一
     gul_SysRunSecs++;
     
-#if (true)                                  //事件分发
     extern const KTaskDeclare __TKDeclare[SYS_TK_NUM];
-    const KTaskDeclare* dec = __TKDeclare + 1;
+    const KTaskDeclare* dec = __TKDeclare;
 
-    for(uint32 uc_i = 1; uc_i < (SYS_TK_NUM - 1); uc_i++, dec++)
+    for(uint32 uc_i = 0; uc_i < SYS_TK_NUM; uc_i++, dec++)
     {
                                             //如果该进程不存在则不发送
         if(dec->ktask == __NULL || dec->stklen == 0)
@@ -828,39 +901,55 @@ bool SYS_RTC_SecProc(void* pdata)
             continue;
         }
         
-        if(!(gucs_MsgApplied[uc_i] & Bit_Map8[MSG_CLS_TM]))
+        if(!(guc_MsgApplied[uc_i] & Bit_Map8[MSG_CLS_TM]))
         {
             continue;
         }
         
-        if(dec->ktask->tbl != 0)             //时间消息仅针对消息进程
+        if(dec->ktask->tbl != 0 && dec->ktask->msg != NULL)             //时间消息仅针对消息进程
         {
             if(gs_TimeBk.year != gs_Time.year) //年事件
             {
-                SYS_Message_Send(MSG_YEAR, uc_i);
+//	                SYS_Message_Send(MSG_YEAR, uc_i);
+                msg = MSG_YEAR;
+                krhino_buf_queue_send(dec->ktask->msg, &msg, 1);
             }
             if(gs_TimeBk.month != gs_Time.month)//月事件
             {
-                SYS_Message_Send(MSG_MON, uc_i);
+//	                SYS_Message_Send(MSG_MON, uc_i);
+                msg = MSG_MON;
+                krhino_buf_queue_send(dec->ktask->msg, &msg, 1);
+                
             }
             if(gs_TimeBk.day != gs_Time.day) //天事件
             {
-                SYS_Message_Send(MSG_DAY, uc_i);
+//	                SYS_Message_Send(MSG_DAY, uc_i);
+                msg = MSG_DAY;
+                krhino_buf_queue_send(dec->ktask->msg, &msg, 1);
+
             }
             if(gs_TimeBk.hour != gs_Time.hour) //小时事件
             {
-                SYS_Message_Send(MSG_HOUR, uc_i);
+//	                SYS_Message_Send(MSG_HOUR, uc_i);
+                msg = MSG_HOUR;
+                krhino_buf_queue_send(dec->ktask->msg, &msg, 1);
+                
             }
             if(gs_TimeBk.min != gs_Time.min)   //分事件
             {
 				f_timecheck = true;			//过分后第30秒允许RTC校时
-                SYS_Message_Send(MSG_MIN, uc_i);
+//	                SYS_Message_Send(MSG_MIN, uc_i);
+                msg = MSG_MIN;
+                krhino_buf_queue_send(dec->ktask->msg, &msg, 1);
+                
             }
-            SYS_Message_Send(MSG_SEC, uc_i); //发送秒消息
+//	            SYS_Message_Send(MSG_SEC, uc_i); //发送秒消息
+            msg = MSG_SEC;
+            krhino_buf_queue_send(dec->ktask->msg, &msg, 1);
+            
         }
     }
-#endif
-
+    
 #if SYS_HRTC_EN > 0
     if((gs_Time.sec >= 30) && (gs_Time.sec <= 50) && f_timecheck)          	//在第30秒校时.每分钟校时一次.
     {
@@ -869,10 +958,12 @@ bool SYS_RTC_SecProc(void* pdata)
     }
 #endif
                                             //备份时间
-    memcpy_s((uint8*)&gs_TimeBk, (uint8*)&gs_Time, sizeof(TIME));
+    MoveBuffer((uint8*)&gs_Time, (uint8*)&gs_TimeBk, sizeof(TIME));
 
-    return true;
+
 }
+
+
 #else
 #include "define.h"
 /************************************************************************
@@ -952,7 +1043,7 @@ void SYS_RTC_SecProc(void)
     }
 #endif
                                             //备份时间
-    memcpy_s((uint8*)&gs_TimeBk, (uint8*)&gs_Time, sizeof(TIME));
+    memcpy((uint8*)&gs_TimeBk, (uint8*)&gs_Time, sizeof(TIME));
 
     //return true;
 }
@@ -1000,7 +1091,7 @@ void SYS_RTC_Init(void)
     gul_SysRunSecs = 0;
 	                                        //初始化备份时间
     SYS_MCU_ReadDateTime(&gs_Time);          //
-    memcpy_s((uint8*)&gs_TimeBk, (uint8*)&gs_Time, sizeof(TIME));
+    memcpy((uint8*)&gs_TimeBk, (uint8*)&gs_Time, sizeof(TIME));
     
     f_timecheck = true;					    //上电后就允许RTC校时
 }
