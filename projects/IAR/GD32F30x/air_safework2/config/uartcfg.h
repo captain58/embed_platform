@@ -302,6 +302,7 @@ const SerialID* const gss_UartSID[NO_OF_SERIAL] =
 
 };
 
+const uint8_t _ucPortMap[] = {SYS_UART0_IDX,SYS_UART1_IDX,SYS_UART0_IDX};
 
 //	#endif                                  //#ifdef _USR_MAIN
 

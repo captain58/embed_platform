@@ -34,22 +34,22 @@
 /*****************************************************************************
 **定义SPI端口结构体
 ******************************************************************************/
-typedef struct
-{
-    gpio_dev_t* portMISO;                  //SPI器件主入从出,输入
-    gpio_dev_t* portMOSI;                  //SPI器件主出从入
-    gpio_dev_t* portSCK;                   //SPI器件时钟线
-    gpio_dev_t* portPWR;                    //SPI器件电源脚
-    gpio_dev_t* portCS;                    //SPI器件片选线
-    gpio_dev_t* portWP;                    //SPI器件保护线
-    gpio_dev_t* portPWR2;                    //SPI器件电源脚
-    gpio_dev_t* portCS2;                   //SPI器件2片选线
-    gpio_dev_t* portWP2;                   //SPI器件2保护线
-    gpio_dev_t* portPWR3;                    //SPI器件电源脚
-    gpio_dev_t* portCS3;                   //SPI器件3片选线
-    gpio_dev_t* portWP3;                   //SPI器件3保护线
-    
-}SPIIO_PORTS;
+//typedef struct
+//{
+//    COMPORT* portMISO;                  //SPI器件主入从出,输入
+//    COMPORT* portMOSI;                  //SPI器件主出从入
+//    COMPORT* portSCK;                   //SPI器件时钟线
+//    COMPORT* portPWR;                    //SPI器件电源脚
+//    COMPORT* portCS;                    //SPI器件片选线
+//    COMPORT* portWP;                    //SPI器件保护线
+//    COMPORT* portPWR2;                    //SPI器件电源脚
+//    COMPORT* portCS2;                   //SPI器件2片选线
+//    COMPORT* portWP2;                   //SPI器件2保护线
+//    COMPORT* portPWR3;                    //SPI器件电源脚
+//    COMPORT* portCS3;                   //SPI器件3片选线
+//    COMPORT* portWP3;                   //SPI器件3保护线
+//    
+//}SPIIO_PORTS;
 
 
 
@@ -62,8 +62,8 @@ typedef struct
     uint8* data;                        //发送数据
     uint16 length;                      //发送长度
     uint16 cmdnum;                      //命令长度
-    void (*csup)(void);                //CS线拉高操作
-    void (*csdown)(void);              //CS线拉低操作
+    void (*csup)(const SPIIO_PORTS* ports);                //CS线拉高操作
+    void (*csdown)(const SPIIO_PORTS* ports);              //CS线拉低操作
 }SPIIO;
 
 
@@ -79,7 +79,7 @@ typedef struct
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_CS_1(uint8 devidx);
+void SPI_CS_1(uint8 devidx, const SPIIO_PORTS* ports);
 
 
 /************************************************************************
@@ -94,7 +94,7 @@ void SPI_CS_1(uint8 devidx);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_CS_0(uint8 devidx);
+void SPI_CS_0(uint8 devidx, const SPIIO_PORTS* ports);
 
 
 /************************************************************************
@@ -109,7 +109,7 @@ void SPI_CS_0(uint8 devidx);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_WP_1(uint8 devidx);
+void SPI_WP_1(uint8 devidx, const SPIIO_PORTS* ports);
 
 
 /************************************************************************
@@ -124,7 +124,7 @@ void SPI_WP_1(uint8 devidx);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_WP_0(uint8 devidx);
+void SPI_WP_0(uint8 devidx, const SPIIO_PORTS* ports);
 
 
 /************************************************************************
@@ -141,7 +141,7 @@ void SPI_WP_0(uint8 devidx);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 SPI_Write(SPIIO* spi);
+uint8 SPI_Write(SPIIO* spi, const SPIIO_PORTS* ports);
 
 /************************************************************************
  * @function: SPI_Read
@@ -157,7 +157,7 @@ uint8 SPI_Write(SPIIO* spi);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 SPI_Read(SPIIO* spi);
+uint8 SPI_Read(SPIIO* spi, const SPIIO_PORTS* ports);
 
 /************************************************************************
  * @function: SPI_Close
@@ -173,7 +173,7 @@ uint8 SPI_Read(SPIIO* spi);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_Close(unsigned char devidx);
+void SPI_Close(unsigned char devidx, const SPIIO_PORTS* ports);
 
 
 /************************************************************************
@@ -188,7 +188,7 @@ void SPI_Close(unsigned char devidx);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_PWR_1(uint8 devidx);
+void SPI_PWR_1(uint8 devidx, const SPIIO_PORTS* ports);
 
 /************************************************************************
  * @function: SPI_PWR_0
@@ -202,7 +202,7 @@ void SPI_PWR_1(uint8 devidx);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_PWR_0(uint8 devidx);
+void SPI_PWR_0(uint8 devidx, const SPIIO_PORTS* ports);
 
 /************************************************************************
  * @function: SPI_ReadAndCompare
@@ -218,7 +218,7 @@ void SPI_PWR_0(uint8 devidx);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 SPI_ReadAndCompare(SPIIO* spi);
+uint8 SPI_ReadAndCompare(SPIIO* spi, const SPIIO_PORTS* ports);
 
 /************************************************************************
  * @function: Init_SPI

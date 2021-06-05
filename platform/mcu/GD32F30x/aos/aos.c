@@ -125,6 +125,38 @@ static void sys_start(void)
     
     aos_start();
 }
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t* file, uint32_t line)
+{ 
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
+/* Exported macro ------------------------------------------------------------*/
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  The assert_param macro is used for function's parameters check.
+  * @param  expr: If expr is false, it calls assert_failed function
+  *         which reports the name of the source file and the source
+  *         line number of the call that failed.
+  *         If expr is true, it returns no value.
+  * @retval None
+  */
+  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
+/* Exported functions ------------------------------------------------------- */
+  void assert_failed(uint8_t* file, uint32_t line);
+#else
+  #define assert_param(expr) ((void)0U)
+#endif /* USE_FULL_ASSERT */
 void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset)
 { 
   /* Check the parameters */
@@ -138,7 +170,7 @@ void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset)
 
 int main(void)
 {
-    //NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x6000); 
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0000); 
 
     sys_start();
     return 0;

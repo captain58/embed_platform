@@ -74,7 +74,7 @@ void SYS_RTC_Init(void);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint8 SYS_WriteDateTime(TIME* datetime);
+uint8 SYS_MCU_WriteDateTime(TIME* datetime);
 
 
 /************************************************************************
@@ -91,7 +91,7 @@ uint8 SYS_WriteDateTime(TIME* datetime);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint8 SYS_WriteBCDDateTime(TIME* datetime);
+uint8 SYS_MCU_WriteBCDDateTime(TIME* datetime);
 
 
 /************************************************************************
@@ -108,7 +108,7 @@ uint8 SYS_WriteBCDDateTime(TIME* datetime);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint8 SYS_ReadDateTime(TIME* datetime);
+uint8 SYS_MCU_ReadDateTime(TIME* datetime);
 
 
 /************************************************************************
@@ -125,7 +125,7 @@ uint8 SYS_ReadDateTime(TIME* datetime);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint8 SYS_ReadBCDDateTime(TIME* datetime);
+uint8 SYS_MCU_ReadBCDDateTime(TIME* datetime);
 
 
 

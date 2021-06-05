@@ -134,12 +134,12 @@
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-//STATIC INLINE bool HAL_GPIO_GetPinState(GPIO_TypeDef * GPIOx, uint8 pin)
-//{
-//    return (bool)(HAL_GPIO_ReadPin(GPIOx, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
-//}
-//
-//
+STATIC INLINE bool HAL_GPIO_GetPinState(void * GPIOx, uint8 pin)
+{
+    return (bool)(gpio_output_bit_get(((COMPORT *)GPIOx)->pingrp, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
+}
+
+
 //
 ///************************************************************************
 // * @Function: HAL_GPIO_SetPinState

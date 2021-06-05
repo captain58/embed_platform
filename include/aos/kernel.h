@@ -512,7 +512,7 @@ char *aos_now_time_str(char *buffer, const int len);
  * @param[in]  ms  sleep time in milliseconds.
  */
 void aos_msleep(int ms);
-
+#define msleep aos_msleep
 /**
  * Initialize system
  */

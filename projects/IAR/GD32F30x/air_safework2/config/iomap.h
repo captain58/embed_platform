@@ -229,6 +229,29 @@ typedef enum
     
 #endif                                  //#ifdef EXT_MXFLASH
 
+/******************************************************************************
+**APP LEVEL FLASH IO PORT DEFINATION
+******************************************************************************/
+#ifdef EXT_RF
+    
+    const COMPORT gs_RFSpiMISO = {0x0, 6,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
+    const COMPORT gs_RFSpiMOSI = {0x0, 7,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
+    const COMPORT gs_RFSpiSCK  = {0x0, 5,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
+    const COMPORT gs_RFSpiCS   = {0x0, 4,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
+    const COMPORT gs_RFSpiPWR  = {0x1, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
+    const COMPORT gs_RFSpiWP   = {0x1, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
+    
+    const SPIIO_PORTS gs_RFSpiPort = 
+    {
+        (COMPORT*)&gs_RFSpiMISO,       //MISO,SPI主入从出
+        (COMPORT*)&gs_RFSpiMOSI,       //MOSI,SPI主出从入
+        (COMPORT*)&gs_RFSpiSCK,        //SCK,SPI时钟线
+        (COMPORT*)&gs_RFSpiPWR,        //电源脚        
+        (COMPORT*)&gs_RFSpiCS,         //FLA,FLASH片选
+        (COMPORT*)&gs_RFSpiWP,         //写保护
+    };
+    
+#endif   
 
 
 

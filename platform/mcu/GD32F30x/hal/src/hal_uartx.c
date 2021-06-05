@@ -472,6 +472,76 @@ uint8 Uartx_DeInit(const SerialID* sid)
     SYS_OK();
 }
 
+
+/************************************************************************
+ * @Function: Uartx_StartSend
+ * @Description: 启动Uart的发送
+ * 
+ * @Arguments: 
+ * @param: sid 串口信息结构体
+ * @Note: 
+ * @Auther: yzy
+ * Date: 2015/5/25
+ *-----------------------------------------------------------------------
+ * @History: 
+ ************************************************************************/
+void Uartx_StartSend(const SerialID* sid)
+{ 
+    uint16 dd;
+    SerialBuffer* gsp_Uartx = sid->buffer;
+    
+    SYS_ENTER_SCRT();
+    
+    if(sid->rs485)
+    {
+        casHwTimerStop(ID_CASHWTIMR_UARTTRC(sid->uart_no));//停止定时器
+        ((void(*)())sid->rs485->setModeSend)();//转到发送口的状态
+    }
+    
+#if (SYS_UART_ACCT > 0)
+    if(UartACCTransmitProc(sid))
+    {
+        SYS_EXIT_SCRT();
+        return;
+    }
+#endif
+                                        //处理发送缓存中的数据
+
+    if(gsp_Uartx->tcnt > 0)
+    {                                   //发送一个字节
+        dd = gsp_Uartx->tbuff[gsp_Uartx->tp++];
+//	        if(sid->uart_no == 0)
+//	        {
+//	            Chip_UART0_SendByte(LPC_USART0, dd);
+//	            UARTx_TXREG_Write(UARTx, TestTxData[i]);
+//	        }
+//	        else
+//	        {
+//	            while((Chip_UARTN_GetStatus((UARTx_Type*)_LpcUSART[sid->uart_no]) & UARTN_STAT_TXRDY) == 0)
+//	            {
+//	                //do nothing
+//	                //wait until data is moved from the transmit buffer to the transmit shift register
+//	            }
+//	            Chip_UARTN_SendByte((LPC_USARTN_T*)_LpcUSART[sid->uart_no], dd);
+//	            Chip_UARTN_IntEnable((LPC_USARTN_T*)_LpcUSART[sid->uart_no], UARTN_INTEN_TXRDY);
+//        while(SET == UARTx_TXBUFSTA_TXFF_Chk((UARTx_Type*)_LpcUSART[sid->uart_no]));	//等待发送完成
+//
+//        UART_UARTIF_RxTxIF_ClrEx((UARTx_Type*)_LpcUSART[sid->uart_no]);	//清除发送中断标志
+//    	UART_UARTIE_RxTxIE_SetableEx((UARTx_Type*)_LpcUSART[sid->uart_no], TxInt, ENABLE);//打开发送中断
+//
+//        UARTx_TXREG_Write((UARTx_Type*)_LpcUSART[sid->uart_no], dd); //发送第一个数据启动发送
+        usart_data_transmit(sid->pUART, dd);
+//	    }
+        
+        if(gsp_Uartx->tp >= gsp_Uartx->tcnt)
+        {                               //卷绕复位
+            gsp_Uartx->tp = 0;
+        }
+        gsp_Uartx->tcnt--;              //所需要发送的数据减少
+    }
+    
+    SYS_EXIT_SCRT();
+}
 /**
   * @brief  Rx IDLE callbacks.
   * @param  huart pointer to a UART_HandleTypeDef structure that contains

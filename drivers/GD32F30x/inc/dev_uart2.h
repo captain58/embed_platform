@@ -193,7 +193,7 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint8_t SYS_SER_Write(uint8_t port, uint8_t* buffer, uint16_t length);
+uint8_t SYS_SER_Write(uint8_t port, uint8_t* buffer, uint16_t length, uint32_t to);
 
 
 /************************************************************************
@@ -212,7 +212,7 @@ uint8_t SYS_SER_Write(uint8_t port, uint8_t* buffer, uint16_t length);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint16_t SYS_SER_Read(uint8_t port, uint8_t* buffer, uint16_t length);
+uint16_t SYS_SER_Read(uint8_t port, uint8_t* buffer, uint16_t length, uint32_t to);
 
 
 /************************************************************************

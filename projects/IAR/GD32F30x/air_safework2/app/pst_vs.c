@@ -356,7 +356,7 @@ uint16 WaitForVs(uint8* buffer, uint16 size, fBgProc func, uint8 port)
     len = 0;
     for(uint8 uc_i = 0; uc_i < 60; uc_i++)
     {
-        len += SER_RecvData(port, buffer + len, size - len,100);
+        len += SYS_SER_Read(port, buffer + len, size - len,100);
         if(len > 0)                     //收到数据
         {
             bglen = PST_CheckFrame2(PST_FRM_VS_NO, buffer, len);

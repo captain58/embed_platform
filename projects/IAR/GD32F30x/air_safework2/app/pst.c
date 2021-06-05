@@ -111,8 +111,8 @@ uint8 PST_CHN0_Send(uint8* buffer, uint16 len)
 {                                       //亮灯
     gs_GPIO.BlinkSet(GPIO_LED_485, 0, 0, 0);
                                         //
-    SER_Open(UART_CHANNEL_DEBUG, TDB_MODE_W);
-    SER_SendData(UART_CHANNEL_DEBUG, buffer, len, 1000);
+    SYS_SER_Open(UART_CHANNEL_DEBUG, TDB_MODE_W);
+    SYS_SER_Write(UART_CHANNEL_DEBUG, buffer, len, 1000);
     //SER_Close(UART_CHANNEL_DEBUG);
     aos_msleep(500);
     LOG_DUMPHEX(LOG_LEVEL_DEBUG, "coms:\n", buffer, len);
@@ -166,9 +166,9 @@ uint8 PST_CHN2_Send(uint8* buffer, uint16 length)
 {
     gs_GPIO.BlinkSet(GPIO_LED_485, 0, 0, 0);
                                         //
-    SER_Open(NETP_PORT_NO, TDB_MODE_W);
-    SER_SendData(NETP_PORT_NO, buffer, length, 1000);
-    SER_Close(NETP_PORT_NO);
+    SYS_SER_Open(NETP_PORT_NO, TDB_MODE_W);
+    SYS_SER_Write(NETP_PORT_NO, buffer, length, 1000);
+    SYS_SER_Close(NETP_PORT_NO);
     SYS_OK();
 
 }
@@ -177,9 +177,9 @@ uint8 PST_CHN3_Send(uint8* buffer, uint16 length)
 {
     gs_GPIO.BlinkSet(GPIO_LED_485, 0, 0, 0);
                                         //
-    SER_Open(NETP2_PORT_NO, TDB_MODE_W);
-    SER_SendData(NETP2_PORT_NO, buffer, length, 1000);
-    SER_Close(NETP2_PORT_NO);
+    SYS_SER_Open(NETP2_PORT_NO, TDB_MODE_W);
+    SYS_SER_Write(NETP2_PORT_NO, buffer, length, 1000);
+    SYS_SER_Close(NETP2_PORT_NO);
     SYS_OK();
 
 }
@@ -187,9 +187,9 @@ uint8 PST_CHN4_Send(uint8* buffer, uint16 length)
 {
     gs_GPIO.BlinkSet(GPIO_LED_485, 0, 0, 0);
                                         //
-    SER_Open(NETP3_PORT_NO, TDB_MODE_W);
-    SER_SendData(NETP3_PORT_NO, buffer, length, 1000);
-    SER_Close(NETP3_PORT_NO);
+    SYS_SER_Open(NETP3_PORT_NO, TDB_MODE_W);
+    SYS_SER_Write(NETP3_PORT_NO, buffer, length, 1000);
+    SYS_SER_Close(NETP3_PORT_NO);
     SYS_OK();
 
 }
@@ -197,9 +197,9 @@ uint8 PST_CHN5_Send(uint8* buffer, uint16 length)
 {
     gs_GPIO.BlinkSet(GPIO_LED_485, 0, 0, 0);
                                         //
-    SER_Open(NETP4_PORT_NO, TDB_MODE_W);
-    SER_SendData(NETP4_PORT_NO, buffer, length, 1000);
-    SER_Close(NETP4_PORT_NO);
+    SYS_SER_Open(NETP4_PORT_NO, TDB_MODE_W);
+    SYS_SER_Write(NETP4_PORT_NO, buffer, length, 1000);
+    SYS_SER_Close(NETP4_PORT_NO);
     SYS_OK();
 
 }
@@ -283,7 +283,7 @@ uint8 PST_CHN5_Send(uint8* buffer, uint16 length)
 void PST_Init(void)
 {
 
-    SER_Init(UART_CHANNEL_DEBUG, NULL);    //初始化串口   
+    SYS_SER_Init(UART_CHANNEL_DEBUG, NULL);    //初始化串口   
     
 //	    void InitFileDownLoad(void);
 //	    InitFileDownLoad();
@@ -344,7 +344,7 @@ void Setp_RecvProc(void)
     uint16 length;
     
     //SER_Open(UART_CHANNEL_DEBUG, TDB_MODE_R | TDB_MODE_W);
-    length = SER_RecvData(UART_CHANNEL_DEBUG, g_pdata, 256, 0);
+    length = SYS_SER_Read(UART_CHANNEL_DEBUG, g_pdata, 256, 0);
     //SER_Close(UART_CHANNEL_DEBUG);
 //	    while(gs_Uart.ToBeRead(SETP_PORT_NO) > 384)
 //	    {

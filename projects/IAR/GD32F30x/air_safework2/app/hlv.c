@@ -115,7 +115,7 @@ void HLV_SecProc(void)
         {
 //	            MoveBuffer(gs_FramMisData.tbk , gs_FramMisData.tdt , 6);
 //	            ResumeSys();
-            HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+//            HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 
             if(SYS_GPI_GetStt(0) & 0x02)
             {

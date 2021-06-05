@@ -281,6 +281,25 @@ typedef struct
 
 
 
+/*****************************************************************************
+**定义SPI端口结构体
+******************************************************************************/
+typedef struct
+{
+    COMPORT* portMISO;                  //SPI器件主入从出,输入
+    COMPORT* portMOSI;                  //SPI器件主出从入
+    COMPORT* portSCK;                   //SPI器件时钟线
+    COMPORT* portPWR;                    //SPI器件电源脚
+    COMPORT* portCS;                    //SPI器件片选线
+    COMPORT* portWP;                    //SPI器件保护线
+    COMPORT* portPWR2;                    //SPI器件电源脚
+    COMPORT* portCS2;                   //SPI器件2片选线
+    COMPORT* portWP2;                   //SPI器件2保护线
+    COMPORT* portPWR3;                    //SPI器件电源脚
+    COMPORT* portCS3;                   //SPI器件3片选线
+    COMPORT* portWP3;                   //SPI器件3保护线
+    
+}SPIIO_PORTS;
 
 
 

@@ -29,34 +29,34 @@
 /************************************************************************
 *SPI口端口全局结构体.
 ************************************************************************/
-const SPIIO_PORTS* gsp_halSpiioPorts;
+//const SPIIO_PORTS* gsp_halSpiioPorts;
 
 
 /************************************************************************
 *SPI口操作宏
 ************************************************************************/
 //	#define SPI_GET_DIN()   ((gsp_halSpiioPorts->portMISO->gpio[gsp_halSpiioPorts->portMISO->pingrp].PIN >> gsp_halSpiioPorts->portMISO->pinnum) & 1)
-#define SPI_GET_DIN()    (hal_gpio_input_get_stt(gsp_halSpiioPorts->portMISO))
-
-//	#define SPI_DOUT_1()    {gsp_halSpiioPorts->portMOSI->gpio[gsp_halSpiioPorts->portMOSI->pingrp].SET |= 1UL << gsp_halSpiioPorts->portMOSI->pinnum;}
-//	#define SPI_DOUT_1()   {Chip_GPIO_SetPinDIROutput(gsp_halSpiioPorts->portMOSI->pingrp, gsp_halSpiioPorts->portMOSI->pinnum);}
-//	
-//	#define SPI_DOUT_0()    {gsp_halSpiioPorts->portMOSI->gpio[gsp_halSpiioPorts->portMOSI->pingrp].CLR |= 1UL << gsp_halSpiioPorts->portMOSI->pinnum;}
-#define SPI_DOUT_1()    {hal_gpio_output_high(gsp_halSpiioPorts->portMOSI);}
-#define SPI_DOUT_0()    {hal_gpio_output_low(gsp_halSpiioPorts->portMOSI);}
-
-
-//	#define SPI_SCK_1()     {gsp_halSpiioPorts->portSCK->gpio[gsp_halSpiioPorts->portSCK->pingrp].SET |= 1UL << gsp_halSpiioPorts->portSCK->pinnum;}
-//	#define SPI_SCK_0()     {gsp_halSpiioPorts->portSCK->gpio[gsp_halSpiioPorts->portSCK->pingrp].CLR |= 1UL << gsp_halSpiioPorts->portSCK->pinnum;}
-#define SPI_SCK_1()    {hal_gpio_output_high(gsp_halSpiioPorts->portSCK);}
-#define SPI_SCK_0()    {hal_gpio_output_low(gsp_halSpiioPorts->portSCK);}
+//#define SPI_GET_DIN()    (hal_gpio_input_get_stt(gsp_halSpiioPorts->portMISO))
+//
+////	#define SPI_DOUT_1()    {gsp_halSpiioPorts->portMOSI->gpio[gsp_halSpiioPorts->portMOSI->pingrp].SET |= 1UL << gsp_halSpiioPorts->portMOSI->pinnum;}
+////	#define SPI_DOUT_1()   {Chip_GPIO_SetPinDIROutput(gsp_halSpiioPorts->portMOSI->pingrp, gsp_halSpiioPorts->portMOSI->pinnum);}
+////	
+////	#define SPI_DOUT_0()    {gsp_halSpiioPorts->portMOSI->gpio[gsp_halSpiioPorts->portMOSI->pingrp].CLR |= 1UL << gsp_halSpiioPorts->portMOSI->pinnum;}
+//#define SPI_DOUT_1()    {hal_gpio_output_high(gsp_halSpiioPorts->portMOSI);}
+//#define SPI_DOUT_0()    {hal_gpio_output_low(gsp_halSpiioPorts->portMOSI);}
+//
+//
+////	#define SPI_SCK_1()     {gsp_halSpiioPorts->portSCK->gpio[gsp_halSpiioPorts->portSCK->pingrp].SET |= 1UL << gsp_halSpiioPorts->portSCK->pinnum;}
+////	#define SPI_SCK_0()     {gsp_halSpiioPorts->portSCK->gpio[gsp_halSpiioPorts->portSCK->pingrp].CLR |= 1UL << gsp_halSpiioPorts->portSCK->pinnum;}
+//#define SPI_SCK_1()    {hal_gpio_output_high(gsp_halSpiioPorts->portSCK);}
+//#define SPI_SCK_0()    {hal_gpio_output_low(gsp_halSpiioPorts->portSCK);}
 
 //与上述代码功能相同,当上述代码速度更快
-//#define SPI_GET_DIN()   (Chip_GPIO_GetPinState(gsp_halSpiioPorts->portMISO->gpio, gsp_halSpiioPorts->portMISO->pingrp, gsp_halSpiioPorts->portMISO->pinnum))
-//#define SPI_DOUT_1()    {Chip_GPIO_SetPinState(gsp_halSpiioPorts->portMOSI->gpio, gsp_halSpiioPorts->portMOSI->pingrp, gsp_halSpiioPorts->portMOSI->pinnum, true);}
-//#define SPI_DOUT_0()    {Chip_GPIO_SetPinState(gsp_halSpiioPorts->portMOSI->gpio, gsp_halSpiioPorts->portMOSI->pingrp, gsp_halSpiioPorts->portMOSI->pinnum, false);}
-//#define SPI_SCK_1()     {Chip_GPIO_SetPinState(gsp_halSpiioPorts->portSCK->gpio, gsp_halSpiioPorts->portSCK->pingrp, gsp_halSpiioPorts->portSCK->pinnum, true);}
-//#define SPI_SCK_0()     {Chip_GPIO_SetPinState(gsp_halSpiioPorts->portSCK->gpio, gsp_halSpiioPorts->portSCK->pingrp, gsp_halSpiioPorts->portSCK->pinnum, false);}
+#define SPI_GET_DIN()   (HAL_GPIO_GetPinState(gsp_halSpiioPorts->portMISO, gsp_halSpiioPorts->portMISO->pinnum))
+#define SPI_DOUT_1()    {HAL_GPIO_SetPinState(gsp_halSpiioPorts->portMOSI, gsp_halSpiioPorts->portMOSI->pinnum, true);}
+#define SPI_DOUT_0()    {HAL_GPIO_SetPinState(gsp_halSpiioPorts->portMOSI, gsp_halSpiioPorts->portMOSI->pinnum, false);}
+#define SPI_SCK_1()     {HAL_GPIO_SetPinState(gsp_halSpiioPorts->portSCK, gsp_halSpiioPorts->portSCK->pinnum, true);}
+#define SPI_SCK_0()     {HAL_GPIO_SetPinState(gsp_halSpiioPorts->portSCK, gsp_halSpiioPorts->portSCK->pinnum, false);}
 
 
 
@@ -74,10 +74,10 @@ const SPIIO_PORTS* gsp_halSpiioPorts;
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_CS_1(uint8 devidx)
+void SPI_CS_1(uint8 devidx, const SPIIO_PORTS* ports)
 {
-    gpio_dev_t* cpt;
-    
+    COMPORT* cpt;
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
     if(devidx == 0)
     {
         cpt = gsp_halSpiioPorts->portCS;
@@ -97,8 +97,9 @@ void SPI_CS_1(uint8 devidx)
     
     if(cpt != __NULL)
     {
-        hal_gpio_output_high(cpt);
-//	        Chip_GPIO_SetPinState(cpt->pingrp, cpt->pinnum, true);
+//        hal_gpio_output_high(cpt);
+        HAL_GPIO_SetPinState(cpt, cpt->pinnum, 1);
+//	        HAL_GPIO_SetPinState(cpt->pingrp, cpt->pinnum, true);
     }
 }
 
@@ -115,10 +116,11 @@ void SPI_CS_1(uint8 devidx)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_CS_0(uint8 devidx)
+void SPI_CS_0(uint8 devidx, const SPIIO_PORTS* ports)
 {
-    gpio_dev_t* cpt;
-    
+    COMPORT* cpt;
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
+
     if(devidx == 0)
     {
         cpt = gsp_halSpiioPorts->portCS;
@@ -138,8 +140,8 @@ void SPI_CS_0(uint8 devidx)
     
     if(cpt != __NULL)
     {
-        hal_gpio_output_low(cpt);
-//	        Chip_GPIO_SetPinState(cpt->pingrp, cpt->pinnum, false);
+//        hal_gpio_output_low(cpt);
+        HAL_GPIO_SetPinState(cpt, cpt->pinnum, 0);
     }
 }
 
@@ -157,10 +159,11 @@ void SPI_CS_0(uint8 devidx)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_WP_1(uint8 devidx)
+void SPI_WP_1(uint8 devidx, const SPIIO_PORTS* ports)
 {
-    gpio_dev_t* cpt;
-    
+    COMPORT* cpt;
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
+
     if(devidx == 0)
     {
         cpt = gsp_halSpiioPorts->portWP;
@@ -180,8 +183,8 @@ void SPI_WP_1(uint8 devidx)
     
     if(cpt != __NULL)
     {
-        hal_gpio_output_high(cpt);
-//	        Chip_GPIO_SetPinState( cpt->pingrp, cpt->pinnum, true);
+//        hal_gpio_output_high(cpt);
+        HAL_GPIO_SetPinState( cpt, cpt->pinnum, 1);
     }
 }
 
@@ -199,10 +202,11 @@ void SPI_WP_1(uint8 devidx)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_WP_0(uint8 devidx)
+void SPI_WP_0(uint8 devidx, const SPIIO_PORTS* ports)
 {
-    gpio_dev_t* cpt;
-    
+    COMPORT* cpt;
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
+
     if(devidx == 0)
     {
         cpt = gsp_halSpiioPorts->portWP;
@@ -222,8 +226,8 @@ void SPI_WP_0(uint8 devidx)
     
     if(cpt != __NULL)
     {
-        hal_gpio_output_low(cpt);
-//	        Chip_GPIO_SetPinState( cpt->pingrp, cpt->pinnum, false);
+//        hal_gpio_output_low(cpt);
+        HAL_GPIO_SetPinState( cpt, cpt->pinnum, 0);
     }
 }
 
@@ -239,10 +243,11 @@ void SPI_WP_0(uint8 devidx)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_PWR_1(uint8 devidx)
+void SPI_PWR_1(uint8 devidx, const SPIIO_PORTS* ports)
 {
-    gpio_dev_t* cpt;
-    
+    COMPORT* cpt;    
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
+
     if(devidx == 0)
     {
         cpt = gsp_halSpiioPorts->portPWR;
@@ -262,8 +267,8 @@ void SPI_PWR_1(uint8 devidx)
     
     if(cpt != __NULL)
     {
-        hal_gpio_output_high(cpt);    
-//	        Chip_GPIO_SetPinState( cpt->pingrp, cpt->pinnum, true);
+//        hal_gpio_output_high(cpt);    
+        HAL_GPIO_SetPinState( cpt, cpt->pinnum, 1);
     }
 }
 
@@ -281,10 +286,11 @@ void SPI_PWR_1(uint8 devidx)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_PWR_0(uint8 devidx)
+void SPI_PWR_0(uint8 devidx, const SPIIO_PORTS* ports)
 {
-    gpio_dev_t* cpt;
-    
+    COMPORT* cpt;
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
+
     if(devidx == 0)
     {
         cpt = gsp_halSpiioPorts->portPWR;
@@ -304,8 +310,8 @@ void SPI_PWR_0(uint8 devidx)
     
     if(cpt != __NULL)
     {
-        hal_gpio_output_low(cpt);    
-//	        Chip_GPIO_SetPinState( cpt->pingrp, cpt->pinnum, false);
+//        hal_gpio_output_low(cpt);    
+        HAL_GPIO_SetPinState( cpt, cpt->pinnum, 0);
     }
 }
 
@@ -328,8 +334,10 @@ void SPI_PWR_0(uint8 devidx)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void _SPI_SendByte(uint8 byte)
+void _SPI_SendByte(uint8 byte, const SPIIO_PORTS* ports)
 {
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
+
     if(byte & 0x80)                 //SPI从MSB开始发送数据
     {
         SPI_DOUT_1();               //根据最高位的情况进行置位和清零
@@ -429,10 +437,10 @@ void _SPI_SendByte(uint8 byte)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 _SPI_ReceiveByte(void)
+uint8 _SPI_ReceiveByte(const SPIIO_PORTS* ports)
 {
     uint8 byte = 0;
-    
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
     SPI_SCK_1();
     if(SPI_GET_DIN())
     {
@@ -509,23 +517,24 @@ uint8 _SPI_ReceiveByte(void)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 SPI_Write(SPIIO* spi)
+uint8 SPI_Write(SPIIO* spi, const SPIIO_PORTS* ports)
 {
     uint16 ui_i;                         //循环变量
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
     SYS_VAR_CHECK(spi->cmdnum > 8);    
     SPI_SCK_0();
-    spi->csdown();                      //cs线被拉低
+    spi->csdown(ports);                      //cs线被拉低
                                         //循环发送指令和器件内部地址
     for(ui_i = 0; ui_i < spi->cmdnum; ui_i ++)
     {                                   //发送指令和地址
-        _SPI_SendByte(spi->command[ui_i]);
+        _SPI_SendByte(spi->command[ui_i], ports);
     }
                                         //循环逐个接收字节
     for(ui_i = 0; ui_i < spi->length; ui_i ++)
     {                                        
-        _SPI_SendByte(spi->data[ui_i]); //逐个接收字节        
+        _SPI_SendByte(spi->data[ui_i], ports); //逐个接收字节        
     }
-    spi->csup();                        //将CS线拉高
+    spi->csup(ports);                        //将CS线拉高
     SYS_OK();
 }
 
@@ -545,25 +554,26 @@ uint8 SPI_Write(SPIIO* spi)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 SPI_Read(SPIIO* spi)
+uint8 SPI_Read(SPIIO* spi, const SPIIO_PORTS* ports)
 {
     uint16 ui_i;                         //循环变量
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
     SYS_VAR_CHECK(spi->cmdnum > 8);    
     SPI_SCK_0();
-    spi->csdown();                      //cs线被拉低
+    spi->csdown(ports);                      //cs线被拉低
                                         //循环发送指令和器件内部地址
     for(ui_i = 0; ui_i < spi->cmdnum; ui_i ++)
     {                                   //发送指令和地址
-        _SPI_SendByte(spi->command[ui_i]);
+        _SPI_SendByte(spi->command[ui_i], ports);
     }
                                         //循环逐个接收字节
     for(ui_i = 0; ui_i < spi->length; ui_i ++)
     {
                                         //逐个接收字节
-        spi->data[ui_i] = _SPI_ReceiveByte();   
+        spi->data[ui_i] = _SPI_ReceiveByte(ports);   
     }
-    spi->csup();                        //将CS线拉高
-    return SPI_ReadAndCompare(spi);     //返回读出比较的结果
+    spi->csup(ports);                        //将CS线拉高
+    return SPI_ReadAndCompare(spi, ports);     //返回读出比较的结果
 }
 
 /************************************************************************
@@ -580,8 +590,9 @@ uint8 SPI_Read(SPIIO* spi)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void SPI_Close(unsigned char devidx)
+void SPI_Close(unsigned char devidx, const SPIIO_PORTS* ports)
 {
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
     if(devidx == 0)
     {
         SPI_SCK_0();
@@ -615,28 +626,29 @@ void SPI_Close(unsigned char devidx)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 SPI_ReadAndCompare(SPIIO* spi)
+uint8 SPI_ReadAndCompare(SPIIO* spi, const SPIIO_PORTS* ports)
 {
     uint16 ui_i;
+    SPIIO_PORTS* gsp_halSpiioPorts = ports;
     SYS_VAR_CHECK(spi->cmdnum > 8);    
     SPI_SCK_0();
-    spi->csdown();                      //cs线被拉低
+    spi->csdown(gsp_halSpiioPorts);                      //cs线被拉低
                                         //循环发送指令和器件内部地址
     for(ui_i = 0; ui_i < spi->cmdnum; ui_i ++)
     {                                   //发送指令和地址
-        _SPI_SendByte(spi->command[ui_i]);
+        _SPI_SendByte(spi->command[ui_i], ports);
     }   
                                         //循环逐个接收字节
     for(ui_i = 0; ui_i < spi->length; ui_i ++)
     {
                                         //逐个接收字节
-        if(spi->data[ui_i] != _SPI_ReceiveByte())
+        if(spi->data[ui_i] != _SPI_ReceiveByte(ports))
         {
-            spi->csup();                //将CS线拉高
+            spi->csup(gsp_halSpiioPorts);                //将CS线拉高
             return SYS_ERR_FT;
         }
     }
-    spi->csup();                        //将CS线拉高
+    spi->csup(gsp_halSpiioPorts);                        //将CS线拉高
     SYS_OK();
 }
 
@@ -658,15 +670,15 @@ uint8 SPI_ReadAndCompare(SPIIO* spi)
  ************************************************************************/
 void Init_SPI(const SPIIO_PORTS* ports)
 {
-    gpio_dev_t* lp;  
+    COMPORT * lp;  
                                             //初始化SPI所属的各GPIO端口
-    for(uint8 uc_i = 0; uc_i < (sizeof(SPIIO_PORTS) / sizeof(gpio_dev_t*)); uc_i++)
+    for(uint8 uc_i = 0; uc_i < (sizeof(SPIIO_PORTS) / sizeof(COMPORT*)); uc_i++)
     {
-        lp = *((gpio_dev_t**)ports + uc_i);
+        lp = *((COMPORT**)ports + uc_i);
         
         if(lp != __NULL)                    //定义存在
         {
-            hal_gpio_init(lp);
+            HAL_GPIO_PinConfig(lp);
 //	            Chip_GPIO_SetPinDigit(lp->pingrp, lp->pinnum);
 //	            
 //	            Chip_GPIO_SetPinPFSEG(lp->pingrp, lp->pinnum, lp->pinseg);
@@ -685,7 +697,7 @@ void Init_SPI(const SPIIO_PORTS* ports)
     }
     
 #if (SPI_IO_MACRO_EN == 0)
-    gsp_halSpiioPorts = ports;              //赋值全局结构体
+//    gsp_halSpiioPorts = ports;              //赋值全局结构体
 #endif
                                             //创建用户资源,供spi总线设备使用
 //	    guc_SpiioUserTkid = NULL;

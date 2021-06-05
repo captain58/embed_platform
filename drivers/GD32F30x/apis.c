@@ -183,10 +183,10 @@ const _F_GPIO gs_GPIO=
 
 const _F_RTC gs_RealTime= 
 {
-    SYS_ReadDateTime,
-    SYS_ReadBCDDateTime,
-    SYS_WriteDateTime,
-    SYS_WriteBCDDateTime,
+    SYS_MCU_ReadDateTime,
+    SYS_MCU_ReadBCDDateTime,
+    SYS_MCU_WriteDateTime,
+    SYS_MCU_WriteBCDDateTime,
     GetTime,
 
 };

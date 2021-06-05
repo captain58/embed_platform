@@ -324,7 +324,7 @@ void HB_LiveInit(void)
 
 uint8 Log_Send(uint8* buffer, uint16 len)
 {
-    return SER_SendData(UART_CHANNEL_DEBUG, buffer, len, 1000);
+    return SYS_SER_Write(UART_CHANNEL_DEBUG, buffer, len, 1000);
 }
 
 

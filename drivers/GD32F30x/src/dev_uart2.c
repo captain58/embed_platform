@@ -406,63 +406,63 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
 //    }
 #endif 
 
-    return hal_uart_send(gss_UartSID[_ucPortMap[port]], buffer, length, 3000);
-}
-//	                                    //配置发送结构体
-//	    uart->tbuff = buffer;           //发送的数据缓存
-//	    uart->tlen = length;            //发送缓存长度
-//	    uart->tcnt = length;            //发送的字节数
-//	    uart->tp = 0;
-//	                                    //启动发送并等待发送完成
-//	#if SYS_UARTS_EN > 0
-//	    if(_ucPortMap[port] == SYS_UARTS_IDX)
-//	    {
-//	        UartS_StartSend(gss_UartSID[_ucPortMap[port]]);
-//	    }
-//	    else
-//	#endif
-//	    {
-//	        Uartx_StartSend(gss_UartSID[_ucPortMap[port]]);
-//	    }
-//	    
-//	#if UART_WRITE_HOOK_EN > 0
-//	    _UartWriteHook(_ucPortMap[port], buffer, length);
-//	#endif
-//	//	    uint16_t tick = 100000;
-//	    while(1)
-//	    {
-//	        if(uart->tcnt == 0)
-//	        {
-//	            break;
-//	        }
-//	        
-//	        if(opt & 0x0001)
-//	        {
-//	            //串口性能优先
-//	        }
-//	        else
-//	        {
-//	#ifndef __NO_SYS__           
-//	            //系统开销优先,默认方式.
-//	            msleep(10);
-//	#else
-//	            msDelay(10);
-//	            static int stcnt = 0;
-//	            if(stcnt!= 0 && stcnt == uart->tcnt)
-//	            {
-//	
-//	                {
-//	                    Uartx_Send(gss_UartSID[_ucPortMap[port]]);
-//	                }              
-//	
-//	            }
-//	            stcnt = uart->tcnt;
-//	#endif              
-//	        }
-//	    }
-//	    msleep(100);
-//    SYS_OK();
+//    return hal_uart_send(gss_UartSID[_ucPortMap[port]], buffer, length, 3000);
 //}
+//	                                    //配置发送结构体
+    uart->tbuff = buffer;           //发送的数据缓存
+    uart->tlen = length;            //发送缓存长度
+    uart->tcnt = length;            //发送的字节数
+    uart->tp = 0;
+                                    //启动发送并等待发送完成
+#if SYS_UARTS_EN > 0
+    if(_ucPortMap[port] == SYS_UARTS_IDX)
+    {
+        UartS_StartSend(gss_UartSID[_ucPortMap[port]]);
+    }
+    else
+#endif
+    {
+        Uartx_StartSend(gss_UartSID[_ucPortMap[port]]);
+    }
+    
+#if UART_WRITE_HOOK_EN > 0
+    _UartWriteHook(_ucPortMap[port], buffer, length);
+#endif
+//	    uint16_t tick = 100000;
+    while(1)
+    {
+        if(uart->tcnt == 0)
+        {
+            break;
+        }
+        
+        if(opt & 0x0001)
+        {
+            //串口性能优先
+        }
+        else
+        {
+#ifndef __NO_SYS__           
+            //系统开销优先,默认方式.
+            msleep(10);
+#else
+            msDelay(10);
+            static int stcnt = 0;
+            if(stcnt!= 0 && stcnt == uart->tcnt)
+            {
+
+                {
+                    Uartx_Send(gss_UartSID[_ucPortMap[port]]);
+                }              
+
+            }
+            stcnt = uart->tcnt;
+#endif              
+        }
+    }
+    msleep(100);
+    SYS_OK();
+}
 
 
 //	extern int guc_count;
@@ -483,7 +483,7 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint8_t SYS_SER_Write(uint8_t port, uint8_t* buffer, uint16_t length)
+uint8_t SYS_SER_Write(uint8_t port, uint8_t* buffer, uint16_t length, uint32_t to)
 {
 //    memcpy_s(p_tmpbuf+guc_count, buffer, length);
 //    guc_count+=length;
@@ -513,7 +513,7 @@ uint8_t SYS_SER_Write(uint8_t port, uint8_t* buffer, uint16_t length)
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length)
+uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length, uint32_t to)
 {
     SerialBuffer* uart = gss_UartSID[_ucPortMap[port]]->buffer;
     uint16 pr;
@@ -780,7 +780,7 @@ uint16 SYS_SER_ReadByte(uint8 port)
 {
     uint8 result;
 
-    if(SYS_SER_Read(port, &result, 1) == 1)
+    if(SYS_SER_Read(port, &result, 1, 0) == 1)
     {
         return result;
     }
