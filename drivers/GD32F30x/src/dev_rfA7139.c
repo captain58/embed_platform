@@ -1,46 +1,54 @@
-#include "main.h"
-#include "define.h"
+
+
+#define EXT_RF
+#ifndef _HAL_RF_C_
+#define _HAL_RF_C_
+
+
+#include "sys.h"
+#include "hal.h"
+
 #include "A7139reg.h"
 
 #include "A7139config.h"
 
 
-void  INIT_MCU_RF_MAP(void)
-{
-	Sysctrl_SetPeripheralGate(SysctrlPeripheralGpio,TRUE);//使能GPIO模块时钟
-	stc_gpio_cfg_t stcGpioCfg;//IO 配置结构体指针
-	DDL_ZERO_STRUCT(stcGpioCfg);//将里面的数据清空
-	stcGpioCfg.enDir=GpioDirOut;//输出
-	Gpio_Init(GpioPortB, GpioPin1, &stcGpioCfg);//SCK
-	Gpio_Init(GpioPortB, GpioPin10, &stcGpioCfg);//SCS
-	Gpio_Init(GpioPortC, GpioPin5, &stcGpioCfg);//SDIO
-	
-	stcGpioCfg.enDir=GpioDirIn;//输入
-	Gpio_Init(GpioPortA, GpioPin7, &stcGpioCfg);//GIO1
-	Gpio_Init(GpioPortB, GpioPin6, &stcGpioCfg);//GIO2
-	
-}
+//	void  INIT_MCU_RF_MAP(void)
+//	{
+//		Sysctrl_SetPeripheralGate(SysctrlPeripheralGpio,TRUE);//使能GPIO模块时钟
+//		stc_gpio_cfg_t stcGpioCfg;//IO 配置结构体指针
+//		DDL_ZERO_STRUCT(stcGpioCfg);//将里面的数据清空
+//		stcGpioCfg.enDir=GpioDirOut;//输出
+//		Gpio_Init(GpioPortB, GpioPin1, &stcGpioCfg);//SCK
+//		Gpio_Init(GpioPortB, GpioPin10, &stcGpioCfg);//SCS
+//		Gpio_Init(GpioPortC, GpioPin5, &stcGpioCfg);//SDIO
+//		
+//		stcGpioCfg.enDir=GpioDirIn;//输入
+//		Gpio_Init(GpioPortA, GpioPin7, &stcGpioCfg);//GIO1
+//		Gpio_Init(GpioPortB, GpioPin6, &stcGpioCfg);//GIO2
+//		
+//	}
 
-#define GIO1								Gpio_GetInputIO(GpioPortA, GpioPin7)
-#define GIO2								Gpio_GetInputIO(GpioPortB, GpioPin6)
-//#define SCK_0								Gpio_ClrPort(GpioPortB,GpioPin3)
-//#define SCK_1								Gpio_SetIO(GpioPortB,GpioPin3)
-//#define SCS_0								Gpio_ClrPort(GpioPortD,GpioPin2)
-//#define SCS_1								Gpio_SetIO(GpioPortD,GpioPin2)
-
-//#define SDIO_0							Gpio_ClrPort(GpioPortB,GpioPin4)
-//#define SDIO_1							Gpio_SetIO(GpioPortB,GpioPin4)
-											
-//#define SDIO_GetOutIO				Gpio_ReadOutputIO(GpioPortB,GpioPin4)
-#define SDIO_GetInIO 				Gpio_GetInputIO(GpioPortC,GpioPin5)
-
-
-#define SCK_0								Gpio_WriteOutputIO(GpioPortB,GpioPin1,FALSE)
-#define SCK_1								Gpio_WriteOutputIO(GpioPortB,GpioPin1,TRUE)
-#define SCS_0								Gpio_WriteOutputIO(GpioPortB,GpioPin10,FALSE)
-#define SCS_1								Gpio_WriteOutputIO(GpioPortB,GpioPin10,TRUE)
-#define SDIO_0							Gpio_WriteOutputIO(GpioPortC,GpioPin5,FALSE)
-#define SDIO_1							Gpio_WriteOutputIO(GpioPortC,GpioPin5,TRUE)
+//	#define GIO1								Gpio_GetInputIO(GpioPortA, GpioPin7)
+//	#define GIO2								Gpio_GetInputIO(GpioPortB, GpioPin6)
+//	//#define SCK_0								Gpio_ClrPort(GpioPortB,GpioPin3)
+//	//#define SCK_1								Gpio_SetIO(GpioPortB,GpioPin3)
+//	//#define SCS_0								Gpio_ClrPort(GpioPortD,GpioPin2)
+//	//#define SCS_1								Gpio_SetIO(GpioPortD,GpioPin2)
+//	
+//	//#define SDIO_0							Gpio_ClrPort(GpioPortB,GpioPin4)
+//	//#define SDIO_1							Gpio_SetIO(GpioPortB,GpioPin4)
+//												
+//	//#define SDIO_GetOutIO				Gpio_ReadOutputIO(GpioPortB,GpioPin4)
+//	#define SDIO_GetInIO 				Gpio_GetInputIO(GpioPortC,GpioPin5)
+//	
+//	
+//	#define SCK_0								Gpio_WriteOutputIO(GpioPortB,GpioPin1,FALSE)
+//	#define SCK_1								Gpio_WriteOutputIO(GpioPortB,GpioPin1,TRUE)
+//	#define SCS_0								Gpio_WriteOutputIO(GpioPortB,GpioPin10,FALSE)
+//	#define SCS_1								Gpio_WriteOutputIO(GpioPortB,GpioPin10,TRUE)
+//	#define SDIO_0							Gpio_WriteOutputIO(GpioPortC,GpioPin5,FALSE)
+//	#define SDIO_1							Gpio_WriteOutputIO(GpioPortC,GpioPin5,TRUE)
 
 
 
@@ -92,19 +100,19 @@ void UART0Isr(void);
 void InitTimer0(void);
 void InitUART0(void);
 void A7139_POR(void);
-Uint8 InitRF(void);
-Uint8 A7139_Config(void);
-Uint8 A7139_WriteID(void);
-Uint8 A7139_Cal(void);
-void StrobeCMD(Uint8);
-void ByteSend(Uint8);
-Uint8 ByteRead(void);
-void A7139_WriteReg(Uint8, Uint16);
-Uint16 A7139_ReadReg(Uint8);
-void A7139_WritePageA(Uint8, Uint16);
-Uint16 A7139_ReadPageA(Uint8);
-void A7139_WritePageB(Uint8, Uint16);
-Uint16 A7139_ReadPageB(Uint8);
+uint8_t InitRF(void);
+uint8_t A7139_Config(void);
+uint8_t A7139_WriteID(void);
+uint8_t A7139_Cal(void);
+void StrobeCMD(uint8_t);
+void ByteSend(uint8_t);
+uint8_t ByteRead(void);
+void A7139_WriteReg(uint8_t, uint16_t);
+uint16_t A7139_ReadReg(uint8_t);
+void A7139_WritePageA(uint8_t, uint16_t);
+uint16_t A7139_ReadPageA(uint8_t);
+void A7139_WritePageB(uint8_t, uint16_t);
+uint16_t A7139_ReadPageB(uint8_t);
 void A7139_WriteFIFO(void);
 void RxPacket(void);
 void Err_State(void);
@@ -232,9 +240,9 @@ void A7139(void)
 /*********************************************************************
 ** Strobe Command
 *********************************************************************/
-void StrobeCMD(Uint8 cmd)
+void StrobeCMD(uint8_t cmd)
 {
-    Uint8 i;
+    uint8_t i;
 
     SCS_0;
     for(i=0; i<8; i++)
@@ -256,9 +264,9 @@ void StrobeCMD(Uint8 cmd)
 /************************************************************************
 **  ByteSend
 ************************************************************************/
-void ByteSend(Uint8 src)
+void ByteSend(uint8_t src)
 {
-    Uint8 i;
+    uint8_t i;
 
     for(i=0; i<8; i++)
     {
@@ -278,9 +286,9 @@ void ByteSend(Uint8 src)
 /************************************************************************
 **  ByteRead
 ************************************************************************/
-Uint8 ByteRead(void)
+uint8_t ByteRead(void)
 {
-    Uint8 i,tmp;
+    uint8_t i,tmp;
 	stc_gpio_cfg_t ByteRead_stcGpioCfg;
 //SDIO设置为输入----------------------------------------------------------------------------------------
 	ByteRead_stcGpioCfg.enDir=GpioDirIn;Gpio_Init(GpioPortC, GpioPin5, &ByteRead_stcGpioCfg);
@@ -304,9 +312,9 @@ Uint8 ByteRead(void)
 /************************************************************************
 **  A7139_WriteReg
 ************************************************************************/
-void A7139_WriteReg(Uint8 address, Uint16 dataWord)
+void A7139_WriteReg(uint8_t address, uint16_t dataWord)
 {
-    Uint8 i;
+    uint8_t i;
 
     SCS_0;
     address |= CMD_Reg_W;
@@ -345,10 +353,10 @@ void A7139_WriteReg(Uint8 address, Uint16 dataWord)
 /************************************************************************
 **  A7139_ReadReg
 ************************************************************************/
-Uint16 A7139_ReadReg(Uint8 address)
+uint16_t A7139_ReadReg(uint8_t address)
 {
-    Uint8 i;
-    Uint16 tmp;
+    uint8_t i;
+    uint16_t tmp;
 		stc_gpio_cfg_t ReadReg_stcGpioCfg;
     SCS_0;
     address |= CMD_Reg_R;
@@ -390,9 +398,9 @@ Uint16 A7139_ReadReg(Uint8 address)
 /************************************************************************
 **  A7139_WritePageA
 ************************************************************************/
-void A7139_WritePageA(Uint8 address, Uint16 dataWord)
+void A7139_WritePageA(uint8_t address, uint16_t dataWord)
 {
-    Uint16 tmp;
+    uint16_t tmp;
 
     tmp = address;
     tmp = ((tmp << 12) | A7139Config[CRYSTAL_REG]);
@@ -403,9 +411,9 @@ void A7139_WritePageA(Uint8 address, Uint16 dataWord)
 /************************************************************************
 **  A7139_ReadPageA
 ************************************************************************/
-Uint16 A7139_ReadPageA(Uint8 address)
+uint16_t A7139_ReadPageA(uint8_t address)
 {
-    Uint16 tmp;
+    uint16_t tmp;
 
     tmp = address;
     tmp = ((tmp << 12) | A7139Config[CRYSTAL_REG]);
@@ -417,9 +425,9 @@ Uint16 A7139_ReadPageA(Uint8 address)
 /************************************************************************
 **  A7139_WritePageB
 ************************************************************************/
-void A7139_WritePageB(Uint8 address, Uint16 dataWord)
+void A7139_WritePageB(uint8_t address, uint16_t dataWord)
 {
-    Uint16 tmp;
+    uint16_t tmp;
 
     tmp = address;
     tmp = ((tmp << 7) | A7139Config[CRYSTAL_REG]);
@@ -430,9 +438,9 @@ void A7139_WritePageB(Uint8 address, Uint16 dataWord)
 /************************************************************************
 **  A7139_ReadPageB
 ************************************************************************/
-Uint16 A7139_ReadPageB(Uint8 address)
+uint16_t A7139_ReadPageB(uint8_t address)
 {
-    Uint16 tmp;
+    uint16_t tmp;
 
     tmp = address;
     tmp = ((tmp << 7) | A7139Config[CRYSTAL_REG]);
@@ -473,7 +481,7 @@ void A7139_POR(void)
 /*********************************************************************
 ** InitRF
 *********************************************************************/
-Uint8 InitRF(void)
+uint8_t HAL_InitRF(void)
 {
 //    //initial pin
 //    SCS_1;
@@ -482,10 +490,11 @@ Uint8 InitRF(void)
 
 //    GIO1=1;
 //    GIO2=1;
+    Init_SPI(gs_RFSpiPort);
 
-    delay1ms(1);            //delay 1ms for regulator stabilized
+    msleep(1);            //delay 1ms for regulator stabilized
     StrobeCMD(CMD_RF_RST);  //reset A7139 chip
-    delay1ms(1);
+    msleep(1);
     
     if(A7139_Config())      //config A7139 chip
         return 1;
@@ -504,10 +513,10 @@ Uint8 InitRF(void)
 /*********************************************************************
 ** A7139_Config
 *********************************************************************/
-Uint8 A7139_Config(void)
+uint8_t A7139_Config(void)
 {
-    Uint8 i;
-    Uint16 tmp;
+    uint8_t i;
+    uint16_t tmp;
 
     for(i=0; i<8; i++)
         A7139_WriteReg(i, A7139Config[i]);
@@ -539,11 +548,11 @@ Uint8 A7139_Config(void)
 /************************************************************************
 **  WriteID
 ************************************************************************/
-Uint8 d1, d2, d3, d4;
-Uint8 A7139_WriteID(void)
+uint8_t d1, d2, d3, d4;
+uint8_t A7139_WriteID(void)
 {
-    Uint8 i;
-//    Uint8 d1, d2, d3, d4;
+    uint8_t i;
+//    uint8_t d1, d2, d3, d4;
 
     SCS_0;
     ByteSend(CMD_ID_W);
@@ -570,15 +579,15 @@ Uint8 A7139_WriteID(void)
 /*********************************************************************
 ** A7139_Cal
 *********************************************************************/
- Uint8 vb,vbcf;
- Uint8 fb_old, fcd, fbcf;  	//IF Filter
-Uint8 A7139_Cal(void)
+ uint8_t vb,vbcf;
+ uint8_t fb_old, fcd, fbcf;  	//IF Filter
+uint8_t A7139_Cal(void)
 {
-    Uint8 i;
-//    Uint8 fb_old, fcd, fbcf;  	//IF Filter
-//    Uint8 vb,vbcf;          	//VCO Current
-    Uint8 vcb, vccf;        	//VCO Band
-    Uint16 tmp;
+    uint8_t i;
+//    uint8_t fb_old, fcd, fbcf;  	//IF Filter
+//    uint8_t vb,vbcf;          	//VCO Current
+    uint8_t vcb, vccf;        	//VCO Band
+    uint16_t tmp;
     uint8_t fb_fail;
 	
     StrobeCMD(CMD_STBY);
@@ -682,7 +691,7 @@ Uint8 A7139_Cal(void)
 *********************************************************************/
 void A7139_WriteFIFO(void)
 {
-    Uint8 i;
+    uint8_t i;
 
     StrobeCMD(CMD_TFR);     //TX FIFO address pointer reset
 
@@ -698,9 +707,9 @@ void A7139_WriteFIFO(void)
 *********************************************************************/
 void RxPacket(void)
 {
-    Uint8 i;
-    Uint8 recv;
-    Uint8 tmp;
+    uint8_t i;
+    uint8_t recv;
+    uint8_t tmp;
 
     RxCnt++;
 
@@ -767,7 +776,7 @@ void wake_up_from_deep_sleep_mode(void)
 *********************************************************************/
 void RCOSC_Cal(void)
 {
-    Uint16 tmp;
+    uint16_t tmp;
 
     A7139_WritePageA(WOR2_PAGEA, A7139Config_PageA[WOR2_PAGEA] | 0x0010);       //enable RC OSC
 
@@ -919,7 +928,7 @@ void TWOR_enable(void)
 *********************************************************************/
 void RSSI_measurement(void)
 {
-    Uint16 tmp;
+    uint16_t tmp;
 
     StrobeCMD(CMD_STBY);
     
@@ -942,7 +951,7 @@ void RSSI_measurement(void)
 *********************************************************************/
 void FIFO_extension_TX(void)
 {
-    Uint8 i, n, j;
+    uint8_t i, n, j;
 
     //Set FEP=255
     A7139_WritePageA(VCB_PAGEA, A7139Config_PageA[VCB_PAGEA] & 0xC0FF);             //FEP[13:8]=0
@@ -986,9 +995,9 @@ void FIFO_extension_TX(void)
 *********************************************************************/
 void FIFO_extension_RX(void)
 {
-    Uint8 i, n, j;
-    Uint8 recv;
-    Uint8 tmp;
+    uint8_t i, n, j;
+    uint8_t recv;
+    uint8_t tmp;
 
     //Set FEP=255
     A7139_WritePageA(VCB_PAGEA, A7139Config_PageA[VCB_PAGEA] & 0xC0FF);             //FEP[13:8]=0
@@ -1053,8 +1062,8 @@ void FIFO_extension_RX(void)
 *********************************************************************/
 void FIFO_extension_Infinite_TX(void)
 {
-    Uint8 i, n;
-    Uint16 j;   
+    uint8_t i, n;
+    uint16_t j;   
 
     //for Infinite : FEP[13:0]=remainder, FEP[13:0]<64
     A7139_WritePageA(VCB_PAGEA, A7139Config_PageA[VCB_PAGEA] & 0xC0FF);             //FEP[13:8]=0
@@ -1136,10 +1145,10 @@ void FIFO_extension_Infinite_TX(void)
 *********************************************************************/
 void FIFO_extension_Infinite_RX(void)
 {
-    Uint8 i, n;
-    Uint8 recv;
-    Uint8 tmp;
-    Uint16 j;
+    uint8_t i, n;
+    uint8_t recv;
+    uint8_t tmp;
+    uint16_t j;
 
     //for Infinite : FEP[13:0]=remainder, FEP[13:0]<64
     A7139_WritePageA(VCB_PAGEA, A7139Config_PageA[VCB_PAGEA] & 0xC0FF);             //FEP[13:8]=0
@@ -1284,6 +1293,6 @@ void Auto_ACK(void)
     }
 }
 
-
+#endif
 
 

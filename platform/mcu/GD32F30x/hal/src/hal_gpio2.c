@@ -4,22 +4,22 @@
 **
 **
 **--------------文件信息--------------------------------------------------------------------------------
-**文   件   名: gpio.c
-**创   建   人: yzy
-**最后修改日期: 2018年10月1日
-**描        述: gpio(HAL)
-**注        意:
+**�?  �?  �? gpio.c
+**�?  �?  �? yzy
+**最后修改日�? 2018�?0�?�?
+**�?       �? gpio(HAL)
+**�?       �?
 **--------------历史版本信息----------------------------------------------------------------------------
-** 创建人: yzy
-** 版  本: v1.0
-** 日　期: 2018年10月1日
-** 描　述: 原始版本
+** 创建�? yzy
+** �? �? v1.0
+** 日　�? 2018�?0�?�?
+** 描　�? 原始版本
 ********************************************************************************************************/
 #define EXT_GPIO
 
 #include "sys.h"
 #include "hal.h"
-#include <string.h>
+
 ST_EXIT_INT gs_stExtIntList[MCU_GPIO_INT_NUM];
 
 //IO模拟功能配置:LCD/ADC
@@ -46,8 +46,8 @@ void AnalogIO( GPIOx_Type* GPIOx, uint32_t PinNum )
 	}	
 }
 
-//IO输入口配置 
-//type 0 = 普通 
+//IO输入口配�?
+//type 0 = 普�?
 //type 1 = 上拉
 //#define IN_NORMAL	0
 //#define IN_PULLUP	1
@@ -76,8 +76,8 @@ void InputtIO( GPIOx_Type* GPIOx, uint32_t PinNum, uint8_t Type )
 	}
 }
 
-//IO输出口配置 
-//type 0 = 普通 
+//IO输出口配�?
+//type 0 = 普�?
 //type 1 = OD
 //#define OUT_PUSHPULL	0
 //#define OUT_OPENDRAIN	1
@@ -126,10 +126,10 @@ void OutputIO( GPIOx_Type* GPIOx, uint32_t PinNum, uint8_t Type )
 		GPIO_Init(GPIOx, &GPIO_InitStructure);		
 	}
 }
-//IO数字特殊功能口 
-//type 0 = 普通 
-//type 1 = OD (OD功能仅部分特殊功能支持)
-//type 2 = 普通+上拉 
+//IO数字特殊功能�?
+//type 0 = 普�?
+//type 1 = OD (OD功能仅部分特殊功能支�?
+//type 2 = 普�?上拉 
 //type 3 = OD+上拉
 //#define ALTFUN_NORMAL				0
 //#define ALTFUN_OPENDRAIN			1
@@ -163,8 +163,8 @@ void AltFunIO( GPIOx_Type* GPIOx, uint32_t PinNum, uint8_t Type  )
 }
 
 //IO关闭（od输出高）
-//当输入使能有效时，如果外部信号浮空，也可能导致FM385管脚漏电；
-//可以将FCR配置为01（GPIO输出），ODEN配置为1，即伪开漏输出，关闭上拉使能，并将输出数据设为1
+//当输入使能有效时，如果外部信号浮空，也可能导致FM385管脚漏电�?
+//可以将FCR配置�?1（GPIO输出），ODEN配置�?，即伪开漏输出，关闭上拉使能，并将输出数据设�?
 //注意SWD接口的PG8,9如果程序改变它们的配置将无法仿真
 void CloseeIO( GPIOx_Type* GPIOx, uint32_t PinNum )
 {
@@ -184,7 +184,7 @@ void CloseeIO( GPIOx_Type* GPIOx, uint32_t PinNum )
 	}
 }
 
-//IO口初始输出状态配置
+//IO口初始输出状态配�?
 void Init_Pad_Io(void)
 {	
 	GPIOx_DO_Write(GPIOA, 0x0000);	//
@@ -244,7 +244,7 @@ void Close_None_GPIO_80pin(void)
 	CloseeIO( GPIOG, GPIO_Pin_14 );
 	CloseeIO( GPIOG, GPIO_Pin_15 );
 }
-//校验寄存器
+//校验寄存�?
 unsigned char CheckSysReg( __IO uint32_t *RegAddr, uint32_t Value )
 {
 	if( *RegAddr != Value ) 
@@ -320,13 +320,13 @@ void IO_WKENFunSet(void)
 	GPIO_PINWKEN_SetableEx(PINWKEN_PF5	, DISABLE);
 }
 
-//关闭80脚芯片可使用的全部IO(SWD口除外，关闭后不能仿真)
+//关闭80脚芯片可使用的全部IO(SWD口除外，关闭后不能仿�?
 void Close_AllIO_GPIO_80pin( void )
 {	
-	//关闭所有IO的中断功能
+	//关闭所有IO的中断功�?
 	Close_AllIOEXTI();
 	
-	//强驱动关闭
+	//强驱动关�?
 	GPIO_HDSEL_PE2HDEN_Setable(DISABLE);
 	GPIO_HDSEL_PG6HDEN_Setable(DISABLE);
 	
@@ -336,7 +336,7 @@ void Close_AllIO_GPIO_80pin( void )
 	//模拟口液晶、AD功能选择	
 	IO_AnalogFunSet();
 	
-	//部分IO输入口数字滤波功能
+	//部分IO输入口数字滤波功�?
 	IO_DFFunSet();
 	
 	//关闭NWKUP
@@ -480,8 +480,8 @@ void HAL_GPIO_PinConfig(GPIOx_Type* GPIOx, uint8_t Pin, uint8_t Type, uint8_t an
 }
 //	typedef enum
 //	{ 
-//	    EXTI_RISING,        //上升沿
-//	    EXTI_FALLING,           //下降沿
+//	    EXTI_RISING,        //上升�?
+//	    EXTI_FALLING,           //下降�?
 //	    EXTI_BOTH,              //上升和下降沿
 //	    EXTI_DISABLE,
 //		
@@ -514,7 +514,7 @@ uint8_t HAL_GPIO_Ext_Int(uint8_t channel, GPIOx_Type* GPIOx, uint8_t Pin, uint8_
     RCC_PERCLK_SetableEx(EXTI2CLK, ENABLE);		//EXTI外部引脚中断采样时钟，IO数字滤波时钟使能
     RCC_PERCLK_SetableEx(EXTI1CLK, ENABLE);		//EXTI外部引脚中断采样时钟，IO数字滤波时钟使能
     RCC_PERCLK_SetableEx(EXTI0CLK, ENABLE);		//EXTI外部引脚中断采样时钟，IO数字滤波时钟使能
-    RCC_PERCLK_SetableEx(PDCCLK, ENABLE);		//IO控制时钟寄存器使能
+    RCC_PERCLK_SetableEx(PDCCLK, ENABLE);		//IO控制时钟寄存器使�?
 
     gs_stExtIntList[channel].gpio = GPIOx;
     gs_stExtIntList[channel].pin = Pin;
@@ -560,19 +560,19 @@ uint8_t HAL_GPIO_Ext_Int(uint8_t channel, GPIOx_Type* GPIOx, uint8_t Pin, uint8_
 	GPIO_EXTI_Init( GPIOx, pinbit, (GPIOExtiEdge)Type);	//PB0输入中断打开
     /*NVIC中断配置*/
 	NVIC_DisableIRQ(GPIO_IRQn);
-	NVIC_SetPriority(GPIO_IRQn,2);//中断优先级配置
+	NVIC_SetPriority(GPIO_IRQn,2);//中断优先级配�?
 	NVIC_EnableIRQ(GPIO_IRQn);
     return 0;
 }
 
 void HAL_InitGPIO()
 {
-	/*外设初始化配置*/
-	Init_Pad_Io();				//IO口输出寄存器初始状态配置
+	/*外设初始化配�?/
+	Init_Pad_Io();				//IO口输出寄存器初始状态配�?
 	Close_None_GPIO_80pin();    //关闭80脚芯片不支持的IO
 	Close_AllIO_GPIO_80pin();   //关闭全部IO
 	
-	/*在此添加用户初始化代码*/
+	/*在此添加用户初始化代�?/
 //		Init_IO();
     memset((uint8_t *)gs_stExtIntList, 0, sizeof(ST_EXIT_INT) * MCU_GPIO_INT_NUM);
 
