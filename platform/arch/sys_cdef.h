@@ -457,7 +457,7 @@ typedef struct
     COMPORT* portPWR3;                    //SPI器件电源脚
     COMPORT* portCS3;                   //SPI器件3片选线
     COMPORT* portWP3;                   //SPI器件3保护线
-    
+    uint8_t type;    //0:4线  1：三线
 }SPIIO_PORTS;
 
 

@@ -7,7 +7,7 @@
 
 #include "sys.h"
 #include "hal.h"
-
+#include "bsp.h"
 #include "A7139reg.h"
 
 #include "A7139config.h"
@@ -314,40 +314,56 @@ uint8_t ByteRead(void)
 ************************************************************************/
 void A7139_WriteReg(uint8_t address, uint16_t dataWord)
 {
-    uint8_t i;
+//	    uint8_t i;
+//	
+//	    SCS_0;
+//	    address |= CMD_Reg_W;
+//	    for(i=0; i<8; i++)
+//	    {
+//	        if(address & 0x80)
+//	            SDIO_1;
+//	        else
+//	            SDIO_0;
+//			
+//			__ASM("NOP");
+//	        SCK_1;
+//	        __ASM("NOP"); 
+//	        SCK_0;
+//	        address<<=1;
+//	    }
+//	    __ASM("NOP");
+//	
+//	    //send data word
+//	    for(i=0; i<16; i++)
+//	    {
+//	        if(dataWord & 0x8000)
+//	            SDIO_1;
+//	        else
+//	            SDIO_0;
+//	
+//			__ASM("NOP");
+//	        SCK_1;
+//	        __ASM("NOP");
+//	        SCK_0;
+//	        dataWord<<=1;
+//	    }
+//	    SCS_1;
 
-    SCS_0;
-    address |= CMD_Reg_W;
-    for(i=0; i<8; i++)
-    {
-        if(address & 0x80)
-            SDIO_1;
-        else
-            SDIO_0;
-		
-		__ASM("NOP");
-        SCK_1;
-        __ASM("NOP"); 
-        SCK_0;
-        address<<=1;
-    }
-    __ASM("NOP");
+    SPIIO rfSPI;
+    uint8_t data[10];
+    rfSPI.command[0] = address;  
+    rfSPI.command[1] = dataWord >> 8;
+    rfSPI.command[2] = dataWord;
+//      rfSPI.command[3] = ID_Tab[2];
+//      rfSPI.command[4] = ID_Tab[3];
+    
+    rfSPI.dev = 0;
+    rfSPI.data = __NULL;
+    rfSPI.cmdnum = 3;
+    rfSPI.length = 0;
+    SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
 
-    //send data word
-    for(i=0; i<16; i++)
-    {
-        if(dataWord & 0x8000)
-            SDIO_1;
-        else
-            SDIO_0;
 
-		__ASM("NOP");
-        SCK_1;
-        __ASM("NOP");
-        SCK_0;
-        dataWord<<=1;
-    }
-    SCS_1;
 }
 
 /************************************************************************
@@ -357,41 +373,58 @@ uint16_t A7139_ReadReg(uint8_t address)
 {
     uint8_t i;
     uint16_t tmp;
-		stc_gpio_cfg_t ReadReg_stcGpioCfg;
-    SCS_0;
-    address |= CMD_Reg_R;
-    for(i=0; i<8; i++)
-    {
-        if(address & 0x80)
-            SDIO_1;
-        else
-            SDIO_0;
+//			stc_gpio_cfg_t ReadReg_stcGpioCfg;
+//	    SCS_0;
+//	    address |= CMD_Reg_R;
+//	    for(i=0; i<8; i++)
+//	    {
+//	        if(address & 0x80)
+//	            SDIO_1;
+//	        else
+//	            SDIO_0;
+//	
+//	        __ASM("NOP"); 
+//	        SCK_1;
+//	        __ASM("NOP");
+//	        SCK_0;
+//	        address<<=1;
+//	    }
+//	    __ASM("NOP");
+//	    
+//	//SDIO设置为输入----------------------------------------------------------------------------------------
+//		ReadReg_stcGpioCfg.enDir=GpioDirIn;Gpio_Init(GpioPortC, GpioPin5, &ReadReg_stcGpioCfg);
+//	    for(i=0; i<16; i++)
+//	    {
+//	        if(SDIO_GetInIO)
+//	            tmp = (tmp << 1) | 0x01;
+//	        else
+//	            tmp = tmp << 1;
+//	
+//	        SCK_1;
+//	        __ASM("NOP");
+//	        SCK_0;
+//	        __ASM("NOP");
+//	    }
+//	    SCS_1;
+//		//SDIO设置为输出----------------------------------------------------------------------------------------
+//		ReadReg_stcGpioCfg.enDir=GpioDirOut;Gpio_Init(GpioPortC, GpioPin5, &ReadReg_stcGpioCfg);
+    SPIIO rfSPI;
+    uint8_t data[10];
 
-        __ASM("NOP"); 
-        SCK_1;
-        __ASM("NOP");
-        SCK_0;
-        address<<=1;
-    }
-    __ASM("NOP");
+    rfSPI.command[0] = address | CMD_Reg_R;  
+//              rfSPI.command[1] = tmp >> 8;
+//              rfSPI.command[2] = tmp;
+//      rfSPI.command[3] = ID_Tab[2];
+//      rfSPI.command[4] = ID_Tab[3];
     
-//SDIO设置为输入----------------------------------------------------------------------------------------
-	ReadReg_stcGpioCfg.enDir=GpioDirIn;Gpio_Init(GpioPortC, GpioPin5, &ReadReg_stcGpioCfg);
-    for(i=0; i<16; i++)
-    {
-        if(SDIO_GetInIO)
-            tmp = (tmp << 1) | 0x01;
-        else
-            tmp = tmp << 1;
+    rfSPI.dev = 0;
+    rfSPI.data = data;
+    rfSPI.cmdnum = 1;
+    rfSPI.length = 2;
+    SPI_Read((SPIIO*)&rfSPI, &gs_RFSpiPort);
+    tmp = data[0] * 0x100 + data[1];
 
-        SCK_1;
-        __ASM("NOP");
-        SCK_0;
-        __ASM("NOP");
-    }
-    SCS_1;
-	//SDIO设置为输出----------------------------------------------------------------------------------------
-	ReadReg_stcGpioCfg.enDir=GpioDirOut;Gpio_Init(GpioPortC, GpioPin5, &ReadReg_stcGpioCfg);
+
     return tmp;
 }
 
@@ -418,7 +451,36 @@ uint16_t A7139_ReadPageA(uint8_t address)
     tmp = address;
     tmp = ((tmp << 12) | A7139Config[CRYSTAL_REG]);
     A7139_WriteReg(CRYSTAL_REG, tmp);
+//	    SPIIO rfSPI;
+//	    uint8_t data[10];
+//	    rfSPI.command[0] = CRYSTAL_REG;  
+//	    rfSPI.command[1] = tmp>>8;
+//	    rfSPI.command[2] = tmp;
+//	//      rfSPI.command[3] = ID_Tab[2];
+//	//      rfSPI.command[4] = ID_Tab[3];
+//	    
+//	    rfSPI.dev = 0;
+//	    rfSPI.data = __NULL;
+//	    rfSPI.cmdnum = 3;
+//	    rfSPI.length = 0;
+//	    SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
     tmp = A7139_ReadReg(PAGEA_REG);
+
+//	    rfSPI.command[0] = PAGEA_REG | CMD_Reg_R;  
+//	//              rfSPI.command[1] = tmp >> 8;
+//	//              rfSPI.command[2] = tmp;
+//	//      rfSPI.command[3] = ID_Tab[2];
+//	//      rfSPI.command[4] = ID_Tab[3];
+//	    
+//	    rfSPI.dev = 0;
+//	    rfSPI.data = data;
+//	    rfSPI.cmdnum = 1;
+//	    rfSPI.length = 2;
+//	    SPI_Read((SPIIO*)&rfSPI, &gs_RFSpiPort);
+//	    tmp = data[0] * 0x100 + data[1];
+
+    
     return tmp;
 }
 
@@ -478,10 +540,36 @@ void A7139_POR(void)
     delay1ms(2);
 }
 
+
+/************************************************************************
+**禁止铁电的内部写保护
+*************************************************************************/
+const SPIIO gs_RFRst = 
+{
+    {CMD_RF_RST,},
+    0,
+    __NULL,
+    0,
+    1,
+    SPI_CS_1,
+    SPI_CS_0,
+};
+const SPIIO gs_RFWriteID = 
+{
+    {CMD_RF_RST,},
+    0,
+    __NULL,
+    0,
+    1,
+    SPI_CS_1,
+    SPI_CS_0,
+};
+
+
 /*********************************************************************
 ** InitRF
 *********************************************************************/
-uint8_t HAL_InitRF(void)
+uint8_t SYS_RF_Init(void)
 {
 //    //initial pin
 //    SCS_1;
@@ -493,13 +581,14 @@ uint8_t HAL_InitRF(void)
     Init_SPI(gs_RFSpiPort);
 
     msleep(1);            //delay 1ms for regulator stabilized
-    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
+//	    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
+    SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
     msleep(1);
     
     if(A7139_Config())      //config A7139 chip
         return 1;
 
-    delay100us(8);          //delay 800us for crystal stabilized
+    msleep(1);          //delay 800us for crystal stabilized
 
     if(A7139_WriteID())     //write ID code
         return 1;
@@ -517,26 +606,116 @@ uint8_t A7139_Config(void)
 {
     uint8_t i;
     uint16_t tmp;
+    SPIIO rfSPI;
+
+
 
     for(i=0; i<8; i++)
-        A7139_WriteReg(i, A7139Config[i]);
+    {
+        
+        rfSPI.command[0] = i;  
+        rfSPI.command[1] = A7139Config[i] >> 8;
+        rfSPI.command[2] = A7139Config[i] & 0xff;
+
+        rfSPI.dev = 0;
+        rfSPI.data = __NULL;
+        rfSPI.cmdnum = 3;
+        rfSPI.length = 0;
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+//	        A7139_WriteReg(i, A7139Config[i]);
+    }
 
     for(i=10; i<16; i++)
 	{	
+	    uint16_t dd = 0;
 		if((i == 14) && (fb_ok == 1))
-			A7139_WriteReg(i, A7139Config[i] | (1<<4));			//MIFS=1(Manual)
+			dd = A7139Config[i] | (1<<4);//A7139_WriteReg(i, A7139Config[i] | (1<<4));			//MIFS=1(Manual)
 		else
-			A7139_WriteReg(i, A7139Config[i]);
+			dd = A7139Config[i];//A7139_WriteReg(i, A7139Config[i]);
+
+        
+        rfSPI.command[0] = i;  
+        rfSPI.command[1] = dd >> 8;
+        rfSPI.command[2] = dd & 0xff;
+        
+        rfSPI.dev = 0;
+        rfSPI.data = __NULL;
+        rfSPI.cmdnum = 3;
+        rfSPI.length = 0;
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
 	}	
 
-    for(i=0; i<16; i++)
-        A7139_WritePageA(i, A7139Config_PageA[i]);
+    for(i=0; i<16; i++)//WritePageA
+    {
+        uint16_t tmp;
 
-    for(i=0; i<5; i++)
-        A7139_WritePageB(i, A7139Config_PageB[i]);
+        tmp = i;
+        tmp = ((tmp << 12) | A7139Config[CRYSTAL_REG]);
 
-    //for check        
-    tmp = A7139_ReadReg(SYSTEMCLOCK_REG);
+        rfSPI.command[0] = CRYSTAL_REG;  
+        rfSPI.command[1] = tmp >> 8;
+        rfSPI.command[2] = tmp & 0xff;
+
+        rfSPI.dev = 0;
+        rfSPI.data = __NULL;
+        rfSPI.cmdnum = 3;
+        rfSPI.length = 0;
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+        
+        rfSPI.command[0] = PAGEA_REG;  
+        rfSPI.command[1] = A7139Config_PageA[i] >> 8;
+        rfSPI.command[2] = A7139Config_PageA[i] & 0xff;
+        
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+//	        A7139_WriteReg(CRYSTAL_REG, tmp);
+//	        A7139_WriteReg(PAGEA_REG, dataWord);
+    }
+//	        A7139_WritePageA(i, A7139Config_PageA[i]);
+
+    for(i=0; i<5; i++)//WritePageB
+    {
+        uint16_t tmp;
+
+        tmp = i;
+        tmp = ((tmp << 7) | A7139Config[CRYSTAL_REG]);
+
+        rfSPI.command[0] = CRYSTAL_REG;  
+        rfSPI.command[1] = tmp >> 8;
+        rfSPI.command[2] = tmp & 0xff;
+
+        rfSPI.dev = 0;
+        rfSPI.data = __NULL;
+        rfSPI.cmdnum = 3;
+        rfSPI.length = 0;
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+        
+        rfSPI.command[0] = PAGEB_REG;  
+        rfSPI.command[1] = A7139Config_PageB[i] >> 8;
+        rfSPI.command[2] = A7139Config_PageB[i] & 0xff;
+        
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+//          A7139_WriteReg(CRYSTAL_REG, tmp);
+//          A7139_WriteReg(PAGEA_REG, dataWord);
+    }
+
+//	        A7139_WritePageB(i, A7139Config_PageB[i]);
+
+    //for check    
+    uint8_t data[2]={0,0};
+    rfSPI.command[0] = SYSTEMCLOCK_REG | CMD_Reg_R;  
+//	    rfSPI.command[1] = tmp >> 8;
+//	    rfSPI.command[2] = tmp & 0xff;
+
+    rfSPI.dev = 0;
+    rfSPI.data = data;
+    rfSPI.cmdnum = 1;
+    rfSPI.length = 2;
+    SPI_Read((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+    tmp = data[0] * 0x100 + data[1];
+//	    tmp = A7139_ReadReg(SYSTEMCLOCK_REG);
     if(tmp != A7139Config[SYSTEMCLOCK_REG])
     {
         return 1;   
@@ -552,23 +731,49 @@ uint8_t d1, d2, d3, d4;
 uint8_t A7139_WriteID(void)
 {
     uint8_t i;
+    uint8_t di[4];
+    SPIIO rfSPI;
 //    uint8_t d1, d2, d3, d4;
 
-    SCS_0;
-    ByteSend(CMD_ID_W);
-    for(i=0; i<4; i++)
-        ByteSend(ID_Tab[i]);
-    SCS_1;
-
-    SCS_0;
-    ByteSend(CMD_ID_R);
-    d1=ByteRead();
-    d2=ByteRead();
-    d3=ByteRead();
-    d4=ByteRead();
-    SCS_1;
+//	    SCS_0;
+//	    ByteSend(CMD_ID_W);
+//	    for(i=0; i<4; i++)
+//	        ByteSend(ID_Tab[i]);
+//	    SCS_1;
+    rfSPI.command[0] = CMD_ID_W;  
+    rfSPI.command[1] = ID_Tab[0];
+    rfSPI.command[2] = ID_Tab[1];
+    rfSPI.command[3] = ID_Tab[2];
+    rfSPI.command[4] = ID_Tab[3];
     
-    if((d1!=ID_Tab[0]) || (d2!=ID_Tab[1]) || (d3!=ID_Tab[2]) || (d4!=ID_Tab[3]))
+    rfSPI.dev = 0;
+    rfSPI.data = __NULL;
+    rfSPI.cmdnum = 5;
+    rfSPI.length = 0;
+    SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+//	    SCS_0;
+//	    ByteSend(CMD_ID_R);
+//	    d1=ByteRead();
+//	    d2=ByteRead();
+//	    d3=ByteRead();
+//	    d4=ByteRead();
+//	    SCS_1;
+
+    rfSPI.command[0] = CMD_ID_R;  
+//	    rfSPI.command[1] = ID_Tab[0];
+//	    rfSPI.command[2] = ID_Tab[1];
+//	    rfSPI.command[3] = ID_Tab[2];
+//	    rfSPI.command[4] = ID_Tab[3];
+    
+    rfSPI.dev = 0;
+    rfSPI.data = di;
+    rfSPI.cmdnum = 1;
+    rfSPI.length = 4;
+    SPI_Read((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+
+    if((di[0]!=ID_Tab[0]) || (di[1]!=ID_Tab[1]) || (di[2]!=ID_Tab[2]) || (di[3]!=ID_Tab[3]))
     {
         return 1;
     }
@@ -590,55 +795,147 @@ uint8_t A7139_Cal(void)
     uint16_t tmp;
     uint8_t fb_fail;
 	
-    StrobeCMD(CMD_STBY);
+//	    StrobeCMD(CMD_STBY);
+    SPIIO rfSPI;
+    uint8_t data[10];
+    rfSPI.command[0] = CMD_STBY;  
+//	    rfSPI.command[1] = ID_Tab[0];
+//	    rfSPI.command[2] = ID_Tab[1];
+//	    rfSPI.command[3] = ID_Tab[2];
+//	    rfSPI.command[4] = ID_Tab[3];
+    
+    rfSPI.dev = 0;
+    rfSPI.data = __NULL;
+    rfSPI.cmdnum = 1;
+    rfSPI.length = 0;
+    SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
 
     //IF calibration procedure @STB state
 	if(fb_ok == 1)
 	{
-		A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x0800);       //VCO Current Calibration
+//			A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x0800);       //VCO Current Calibration
+		tmp = A7139Config[MODE_REG] | 0x0800;
+        rfSPI.command[0] = MODE_REG;  
+        rfSPI.command[1] = tmp >> 8;
+        rfSPI.command[2] = tmp;
+    //      rfSPI.command[3] = ID_Tab[2];
+    //      rfSPI.command[4] = ID_Tab[3];
+        
+        rfSPI.dev = 0;
+        rfSPI.data = __NULL;
+        rfSPI.cmdnum = 3;
+        rfSPI.length = 0;
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+
+        
 	    do{
-	      tmp = A7139_ReadReg(MODE_REG);
+//	            tmp = A7139_ReadReg(MODE_REG);
+            rfSPI.command[0] = MODE_REG | CMD_Reg_R;  
+//	            rfSPI.command[1] = tmp >> 8;
+//	            rfSPI.command[2] = tmp;
+        //      rfSPI.command[3] = ID_Tab[2];
+        //      rfSPI.command[4] = ID_Tab[3];
+            
+            rfSPI.dev = 0;
+            rfSPI.data = data;
+            rfSPI.cmdnum = 1;
+            rfSPI.length = 2;
+            SPI_Read((SPIIO*)&rfSPI, &gs_RFSpiPort);
+            tmp = data[0] * 0x100 + data[1];
 	    }while(tmp & 0x0800);
+        
 		tmp = (A7139Config[CALIBRATION_REG] & 0xFFE0);
 		tmp = tmp | fb | (1<<4);
-		A7139_WriteReg(CALIBRATION_REG, tmp);
+
+        rfSPI.command[0] = CALIBRATION_REG;  
+        rfSPI.command[1] = tmp >> 8;
+        rfSPI.command[2] = tmp;
+    //      rfSPI.command[3] = ID_Tab[2];
+    //      rfSPI.command[4] = ID_Tab[3];
+        
+        rfSPI.dev = 0;
+        rfSPI.data = __NULL;
+        rfSPI.cmdnum = 3;
+        rfSPI.length = 0;
+        SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+        
+//			A7139_WriteReg(CALIBRATION_REG, tmp);
 	}	
 	else
 	{	
-	 fb_fail=0;
-	
-	 for(i=0;i<3;i++)
-	 {
-      A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x0802);       //IF Filter & VCO Current Calibration
-      do{
-         tmp = A7139_ReadReg(MODE_REG);
-      }while(tmp & 0x0802);
-    
-      //for check(IF Filter)
-      tmp = A7139_ReadReg(CALIBRATION_REG);
-      fb = tmp & 0x0F;
-      fcd = (tmp>>11) & 0x1F;
-      fbcf = (tmp>>4) & 0x01;
-    
-	  if((fb<4) || (fb>8))
-		fb_fail = 1;
-	  else
-      {		  
-	    if(i==0)
-		 fb_old = fb;
-	    else
-		{	
-		 if(fb != fb_old)
-		 fb_fail = 1;
-	    }
-	  }
-	  
-	  if((fbcf) || (fb_fail))
-      {
-        return 1;
-      }
-	 }
-	}
+        fb_fail=0;
+
+        for(i=0;i<3;i++)
+        {
+//	            A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x0802);       //IF Filter & VCO Current Calibration
+            tmp = A7139Config[MODE_REG] | 0x0802;
+            rfSPI.command[0] = MODE_REG;  
+            rfSPI.command[1] = tmp >> 8;
+            rfSPI.command[2] = tmp;
+        //      rfSPI.command[3] = ID_Tab[2];
+        //      rfSPI.command[4] = ID_Tab[3];
+            
+            rfSPI.dev = 0;
+            rfSPI.data = __NULL;
+            rfSPI.cmdnum = 3;
+            rfSPI.length = 0;
+            SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);
+
+            do{
+//	                tmp = A7139_ReadReg(MODE_REG);
+                rfSPI.command[0] = MODE_REG | CMD_Reg_R;  
+    //              rfSPI.command[1] = tmp >> 8;
+    //              rfSPI.command[2] = tmp;
+            //      rfSPI.command[3] = ID_Tab[2];
+            //      rfSPI.command[4] = ID_Tab[3];
+                
+                rfSPI.dev = 0;
+                rfSPI.data = data;
+                rfSPI.cmdnum = 1;
+                rfSPI.length = 2;
+                SPI_Read((SPIIO*)&rfSPI, &gs_RFSpiPort);
+                tmp = data[0] * 0x100 + data[1];
+            }while(tmp & 0x0802);
+
+        //for check(IF Filter)
+//	            tmp = A7139_ReadReg(CALIBRATION_REG);
+            rfSPI.command[0] = CALIBRATION_REG | CMD_Reg_R;  
+//              rfSPI.command[1] = tmp >> 8;
+//              rfSPI.command[2] = tmp;
+        //      rfSPI.command[3] = ID_Tab[2];
+        //      rfSPI.command[4] = ID_Tab[3];
+            
+            rfSPI.dev = 0;
+            rfSPI.data = data;
+            rfSPI.cmdnum = 1;
+            rfSPI.length = 2;
+            SPI_Read((SPIIO*)&rfSPI, &gs_RFSpiPort);
+            tmp = data[0] * 0x100 + data[1];        
+            fb = tmp & 0x0F;
+            fcd = (tmp>>11) & 0x1F;
+            fbcf = (tmp>>4) & 0x01;
+
+            if((fb<4) || (fb>8))
+                fb_fail = 1;
+            else
+            {		  
+                if(i==0)
+                    fb_old = fb;
+                else
+                {	
+                    if(fb != fb_old)
+                    fb_fail = 1;
+                }
+            }
+
+            if((fbcf) || (fb_fail))
+            {
+                return 1;
+            }
+        }
+    }
 	 
     //for check(VCO Current)
     tmp = A7139_ReadPageA(VCB_PAGEA);
@@ -651,12 +948,50 @@ uint8_t A7139_Cal(void)
     
     
     //RSSI Calibration procedure @STB state
-    A7139_WriteReg(ADC_REG, 0x4C00);                                //set ADC average=64
-    A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x1000);       //RSSI Calibration
+//	    A7139_WriteReg(ADC_REG, 0x4C00);                                //set ADC average=64
+    tmp = 0x4C00;
+    rfSPI.command[0] = ADC_REG;  
+    rfSPI.command[1] = tmp >> 8;
+    rfSPI.command[2] = tmp;
+//      rfSPI.command[3] = ID_Tab[2];
+//      rfSPI.command[4] = ID_Tab[3];
+    
+    rfSPI.dev = 0;
+    rfSPI.data = __NULL;
+    rfSPI.cmdnum = 3;
+    rfSPI.length = 0;
+    SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);  
+    
+//	    A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x1000);       //RSSI Calibration
+    tmp = A7139Config[MODE_REG] | 0x1000;
+    rfSPI.command[0] = MODE_REG;  
+    rfSPI.command[1] = tmp >> 8;
+    rfSPI.command[2] = tmp;
+//      rfSPI.command[3] = ID_Tab[2];
+//      rfSPI.command[4] = ID_Tab[3];
+    
+    rfSPI.dev = 0;
+    rfSPI.data = __NULL;
+    rfSPI.cmdnum = 3;
+    rfSPI.length = 0;
+    SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort);  
+    
     do{
         tmp = A7139_ReadReg(MODE_REG);
     }while(tmp & 0x1000);
-    A7139_WriteReg(ADC_REG, A7139Config[ADC_REG]);
+//	    A7139_WriteReg(ADC_REG, A7139Config[ADC_REG]);
+    tmp = A7139Config[ADC_REG];
+    rfSPI.command[0] = ADC_REG;  
+    rfSPI.command[1] = tmp >> 8;
+    rfSPI.command[2] = tmp;
+//      rfSPI.command[3] = ID_Tab[2];
+//      rfSPI.command[4] = ID_Tab[3];
+    
+    rfSPI.dev = 0;
+    rfSPI.data = __NULL;
+    rfSPI.cmdnum = 3;
+    rfSPI.length = 0;
+    SPI_Write((SPIIO*)&rfSPI, &gs_RFSpiPort); 
 
 
     //VCO calibration procedure @STB state
@@ -665,8 +1000,8 @@ uint8_t A7139_Cal(void)
 //        A7139_WriteReg(PLL1_REG, Freq_Cal_Tab[i*2]);
 //        A7139_WriteReg(PLL2_REG, Freq_Cal_Tab[i*2+1]);
 		
-				A7139_WriteReg(PLL1_REG, A7139Config[PLL1_REG]);
-				A7139_WriteReg(PLL2_REG, A7139Config[PLL2_REG]);
+		A7139_WriteReg(PLL1_REG, A7139Config[PLL1_REG]);
+		A7139_WriteReg(PLL2_REG, A7139Config[PLL2_REG]);
         A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x0004);   //VCO Band Calibration
         do{
             tmp = A7139_ReadReg(MODE_REG);

@@ -235,7 +235,7 @@ typedef enum
 #ifdef EXT_RF
     
     const COMPORT gs_RFSpiMISO = {0x0, 6,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
-    const COMPORT gs_RFSpiMOSI = {0x0, 7,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
+    const COMPORT gs_RFSpiMOSI = {0x0, 6,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
     const COMPORT gs_RFSpiSCK  = {0x0, 5,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
     const COMPORT gs_RFSpiCS   = {0x0, 4,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
     const COMPORT gs_RFSpiPWR  = {0x1, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    0};
@@ -249,6 +249,13 @@ typedef enum
         (COMPORT*)&gs_RFSpiPWR,        //电源脚        
         (COMPORT*)&gs_RFSpiCS,         //FLA,FLASH片选
         (COMPORT*)&gs_RFSpiWP,         //写保护
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        1,
     };
     
 #endif   

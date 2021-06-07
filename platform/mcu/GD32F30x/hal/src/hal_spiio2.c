@@ -52,6 +52,9 @@
 //#define SPI_SCK_0()    {hal_gpio_output_low(gsp_halSpiioPorts->portSCK);}
 
 //与上述代码功能相同,当上述代码速度更快
+#define SPI_SET_IOIN()   (HAL_GPIO_PinConfig(gsp_halSpiioPorts->portMISO))
+#define SPI_SET_IOOUT()   (HAL_GPIO_PinConfig(gsp_halSpiioPorts->portMISO))
+
 #define SPI_GET_DIN()   (HAL_GPIO_GetPinState(gsp_halSpiioPorts->portMISO, gsp_halSpiioPorts->portMISO->pinnum))
 #define SPI_DOUT_1()    {HAL_GPIO_SetPinState(gsp_halSpiioPorts->portMOSI, gsp_halSpiioPorts->portMOSI->pinnum, true);}
 #define SPI_DOUT_0()    {HAL_GPIO_SetPinState(gsp_halSpiioPorts->portMOSI, gsp_halSpiioPorts->portMOSI->pinnum, false);}
@@ -523,7 +526,7 @@ uint8 SPI_Write(SPIIO* spi, const SPIIO_PORTS* ports)
     SPIIO_PORTS* gsp_halSpiioPorts = ports;
     SYS_VAR_CHECK(spi->cmdnum > 8);    
     SPI_SCK_0();
-    spi->csdown(ports);                      //cs线被拉低
+    spi->csdown(spi->dev, ports);                      //cs线被拉低
                                         //循环发送指令和器件内部地址
     for(ui_i = 0; ui_i < spi->cmdnum; ui_i ++)
     {                                   //发送指令和地址
@@ -534,7 +537,7 @@ uint8 SPI_Write(SPIIO* spi, const SPIIO_PORTS* ports)
     {                                        
         _SPI_SendByte(spi->data[ui_i], ports); //逐个接收字节        
     }
-    spi->csup(ports);                        //将CS线拉高
+    spi->csup(spi->dev, ports);                        //将CS线拉高
     SYS_OK();
 }
 
@@ -560,19 +563,27 @@ uint8 SPI_Read(SPIIO* spi, const SPIIO_PORTS* ports)
     SPIIO_PORTS* gsp_halSpiioPorts = ports;
     SYS_VAR_CHECK(spi->cmdnum > 8);    
     SPI_SCK_0();
-    spi->csdown(ports);                      //cs线被拉低
+    spi->csdown(spi->dev, ports);                      //cs线被拉低
                                         //循环发送指令和器件内部地址
     for(ui_i = 0; ui_i < spi->cmdnum; ui_i ++)
     {                                   //发送指令和地址
         _SPI_SendByte(spi->command[ui_i], ports);
     }
                                         //循环逐个接收字节
+    if(ports->type== 1)    
+    {
+        SPI_SET_IOIN();
+    }
     for(ui_i = 0; ui_i < spi->length; ui_i ++)
     {
                                         //逐个接收字节
         spi->data[ui_i] = _SPI_ReceiveByte(ports);   
     }
-    spi->csup(ports);                        //将CS线拉高
+    if(ports->type == 1)    
+    {
+        SPI_SET_IOOUT();
+    }
+    spi->csup(spi->dev, ports);                        //将CS线拉高
     return SPI_ReadAndCompare(spi, ports);     //返回读出比较的结果
 }
 
@@ -639,6 +650,10 @@ uint8 SPI_ReadAndCompare(SPIIO* spi, const SPIIO_PORTS* ports)
         _SPI_SendByte(spi->command[ui_i], ports);
     }   
                                         //循环逐个接收字节
+    if(ports->type == 1)    
+    {
+        SPI_SET_IOIN();
+    }                                        
     for(ui_i = 0; ui_i < spi->length; ui_i ++)
     {
                                         //逐个接收字节
@@ -648,6 +663,10 @@ uint8 SPI_ReadAndCompare(SPIIO* spi, const SPIIO_PORTS* ports)
             return SYS_ERR_FT;
         }
     }
+    if(ports->type == 1)    
+    {
+        SPI_SET_IOOUT();
+    }    
     spi->csup(gsp_halSpiioPorts);                        //将CS线拉高
     SYS_OK();
 }

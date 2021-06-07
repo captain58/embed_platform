@@ -88,6 +88,11 @@
 #include "dev_pwrchk.h"
 #endif
 
+
+#if (SYS_RF_EN > 0)
+#include "dev_rfA7139.h"
+#endif
+
 #endif
 
 

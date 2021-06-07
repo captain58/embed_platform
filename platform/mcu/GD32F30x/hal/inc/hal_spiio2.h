@@ -59,11 +59,13 @@
 typedef struct 
 {
     uint8  command[8];                  //命令字
+    uint8_t dev;
+//	    uint8_t line;   //0:4线  1：三线
     uint8* data;                        //发送数据
     uint16 length;                      //发送长度
     uint16 cmdnum;                      //命令长度
-    void (*csup)(const SPIIO_PORTS* ports);                //CS线拉高操作
-    void (*csdown)(const SPIIO_PORTS* ports);              //CS线拉低操作
+    void (*csup)(uint8_t, const SPIIO_PORTS* ports);                //CS线拉高操作
+    void (*csdown)(uint8_t, const SPIIO_PORTS* ports);              //CS线拉低操作
 }SPIIO;
 
 
