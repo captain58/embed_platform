@@ -61,6 +61,7 @@ void SYS_GPO_Init(void)
 {
 #if (SYS_GPO_EN > 0)
     COMPORT* gpo;
+    HAL_InitGPIO();
                                             //循环初始化各个GPO端口
     for(uint32 uc_i = 0; uc_i < GPO_PORT_NUM; uc_i++)
     {

@@ -793,6 +793,7 @@ void SYS_APP_Init()
 //    PST_Init();
 //
 //    Main_PreInit();
+//    SYS_RF_Init();
 
 }
 

@@ -267,13 +267,13 @@ typedef struct
 typedef struct
 {
     //
-	uint32 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员
-	uint32 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
-	uint32 pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
-	uint32 modefunc:8;                 //Function and mode     //来自PINMUX_GRP_T成员
+	uint32_t pingrp;                    //Pin group             //来自PINMUX_GRP_T成员
+	uint32_t pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
+	uint32_t pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
+	uint32_t modefunc:8;                 //Function and mode     //来自PINMUX_GRP_T成员
     uint32_t speed:10;
     //
-    uint8 dir;                          //1:输出,0:输入
+    uint8_t dir;                          //1:输出,0:输入
 
 }COMPORT;
 
@@ -298,7 +298,8 @@ typedef struct
     COMPORT* portPWR3;                    //SPI器件电源脚
     COMPORT* portCS3;                   //SPI器件3片选线
     COMPORT* portWP3;                   //SPI器件3保护线
-    
+    uint8_t type;    //0:4线  1：三线
+    uint8_t cmp;
 }SPIIO_PORTS;
 
 

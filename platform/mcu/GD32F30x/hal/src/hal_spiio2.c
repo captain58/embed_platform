@@ -584,7 +584,10 @@ uint8 SPI_Read(SPIIO* spi, const SPIIO_PORTS* ports)
         SPI_SET_IOOUT();
     }
     spi->csup(spi->dev, ports);                        //将CS线拉高
-    return SPI_ReadAndCompare(spi, ports);     //返回读出比较的结果
+    if(ports->cmp)
+        return SPI_ReadAndCompare(spi, ports);     //返回读出比较的结果
+    else
+        return 0;
 }
 
 /************************************************************************
@@ -643,7 +646,7 @@ uint8 SPI_ReadAndCompare(SPIIO* spi, const SPIIO_PORTS* ports)
     SPIIO_PORTS* gsp_halSpiioPorts = ports;
     SYS_VAR_CHECK(spi->cmdnum > 8);    
     SPI_SCK_0();
-    spi->csdown(gsp_halSpiioPorts);                      //cs线被拉低
+    spi->csdown(spi->dev, gsp_halSpiioPorts);                      //cs线被拉低
                                         //循环发送指令和器件内部地址
     for(ui_i = 0; ui_i < spi->cmdnum; ui_i ++)
     {                                   //发送指令和地址
@@ -659,7 +662,7 @@ uint8 SPI_ReadAndCompare(SPIIO* spi, const SPIIO_PORTS* ports)
                                         //逐个接收字节
         if(spi->data[ui_i] != _SPI_ReceiveByte(ports))
         {
-            spi->csup(gsp_halSpiioPorts);                //将CS线拉高
+            spi->csup(spi->dev, gsp_halSpiioPorts);                //将CS线拉高
             return SYS_ERR_FT;
         }
     }
@@ -667,7 +670,7 @@ uint8 SPI_ReadAndCompare(SPIIO* spi, const SPIIO_PORTS* ports)
     {
         SPI_SET_IOOUT();
     }    
-    spi->csup(gsp_halSpiioPorts);                        //将CS线拉高
+    spi->csup(spi->dev, gsp_halSpiioPorts);                        //将CS线拉高
     SYS_OK();
 }
 

@@ -34,6 +34,8 @@ void HAL_InitGPIO(void)
     //开启IOCON功率模块
 //    Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_IOCON);
     
+    rcu_periph_clock_enable(RCU_GPIOA);
+    rcu_periph_clock_enable(RCU_GPIOB);
     
     //开启GPIO功率模块(传入参数用不到)
 //	Chip_GPIO_Init(LPC_GPIO);

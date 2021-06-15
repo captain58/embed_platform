@@ -69,7 +69,7 @@
 #endif
 
 #if (SYS_LGPI_EN > 0)
-    #define LGPI_PORT_NUM   2
+    #define LGPI_PORT_NUM   4
     #define LGPI_GATE       1               //按键扫描门限
     #define LGPI_LAST       20              //按键长按门限
 

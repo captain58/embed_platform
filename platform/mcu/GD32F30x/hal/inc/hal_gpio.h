@@ -136,7 +136,7 @@
  ************************************************************************/
 STATIC INLINE bool HAL_GPIO_GetPinState(void * GPIOx, uint8 pin)
 {
-    return (bool)(gpio_output_bit_get(((COMPORT *)GPIOx)->pingrp, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
+    return (bool)(gpio_input_bit_get(((COMPORT *)GPIOx)->pingrp, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
 }
 
 
@@ -164,20 +164,20 @@ STATIC INLINE void HAL_GPIO_SetPinState(void  * GPIOx, uint8 pin, uint8_t settin
 //
 //
 //
-///************************************************************************
-// * @Function: HAL_InitGPIO
-// * @Description: 初始化GPIO端口
-// * @Arguments: 
-// * @Auther: yzy
-// * Date: 2015/5/8
-// *-----------------------------------------------------------------------
-// * @History: 
-// ************************************************************************/
-//void HAL_InitGPIO(void);
-//
-//
-//
-//
+/************************************************************************
+ * @Function: HAL_InitGPIO
+ * @Description: 初始化GPIO端口
+ * @Arguments: 
+ * @Auther: yzy
+ * Date: 2015/5/8
+ *-----------------------------------------------------------------------
+ * @History: 
+ ************************************************************************/
+void HAL_InitGPIO(void);
+
+
+
+
 /************************************************************************
  * @Function: HAL_GPIO_PinConfig
  * @Description: 配置某个管脚的工作参数
