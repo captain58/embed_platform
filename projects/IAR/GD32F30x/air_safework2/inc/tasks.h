@@ -58,10 +58,19 @@ EXT_TASKS  ktask_t* gs_TkHandles[SYS_TK_NUM];     //所有进程的TCB指针
 **main进程
 ******************************************************************************/
 #define TASK_MAIN_TKID           1
-#define TASK_MAIN_STKL           1536//
+#define TASK_MAIN_STKL           1024//
 const extern KTaskConst gs_TkMAIN;
 
 #define TASK_DECLARE_1_MAIN() {&gs_TkMAIN, TASK_MAIN_STKL}
+
+/******************************************************************************
+**main进程
+******************************************************************************/
+#define TASK_RFMNG_TKID           10
+#define TASK_RFMNG_STKL           512//
+const extern KTaskConst gs_TkLP2PCmm;
+
+#define TASK_DECLARE_10_RFMNG() {&gs_TkLP2PCmm, TASK_RFMNG_STKL}
 
 /******************************************************************************
 **无线modem进程

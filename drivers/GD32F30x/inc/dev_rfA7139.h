@@ -8,6 +8,6 @@
 
 void  INIT_MCU_RF_MAP(void);
 
-void A7139(void);
+void SYS_A7139_Proc(uint8_t mod);
 uint8_t SYS_RF_Init(void);
 #endif

@@ -26,7 +26,7 @@
 ********************************************************************************/
 #define  SYS_TICK_PER_SEC   100
 
-#define SYS_TK_NUM 10
+#define SYS_TK_NUM 11
 #define MSG_BUFF_LEN        128
 
 #define BUFQUEUE_MSG_NUM       16

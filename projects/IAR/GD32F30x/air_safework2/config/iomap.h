@@ -152,8 +152,8 @@ typedef enum
     ******************************************************************************/
     const COMPORT gs_GpiKey1      = {GPIOB, 15,  1, GPIO_MODE_IPU,  GPIO_OSPEED_50MHZ,    0};//key1
     const COMPORT gs_GpiKey2      = {GPIOA, 0,  1, GPIO_MODE_IPU,  GPIO_OSPEED_50MHZ,    0};//key2
-    const COMPORT gs_GpiDIO1      = {GPIOB, 0,  1, GPIO_MODE_IPU,  GPIO_OSPEED_50MHZ,  0};//key1
-    const COMPORT gs_GpiDIO2      = {GPIOA, 6,  1, GPIO_MODE_IPU,  GPIO_OSPEED_50MHZ,  0};//key2
+    const COMPORT gs_GpiDIO1      = {GPIOB, 0,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
+    const COMPORT gs_GpiDIO2      = {GPIOA, 6,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
 //    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
 //    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
 //    const COMPORT gs_GpiHall2      = {0, 2,  1, (IOCON_FUNC0 ),    0};//Hall2

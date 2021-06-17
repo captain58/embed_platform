@@ -588,7 +588,7 @@ uint32 SYS_GPI_GetStt(uint8 type)
 
 bool SYS_GPI_GetLPort(uint8_t port)
 {
-    return HAL_GPIO_GetPinState(&gs_LGPIPort[port].port, gs_LGPIPort[port].port->pinnum);
+    return HAL_GPIO_GetPinState(gs_LGPIPort[port].port, gs_LGPIPort[port].port->pinnum);
 }
 /************************************************************************
  * @Function: SYS_GPI_Event

@@ -53,7 +53,7 @@
 
 //与上述代码功能相同,当上述代码速度更快
 #define SPI_SET_IOIN()   (HAL_GPIO_PinConfig(gsp_halSpiioPorts->portMISO))
-#define SPI_SET_IOOUT()   (HAL_GPIO_PinConfig(gsp_halSpiioPorts->portMISO))
+#define SPI_SET_IOOUT()   (HAL_GPIO_PinConfig(gsp_halSpiioPorts->portMOSI))
 
 #define SPI_GET_DIN()   (HAL_GPIO_GetPinState(gsp_halSpiioPorts->portMISO, gsp_halSpiioPorts->portMISO->pinnum))
 #define SPI_DOUT_1()    {HAL_GPIO_SetPinState(gsp_halSpiioPorts->portMOSI, gsp_halSpiioPorts->portMOSI->pinnum, true);}
@@ -694,7 +694,7 @@ void Init_SPI(const SPIIO_PORTS* ports)
 {
     COMPORT * lp;  
                                             //初始化SPI所属的各GPIO端口
-    for(uint8 uc_i = 0; uc_i < (sizeof(SPIIO_PORTS) / sizeof(COMPORT*)); uc_i++)
+    for(uint8 uc_i = 0; uc_i < (sizeof(SPIIO_PORTS) / sizeof(COMPORT*) - 1); uc_i++)
     {
         lp = *((COMPORT**)ports + uc_i);
         
