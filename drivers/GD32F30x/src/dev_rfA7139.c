@@ -312,7 +312,7 @@ void SYS_A7139_Proc(uint8_t mod)
 			{
 				timefleg++;
 //					delay1ms(10);
-                msleep(1);
+                msleep(10);
 				if(timefleg>100)
 				{
 					timefleg=0;
@@ -323,15 +323,15 @@ void SYS_A7139_Proc(uint8_t mod)
 //					Gpio_WriteOutputIO(GpioPortD, GpioPin5,1);
 				
 			}
-//				if(timefleg2==1)
-//				{
-//	//					StrobeCMD(CMD_STBY);
-//	                SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
-//	
-//					timefleg=0;
-//					timefleg2=0;
-//				}		
-//				else 
+            if(timefleg2==1)
+            {
+//					StrobeCMD(CMD_STBY);
+                SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+
+                timefleg=0;
+                timefleg2=0;
+            }		
+            else 
 			{
 				timefleg=0;
 				RxPacket();
@@ -339,7 +339,7 @@ void SYS_A7139_Proc(uint8_t mod)
 //					Gpio_WriteOutputIO(GpioPortD, GpioPin5,ledfleg);
 //					delay1ms(100);
                 msleep(10);
-                SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+//                SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
 			}
 
 			
@@ -1000,7 +1000,7 @@ void RxPacket(void)
 //              rfSPI->command[2] = tmp;
 //      rfSPI->command[3] = ID_Tab[2];
 //      rfSPI->command[4] = ID_Tab[3];
-    
+    memset(tmpbuf,0,64);
     rfSPI->dev = 0;
     rfSPI->data = tmpbuf;
     rfSPI->cmdnum = 1;
