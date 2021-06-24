@@ -10,6 +10,7 @@
 
 #include "k_config.h"
 #include "hal.h"
+#include "bsp.h"
 #include "board.h"
 
 //#include "stm32l4xx_hal.h"
@@ -465,7 +466,7 @@ PUTCHAR_PROTOTYPE
 //	            hal_uart_send(&uart_0, (void *)"\r", 1, 30000);
 //            SER_SendData(PORT_UART_STD, (void *)"\r", 1, 300);
 //        }
-//        SER_SendData(PORT_UART_STD, &ch, 1, 300);
+        SYS_SER_Write(PORT_UART_STD, &ch, 1, 300);
     }
   return ch;
 }

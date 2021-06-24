@@ -18,6 +18,7 @@
 
 
 
+#define PCF_SWJCFG_MASK                    ((uint32_t)0xF8FFFFFFU)  /*!< AFIO_PCF register SWJCFG mask */
 
 
 /************************************************************************
@@ -36,7 +37,16 @@ void HAL_InitGPIO(void)
     
     rcu_periph_clock_enable(RCU_GPIOA);
     rcu_periph_clock_enable(RCU_GPIOB);
-    
+
+//	    uint32_t temp_reg = AFIO_PCF0;
+//	    temp_reg &= PCF_SWJCFG_MASK;
+//	    temp_reg |= 0x04000000;
+//	
+//	    AFIO_PCF0 = temp_reg;
+    rcu_periph_clock_enable(RCU_AF);
+
+    gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP,ENABLE);
+
     //开启GPIO功率模块(传入参数用不到)
 //	Chip_GPIO_Init(LPC_GPIO);
 //    __HAL_RCC_GPIOF_CLK_ENABLE();

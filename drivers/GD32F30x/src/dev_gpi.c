@@ -113,58 +113,58 @@ void SYS_LGPI_Scan(void)
         
         _IF_TRUE_DO(gpi == __NULL, continue);
         
-//        if(gpi->filter)                             //(含去抖功能及按键保持判断)(典型应用:按键)
-//        {
-//            if(gsp_GpioStt->gpistt & (0x01 << uc_i))//当前高电平.判断下降事件
-//            {
-//                if(!HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))
-//                {
-//                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
-//                }
-//                else                                //清计数器
-//                {
-//                    gsp_GpioStt->cnt[uc_i] = 0;
-//                }
-//                gsp_GpioStt->lastcnt[uc_i] = 0;     //高电平状态下按键保持计数器清零
-//            }
-//            else                                    //当前低电平
-//            {
-//                if(HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))//高
-//                {
-//                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
-//                }
-//                else                                //低电平
-//                {
-//                    gsp_GpioStt->cnt[uc_i] = 0;     //计数器清零
-//                    gsp_GpioStt->lastcnt[uc_i]++;   //低电平状态下按键保持计数器累加
-//                }
-//            }
-//                                                    //按键事件
-//            if(gsp_GpioStt->cnt[uc_i] >= LGPI_GATE)
-//            {                                       //下降沿事件
-//                gsp_GpioStt->keyfevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);
-//                gsp_GpioStt->gpistt ^= (0x01 << uc_i);//状态取反
-//                gsp_GpioStt->keyrevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);//上升沿事件
-//                gsp_GpioStt->cnt[uc_i] = 0;         //计数器清零
-//            }
-//                                                    //按键保持事件判断
-//            if(gsp_GpioStt->lastcnt[uc_i] == LGPI_LAST)
-//            {
-////                gsp_GpioStt->lastcnt[uc_i] = LGPI_LAST - LGPI_GATE;
-//                gsp_GpioStt->keylevt |= (0x01 << uc_i);
-//            }
-//        }
-//        else                                        //普通GPI输入端口扫描(无去抖功能)
-//        {
-//            if(HAL_GPIO_GetPinState(&gpi->gpio[gpi->pingrp], gpi->pinnum))//高
-//            {
-//                gsp_GpioStt->gpistt |= (0x01 << uc_i);
-//            }
-//            else                                    //低
-//            {
-//                gsp_GpioStt->gpistt &= ~(0x01 << uc_i);
-//            }
-//        }
+        if(gpi->filter)                             //(含去抖功能及按键保持判断)(典型应用:按键)
+        {
+            if(gsp_GpioStt->gpistt & (0x01 << uc_i))//当前高电平.判断下降事件
+            {
+                if(!HAL_GPIO_GetPinState(gpi->port, gpi->port->pinnum))
+                {
+                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
+                }
+                else                                //清计数器
+                {
+                    gsp_GpioStt->cnt[uc_i] = 0;
+                }
+                gsp_GpioStt->lastcnt[uc_i] = 0;     //高电平状态下按键保持计数器清零
+            }
+            else                                    //当前低电平
+            {
+                if(HAL_GPIO_GetPinState(gpi->port, gpi->port->pinnum))//高
+                {
+                    gsp_GpioStt->cnt[uc_i]++;       //计数器累加
+                }
+                else                                //低电平
+                {
+                    gsp_GpioStt->cnt[uc_i] = 0;     //计数器清零
+                    gsp_GpioStt->lastcnt[uc_i]++;   //低电平状态下按键保持计数器累加
+                }
+            }
+                                                    //按键事件
+            if(gsp_GpioStt->cnt[uc_i] >= LGPI_GATE)
+            {                                       //下降沿事件
+                gsp_GpioStt->keyfevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);
+                gsp_GpioStt->gpistt ^= (0x01 << uc_i);//状态取反
+                gsp_GpioStt->keyrevt |= gsp_GpioStt->gpistt & (0x01 << uc_i);//上升沿事件
+                gsp_GpioStt->cnt[uc_i] = 0;         //计数器清零
+            }
+                                                    //按键保持事件判断
+            if(gsp_GpioStt->lastcnt[uc_i] == LGPI_LAST)
+            {
+//                gsp_GpioStt->lastcnt[uc_i] = LGPI_LAST - LGPI_GATE;
+                gsp_GpioStt->keylevt |= (0x01 << uc_i);
+            }
+        }
+        else                                        //普通GPI输入端口扫描(无去抖功能)
+        {
+            if(HAL_GPIO_GetPinState(gpi->port, gpi->port->pinnum))//高
+            {
+                gsp_GpioStt->gpistt |= (0x01 << uc_i);
+            }
+            else                                    //低
+            {
+                gsp_GpioStt->gpistt &= ~(0x01 << uc_i);
+            }
+        }
     }
     
 //	    return true;
@@ -353,7 +353,7 @@ void SYS_GPI_Init(void)
 //    krhino_timer_create(&timer_Fgpi, "timer_Fgpi", SYS_FGPI_Scan,
 //                            10, 1, 0, 1);   
     krhino_timer_create(&timer_Lgpi, "timer_Lgpi", SYS_LGPI_Scan,
-                            2, 2, 0, 1);         
+                            krhino_ms_to_ticks(10), krhino_ms_to_ticks(10), 0, 1);         
 #endif
 #endif
 }

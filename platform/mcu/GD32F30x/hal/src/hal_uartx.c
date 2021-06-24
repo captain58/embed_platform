@@ -294,7 +294,7 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
     rcu_periph_clock_enable(sid->clk);
     /* USART configure */
     usart_deinit(sid->pUART);
-    usart_baudrate_set(sid->pUART, 115200U);
+    usart_baudrate_set(sid->pUART, ss->baudrate);//115200U);
     usart_receive_config(sid->pUART, USART_RECEIVE_ENABLE);
     usart_transmit_config(sid->pUART, USART_TRANSMIT_ENABLE);
     usart_enable(sid->pUART);
@@ -306,9 +306,9 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
     usart_interrupt_enable(sid->pUART, USART_INT_RBNE);
     
     /* enable USART0 transmit interrupt */
-    usart_interrupt_enable(sid->pUART, USART_INT_TBE);
+    usart_interrupt_enable(sid->pUART, USART_INT_TC);
     
-    nvic_irq_enable(USART0_IRQn, 0, 0);
+    nvic_irq_enable(sid->irqn, 0, 0);
 
     SYS_EXIT_SCRT();
 
@@ -354,7 +354,7 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
     rcu_periph_clock_enable(sid->clk);
     /* USART configure */
     usart_deinit(sid->pUART);
-    usart_baudrate_set(sid->pUART, 115200U);
+    usart_baudrate_set(sid->pUART, ss->baudrate);//115200U);
     usart_receive_config(sid->pUART, USART_RECEIVE_ENABLE);
     usart_transmit_config(sid->pUART, USART_TRANSMIT_ENABLE);
     usart_enable(sid->pUART);
@@ -449,7 +449,7 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
         /* enable USART0 transmit interrupt */
         usart_interrupt_enable(sid->pUART, USART_INT_TC);
         
-        nvic_irq_enable(USART0_IRQn, 0, 0);
+        nvic_irq_enable(sid->irqn, 0, 0);
 
     }
     return ret;
@@ -827,18 +827,19 @@ void USART0_IRQHandler(void)
 //       
 //    SYS_UnLockMMTK();
 //}
-//void USART2_IRQHandler(void)
-//{
-//    //引入gps_uartInfoList是为了隔离，防止hal驱动直接引用外部 gs_Uart1SID。
-//    SYS_LockMMTK();
-//    if((gps_uartInfoList[2] != __NULL)
-//       && (gps_uartInfoList[2]->uart_no == 2))
-//    {
+void USART2_IRQHandler(void)
+{
+    //引入gps_uartInfoList是为了隔离，防止hal驱动直接引用外部 gs_Uart1SID。
+    krhino_intrpt_enter();
+    if((gps_uartInfoList[2] != __NULL)
+       && (gps_uartInfoList[2]->uart_no == 2))
+    {
+        UartN_Handler(gps_uartInfoList[2]);
 //        UartIRQProcessor(gps_uartInfoList[2]);
-//    }
-//       
-//    SYS_UnLockMMTK();
-//}
+    }
+       
+    krhino_intrpt_exit();
+}
 
 
 

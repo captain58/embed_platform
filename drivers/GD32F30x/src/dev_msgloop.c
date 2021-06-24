@@ -127,11 +127,11 @@ void MSG_Server(void *timer, void *arg)
 
     SYS_UART_RevMessageLoop();
 #endif
-#if (SYS_LGPI_EN > 0)
-    extern void SYS_LGPI_Scan(void *timer, void *arg);
-
-    SYS_LGPI_Scan(timer, arg);
-#endif
+//#if (SYS_LGPI_EN > 0)
+//    extern void SYS_LGPI_Scan(void *timer, void *arg);
+//
+//    SYS_LGPI_Scan(timer, arg);
+//#endif
 
 #if (SYS_FGPI_EN > 0)
     extern void SYS_FGPI_Scan(void *timer, void *arg);

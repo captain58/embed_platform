@@ -31,7 +31,7 @@
 
 #ifdef EXT_DEV_LED                          //LED¶Ë¿Ú¶¨Òå
 
-    const COMPORT gs_LedRun       = {GPIOB, 2,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    1};
+    const COMPORT gs_LedRun       = {GPIOA, 15,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
     
     

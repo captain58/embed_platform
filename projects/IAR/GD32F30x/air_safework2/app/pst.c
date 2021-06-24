@@ -282,8 +282,13 @@ uint8 PST_CHN5_Send(uint8* buffer, uint16 length)
  ************************************************************************/
 void PST_Init(void)
 {
+    SerialSets ss;
+    ss.baudrate = 9600;
+    ss.parit = Parit_N;
+    ss.databits = DataBits_8bits;
+    ss.stopbits = StopBits_1;
 
-    SYS_SER_Init(UART_CHANNEL_DEBUG, NULL);    //初始化串口   
+    SYS_SER_Init(UART_CHANNEL_DEBUG, (void *)&ss);    //初始化串口   
     
 //	    void InitFileDownLoad(void);
 //	    InitFileDownLoad();
@@ -291,7 +296,7 @@ void PST_Init(void)
     gs_PstPara.repwait = 80;
     gs_PstPara.reptry = 3;
     
-    LoadSystemParam(PARA_TYPE_PST);
+//    LoadSystemParam(PARA_TYPE_PST);
 }
 
 

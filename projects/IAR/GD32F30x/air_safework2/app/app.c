@@ -443,7 +443,8 @@ void KeyProc(uint8 key)
         {
             //蓝牙断开建立
 //	            hal_gpio_output_low(&brd_gpio_table[GPO_BLE_UART_CTL]);
-            gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,false);
+
+          
 //            if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
 //                g_ucPutcharEn = 1;
             gs_SysVar.terstt.bit.blecheck = 0;
@@ -790,7 +791,7 @@ void SYS_APP_Init()
 ////	    PST_PreInit();                      //线程
 //    Task_PreInit();                     //线程
 //
-//    PST_Init();
+    PST_Init();
 //
 //    Main_PreInit();
 //    SYS_RF_Init();
@@ -873,7 +874,7 @@ void SYS_MAIN_Task(void * arg)
     static uint8_t ble_name[14] = {'V','S'};
     ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
     
-    g_ucPutcharEn = 0;
+    g_ucPutcharEn = 1;
 //    HAL_BLE_Init(&gs_MainQueue, ble_name, 14);
 //    if(SYS_GPI_GetStt(0) & 0x02)
 //    {
@@ -897,10 +898,11 @@ void SYS_MAIN_Task(void * arg)
     SYS_MAIN_Init();
                                             //申请获取时间消息
     SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
-//    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_GPIO);
+    SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_GPIO);
 //    SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
-
-    LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
+    printf("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
+//    LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
+//    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 
     for(;;)
@@ -933,12 +935,12 @@ void SYS_MAIN_Task(void * arg)
                 
             case MSG_LIFEVT:                //按键下降沿
                 KeyProc(MSG_LIFEVT);
-                time.day = 13;
-                time.year = 18;
-                time.month = 3;
-                time.hour = 15;
-                time.min = 23;
-                time.sec = 30;
+//                time.day = 13;
+//                time.year = 18;
+//                time.month = 3;
+//                time.hour = 15;
+//                time.min = 23;
+//                time.sec = 30;
                 //SYS_WriteDateTime(&time);
                 break;
                 

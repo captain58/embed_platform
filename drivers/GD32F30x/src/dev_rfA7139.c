@@ -12,6 +12,7 @@
 
 #include "A7139config.h"
 
+#define CON_FIFO_LEN 64
 
 //	void  INIT_MCU_RF_MAP(void)
 //	{
@@ -272,6 +273,55 @@ const SPIIO gs_RFCmdSleep =
 
 
 *********************************************************************/
+uint16_t SYS_A7139_Recv(uint8_t * data)
+{
+
+    SPI_Write((SPIIO*)&gs_RFCmdRfr, &gs_RFSpiPort);
+
+
+    SPIIO * rfSPI = &gst_RFCommon;
+
+    rfSPI->command[0] = CMD_FIFO_R | CMD_Reg_R;  
+    rfSPI->dev = 0;
+    rfSPI->data = data;
+    rfSPI->cmdnum = 1;
+    rfSPI->length = 2;
+    SPI_Read((SPIIO*)rfSPI, &gs_RFSpiPort);
+
+    uint16_t len = data[1];
+
+    if(len > CON_FIFO_LEN)
+        return 0;
+    
+    rfSPI->cmdnum = 0;
+    rfSPI->length = len - 2;
+    SPI_Read((SPIIO*)rfSPI, &gs_RFSpiPort);
+
+    return len;
+}
+
+uint8_t SYS_A7139_Send(uint8_t * data, uint16_t len)
+{
+//	    uint8_t i;
+
+    //TX FIFO address pointer reset
+    SPI_Write((SPIIO*)&gs_RFCmdTfr, &gs_RFSpiPort);//TX FIFO address pointer reset
+    
+    SPIIO * rfSPI = &gst_RFCommon;
+    rfSPI->command[0] = CMD_FIFO_W;  
+    
+    rfSPI->dev = 0;
+    rfSPI->data = data;
+    rfSPI->cmdnum = 1;
+    rfSPI->length = len;
+    SPI_Write((SPIIO*)rfSPI, &gs_RFSpiPort);//TX FIFO write command
+
+    SPI_Write((SPIIO*)&gs_RFCmdTx, &gs_RFSpiPort);
+
+    while(SYS_GPI_GetLPort(GPI_DIO2));
+
+    SYS_OK();
+}
 
 //uint8_t master_slave=0;
 uint8_t ledfleg=0;
@@ -300,14 +350,14 @@ void SYS_A7139_Proc(uint8_t mod)
 
 //				while(!GIO2);
 //				while(GIO2);        //wait transmit completed
-            while(!SYS_GPI_GetLPort(GPI_DIO2));
-            while(SYS_GPI_GetLPort(GPI_DIO2));
+            while(!SYS_GPI_GetLPort(GPI_DIO2)) msleep(10);
+            while(SYS_GPI_GetLPort(GPI_DIO2)) msleep(10);
 
 //				StrobeCMD(CMD_RX);
             
             SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);
 			timefleg=0;
-			while(!SYS_GPI_GetLPort(GPI_DIO2));
+			while(!SYS_GPI_GetLPort(GPI_DIO2)) msleep(10);
 			while(SYS_GPI_GetLPort(GPI_DIO2))
 			{
 				timefleg++;
@@ -342,7 +392,7 @@ void SYS_A7139_Proc(uint8_t mod)
 //                SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
 			}
 
-			
+			msleep(10);
 
 
 
@@ -362,8 +412,8 @@ void SYS_A7139_Proc(uint8_t mod)
             SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);
 //				while(!GIO2);
 //	            while(GIO2);        //wait receive completed
-			while(!SYS_GPI_GetLPort(GPI_DIO2));
-			while(SYS_GPI_GetLPort(GPI_DIO2));
+			while(!SYS_GPI_GetLPort(GPI_DIO2)) msleep(10);
+			while(SYS_GPI_GetLPort(GPI_DIO2)) msleep(10);
             
             RxPacket();
 			msleep (1);

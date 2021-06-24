@@ -142,7 +142,7 @@ void SYS_SER_Init(uint8 port, void * ss)
     else
 #endif
     {
-        Uartx_Config(ss, gss_UartSID[_ucPortMap[port]]);
+        Uartx_Config((SerialSets *)ss, gss_UartSID[_ucPortMap[port]]);
     }
 
 }
@@ -460,7 +460,7 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
 #endif              
         }
     }
-    msleep(100);
+//    msleep(1);
     SYS_OK();
 }
 
