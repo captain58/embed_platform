@@ -200,7 +200,7 @@ typedef struct
 
 EXT_ZY S_FramMisData gs_FramMisData;
 
-EXT_ZY    S_PSTPARA gs_PstPara;
+//EXT_ZY    S_PSTPARA gs_PstPara;
 /************************************************************************
  * @function: UserVarInit
  * @√Ë ˆ: ª÷∏¥≥ˆ≥ß…Ë÷√

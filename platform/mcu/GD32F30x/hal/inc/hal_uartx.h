@@ -69,6 +69,7 @@ int32_t hal_uart_send(const SerialID* sid, const void *data, uint32_t size, uint
 void Uartx_StartSend(const SerialID* sid);
 void Uartx_Close(const SerialID* sid);
 void Uartx_Open(const SerialID* sid);
+uint8_t Uartx_WaitSendBufNull(const SerialID* sid);
 
 #endif
 

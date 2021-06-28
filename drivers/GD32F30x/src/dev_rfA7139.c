@@ -55,6 +55,52 @@
 
 
 
+static TRFModem       gs_stRfModem;
+
+/***********************************************************
+ * @function_name: gs_WifiMODMDrvIntf
+ * @function_file: dev_modem.c
+ * @描述:定义各个模块的各种处理函数
+ * 
+ * @参数: 
+ * @返回: 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/11/1)
+ **********************************************************/
+    //	const TRfodemDrive gs_WifiMODMDrvIntf[] =
+    //	{
+    //	#if Modem_LSDGTW14_EN > 0
+    //	    {
+    //	        lsdgtw14_modemcheck,
+    //	    
+    //	        lsdgtw14_modemon,
+    //	        lsdgtw14_modemoff,
+    //	
+    //	        lsdgtw14_setname,
+    //	        lsdgtw14_sta_config,
+    //	        lsdgtw14_sta_config_chk,
+    //	        lsdgtw14_sta_check_link,
+    //	
+    //	        lsdgtw14_sta_link_close,
+    //	        lsdgtw14_sta_scan,
+    //	        lsdgtw14_sta_link_csq,
+    //	        lsdgtw14_mdl_reset,
+    //	        lsdgtw14_tcpa_connect,
+    //	        lsdgtw14_tcpa_close,
+    //	        lsdgtw14_tcpa_check_lnk,
+    //	        
+    //	        lsdgtw14_sta_link_ipcfg,
+    //	    },
+    //	#endif 
+    //	    
+    //	    
+    //	
+    //	};
+TRFModemState SYS_RF_Status(void)
+{
+    return DevRfModem->stt;
+}
 
 
 
@@ -332,7 +378,7 @@ void SYS_A7139_Proc(uint8_t mod)
 //	    SYS_RF_Init();
     Init_SPI(&gs_RFSpiPort);
 
-    A7139_POR();	//power on only
+    	//power on only
     SYS_RF_Init();
 
 //    master_slave=0;
@@ -698,7 +744,9 @@ uint8_t SYS_RF_Init(void)
 //    GIO1=1;
 //    GIO2=1;
     Init_SPI(&gs_RFSpiPort);
-
+    
+    A7139_POR();
+    
     msleep(1);            //delay 1ms for regulator stabilized
 //	    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
     SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);

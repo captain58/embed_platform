@@ -397,7 +397,7 @@ void SYS_MAIN_Init(void)
 //	    
 
      //SER_Open(UART_CHANNEL_DEBUG, TDB_MODE_R | TDB_MODE_W);
-//	     LogInit(LOG_LEVEL_DEBUG,256, (log_fun_ptr *)Log_Send);
+     LogInit(LOG_LEVEL_DEBUG,256, (log_fun_ptr *)Log_Send);
      //SER_Open(UART_CHANNEL_GPRS, TDB_MODE_R | TDB_MODE_W);
 //	    gl_SysRunInit = 1;
 }
@@ -900,8 +900,8 @@ void SYS_MAIN_Task(void * arg)
     SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
     SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_GPIO);
 //    SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
-    printf("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
-//    LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
+//    printf("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
+    LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
 //    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 

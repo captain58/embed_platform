@@ -467,6 +467,7 @@ PUTCHAR_PROTOTYPE
 //            SER_SendData(PORT_UART_STD, (void *)"\r", 1, 300);
 //        }
         SYS_SER_Write(PORT_UART_STD, &ch, 1, 300);
+        delay(100000);
     }
   return ch;
 }

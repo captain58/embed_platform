@@ -461,6 +461,7 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
         }
     }
 //    msleep(1);
+//    Uartx_WaitSendBufNull(gss_UartSID[_ucPortMap[port]]);
     SYS_OK();
 }
 

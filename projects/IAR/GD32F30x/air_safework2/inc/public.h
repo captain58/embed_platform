@@ -32,8 +32,9 @@
 
 #include "libs.h"
 
-#include "ulog/ulog.h"
+//#include "ulog/ulog.h"
 //#include "iomap.h"
+#include "log.h"
 #include "flsmap.h"
 #include "frmcfg.h"
 

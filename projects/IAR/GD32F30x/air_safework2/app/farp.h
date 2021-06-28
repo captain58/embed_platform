@@ -65,7 +65,9 @@ typedef struct
     uint8 wkmd;                             //工作模式(0永久在线1被动激活)
     
     uint8_t login;                          //登录帧是否发送成功
-    
+
+    uint8_t paired;
+
     uint8 rdct;                             //重拨次数
     uint8 rtct;                             //重试次数
     uint8 ntpc;                             //连接方式,(00:TCP_01:UDP)
@@ -79,7 +81,7 @@ typedef struct
     uint8 gapn[30];                         //APN
     uint8 user[30];                         //专网用户名
     uint8 word[30];                         //专网密码
-    
+
     uint32 dcib;                            //主站备用地址
     uint16 dcpb;                            //主站备用端口号
     uint16 lispt;                           //服务器侦听端口
@@ -100,7 +102,6 @@ typedef struct
 }FarpVar;
 
 EXT_FARP FarpVar gs_FarpVar;                //远程端口的参数
-
 
 
 

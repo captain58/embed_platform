@@ -8,10 +8,12 @@
 #include <stdbool.h>
 #include "aos/init.h"
 #include "aos/cli.h"
-#include "ulog/ulog.h"
+//#include "ulog/ulog.h"
+
 #include "aos/kernel.h"
 #include "hal/wifi.h"
-
+#include "k_api.h"
+#include "log.h"
 #ifdef AOS_COMP_PWRMGMT
 #include <pwrmgmt_api.h>
 #endif

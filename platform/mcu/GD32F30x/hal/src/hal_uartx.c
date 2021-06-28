@@ -471,7 +471,14 @@ uint8 Uartx_DeInit(const SerialID* sid)
 #endif    
     SYS_OK();
 }
-
+uint8_t Uartx_WaitSendBufNull(const SerialID* sid)
+{
+//	    uint32_t flagstatus = (USART_REG_VAL2(sid->pUART, USART_INT_FLAG_TBE) & BIT(USART_BIT_POS2(USART_INT_FLAG_TBE)));
+//	    while(RESET == usart_interrupt_flag_get(sid->pUART, USART_INT_FLAG_TBE)) ;
+    while(SET == USART_REG_VAL2(sid->pUART, USART_INT_FLAG_TBE) & BIT(USART_BIT_POS2(USART_INT_FLAG_TBE))) ;
+    
+    return 0;
+}
 
 /************************************************************************
  * @Function: Uartx_StartSend
