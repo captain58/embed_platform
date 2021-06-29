@@ -192,10 +192,10 @@ const PSTChnSend gfs_PSTChnSend[PST_CHN_NO] =
 {
     PST_CHN0_Send,                      //±¾µØ485
     PST_CHN1_Send,                      //GPRS
-    PST_CHN2_Send,                      //netp0
-    PST_CHN3_Send,                      //netp1
-    PST_CHN4_Send,                      //netp2
-    PST_CHN5_Send,                      //netp3
+//    PST_CHN2_Send,                      //netp0
+//    PST_CHN3_Send,                      //netp1
+//    PST_CHN4_Send,                      //netp2
+//    PST_CHN5_Send,                      //netp3
     
 };
 

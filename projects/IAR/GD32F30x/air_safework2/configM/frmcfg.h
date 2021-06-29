@@ -31,7 +31,7 @@
 #define _DLT_FRM_INC    1               //645规约结构体
 #define _VS_FRM_INC     1               //
 #define _ZY_FRM_INC     1
-#define _NETP_FRM_INC     1
+#define _NETP_FRM_INC     0
 
 
 
@@ -171,7 +171,7 @@
 
 
 #define PST_LEN_MAX     (uint16)0x200   //定义一帧最长为256字节
-#define PST_CHN_NO      6               //总的通道数量
+#define PST_CHN_NO      2               //总的通道数量
 
 
 
