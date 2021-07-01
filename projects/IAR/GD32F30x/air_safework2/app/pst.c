@@ -47,7 +47,7 @@
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 PstFrmProc(PORT_UART_TYPE channel, uint8* rbuffer, uint16 length, uint8* sbuffer, uint16 sbuflen)
+uint8 PstFrmProc(uint8_t channel, uint8* rbuffer, uint16 length, uint8* sbuffer, uint16 sbuflen)
 {
     PST_Frame frm;                          //规约帧结构体
     uint8 protocal;                         //规约号

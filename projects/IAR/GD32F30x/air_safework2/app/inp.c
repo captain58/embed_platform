@@ -419,7 +419,7 @@ const S_DATASEGINFO gss_recSegInfo[] =
 //	    //ES_FRAM_Open();
 //	    //Fram_SafeWrite((uint8*)&tlabel, FM_RECPT, sizeof(tlabel));  //ZJC
 //	    //ES_FRAM_Close();
-//	    ES_OK();
+//	    SYS_OK();
 //	
 //	}
 
@@ -503,7 +503,7 @@ const S_DATASEGINFO gss_recSegInfo[] =
 //	        return SYS_ERR_FT;
 //	    }
 //	
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 
 
@@ -752,7 +752,7 @@ void gdw_CrackRecData(void)
 //	        STR_ClrFlashBit(DB_DAY, 0, bidx, 0xffff);//0有效,1无效
 //	    }
 //	    
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 
 
@@ -790,7 +790,7 @@ void gdw_CrackRecData(void)
 //	        gdw_SaveTstDayData(uc_i, 2);
 //	    }
 //	
-//	    ES_OK();
+//	    SYS_OK();
 //	
 //	}
 
@@ -853,7 +853,7 @@ void gdw_CrackRecData(void)
 //	        return SYS_ERR_FT;
 //	    }
 //	
-//	    ES_OK();
+//	    SYS_OK();
 //	
 //	}
 
@@ -1041,7 +1041,7 @@ void gdw_CrackRecData(void)
 //	        STR_ClrFlashBit(DB_MONTH, 0, bidx, 0xffff);//0有效,1无效
 //	    }
 //	    
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 //	
 //	
@@ -1073,7 +1073,7 @@ void gdw_CrackRecData(void)
 //	        gdw_SaveTstMonthData(uc_i, 2);
 //	    }
 //	
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 //	
 //	
@@ -1134,7 +1134,7 @@ void gdw_CrackRecData(void)
 //	        return SYS_ERR_FT;
 //	    }
 //	
-//	    ES_OK();
+//	    SYS_OK();
 //	
 //	}
 //	
@@ -1350,7 +1350,7 @@ void gdw_CrackRecData(void)
 //	        STR_ClrFlashBit(DB_HOUR, 0, bidx, 0xffff);//0有效,1无效
 //	    }
 //	    
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 //	
 //	
@@ -1381,7 +1381,7 @@ void gdw_CrackRecData(void)
 //	        gdw_SaveTstHourData(uc_i, 0);
 //	    }
 //	
-//	    ES_OK();
+//	    SYS_OK();
 //	
 //	}
 //	
@@ -1440,7 +1440,7 @@ void gdw_CrackRecData(void)
 //	        return SYS_ERR_FT;
 //	    }
 //	
-//	    ES_OK();
+//	    SYS_OK();
 //	
 //	}
 //	
@@ -1600,7 +1600,7 @@ void gdw_CrackCureData(void)
 //	    addr = min * LEN_QUAR_SEG0;
 //	                                        //存储操作
 //	    WriteFlashWithCRC(DB_QUAR, (uint8*)&quardata, sizeof(S_QUARDATA_SEG0), addr);
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 //	
 //	
@@ -1647,7 +1647,7 @@ void gdw_CrackCureData(void)
 //	    {
 //	        return SYS_ERR_FT;
 //	    }
-//	    ES_OK();
+//	    SYS_OK();
 //	} 
 //	
 //	
@@ -1748,7 +1748,7 @@ void gdw_CrackCureData(void)
 //	        pstat->Vmin[2] = 0xffffffff;
 //	        SA_REALDATA_Write(buffer, k, 3);
 //	    } 
-//	    ES_OK();
+//	    SYS_OK();
 //	         
 //	}
 //	
@@ -1799,7 +1799,7 @@ void gdw_CrackCureData(void)
 //	    {
 //	        return SYS_ERR_FT;
 //	    }
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 //	
 //	
@@ -1915,7 +1915,7 @@ void gdw_CrackCureData(void)
 //	        pstat->Vmin[2] = 0xffffffff;
 //	        SA_REALDATA_Write(buffer, k, 3);
 //	    } 
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 //	
 //	
@@ -1966,7 +1966,7 @@ void gdw_CrackCureData(void)
 //	    {
 //	        return SYS_ERR_FT;
 //	    }
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 //	
 //	/************************************************************************

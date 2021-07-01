@@ -97,7 +97,7 @@ typedef uint8 (*PSTChnSend)(uint8* buffer, uint16 length);
  *-----------------------------------------------------------------------
  * @ÐÞ¸ÄÈË: 
  ************************************************************************/
-uint8 PstFrmProc(PORT_UART_TYPE channel, uint8* rbuffer, uint16 length, uint8* sbuffer, uint16 sbuflen);
+uint8 PstFrmProc(uint8_t channel, uint8* rbuffer, uint16 length, uint8* sbuffer, uint16 sbuflen);
 
 
 /************************************************************************

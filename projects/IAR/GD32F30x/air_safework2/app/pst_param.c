@@ -57,7 +57,7 @@ typedef struct
  * @param: plen 数据长度
  * 
  * @返回: 
- * @return: uint8 ES_ERR_OK/SYS_ERR_FT
+ * @return: uint8 SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2014/3/11)
  *-----------------------------------------------------------------------
@@ -167,7 +167,7 @@ void CrackShortPara(uint8 dbno, uint32 addr)
  * @param: rw false读; true写
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/SYS_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2014/2/12)
  *-----------------------------------------------------------------------
@@ -204,7 +204,7 @@ uint8 GD_Para_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
  * @param: rw false读; true写
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/SYS_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2014/2/12)
  *-----------------------------------------------------------------------
@@ -265,7 +265,7 @@ uint8 Netp_Framework_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
  * @param: len  写入数据的长度(=参数长度)
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/SYS_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 需确保该地址起始存储的是短参数
  * @作者: yzy (2014/3/11)
  *-----------------------------------------------------------------------
@@ -331,7 +331,7 @@ void GD_ParaShort_Rst(uint32 addr)
  * @param: len  写入数据的长度(=参数长度)
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/SYS_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2014/3/11)
  *-----------------------------------------------------------------------
@@ -676,7 +676,7 @@ uint8 GD_ParaDispatch_Fn_W(uint16 fn, uint8* buff, uint8 len, uint16 dpidx)
  * @param: dpidx 存储点序号(0-)
  * 
  * @返回: 
- * @return: uint8  SYS_ERR_FT/ES_ERR_OK
+ * @return: uint8  SYS_ERR_FT/SYS_ERR_OK
  * @说明: 
  * @作者: yzy (2014/3/11)
  *-----------------------------------------------------------------------

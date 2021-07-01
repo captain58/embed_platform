@@ -168,7 +168,7 @@ uint8 guc_TaskLinkWaitSec = 120;              //有任务上报时,重判网络状态倒计时
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-ST_Netp_FW gs_report_fw;
+//ST_Netp_FW gs_report_fw;
 extern intptr_t g_ulTcp_fd;
 extern int32_t HAL_TCP_Destroy(intptr_t fd);
 extern kbuf_queue_t gs_TKFarpQueue;

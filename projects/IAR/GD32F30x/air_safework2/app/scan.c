@@ -71,7 +71,7 @@ const uint32 gul_UpdataMarkB_APP[4] =
  * @param: head  
  * 
  * @返回: 
- * @return: uint8 ES_ERR_OK, ES_ERR_FT
+ * @return: uint8 SYS_ERR_OK, SYS_ERR_FT
  * @作者: xugl (2010-4-23)
  *-----------------------------------------------------------------------
  * @修改人: 
@@ -284,7 +284,7 @@ bool IAP_Ready(uint32 address, uint32 length, bool isreset)
 int Upgrade_Netp_FW(uint32_t len)
 {
     TDataBlock db;
-    ST_NETP_FW_BASE tmp;
+//    ST_NETP_FW_BASE tmp;
     uint32_t addr = 256;
     
 //    while (len >= sizeof(ST_NETP_FW_BASE))

@@ -728,7 +728,7 @@ void EVT_ERC21_31_Proc(uint8 port)
 //	    {
 //	        es->mValid = 1;
 //	        es->mState = iost;
-//	        ES_OK();
+//	        SYS_OK();
 //	    }
 //	                                        //判断变位
 //	    if(iost != es->mState)              //如果瞬时状态和当前状态不一致
@@ -755,7 +755,7 @@ void EVT_ERC21_31_Proc(uint8 port)
 //	
 //	        gs_MKStruct.mb |= change;    //未上报标志
 //	    }
-//	    ES_OK();
+//	    SYS_OK();
 //	}
 
 

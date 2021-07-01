@@ -507,8 +507,8 @@ void Netp_chktimeisok(void);  //
  ************************************************************************/
 //uint8 Netp_Send(uint8_t phyport, uint8_t * buffer, uint16* len, 
 //                    uint8_t overtime, uart_config_t *ss, ST_Netp_FW * fw);
-uint8 Netp_Send(uint8_t phyport, uint8* buffer, uint16* len, 
-                uint8 overtime, void *ss, NetpFrameStr * frameStr);
+//uint8 Netp_Send(uint8_t phyport, uint8* buffer, uint16* len, 
+//                uint8 overtime, void *ss, NetpFrameStr * frameStr);
 
 uint8 Netp_Check(uint8_t port);
 

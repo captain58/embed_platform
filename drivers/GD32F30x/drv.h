@@ -48,9 +48,10 @@
 #include "dev_uart2.h"
 #include "dev_msgloop.h"
 //	
-//	
+	
+#include "public.h"
 #include "frmcfg.h"
-#include "dev_frm.h"
+#include "frm.h"
 
 //#include "dev_valve.h"
 

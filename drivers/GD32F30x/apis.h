@@ -1802,8 +1802,9 @@ EXT_APIS const _F_RTC gs_RealTime;
 //	}_F_DEV;
 //	
 //	EXT_APIS const _F_DEV gs_DEVProc;
+#include "public.h"
 #include "frmcfg.h"
-#include "dev_frm.h"
+#include "frm.h"
 
 typedef struct 
 {

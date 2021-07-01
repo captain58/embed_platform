@@ -34,10 +34,13 @@
 
 //#include "ulog/ulog.h"
 //#include "iomap.h"
+#include "App_Public.h"
 #include "log.h"
 #include "flsmap.h"
 #include "frmcfg.h"
+#include "frm.h"
 
+#include    "globalVariable.h"
 
 #include <drv.h>
 

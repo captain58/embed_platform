@@ -55,13 +55,13 @@ extern kbuf_queue_t gs_TKNetp4Queue;
 //	uint8_t g_ucMeterPara[1024];
 //	uint8_t g_ucPrepay[1024];
 extern kbuf_queue_t gs_TKFarpQueue;
-extern const NetpFrameDataStr gs_NetpFrameWXICPrepayWDataStr;
-extern const NetpFrameDataStr gs_NetpFrameWXICPrepayRDataStr;
-extern const NetpFrameDataStr gs_NetpFrameWXICRechargeWDataStr;
-extern const NetpFrameDataStr gs_NetpFrameWXICPriceWDataStr;
-extern const NetpFrameDataStr gs_NetpFrameWXICPriceRDataStr;
-
-extern const NetpFrameDataStr gs_NetpFrameWXICVlvWDataStr;
+//extern const NetpFrameDataStr gs_NetpFrameWXICPrepayWDataStr;
+//extern const NetpFrameDataStr gs_NetpFrameWXICPrepayRDataStr;
+//extern const NetpFrameDataStr gs_NetpFrameWXICRechargeWDataStr;
+//extern const NetpFrameDataStr gs_NetpFrameWXICPriceWDataStr;
+//extern const NetpFrameDataStr gs_NetpFrameWXICPriceRDataStr;
+//
+//extern const NetpFrameDataStr gs_NetpFrameWXICVlvWDataStr;
 
 uint8 PST_ZY_Pack(PST_Frame* frame, uint8 err, uint16* length);
 uint8 RstSystemParam(uint16 PType);
@@ -2080,11 +2080,11 @@ uint8 RstPara(bool mode)
     gs_SysVar.mDGcnt = 0;                   //当前计数器为5
     gs_SysVar.terstt.lword = 0;
     gs_SysVar.mLPstt = 0;
-    extern const ST_Netp_FW* const gss_NetpFrameFw[];
-    for(int i = 0; i < Netp_Get_FW_num(); i++)
-    {
-        Netp_Register_Set(gss_NetpFrameFw[i]);
-    }    
+//    extern const ST_Netp_FW* const gss_NetpFrameFw[];
+//    for(int i = 0; i < Netp_Get_FW_num(); i++)
+//    {
+//        Netp_Register_Set(gss_NetpFrameFw[i]);
+//    }    
     extern const uint8_t netp_check[4];
     GD_Para_RW(NETP_CHECK, netp_check, 4, true);
     Netp_Register_Init();
@@ -2242,7 +2242,7 @@ unsigned char GetPrepayNum(void)
 	return ucLegalMeterCount;
 
 }
-extern ST_Netp_Reg gs_netpRegMap[CON_MAX_DEVICE_TYPES];
+//extern ST_Netp_Reg gs_netpRegMap[CON_MAX_DEVICE_TYPES];
 /************************************************************************
  * @function: ZY_ReadSupportNetpFW
  * @描述: 读取终端支持的流量计类型
@@ -2284,15 +2284,15 @@ uint8 ZY_ReadSupportNetpFW(const PST_TableStr* tbl, PST_Frame* frm)
     {
         uint8  exnum = 0;               //实际返回的数量
         pts = frame->send + 1;
-        for(int i = 0; i < CON_MAX_DEVICE_TYPES; i++)
-        {
-
-            if(gs_netpRegMap[i].pf == 0 && gs_netpRegMap[i].device_name[0] == 0)
-                break;
-            memcpy(pts, (uint8_t *)&gs_netpRegMap[i].device_name[0], 4);
-            exnum++;
-            pts += 4;  //指针
-        }
+//        for(int i = 0; i < CON_MAX_DEVICE_TYPES; i++)
+//        {
+//
+//            if(gs_netpRegMap[i].pf == 0 && gs_netpRegMap[i].device_name[0] == 0)
+//                break;
+//            memcpy(pts, (uint8_t *)&gs_netpRegMap[i].device_name[0], 4);
+//            exnum++;
+//            pts += 4;  //指针
+//        }
 
         frame->send[0]= exnum;
                                         //返回值
@@ -2485,7 +2485,7 @@ ERR_DEL:
  * @修改人: 
  ************************************************************************/
  
-ST_Netp_FW gs_netp_fw_trans[MCB_PORT_NUM];
+//ST_Netp_FW gs_netp_fw_trans[MCB_PORT_NUM];
 
 uint8 ParaPrepayInfo(const PST_TableStr* tbl, PST_Frame* frm)
 {
@@ -2541,54 +2541,54 @@ uint8 ParaPrepayInfo(const PST_TableStr* tbl, PST_Frame* frm)
 //	                pts += LEN_PREPAY_CFG;  //指针
                 continue;
             }
-            else
-            {
-            
-                
-                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[k].pt];
-                uint8_t ret = Netp_Get_Framework(gss_CDATATst[k].pf, fw);
-                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
-                {
-                    uint8_t mlen[2];
-                    memcpy((uint8_t *)&fw->frameDtaStr[0], (uint8_t *)&gs_NetpFrameWXICPrepayRDataStr, sizeof(NetpFrameDataStr));
-
-                    stDlmscmd.port = gss_CDATATst[k].pt;
-                    stDlmscmd.addr = gss_CDATATst[k].info.main_addr;  
-                    stDlmscmd.addr_len = 1;
-//                    stDlmscmd.fw = fw;
-                    stDlmscmd.baud_cfg = gss_CDATATst[k].bs;
-                    stDlmscmd.di = 0;
-                    fw->frameDtaStr[0].item[0].mult = k;
-                    mlen[0] = 0;
-                    mlen[1] = 0x12;
-                    
-                    uint8_t err = Netp_Send_With_Retry2(&inLbuf, mlen, &stDlmscmd);
-                    if((err == NETP_ERR_OK))
-                    {
-                        memset(frame->send + m, 0, LEN_PREPAY_CFG  );
-                        frame->send[m] = gss_CDATATst[k].info.addr & 0x0f;
-                        memcpy(frame->send + m + 1, gss_CDATATst[k].info.factory_model, 4  );
-                        memcpy(frame->send + m + 5, inLbuf.buf + 1, inLbuf.len - 1);
-                        m+=LEN_PREPAY_CFG;
-//	                        frame->send[m++]= 0x06;
-//	                        frame->send[m++]= 0;
-                    }
-                    else
-                    {
-//	                        frame->len = 0;
-//	                        SYS_ERR();
-                        continue;
-                    }
-                    
-                    exnum++;
-                }
-                else
-                {
-//	                    frame->len = 0;
-//	                    SYS_ERR();
-                    continue;
-                }                
-            }
+//            else
+//            {
+//            
+//                
+//                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[k].pt];
+//                uint8_t ret = Netp_Get_Framework(gss_CDATATst[k].pf, fw);
+//                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
+//                {
+//                    uint8_t mlen[2];
+//                    memcpy((uint8_t *)&fw->frameDtaStr[0], (uint8_t *)&gs_NetpFrameWXICPrepayRDataStr, sizeof(NetpFrameDataStr));
+//
+//                    stDlmscmd.port = gss_CDATATst[k].pt;
+//                    stDlmscmd.addr = gss_CDATATst[k].info.main_addr;  
+//                    stDlmscmd.addr_len = 1;
+////                    stDlmscmd.fw = fw;
+//                    stDlmscmd.baud_cfg = gss_CDATATst[k].bs;
+//                    stDlmscmd.di = 0;
+//                    fw->frameDtaStr[0].item[0].mult = k;
+//                    mlen[0] = 0;
+//                    mlen[1] = 0x12;
+//                    
+//                    uint8_t err = Netp_Send_With_Retry2(&inLbuf, mlen, &stDlmscmd);
+//                    if((err == NETP_ERR_OK))
+//                    {
+//                        memset(frame->send + m, 0, LEN_PREPAY_CFG  );
+//                        frame->send[m] = gss_CDATATst[k].info.addr & 0x0f;
+//                        memcpy(frame->send + m + 1, gss_CDATATst[k].info.factory_model, 4  );
+//                        memcpy(frame->send + m + 5, inLbuf.buf + 1, inLbuf.len - 1);
+//                        m+=LEN_PREPAY_CFG;
+////	                        frame->send[m++]= 0x06;
+////	                        frame->send[m++]= 0;
+//                    }
+//                    else
+//                    {
+////	                        frame->len = 0;
+////	                        SYS_ERR();
+//                        continue;
+//                    }
+//                    
+//                    exnum++;
+//                }
+//                else
+//                {
+////	                    frame->len = 0;
+////	                    SYS_ERR();
+//                    continue;
+//                }                
+//            }
         }
                                         //移入数量
         frame->send[0]= exnum;
@@ -2618,55 +2618,55 @@ uint8 ParaPrepayInfo(const PST_TableStr* tbl, PST_Frame* frm)
                 frame->send[m++]= 0x06;
                 frame->send[m++]= 0;
             }
-            else
-            {
-
-                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
-                addr = base_addr + LEN_PREPAY_CFG * (xh - 1);
-                GD_Para_RW(addr, frame->recv+7 + LEN_PREPAY_CFG * k, LEN_PREPAY_CFG, true);
-                
-                uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
-                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
-                {
-                    memcpy((uint8_t *)&fw->frameDtaStr[0], (uint8_t *)&gs_NetpFrameWXICPrepayWDataStr, sizeof(NetpFrameDataStr));
-
-                    stDlmscmd.port = gss_CDATATst[xh-1].pt;
-                    stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
-                    stDlmscmd.addr_len = 1;
-//                    stDlmscmd.fw = fw;
-                    stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
-                    stDlmscmd.di = 0;
-                    fw->frameDtaStr[0].item[0].mult = xh - 1;
-                    uint8_t err = Netp_Send_With_Retry2(&inLbuf, NULL, &stDlmscmd);
-                    if((err == NETP_ERR_OK) || (err == NETP_ERR_NT))
-                    {
-                        memcpy(frame->send + m, inLbuf.buf + 1, 2);
-                        m+=2;
-//	                        const uint8_t wprepay_s[] = {0x02,0,0};
-//	                        if(0 == memcmp(inLbuf.buf, wprepay_s, 3))
-//	                        {
-//	                            frame->send[m++]= 0;
-//	                            frame->send[m++]= 0;
-//	                        }
-//	                        else
-//	                        {
-//	                            frame->send[m++]= 0x06;
-//	                            frame->send[m++]= 0;
-//	                        }
-                    }
-                    else
-                    {
-                        frame->send[m++]= 0x06;
-                        frame->send[m++]= 0;
-                    }
-                }
-                else
-                {
-                    frame->send[m++]= 0x06;
-                    frame->send[m++]= 0;
-                }
-                LOG_INFO("write PrepayInfo dev[%d] ret=%02x %02x %02x\n", k+1, inLbuf.buf[0],inLbuf.buf[1],inLbuf.buf[2]);
-            }
+//            else
+//            {
+//
+//                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
+//                addr = base_addr + LEN_PREPAY_CFG * (xh - 1);
+//                GD_Para_RW(addr, frame->recv+7 + LEN_PREPAY_CFG * k, LEN_PREPAY_CFG, true);
+//                
+//                uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
+//                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
+//                {
+//                    memcpy((uint8_t *)&fw->frameDtaStr[0], (uint8_t *)&gs_NetpFrameWXICPrepayWDataStr, sizeof(NetpFrameDataStr));
+//
+//                    stDlmscmd.port = gss_CDATATst[xh-1].pt;
+//                    stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
+//                    stDlmscmd.addr_len = 1;
+////                    stDlmscmd.fw = fw;
+//                    stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
+//                    stDlmscmd.di = 0;
+//                    fw->frameDtaStr[0].item[0].mult = xh - 1;
+//                    uint8_t err = Netp_Send_With_Retry2(&inLbuf, NULL, &stDlmscmd);
+//                    if((err == NETP_ERR_OK) || (err == NETP_ERR_NT))
+//                    {
+//                        memcpy(frame->send + m, inLbuf.buf + 1, 2);
+//                        m+=2;
+////	                        const uint8_t wprepay_s[] = {0x02,0,0};
+////	                        if(0 == memcmp(inLbuf.buf, wprepay_s, 3))
+////	                        {
+////	                            frame->send[m++]= 0;
+////	                            frame->send[m++]= 0;
+////	                        }
+////	                        else
+////	                        {
+////	                            frame->send[m++]= 0x06;
+////	                            frame->send[m++]= 0;
+////	                        }
+//                    }
+//                    else
+//                    {
+//                        frame->send[m++]= 0x06;
+//                        frame->send[m++]= 0;
+//                    }
+//                }
+//                else
+//                {
+//                    frame->send[m++]= 0x06;
+//                    frame->send[m++]= 0;
+//                }
+//                LOG_INFO("write PrepayInfo dev[%d] ret=%02x %02x %02x\n", k+1, inLbuf.buf[0],inLbuf.buf[1],inLbuf.buf[2]);
+//            }
 
             //存入数据(测量点1放在首段)
 //	            memcpy(g_ucMeterPara + addr, frame->recv + 1 + LEN_PREPAY_CFG * k, LEN_PREPAY_CFG);
@@ -2740,48 +2740,48 @@ uint8 ParaRechargeInfo(const PST_TableStr* tbl, PST_Frame* frm)
                 //数据域空
                 break;
             }
-            else
-            {
-
-                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
-                addr = base_addr + LEN_PREPAY_CFG * (xh - 1);
-                GD_Para_RW(addr, frame->recv+7 + LEN_PREPAY_CFG * k, LEN_PREPAY_CFG, true);
-                
-                uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
-                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
-                {
-                    uint8_t tmp[10];
-                    memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICRechargeWDataStr, sizeof(NetpFrameDataStr));
-
-                    stDlmscmd.port = gss_CDATATst[xh-1].pt;
-                    stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
-                    stDlmscmd.addr_len = 1;
-//                    stDlmscmd.fw = fw;
-                    stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
-                    stDlmscmd.di = 0;
-                    memset(tmp,0,10);
-                    memcpy(tmp, frame->recv+7+ LEN_PREPAY_CFG*k + 5, 10);
-                    uint8_t err = Netp_CommonRead(&inLbuf, tmp, &stDlmscmd);
-                    if((err == NETP_ERR_OK))
-                    {
-                        memset(frame->send + m, 0, LEN_RECHARGE_INFO );
-                        frame->send[m] = gss_CDATATst[xh-1].info.addr & 0x0f;
-                        memcpy(frame->send + m + 1, gss_CDATATst[xh-1].info.factory_model, 4  );
-                        memcpy(frame->send + m + 5, inLbuf.buf+1, inLbuf.len-1);
-                        m+=LEN_RECHARGE_INFO;
-                        exnum++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                    
-                }
-                else
-                {
-                    break;
-                }
-            }
+//            else
+//            {
+//
+//                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
+//                addr = base_addr + LEN_PREPAY_CFG * (xh - 1);
+//                GD_Para_RW(addr, frame->recv+7 + LEN_PREPAY_CFG * k, LEN_PREPAY_CFG, true);
+//                
+//                uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
+//                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
+//                {
+//                    uint8_t tmp[10];
+//                    memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICRechargeWDataStr, sizeof(NetpFrameDataStr));
+//
+//                    stDlmscmd.port = gss_CDATATst[xh-1].pt;
+//                    stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
+//                    stDlmscmd.addr_len = 1;
+////                    stDlmscmd.fw = fw;
+//                    stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
+//                    stDlmscmd.di = 0;
+//                    memset(tmp,0,10);
+//                    memcpy(tmp, frame->recv+7+ LEN_PREPAY_CFG*k + 5, 10);
+//                    uint8_t err = Netp_CommonRead(&inLbuf, tmp, &stDlmscmd);
+//                    if((err == NETP_ERR_OK))
+//                    {
+//                        memset(frame->send + m, 0, LEN_RECHARGE_INFO );
+//                        frame->send[m] = gss_CDATATst[xh-1].info.addr & 0x0f;
+//                        memcpy(frame->send + m + 1, gss_CDATATst[xh-1].info.factory_model, 4  );
+//                        memcpy(frame->send + m + 5, inLbuf.buf+1, inLbuf.len-1);
+//                        m+=LEN_RECHARGE_INFO;
+//                        exnum++;
+//                    }
+//                    else
+//                    {
+//                        break;
+//                    }
+//                    
+//                }
+//                else
+//                {
+//                    break;
+//                }
+//            }
         }
         
         frame->send[0] = exnum;
@@ -2942,51 +2942,51 @@ uint8 ParaPriceAdjustInfo(const PST_TableStr* tbl, PST_Frame* frm)
             {
                 continue;
             }
-            else
-            {
-                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[k].pt];
-                uint8_t ret = Netp_Get_Framework(gss_CDATATst[k].pf, fw);
-                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
-                {
-                    uint8_t mlen[2];
-                    memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICPriceRDataStr, sizeof(NetpFrameDataStr));
-
-                    stDlmscmd.port = gss_CDATATst[k].pt;
-                    stDlmscmd.addr = gss_CDATATst[k].info.main_addr;  
-                    stDlmscmd.addr_len = 1;
-//                    stDlmscmd.fw = fw;
-                    stDlmscmd.baud_cfg = gss_CDATATst[k].bs;
-                    stDlmscmd.di = 0;
-                    fw->frameDtaStr[0].item[0].mult = k;
-                    mlen[0] = 0;
-                    mlen[1] = 0x2f;
-                    uint8_t err = Netp_CommonRead(&inLbuf, mlen, &stDlmscmd);
-                    if((err == NETP_ERR_OK))
-                    {
-                        memset(frame->send + m, 0, LEN_PRICEADJUST_INFO + 2  );
-                        frame->send[m+2] = gss_CDATATst[k].info.addr & 0x0f;
-                        memcpy(frame->send + m + 3, gss_CDATATst[k].info.factory_model, 4  );
-                        memcpy(frame->send + m + 7, inLbuf.buf+1, inLbuf.len-1);
-                        m+=LEN_PRICEADJUST_INFO + 2;
-//	                        frame->send[m++]= 0x06;
-//	                        frame->send[m++]= 0;
-                    }
-                    else
-                    {
-//	                        frame->len = 0;
-//	                        SYS_ERR();
-                        continue;
-                    }
-                    
-                    exnum++;
-                }
-                else
-                {
-//	                    frame->len = 0;
-//	                    SYS_ERR();
-                    continue;
-                }                
-            }
+//            else
+//            {
+//                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[k].pt];
+//                uint8_t ret = Netp_Get_Framework(gss_CDATATst[k].pf, fw);
+//                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
+//                {
+//                    uint8_t mlen[2];
+//                    memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICPriceRDataStr, sizeof(NetpFrameDataStr));
+//
+//                    stDlmscmd.port = gss_CDATATst[k].pt;
+//                    stDlmscmd.addr = gss_CDATATst[k].info.main_addr;  
+//                    stDlmscmd.addr_len = 1;
+////                    stDlmscmd.fw = fw;
+//                    stDlmscmd.baud_cfg = gss_CDATATst[k].bs;
+//                    stDlmscmd.di = 0;
+//                    fw->frameDtaStr[0].item[0].mult = k;
+//                    mlen[0] = 0;
+//                    mlen[1] = 0x2f;
+//                    uint8_t err = Netp_CommonRead(&inLbuf, mlen, &stDlmscmd);
+//                    if((err == NETP_ERR_OK))
+//                    {
+//                        memset(frame->send + m, 0, LEN_PRICEADJUST_INFO + 2  );
+//                        frame->send[m+2] = gss_CDATATst[k].info.addr & 0x0f;
+//                        memcpy(frame->send + m + 3, gss_CDATATst[k].info.factory_model, 4  );
+//                        memcpy(frame->send + m + 7, inLbuf.buf+1, inLbuf.len-1);
+//                        m+=LEN_PRICEADJUST_INFO + 2;
+////	                        frame->send[m++]= 0x06;
+////	                        frame->send[m++]= 0;
+//                    }
+//                    else
+//                    {
+////	                        frame->len = 0;
+////	                        SYS_ERR();
+//                        continue;
+//                    }
+//                    
+//                    exnum++;
+//                }
+//                else
+//                {
+////	                    frame->len = 0;
+////	                    SYS_ERR();
+//                    continue;
+//                }                
+//            }
         }
                                         //移入数量
         frame->send[0]= exnum;
@@ -3016,53 +3016,53 @@ uint8 ParaPriceAdjustInfo(const PST_TableStr* tbl, PST_Frame* frm)
                 frame->send[m++]= 0x23;
                 frame->send[m++]= 0;
             }
-            else
-            {
-//	                gs_GPIO.GPO_Out(GPO_485_PWR, true);
-
-                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
-                addr = base_addr + LEN_PRICEADJUST_INFO * (xh - 1);
-                GD_Para_RW(addr, frame->recv+7 + LEN_PRICEADJUST_INFO * k, LEN_PRICEADJUST_INFO, true);
-                
-                uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
-                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
-                {
-                    
-                    uint8_t tmp[47];
-                    memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICPriceWDataStr, sizeof(NetpFrameDataStr));
-
-                    stDlmscmd.port = gss_CDATATst[xh-1].pt;
-                    stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
-                    stDlmscmd.addr_len = 1;
-//                    stDlmscmd.fw = fw;
-                    stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
-                    stDlmscmd.di = 0;
-//	                    fw->frameDtaStr[0].item[0].b = xh - 1;
-                    memset(tmp,0,47);
-
-                    memcpy(tmp, frame->recv+7+ LEN_PRICEADJUST_INFO*k + 5, 47);
-
-                    uint8_t err = Netp_CommonRead(&inLbuf, tmp, &stDlmscmd);
-                    if((err == NETP_ERR_OK))
-                    {
-//	                        frame->send[m++]= 0;
-//	                        frame->send[m++]= 0;
-                        memcpy(frame->send + m, inLbuf.buf + 1, 2);
-                        m+=2;
-                    }
-                    else
-                    {
-                        frame->send[m++]= 0x23;
-                        frame->send[m++]= 0;
-                    }
-                }
-                else
-                {
-                    frame->send[m++]= 0x23;
-                    frame->send[m++]= 0;
-                }
-                
-            }
+//            else
+//            {
+////	                gs_GPIO.GPO_Out(GPO_485_PWR, true);
+//
+//                ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
+//                addr = base_addr + LEN_PRICEADJUST_INFO * (xh - 1);
+//                GD_Para_RW(addr, frame->recv+7 + LEN_PRICEADJUST_INFO * k, LEN_PRICEADJUST_INFO, true);
+//                
+//                uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
+//                if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
+//                {
+//                    
+//                    uint8_t tmp[47];
+//                    memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICPriceWDataStr, sizeof(NetpFrameDataStr));
+//
+//                    stDlmscmd.port = gss_CDATATst[xh-1].pt;
+//                    stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
+//                    stDlmscmd.addr_len = 1;
+////                    stDlmscmd.fw = fw;
+//                    stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
+//                    stDlmscmd.di = 0;
+////	                    fw->frameDtaStr[0].item[0].b = xh - 1;
+//                    memset(tmp,0,47);
+//
+//                    memcpy(tmp, frame->recv+7+ LEN_PRICEADJUST_INFO*k + 5, 47);
+//
+//                    uint8_t err = Netp_CommonRead(&inLbuf, tmp, &stDlmscmd);
+//                    if((err == NETP_ERR_OK))
+//                    {
+////	                        frame->send[m++]= 0;
+////	                        frame->send[m++]= 0;
+//                        memcpy(frame->send + m, inLbuf.buf + 1, 2);
+//                        m+=2;
+//                    }
+//                    else
+//                    {
+//                        frame->send[m++]= 0x23;
+//                        frame->send[m++]= 0;
+//                    }
+//                }
+//                else
+//                {
+//                    frame->send[m++]= 0x23;
+//                    frame->send[m++]= 0;
+//                }
+//                
+//            }
 
             //存入数据(测量点1放在首段)
 //	            memcpy(g_ucMeterPara + addr, frame->recv + 1 + LEN_PREPAY_CFG * k, LEN_PREPAY_CFG);
@@ -3223,87 +3223,87 @@ uint8_t ZY_Valve_Ctr(const PST_TableStr* tbl, PST_Frame* frm)
             errCode = 0x1D;
             goto ERR_VALVE;
         }
-        else
-        {
-            ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
-            
-            uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
-            if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
-            {
-                
-                uint8_t tmp[2];
-                if(type == VALVE_OPEN)
-                {
-                    //开阀
-                    tmp[0] = 0xFF;
-                    tmp[1] = 0;
-                }
-                else if(type == VALVE_CLOSE)
-                {
-                    //关阀
-                    tmp[0] = 0;
-                    tmp[1] = 0;
-                    
-                }
-                else if(type == VALVE_SLEEP)
-                {
-                    //停止
-                    tmp[0] = 0xCC;
-                    tmp[1] = 0;
-                    
-                }
-                else
-                {
-                    errCode = 0x21;
-                    goto ERR_VALVE;
-                }                    
-                memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICVlvWDataStr, sizeof(NetpFrameDataStr));
-
-                stDlmscmd.port = gss_CDATATst[xh-1].pt;
-                stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
-                stDlmscmd.addr_len = 1;
-//                stDlmscmd.fw = fw;
-                stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
-                stDlmscmd.di = 0;
-
-                uint8_t err = Netp_CommonRead(&inLbuf, tmp, &stDlmscmd);
-                if((err == NETP_ERR_OK))
-                {
-                    if(inLbuf.buf[0] == 0 && inLbuf.buf[1] == 0xAC)
-                    {
-                        if(inLbuf.buf[2] == tmp[0] && inLbuf.buf[3] == tmp[1])
-                        {
-                            frame->send[m++]= gss_CDATATst[xh-1].info.addr & 0x0f;
-                            frame->send[m++]= type;
-                            memcpy(frame->send + m, (uint8_t *)&gs_SysVar.terstt.lword, 4);
-                            m+=4;                                
-                        }
-                        else
-                        {
-                            errCode = 0x21;
-                            goto ERR_VALVE;
-
-                        }
-                    }
-                    else
-                    {
-                        errCode = 0x21;
-                        goto ERR_VALVE;
-                    
-                    }
-                }
-                else
-                {
-                    errCode = 0x21;
-                    goto ERR_VALVE;
-                }
-            }
-            else
-            {
-                errCode = 0x1D;
-                goto ERR_VALVE;
-            }
-        }
+//        else
+//        {
+//            ST_Netp_FW * fw = &gs_netp_fw_trans[gss_CDATATst[xh-1].pt];
+//            
+//            uint8_t ret = Netp_Get_Framework(gss_CDATATst[xh-1].pf, fw);
+//            if(SYS_ERR_OK == ret && fw->pf < CON_MAX_DEVICE_TYPES)
+//            {
+//                
+//                uint8_t tmp[2];
+//                if(type == VALVE_OPEN)
+//                {
+//                    //开阀
+//                    tmp[0] = 0xFF;
+//                    tmp[1] = 0;
+//                }
+//                else if(type == VALVE_CLOSE)
+//                {
+//                    //关阀
+//                    tmp[0] = 0;
+//                    tmp[1] = 0;
+//                    
+//                }
+//                else if(type == VALVE_SLEEP)
+//                {
+//                    //停止
+//                    tmp[0] = 0xCC;
+//                    tmp[1] = 0;
+//                    
+//                }
+//                else
+//                {
+//                    errCode = 0x21;
+//                    goto ERR_VALVE;
+//                }                    
+////                memcpy((uint8_t *)&fw->frameDtaStr, (uint8_t *)&gs_NetpFrameWXICVlvWDataStr, sizeof(NetpFrameDataStr));
+//
+//                stDlmscmd.port = gss_CDATATst[xh-1].pt;
+//                stDlmscmd.addr = gss_CDATATst[xh-1].info.main_addr;  
+//                stDlmscmd.addr_len = 1;
+////                stDlmscmd.fw = fw;
+//                stDlmscmd.baud_cfg = gss_CDATATst[xh-1].bs;
+//                stDlmscmd.di = 0;
+//
+//                uint8_t err = Netp_CommonRead(&inLbuf, tmp, &stDlmscmd);
+//                if((err == NETP_ERR_OK))
+//                {
+//                    if(inLbuf.buf[0] == 0 && inLbuf.buf[1] == 0xAC)
+//                    {
+//                        if(inLbuf.buf[2] == tmp[0] && inLbuf.buf[3] == tmp[1])
+//                        {
+//                            frame->send[m++]= gss_CDATATst[xh-1].info.addr & 0x0f;
+//                            frame->send[m++]= type;
+//                            memcpy(frame->send + m, (uint8_t *)&gs_SysVar.terstt.lword, 4);
+//                            m+=4;                                
+//                        }
+//                        else
+//                        {
+//                            errCode = 0x21;
+//                            goto ERR_VALVE;
+//
+//                        }
+//                    }
+//                    else
+//                    {
+//                        errCode = 0x21;
+//                        goto ERR_VALVE;
+//                    
+//                    }
+//                }
+//                else
+//                {
+//                    errCode = 0x21;
+//                    goto ERR_VALVE;
+//                }
+//            }
+//            else
+//            {
+//                errCode = 0x1D;
+//                goto ERR_VALVE;
+//            }
+//        }
 
         frame->len = m;
     }
@@ -4125,7 +4125,7 @@ uint8 ZY_Transparent(const PST_TableStr* tbl, PST_Frame* frm)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-extern ST_Netp_FW gs_report_fw;
+//extern ST_Netp_FW gs_report_fw;
 
 //	uint16_t Pack_ReportData(uint16_t id, ST_Netp_FW * fw, uint8_t * buf, uint16_t len,S_CURDATA_SEG0 * curdata)
 //	{
@@ -4188,75 +4188,75 @@ uint8 ZY_CurrData(const PST_TableStr* tbl, PST_Frame* frm)//(const PST_DataStr* 
     int exnum = 0;
 
     //if(frame->cmd == 0x01)    
-    {
-        memset(time,0,8);
-        ByteArrayBcdToHex(frame->recv, time, 5);
-        for(uint8 uc_i = 0; uc_i < CORE_TST_NO; uc_i++)
-            
-        {       
-            if(!((tbl->tid == 0xA621 && gss_CDATATst[uc_i].info.type == 0x01) ||
-                (tbl->tid == 0xA622 && gss_CDATATst[uc_i].info.type == 0x03)))//要求:1流量计 3IC卡控制器
-            {
-                continue;
-            }
-            if(gdw_ReadCureData(time, uc_i, (uint8 *)&curdata) == SYS_ERR_OK) //读曲线的数据
-            {
-                if(SYS_ERR_OK != Netp_Get_Framework(gss_CDATATst[uc_i].pf, &gs_report_fw))
-                {
-                    continue;
-                }
-
-                if(tbl->tid == 0xA621)
-                {
-                    memcpy(frame->send+m, &curdata.seg.dev, 57);
-                    m+=57;
-                }
-                else if(tbl->tid == 0xA622)
-                {
-                    if(curdata.pseg.mflag == 1)
-                    {
-                        memcpy(frame->send+m, &curdata.pseg.dev, 67);
-                        m+=67;
-                    }
-                    else
-                    {
-                        memcpy(frame->send+m, &curdata.pseg.dev, 31);
-                        m+=31;
-                        memset(frame->send+m, 0, 36);
-                        m+=36;
-                    }
-                }
-                else
-                {
-                    continue;
-                }
-                exnum++;
-            }
-            else
-            {
-//	                frame->send[m++] = gss_CDATATst[uc_i].info.addr;
-//	                memcpy(frame->send + m, gss_CDATATst[uc_i].info.factory_model, 4);
-//	                m+=4;
-//	                if(tbl->tid == 0xA621)
-//	                {
-//	                    memset(frame->send+m, 0xEE, 57);
-//	                    m+=52;
-//	                }
-//	                else if(tbl->tid == 0xA622)
-//	                {
-//	                    memset(frame->send+m, 0xEE, 67);
-//	                    //frame->send[m+31] = 0;
-//	                    m+=67;
-//	                }
-//	                else
-//	                {
-//	                    continue;
-//	                }
-                
-            }
-            
-        }
-    }
+//    {
+//        memset(time,0,8);
+//        ByteArrayBcdToHex(frame->recv, time, 5);
+//        for(uint8 uc_i = 0; uc_i < CORE_TST_NO; uc_i++)
+//            
+//        {       
+//            if(!((tbl->tid == 0xA621 && gss_CDATATst[uc_i].info.type == 0x01) ||
+//                (tbl->tid == 0xA622 && gss_CDATATst[uc_i].info.type == 0x03)))//要求:1流量计 3IC卡控制器
+//            {
+//                continue;
+//            }
+//            if(gdw_ReadCureData(time, uc_i, (uint8 *)&curdata) == SYS_ERR_OK) //读曲线的数据
+//            {
+//                if(SYS_ERR_OK != Netp_Get_Framework(gss_CDATATst[uc_i].pf, &gs_report_fw))
+//                {
+//                    continue;
+//                }
+//
+//                if(tbl->tid == 0xA621)
+//                {
+//                    memcpy(frame->send+m, &curdata.seg.dev, 57);
+//                    m+=57;
+//                }
+//                else if(tbl->tid == 0xA622)
+//                {
+//                    if(curdata.pseg.mflag == 1)
+//                    {
+//                        memcpy(frame->send+m, &curdata.pseg.dev, 67);
+//                        m+=67;
+//                    }
+//                    else
+//                    {
+//                        memcpy(frame->send+m, &curdata.pseg.dev, 31);
+//                        m+=31;
+//                        memset(frame->send+m, 0, 36);
+//                        m+=36;
+//                    }
+//                }
+//                else
+//                {
+//                    continue;
+//                }
+//                exnum++;
+//            }
+//            else
+//            {
+////	                frame->send[m++] = gss_CDATATst[uc_i].info.addr;
+////	                memcpy(frame->send + m, gss_CDATATst[uc_i].info.factory_model, 4);
+////	                m+=4;
+////	                if(tbl->tid == 0xA621)
+////	                {
+////	                    memset(frame->send+m, 0xEE, 57);
+////	                    m+=52;
+////	                }
+////	                else if(tbl->tid == 0xA622)
+////	                {
+////	                    memset(frame->send+m, 0xEE, 67);
+////	                    //frame->send[m+31] = 0;
+////	                    m+=67;
+////	                }
+////	                else
+////	                {
+////	                    continue;
+////	                }
+//                
+//            }
+//            
+//        }
+//    }
     frame->send[m++] = gs_SysVar.batVal;
 
     frame->send[m++] = gs_FarpVar.mcsq;
@@ -4320,7 +4320,7 @@ uint8 ZY_WarningData(const PST_TableStr* tbl, PST_Frame* frm)//(const PST_DataSt
 **Afn0AF10中通讯波特率对应码 
 *************************************************************************/
 const uint8 BaudRate[8] = {0, 2, 4, 8, 16, 24, 32, 64};    //*300 = 波特率,默认1200bps
-extern ST_Netp_FW gs_netp_fw_tmp[MCB_PORT_NUM];
+//extern ST_Netp_FW gs_netp_fw_tmp[MCB_PORT_NUM];
 
 /************************************************************************
  * @function: ParamLoad_F10
@@ -4378,14 +4378,14 @@ uint8 ParamLoad_MeterInfo(void)
         
         //if((gss_CDATATst[k].bs & 0xf0) == 0)
         {
-            ST_Netp_FW * fw = &gs_netp_fw_tmp[gss_CDATATst[k].pt];
-            uint8_t ret = Netp_Get_Framework(gss_CDATATst[k].pf, fw);
-            
-            if(ret != SYS_ERR_OK || fw->pf >= CON_MAX_DEVICE_TYPES)
-            {
-                continue;
-            }
-            gss_CDATATst[k].bs = fw->bs;
+//            ST_Netp_FW * fw = &gs_netp_fw_tmp[gss_CDATATst[k].pt];
+//            uint8_t ret = Netp_Get_Framework(gss_CDATATst[k].pf, fw);
+//            
+//            if(ret != SYS_ERR_OK || fw->pf >= CON_MAX_DEVICE_TYPES)
+//            {
+//                continue;
+//            }
+//            gss_CDATATst[k].bs = fw->bs;
         }
         
 //	        if(gss_CDATATst[k].bs == 0)

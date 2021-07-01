@@ -278,7 +278,7 @@ uint32 DLMS_ByteToInt24(uint8* byte, bool isbcd);
  *-----------------------------------------------------------------------
  * @ÐÞ¸ÄÈË: 
  ************************************************************************/
-uint8 Netp_ReadCure(uint8 *time , uint8 *din, uint8 uc_i, PST_Netp_FW fw);
+//uint8 Netp_ReadCure(uint8 *time , uint8 *din, uint8 uc_i, PST_Netp_FW fw);
 
 /************************************************************************
  * @function: Netp_ReadCureData
@@ -451,7 +451,7 @@ void Netp_ReadCureData(uint8 index);
  ************************************************************************/
 void Netp_ReadCureData(uint8 index);
 
-int Netp_Get_Framework(uint8_t pf, PST_Netp_FW fw);
+//int Netp_Get_Framework(uint8_t pf, PST_Netp_FW fw);
 
 /************************************************************************
  * @function: Netp_ReadDLMS
@@ -473,7 +473,7 @@ int Netp_Get_Framework(uint8_t pf, PST_Netp_FW fw);
 uint8 Netp_CommonRead(ST_ACT_INPBUF_L *inpLbuf, uint8_t * data, 
                                 ST_RDMT_CMD *stpActCmd);
 unsigned char GetProtocolNum(unsigned char *tMan, unsigned char *tPro);
-int Netp_Register_Set(ST_NETP_FW_BASE * fw);
+//int Netp_Register_Set(ST_NETP_FW_BASE * fw);
 int Netp_Register_Init(void);
 uint16_t Netp_Send_With_Retry2(ST_ACT_INPBUF_L *inpLbuf, uint8_t * data, ST_RDMT_CMD *stpActCmd);
 

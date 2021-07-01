@@ -192,6 +192,10 @@ typedef union{
 #define SYS_ERR_DEF         (16)       //使用默认数据
 #define SYS_ERR_NOREPLY     (17)       //无需回复
 #define SYS_ERR_DATA        (18)       //带数据
+//#define SYS_ERR_NOREPLY     (19)       //无需回复
+//#define SYS_ERR_DATA        (20)       //带数据
+#define SYS_ERR_DI          (21)       //无效DI
+
 #define SYS_ERR_UNKNOW      (127)
 
 #define ER(X)              (SYS_ERR_OK == (X))

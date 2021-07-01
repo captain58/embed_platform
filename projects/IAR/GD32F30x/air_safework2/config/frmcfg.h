@@ -50,8 +50,11 @@
 #define PST_FRM_MB_EN   1               //____扩展
 #define PST_FRM_MB_NO   (PST_FRM_ZY_NO + PST_FRM_ZY_EN)
 
-                                        //总的帧类型数量
-#define PST_FRM_NO      (PST_FRM_MB_NO + PST_FRM_MB_EN)
+#define PST_FRM_WL_1_EN  1              //全域微功率无线协议1.0
+#define PST_FRM_WL_1_NO  (PST_FRM_MB_EN + PST_FRM_MB_NO)
+                                                                                //总的帧类型数量
+#define PST_FRM_NO      (PST_FRM_WL_1_EN + PST_FRM_WL_1_NO)
+
 
 
 //	typedef enum 

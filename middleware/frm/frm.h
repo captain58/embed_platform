@@ -14,6 +14,7 @@
 #ifndef _DEV_FRM_H_
 #define _DEV_FRM_H_
 
+#include "public.h"
 
 #define PST_ERR_OK      (uint8)0            //没有问题
 #define PST_ERR_VAR     (uint8)1            //参数错误
@@ -201,7 +202,27 @@ typedef struct
     uint8* recv;                        //接收帧数据区
     uint8* send;                        //发送帧数据区,至少1024个字节
 }XML_Frame;
-
+typedef struct
+{
+    
+	STAPDU apdu;
+    double rssi;
+    uint16 id;
+    uint8 bNeedReAllocate;
+    uint8 bDebugFlg;
+    uint8* recv;                        //接收帧数据区
+    uint8* send;                        //发送帧数据区
+    uint16 len;                         //长度
+}SRF_Frame;
+typedef struct
+{
+    uint16 len;                         //应用数据长度
+    uint8  FrameType;                   //控制域类型
+    uint8  FrameID;                     //控制域
+    uint16 cmd;                         //命令字
+    uint8* recv;                        //应用数据 
+    uint8* send;                        //发送缓存
+}RF_Frame;
 
 /***********************************************************************
 **定义通用帧解包结构体
@@ -229,7 +250,11 @@ typedef struct
 #if PST_FRM_XML_EN > 0 
          XML_Frame _xml;
 #endif
+ #if _HXRF_FRM_INC > 0 
+        RF_Frame _rf;
+#endif  
     };
+  
 }PST_Frame;
 
 #endif
@@ -290,7 +315,16 @@ typedef uint8 (*PSTTblPrc)(const PST_TableStr*, PST_Frame*);
 #define PST_TBL_SMLRN   0x0FFF          //同类项的数量
 
 
-
+/********************************************************** 
+//函数表原型
+**********************************************************/
+typedef struct _RF_CMD_TABLE_ {
+	uint16          cmd; 		//!< 命令名
+	void*			func;	//!< 函数功能
+} CMD_TABLE_t;
+	
+typedef uint8 (*FW_COMMAD_t)(const CMD_TABLE_t* tbl, SRF_Frame* frm);
+typedef uint8 (*FW_COMMAD_CONF_t)(const CMD_TABLE_t* tbl, RF_Frame* frm);
 
 /************************************************************************
  * @function: PST_CheckFrame

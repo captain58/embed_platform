@@ -18,7 +18,7 @@
 #ifndef _PST_RF_H_
 #define _PST_RF_H_
 
-#include "Frm.h"
+//#include "Frm.h"
 
 #ifndef EXT_PST_RF
 #define EXT_PST_RF  extern
@@ -54,7 +54,7 @@
  * @param: frame 数据解析成的结构体
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/ES_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: lgy (2015/12/16)
  *-----------------------------------------------------------------------
@@ -71,7 +71,7 @@ uint8 PST_RF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fram
  * @param: frm 数据解析成的结构体
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/ES_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: lgy (2015/12/16)
  *-----------------------------------------------------------------------

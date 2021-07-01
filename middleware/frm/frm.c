@@ -17,6 +17,7 @@
 #include "hal.h"
 #include "bsp.h"
 //#include "app.h"        //需要应用层定义各规约处理函数
+#include "public.h"
 #include "frmcfg.h"
 #include "frm.h"
 #include <string.h>
@@ -514,6 +515,48 @@ const PSTFrameStr gs_PSTFrameEMStr =
 
 
 
+#if PST_FRM_WL_1_EN > 0
+/******************************************************************************
+**全功率无线通信上行协议接口规约帧头
+******************************************************************************/
+const uint8 gucs_PSTWL1Head[] =
+{
+    PST_FRM_ANY,
+};
+
+
+#define PST_FRM_WL_1_LP       0x01        //定义长度起始的位置
+#define PST_FRM_WL_1_LATR     (PST_LATR_DBLEN) //
+#define PST_FRM_WL_1_LLFT     0           //解析时先左移
+#define PST_FRM_WL_1_LRFT     0           //解析时后右移
+#define PST_FRM_WL_1_END      0             //定义结尾符
+#define PST_FRM_WL_1_CSSP     0x00        //定义累加和计算起始位置
+#define PST_FRM_WL_1_ATR      (PST_ATR_END | PST_ATR_CSCAL_SC)
+#define PST_FRM_WL_1_MLEN     0x00        //最小帧的长度需要满足
+#define PST_FRM_WL_1_CSSL     0x81        //定义累加和计算的长度偏移
+#define PST_FRM_WL_1_CSOS     0x81        //定义累加和的位置偏移
+
+/******************************************************************************
+**DLMS规约帧结构体信息
+******************************************************************************/
+const PSTFrameStr gs_PSTFrameWL1Str = 
+{
+    (uint8*)gucs_PSTWL1Head,
+    (uint8)sizeof(gucs_PSTWL1Head),
+    PST_FRM_WL_1_LP,
+    PST_FRM_WL_1_LATR,
+    PST_FRM_WL_1_LLFT,
+    PST_FRM_WL_1_LRFT,
+    PST_FRM_WL_1_END,
+    PST_FRM_WL_1_CSSP,
+    PST_FRM_WL_1_MLEN,
+    PST_FRM_WL_1_ATR,
+    PST_FRM_WL_1_CSSL,
+    PST_FRM_WL_1_CSOS,
+};
+
+#endif      
+
 
 
 
@@ -924,6 +967,9 @@ const PSTFrameStr* const gss_PSTFrameStr[] =
 
 #if (PST_FRM_ZY_EN > 0)
     &gs_PSTFrameZYStr,
+#endif
+#if (PST_FRM_WL_1_EN > 0)
+    &gs_PSTFrameWL1Str,
 #endif
 
 #if (PST_FRM_ZBF_EN > 0)

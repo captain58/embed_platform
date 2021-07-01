@@ -32,7 +32,7 @@
 #define _VS_FRM_INC     1               //
 #define _ZY_FRM_INC     1
 #define _NETP_FRM_INC     0
-
+#define _HXRF_FRM_INC       1               //海兴RF通信
 
 
 /******************************************************************************
@@ -50,8 +50,10 @@
 #define PST_FRM_MB_EN   1               //____扩展
 #define PST_FRM_MB_NO   (PST_FRM_ZY_NO + PST_FRM_ZY_EN)
 
+#define PST_FRM_WL_1_EN  1              //全域微功率无线协议1.0
+#define PST_FRM_WL_1_NO  (PST_FRM_MB_EN + PST_FRM_MB_NO)
                                         //总的帧类型数量
-#define PST_FRM_NO      (PST_FRM_MB_NO + PST_FRM_MB_EN)
+#define PST_FRM_NO      (PST_FRM_WL_1_EN + PST_FRM_WL_1_NO)
 
 
 //	typedef enum 
@@ -196,6 +198,7 @@ const uint8 gucs_PSTChn1frms[] =        //定义通道1支持的规约的编号
 {                                                                     
     PST_FRM_VS_NO,
     PST_FRM_ZY_NO,    
+    PST_FRM_WL_1_NO,
 };                                                                    
 #define PST_CHN1_HCHARS  6              //定义通道1允许的前导符的数量 
 #endif

@@ -128,6 +128,44 @@ void Farp_PreInit(void)
     //gs_SysVar.mLPstt |= HLV_LPTASK_MDCK;
 
 }
+
+/************************************************************************
+ * @function: Farp_SendTestData
+ * @描述: 远程通道发送心跳帧
+ * 
+ * @参数: 
+ * @param: ch 
+ * @返回: 
+ * @说明: 
+ * @作者: yzy (2014/1/14)
+ *-----------------------------------------------------------------------
+ * @修改人: 
+ ************************************************************************/
+void Farp_SendTestData(uint8 ch)
+{
+    if(gs_FarpVar.login)
+    {
+        gs_FarpVar.hklen = VS_BuildLinkFrm(0x09, 0, gs_FarpVar.hkd);
+    }
+    else
+    {
+        gs_FarpVar.hklen = VS_BuildLinkFrm(0x05, 0xA619, gs_FarpVar.hkd);
+    }
+    if(gs_FarpVar.hklen > 0)
+    {
+        if(ch == 0)
+        {
+//	            Farp_SendIpData((uint8 *)cmdUpBuf, sizeof(cmdUpBuf));
+            Farp_SendIpData((uint8 *)gs_FarpVar.hkd, gs_FarpVar.hklen);
+
+        }
+        else
+        {
+            //Farp_SendEthData(gs_FarpVar.hkd, gs_FarpVar.hklen);
+        }
+    }
+}
+
 ///************************************************************************
 // * @function: Farp_WMSecondProc
 // * @描述: 无线猫的秒处理
@@ -214,9 +252,9 @@ void Farp_WMSecondProc(void)
         gs_FarpVar.wmst &= ~WMS_STT_PPP;    //数据通道不可用
         if(++guc_FastWmSttReqCnt >= 30)     //每10秒钟
         {
-	            SYS_Message_Send(MSG_FARP_CNTPPP, TASK_FARP_TKID);
-//            uint8 msg = MSG_FARP_CNTPPP;
-//            krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
+//	            SYS_Message_Send(MSG_FARP_CNTPPP, TASK_FARP_TKID);
+            uint8 msg = MSG_FARP_CNTPPP;
+            krhino_buf_queue_send(&gs_RFMngQueue, &msg, 1);
             
             guc_FastWmSttReqCnt = 0;
         }
@@ -443,7 +481,7 @@ void SYS_RFMng_Task(void * arg)
             switch(g_RFMng_buf_recv[0])
             {
                 case MSG_SEC:
-
+                    Farp_WMSecondProc();
                     break;
                 case MSG_LIVE:                  //回复保活消息
                     HB_RetLive(TASK_RFMNG_TKID);
@@ -455,11 +493,11 @@ void SYS_RFMng_Task(void * arg)
         }
         else
         {
-#ifdef MASTER_NODE          
-            SYS_A7139_Proc(1);
-#else
-            SYS_A7139_Proc(0);
-#endif            
+//#ifdef MASTER_NODE          
+//            SYS_A7139_Proc(1);
+//#else
+//            SYS_A7139_Proc(0);
+//#endif            
         }
     }
 }
