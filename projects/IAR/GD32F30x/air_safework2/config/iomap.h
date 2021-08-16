@@ -29,7 +29,7 @@
 ******************************************************************************/
 
 
-#ifdef EXT_DEV_LED                          //LED端口定义
+#ifdef EXT_LED                          //LED端口定义
 
     const COMPORT gs_LedRun       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    1};
 
@@ -50,10 +50,19 @@
 /******************************************************************************
 **LED/Beep的名称枚举
 ******************************************************************************/
-typedef enum
-{
-    BEEP_WARN = 0,                        //告警蜂鸣器
-}LedNo;
+//	typedef enum
+//	{
+//	    BEEP_WARN = 0,                        //告警蜂鸣器
+//	}LedNo;
+typedef enum {
+GPIO_LED_RUN,
+GPIO_LED_SUB1_NORM,    
+GPIO_LED_SUB1_ERR,   	
+GPIO_LED_SUB2_NORM,    
+GPIO_LED_SUB2_ERR,   	
+GPIO_LED_MASTER_BAT_LOW,
+//    LED_NUM,
+} LedNo;
 
 
 /******************************************************************************
@@ -77,7 +86,7 @@ typedef enum
 **GPO端口输出结构体信息
 ******************************************************************************/
 
-#ifdef EXT_DEV_GPO                      //GPO的端口定义
+#ifdef EXT_GPO                      //GPO的端口定义
 
     const COMPORT gs_GpoAdcCtl      = {0x2, 1,  1, 0,    1};
 //    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
@@ -145,7 +154,7 @@ typedef enum
 /******************************************************************************
 **GPI端口输入结构体信息
 ******************************************************************************/
-#ifdef EXT_DEV_GPI                        //GPI的端口定义
+#ifdef EXT_GPI                        //GPI的端口定义
 
     /******************************************************************************
     **LGPI端口信息
@@ -162,10 +171,10 @@ typedef enum
     
     const GPI_PORTS gs_LGPIPort[] = 
     {
-        {(COMPORT*)&gs_GpiKey1,       false, 0, 0},      //key1
-        {(COMPORT*)&gs_GpiKey2,       false, 0, 0},      //key2
-        {(COMPORT*)&gs_GpiDIO1,    false, 0, 0},      //key3     
-        {(COMPORT*)&gs_GpiDIO2,      false, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiKey1,       1, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiKey2,       1, 0, 0},      //key2
+        {(COMPORT*)&gs_GpiDIO1,    1, 0, 0},      //key3     
+        {(COMPORT*)&gs_GpiDIO2,      1, 0, 0},      //key1
 //        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
 //        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu卡sda脚
 //        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda脚
@@ -210,26 +219,26 @@ typedef enum
 /******************************************************************************
 **APP LEVEL FLASH IO PORT DEFINATION
 ******************************************************************************/
-#ifdef EXT_MXFLASH
-    
-    const COMPORT gs_FlashSpiMISO = {0x2, 3,  1, (IOCON_FUNC0 ),    0};
-    const COMPORT gs_FlashSpiMOSI = {0x1, 1,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_FlashSpiSCK  = {0x1, 0,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_FlashSpiCS   = {0x2, 2,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_FlashSpiPWR  = {13,  0,  1, (IOCON_FUNC0 ),    1};
-    const COMPORT gs_FlashSpiWP   = {0x2, 4,  1, (IOCON_FUNC0 ),    1};
-    
-    const SPIIO_PORTS gs_FlashSpiPort = 
-    {
-        (COMPORT*)&gs_FlashSpiMISO,       //MISO,SPI主入从出
-        (COMPORT*)&gs_FlashSpiMOSI,       //MOSI,SPI主出从入
-        (COMPORT*)&gs_FlashSpiSCK,        //SCK,SPI时钟线
-        (COMPORT*)&gs_FlashSpiPWR,        //电源脚        
-        (COMPORT*)&gs_FlashSpiCS,         //FLA,FLASH片选
-        (COMPORT*)&gs_FlashSpiWP,         //写保护
-    };
-    
-#endif                                  //#ifdef EXT_MXFLASH
+//#ifdef EXT_MXFLASH
+//    
+//    const COMPORT gs_FlashSpiMISO = {0x2, 3,  1, (IOCON_FUNC0 ),    0};
+//    const COMPORT gs_FlashSpiMOSI = {0x1, 1,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_FlashSpiSCK  = {0x1, 0,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_FlashSpiCS   = {0x2, 2,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_FlashSpiPWR  = {13,  0,  1, (IOCON_FUNC0 ),    1};
+//    const COMPORT gs_FlashSpiWP   = {0x2, 4,  1, (IOCON_FUNC0 ),    1};
+//    
+//    const SPIIO_PORTS gs_FlashSpiPort = 
+//    {
+//        (COMPORT*)&gs_FlashSpiMISO,       //MISO,SPI主入从出
+//        (COMPORT*)&gs_FlashSpiMOSI,       //MOSI,SPI主出从入
+//        (COMPORT*)&gs_FlashSpiSCK,        //SCK,SPI时钟线
+//        (COMPORT*)&gs_FlashSpiPWR,        //电源脚        
+//        (COMPORT*)&gs_FlashSpiCS,         //FLA,FLASH片选
+//        (COMPORT*)&gs_FlashSpiWP,         //写保护
+//    };
+//    
+//#endif                                  //#ifdef EXT_MXFLASH
 
 /******************************************************************************
 **APP LEVEL FLASH IO PORT DEFINATION
@@ -288,30 +297,30 @@ typedef enum
 /******************************************************************************
 **eeprom的I2C口操作宏
 ******************************************************************************/
-#ifdef EXT_IIC_EEPROM
-
-    const COMPORT gs_EepromSDA = {0x1, 1,  1, (IOCON_FUNC0), 1};//分时输入和输出.默认输出
-    const COMPORT gs_EepromSCK = {0x1, 0,  1, (IOCON_FUNC0), 1};
-    const COMPORT gs_EepromPWR = {13, 0,  1, (IOCON_FUNC0), 1};
-    const COMPORT gs_EepromADDR1 = {0x2, 2,  1, (IOCON_FUNC0), 1};
-    const COMPORT gs_EepromADDR2 = {0x2, 3,  1, (IOCON_FUNC0), 1};
-    const COMPORT gs_EepromADDR3 = {0x2, 4,  1, (IOCON_FUNC0), 1};
-
-    const IIC_PORTS gs_EepromPort = 
-    {
-        (COMPORT*)&gs_EepromSDA,
-        (COMPORT*)&gs_EepromSCK,
-        (COMPORT*)&gs_EepromPWR,
-        (COMPORT*)&gs_EepromADDR1,
-        (COMPORT*)&gs_EepromADDR2,
-        (COMPORT*)&gs_EepromADDR3,
-        
-    };
-#else
-    
-    extern const IIC_PORTS gs_EepromPorts;
-    
-#endif                                  //#ifdef EXT_IIC_HRTC
+//#ifdef EXT_IIC_EEPROM
+//
+//    const COMPORT gs_EepromSDA = {0x1, 1,  1, (IOCON_FUNC0), 1};//分时输入和输出.默认输出
+//    const COMPORT gs_EepromSCK = {0x1, 0,  1, (IOCON_FUNC0), 1};
+//    const COMPORT gs_EepromPWR = {13, 0,  1, (IOCON_FUNC0), 1};
+//    const COMPORT gs_EepromADDR1 = {0x2, 2,  1, (IOCON_FUNC0), 1};
+//    const COMPORT gs_EepromADDR2 = {0x2, 3,  1, (IOCON_FUNC0), 1};
+//    const COMPORT gs_EepromADDR3 = {0x2, 4,  1, (IOCON_FUNC0), 1};
+//
+//    const IIC_PORTS gs_EepromPort = 
+//    {
+//        (COMPORT*)&gs_EepromSDA,
+//        (COMPORT*)&gs_EepromSCK,
+//        (COMPORT*)&gs_EepromPWR,
+//        (COMPORT*)&gs_EepromADDR1,
+//        (COMPORT*)&gs_EepromADDR2,
+//        (COMPORT*)&gs_EepromADDR3,
+//        
+//    };
+//#else
+//    
+//    extern const IIC_PORTS gs_EepromPorts;
+//    
+//#endif                                  //#ifdef EXT_IIC_HRTC
 
 
 #ifdef EXT_DEV_LCD                      //LCD的端口定义

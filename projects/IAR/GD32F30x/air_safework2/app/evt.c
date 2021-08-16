@@ -590,7 +590,7 @@ void EVT_ERC21_31_Proc(uint8 port)
 //	        if(nevtreal->wgcnt != levtreal->wgcnt)
 //	        {
 //	            err = Netp_Read(buffer, 0x03300D01, sizeof(buffer), tno);
-//	            if(err == SA_ERR_OK)
+//	            if(err == SYS_ERR_OK)
 //	            {
 //	                ALRT_ERC37(buffer, nevtreal->wgcnt, tno);
 //	            }
@@ -602,7 +602,7 @@ void EVT_ERC21_31_Proc(uint8 port)
 //	        if(nevtreal->dncnt != levtreal->dncnt)
 //	        {
 //	            err = Netp_Read(buffer, 0x03300E01, sizeof(buffer), tno);
-//	            if(err == SA_ERR_OK)
+//	            if(err == SYS_ERR_OK)
 //	            {
 //	                ALRT_ERC38(buffer, nevtreal->dncnt, tno);
 //	            }
@@ -640,7 +640,7 @@ void EVT_ERC21_31_Proc(uint8 port)
 //	        if(nevtreal->ccount != levtreal->ccount)
 //	        {
 //	            err = Netp_Read(buffer, 0x03350001, sizeof(buffer), tno);
-//	            if(err == SA_ERR_OK)
+//	            if(err == SYS_ERR_OK)
 //	            {
 //	                ALRT_ERC40(tno , 0x02); 
 //	            }

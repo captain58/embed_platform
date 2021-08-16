@@ -1598,7 +1598,7 @@ uint16_t Netp_Send_With_Retry2(ST_ACT_INPBUF_L *inpLbuf, uint8_t * data, ST_RDMT
 //	            {   
 //	                readflag = 1;   //每日零点一定要获取一次冻结数据
 //	            }
-//	            if(gdw_ReadDayData(YMDhms_1, uc_i, 0, (uint8*)&daydata) != SA_ERR_OK)  //数据读出来不对，则必须补抄
+//	            if(gdw_ReadDayData(YMDhms_1, uc_i, 0, (uint8*)&daydata) != SYS_ERR_OK)  //数据读出来不对，则必须补抄
 //	            {
 //	                readflag = 1;
 //	            }
@@ -1729,7 +1729,7 @@ uint16_t Netp_Send_With_Retry2(ST_ACT_INPBUF_L *inpLbuf, uint8_t * data, ST_RDMT
 //	            {   
 //	                readflag = 1;   //每月第一天  一定要获取一次冻结数据
 //	            }
-//	            if(gdw_ReadMonthData(YMDhms_1, uc_i, 0, (uint8*)&daydata) != SA_ERR_OK)  //数据读出错误，则必须补抄一次数据
+//	            if(gdw_ReadMonthData(YMDhms_1, uc_i, 0, (uint8*)&daydata) != SYS_ERR_OK)  //数据读出错误，则必须补抄一次数据
 //	            {
 //	                readflag = 1;
 //	            }
@@ -1860,7 +1860,7 @@ uint16_t Netp_Send_With_Retry2(ST_ACT_INPBUF_L *inpLbuf, uint8_t * data, ST_RDMT
 //	            {   
 //	                readflag = 1;   //每月第一天  一定要获取一次冻结数据
 //	            }
-//	            if(gdw_ReadMonthData(YMDhms_1, uc_i, 2, (uint8*)&monthdata) != SA_ERR_OK)  //数据读出错误，则必须补抄一次数据
+//	            if(gdw_ReadMonthData(YMDhms_1, uc_i, 2, (uint8*)&monthdata) != SYS_ERR_OK)  //数据读出错误，则必须补抄一次数据
 //	            {
 //	                readflag = 1;
 //	            }

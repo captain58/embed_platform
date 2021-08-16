@@ -22,6 +22,192 @@
 #include "public.h"
 #include "pst_RF.h"
 #include "frm.h"
+#include "user_func.h"
+#include "wirelessSendCache.h"
+#include "LinkMng.h"
+#define PKT_HEAD_LEN (1+2+1+1+sizeof(STINFOWIRE)+2)
+#define RSSI_OFFSET_LF                              -164.0
+#define RSSI_OFFSET_HF                              -157.0
+#define RSSI_OFFSET_MF                              10
+
+uint8 PST_SRF_Pack(PST_Frame* frame, uint8 err, uint16* length);
+/*************************************************************************
+ * Function Name: FillRouteInfo
+ * Parameters:  
+ * Return:  
+ * Description:
+ *
+ *************************************************************************/\
+//uint16 Select_Route(uint16 Sid, uint16* pData, uint8* pLen)
+//{
+//	uint8 rc = 0;
+//	COLLECTOR* pCilor = &cltor[Sid];
+//	uint8 bMother  = 0;
+//	uint8 Loop = 0;
+//	uint8 Error = 0;;
+//	if((*pLen) <= 12)
+//	{
+//		if((*pLen) > 1)
+//		{
+//			for(Loop = 0; Loop < (*pLen) - 1; Loop++)
+//			{
+//				if(Sid == pData[Loop])
+//				{
+//					Error = 1;
+//
+//#ifdef _Debug
+//                    memset(Test, 0X11, sizeof(Test));
+//                    UART_PutArray(UART1, Test, 10); // for test		
+//#endif
+//					break;
+//				}
+//			}
+//		}
+//
+//		if(0 == Error)
+//		{
+//			if(pCilor->father != 0)
+//			{
+//				if(pCilor->father == localid)
+//					rc = 1;
+//				else
+//				{
+//					pData[*pLen] = pCilor->father;
+//					(*pLen) ++;			
+//					rc = Select_Route(pCilor->father, pData, pLen);
+//					if(0 == rc)	
+//					{
+//						(*pLen) --;
+//						bMother = 1;
+//					}
+//				}
+//			}
+//			else
+//				bMother = 1;
+//
+//			 if(bMother)
+//			 {
+//				if(pCilor->mother != 0)
+//				{
+//					if(pCilor->mother == localid)
+//						rc = 1;		
+//					else
+//					{
+//						pData[*pLen] = pCilor->mother;
+//						(*pLen) ++;			
+//						rc = Select_Route(pCilor->mother, pData, pLen);
+//						if(0 == rc)
+//							(*pLen)--;
+//					}	
+//				}
+//			 }
+//		}
+//	}
+//    else 
+//      Error = 1;
+//	return rc;
+//}
+//
+//
+////------------------------------------------------------------------------
+////	ROUTE Fill_Route(uint8 *data, uint8 type, uint8 id)
+////	{
+////	    uint8 temp;
+////	    ROUTE route;
+////	    uint8 Path[20];
+////	    // 默认配置
+////	    route.rinfo.downlink = ROUTE_DOWN_LINK;
+////	    route.rinfo.rtype = type;
+////	    route.rinfo.rdepth = 0;
+////	    route.did = id;
+////	
+////	
+////		uint8 Len = 0;        
+////		if(Select_Route(id, Path, &Len))
+////		{
+////			if(Len > 0)
+////				route.did = Path[Len - 1];
+////			else
+////				route.did = id;
+////			route.rinfo.rdepth = Len;
+////			route.rinfo.rtype = MASTER_ROUTE_PATH;
+////	                
+////			for(temp = 0; temp < Len; temp++)
+////			//	data[temp] = Path[Len - temp - 1];
+////				data[temp] = Path[temp];
+////			
+////			//TEST
+////	#ifdef _Debug
+////	        memset(Test, 0, sizeof(Test));
+////	        Test[0] = 0x55;
+////	        Test[1] = id;
+////	        for(uint8 Loop = 0; Loop < Len; Loop++)
+////	        {
+////	        	Test[Loop + 2] =  data[Loop];
+////	        }
+////	        UART_PutArray(UART1, Test, Len + 2); // for test		
+////	#endif
+////		}
+////		else
+////	    {
+////			route.rinfo.rtype = ERROR_ROUTE_PATH;
+////			
+////	#ifdef _Debug
+////	        Test[0] = 0x56;
+////	        UART_PutArray(UART1, Test, 1); // for test
+////	#endif
+////	    }
+////	
+////	
+////	    return route;
+////	}
+//ROUTE Fill_Route(uint8 *data, uint8 type, uint16 id)
+//{
+//    uint8 temp;
+//    ROUTE route;
+//    uint16 Path[20];
+//    // 默认配置
+//    route.rinfo.downlink = ROUTE_DOWN_LINK;
+//    route.rinfo.rtype = type;
+//    route.rinfo.rdepth = 0;
+//    route.did = id;
+//
+//    memset((uint8 *)&Path, 0, 40);
+//	uint8 Len = 0;        
+//	if(Select_Route(id, Path, &Len))
+//	{
+//		if(Len > 0)
+//			route.did = Path[Len - 1];
+//		else
+//			route.did = id;
+//		route.rinfo.rdepth = Len;
+//		route.rinfo.rtype = MASTER_ROUTE_PATH;
+//                
+////			for(temp = 0; temp < Len; temp++)
+////			//	data[temp] = Path[Len - temp - 1];
+////				data[temp] = Path[temp];
+//        for(temp = 0; temp < Len; temp++)
+//        {
+//            //  data[temp] = Path[Len - temp - 1];
+//            //data[temp] = Path[temp];
+//            memcpy(data + temp * 6, cltor[Path[Len - temp - 1]].devAddr, 6);
+//        }
+//	}
+//	else
+//    {
+//		route.rinfo.rtype = ERROR_ROUTE_PATH;
+//		
+//    }
+//
+//
+//    return route;
+//}
+
+//#pragma location= FLASH_MAP_ADD
+__no_init HASHT htable1[MAX_HASH_TABLE_FLASH_SIZE]; //哈希表(32K)
+
+//#pragma location= FLASH_MAP_ADD2
+__no_init HASHT htable2[MAX_HASH_TABLE_FLASH_SIZE]; //哈希表(32K)
 
 #include "star_rf_func.c"
 //	/********************************************************** 
@@ -105,7 +291,7 @@ uint8 fRFCMD_ID(const CMD_TABLE_t* tbl, RF_Frame* frm)
         frm->send[4]=0;
 
         frm->len=5;
-        //return ES_ERR_NOREPLY;              //不需要应答
+        //return SYS_ERR_NOREPLY;              //不需要应答
     }
     else
     {
@@ -217,7 +403,7 @@ uint8 fRFCMD_PL(const CMD_TABLE_t* tbl, RF_Frame* frm)
                 I2cWrite(0xA0, (uint8*)&rfpara.rf_power, FM_NETPARA_ADDR+1, 1); //存网络参数***	
                 //LoRaSettings.Power = powerArray[rfpara.rf_power];
                 //SX1276LoRaSetRFPower( LoRaSettings.Power );
-                setRfPwr(rfpara.rf_power);
+//                setRfPwr(rfpara.rf_power);
             }
 
             frm->send[4]=0;
@@ -418,7 +604,7 @@ uint8 fRFCMD_CT(const CMD_TABLE_t* tbl, RF_Frame* frm)
 //
 //        }
     }
-    SA_NOREPLY();
+    SYS_NOREPLY();
 }
 /************************************************************************
  * @function: fRFCMD_RS
@@ -483,7 +669,7 @@ uint8 fRFCMD_NS(const CMD_TABLE_t* tbl, RF_Frame* frm)
 //            else
 //            {
 //                frm->send[4]=1;
-//                SA_ERR();
+//                SYS_ERR();
 //            }        
         }
         else
@@ -519,8 +705,8 @@ uint8 fRFCMD_LG(const CMD_TABLE_t* tbl, RF_Frame* frm)
     if(frm->len == 4)
     {
         frm->send[4] = 0;
-        frm->send[5] = ES_LOG_OCStt(); 
-        frm->send[6] = ES_LOG_LevelStt();
+        frm->send[5] = SYS_LOG_OCStt(); 
+        frm->send[6] = SYS_LOG_LevelStt();
         frm->len=7;
     }
     else if(frm->len > 4)
@@ -530,7 +716,7 @@ uint8 fRFCMD_LG(const CMD_TABLE_t* tbl, RF_Frame* frm)
         {
             uint8 en = frm->recv[4];
             uint8 level = frm->recv[5];
-            if(SYS_ERR_OK == ES_LOG_OC(en, level))
+            if(SYS_ERR_OK == SYS_LOG_OC(en, level))
             {
                 frm->send[4]=0;
             }
@@ -582,133 +768,133 @@ const CMD_TABLE_t stRFCMDTbl[] = {
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 PST_RF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* frame)
-{
-    RF_Frame* frm = &frame->_rf;
-    
-    frm->len = ByteToHInt(receive + 1 ); //长度
-    frm->FrameType = receive[3];        //控制域类型
-    frm->FrameID = receive[4];          //控制域
-    frm->cmd = ByteToHInt(receive + 5 ); //命令字
-    if(frm->cmd > 0x6100)               //小写字母改大写
-    {
-      frm->cmd-=0x2020;
-    }
-    
-    MoveBuffer(receive,send,7);         //为应答处理做准备
-    frm->recv = receive + 3;            //接收到的数据
-    frm->send = send + 3;               //发送数据缓存的起始地址
-    
-    if((frm->FrameType != 0x08) &&
-       (frm->FrameID != 0x01))
-    {
-        return SYS_ERR_FT;
-    }   
-    
-     SYS_OK();                            //让数据通过
-}
-
-
-
-/************************************************************************
- * @function: PST_RF_Proc
- * @描述: 
- * 
- * @参数: 
- * @param: frm 数据解析成的结构体
- * 
- * @返回: 
- * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
- * @说明: 
- * @作者: xugl (2014/5/27)
- *-----------------------------------------------------------------------
- * @修改人: 
- ************************************************************************/
-uint8 PST_RF_Proc(PST_Frame* frame)
-{
-    RF_Frame* frm = &frame->_rf;
-    uint16 index;
-    uint16 length;
-    const CMD_TABLE_t* tbl;
-    uint8 err;
-    
-    index = ADVMidWaySearch(
-        (uint8*)stRFCMDTbl,
-        sizeof(stRFCMDTbl)/sizeof(CMD_TABLE_t),
-        sizeof(CMD_TABLE_t),
-        frm->cmd
-        );
-    
-    if(index == 0xFFFF)                 //没有搜索到则返回数据标识错误
-    {
-        frm->len = 5;
-        frm->send[4]=1;                 //设置失败
-        err = SYS_ERR_DI;                //无效命令ID  
-    }
-    else
-    {
-    
-        tbl = stRFCMDTbl + index;
-        if(tbl->func == __NULL)
-        {           
-            frm->len = 5;
-            frm->send[4]=1;             //设置失败
-            err = SYS_ERR_FT;           //如果数据标识不支持读,直接回复错误帧
-        }
-        else
-        {                               //执行读操作
-            err = ((FW_COMMAD_CONF_t)tbl->func)(tbl, frm);
-        }
-        
-    } 
-
-    if(err == SYS_ERR_NOREPLY)               //不需要回复数据帧,直接退出
-    {        
-        return SYS_ERR_NOREPLY;
-    }
-
-    frm->send-=3;
-    PST_RF_Pack(frame, err, &length);     //打包数据帧
-
-    length+=1;
-    gfs_PSTChnSend[frame->chninfo & PST_FRM_CHNNO](frm->send, length);
-
-    SYS_OK();
-}
-
-
-/************************************************************************
- * @function: PST_RF_Pack
- * @描述: 对智源帧进行打包,被动通讯
- * 
- * @参数: 
- * @param: frame 打包的结构体
- * @param: err 
- * @param: length 输入为打包缓存的最大长度,输出为打包好之后的长度
- * 
- * @返回: 
- * @return: uint8  
- * @说明: 
- * @作者: lgy (2015/11/23)
- *-----------------------------------------------------------------------
- * @修改人: 
- ************************************************************************/
-uint8 PST_RF_Pack(PST_Frame* frame, uint8 err, uint16* length)
-{
-    RF_Frame* frm = &frame->_rf;
-    
-    frm->send[1] = frm->len>>8;         //长度
-    frm->send[2] = frm->len ;           //长度
-    frm->send[3] = frm->FrameType + 0x80;//命令字
-                                        //打包操作
-//    *length = PST_DoneFrame(PST_FRM_CONF_NO, frm->send);
-
-    if(*length > 0)                     //打包长度>0
-    {
-        SYS_OK();
-    }
-    return SYS_ERR_FT;                  //返回发生致命错误
-}
+//uint8 PST_RF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* frame)
+//{
+//    RF_Frame* frm = &frame->_rf;
+//    
+//    frm->len = ByteToHInt(receive + 1 ); //长度
+//    frm->FrameType = receive[3];        //控制域类型
+//    frm->FrameID = receive[4];          //控制域
+//    frm->cmd = ByteToHInt(receive + 5 ); //命令字
+//    if(frm->cmd > 0x6100)               //小写字母改大写
+//    {
+//      frm->cmd-=0x2020;
+//    }
+//    
+//    MoveBuffer(receive,send,7);         //为应答处理做准备
+//    frm->recv = receive + 3;            //接收到的数据
+//    frm->send = send + 3;               //发送数据缓存的起始地址
+//    
+//    if((frm->FrameType != 0x08) &&
+//       (frm->FrameID != 0x01))
+//    {
+//        return SYS_ERR_FT;
+//    }   
+//    
+//     SYS_OK();                            //让数据通过
+//}
+//
+//
+//
+///************************************************************************
+// * @function: PST_RF_Proc
+// * @描述: 
+// * 
+// * @参数: 
+// * @param: frm 数据解析成的结构体
+// * 
+// * @返回: 
+// * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
+// * @说明: 
+// * @作者: xugl (2014/5/27)
+// *-----------------------------------------------------------------------
+// * @修改人: 
+// ************************************************************************/
+//uint8 PST_RF_Proc(PST_Frame* frame)
+//{
+//    RF_Frame* frm = &frame->_rf;
+//    uint16 index;
+//    uint16 length;
+//    const CMD_TABLE_t* tbl;
+//    uint8 err;
+//    
+//    index = ADVMidWaySearch(
+//        (uint8*)stRFCMDTbl,
+//        sizeof(stRFCMDTbl)/sizeof(CMD_TABLE_t),
+//        sizeof(CMD_TABLE_t),
+//        frm->cmd
+//        );
+//    
+//    if(index == 0xFFFF)                 //没有搜索到则返回数据标识错误
+//    {
+//        frm->len = 5;
+//        frm->send[4]=1;                 //设置失败
+//        err = SYS_ERR_DI;                //无效命令ID  
+//    }
+//    else
+//    {
+//    
+//        tbl = stRFCMDTbl + index;
+//        if(tbl->func == __NULL)
+//        {           
+//            frm->len = 5;
+//            frm->send[4]=1;             //设置失败
+//            err = SYS_ERR_FT;           //如果数据标识不支持读,直接回复错误帧
+//        }
+//        else
+//        {                               //执行读操作
+//            err = ((FW_COMMAD_CONF_t)tbl->func)(tbl, frm);
+//        }
+//        
+//    } 
+//
+//    if(err == SYS_ERR_NOREPLY)               //不需要回复数据帧,直接退出
+//    {        
+//        return SYS_ERR_NOREPLY;
+//    }
+//
+//    frm->send-=3;
+//    PST_RF_Pack(frame, err, &length);     //打包数据帧
+//
+//    length+=1;
+//    gfs_PSTChnSend[frame->chninfo & PST_FRM_CHNNO](frm->send, length);
+//
+//    SYS_OK();
+//}
+//
+//
+///************************************************************************
+// * @function: PST_RF_Pack
+// * @描述: 对智源帧进行打包,被动通讯
+// * 
+// * @参数: 
+// * @param: frame 打包的结构体
+// * @param: err 
+// * @param: length 输入为打包缓存的最大长度,输出为打包好之后的长度
+// * 
+// * @返回: 
+// * @return: uint8  
+// * @说明: 
+// * @作者: lgy (2015/11/23)
+// *-----------------------------------------------------------------------
+// * @修改人: 
+// ************************************************************************/
+//uint8 PST_RF_Pack(PST_Frame* frame, uint8 err, uint16* length)
+//{
+//    RF_Frame* frm = &frame->_rf;
+//    
+//    frm->send[1] = frm->len>>8;         //长度
+//    frm->send[2] = frm->len ;           //长度
+//    frm->send[3] = frm->FrameType + 0x80;//命令字
+//                                        //打包操作
+////    *length = PST_DoneFrame(PST_FRM_CONF_NO, frm->send);
+//
+//    if(*length > 0)                     //打包长度>0
+//    {
+//        SYS_OK();
+//    }
+//    return SYS_ERR_FT;                  //返回发生致命错误
+//}
 
 /************************************************************************
  * @function: PstRF_Reply
@@ -746,6 +932,19 @@ void PstRF_Reply(uint16 cmd, uint8 value)
 //    length = PST_DoneFrame(PST_FRM_CONF_NO, send);
     gfs_PSTChnSend[PST_CHN_SET](send, length);
 }
+uint16 getIdWithAddr(uint8 * addr)
+{
+    uint16 i = 0;
+    for(i = 0; i < MAX_SUP_SS_NUM+1; i++)
+    {
+        if(memcmp(cltor[i].devAddr, addr, 6) == 0 )
+        {
+            break;
+        }
+
+    }
+    return i;
+}
 
 /************************************************************************
  * @function: PST_SRF_Decode
@@ -758,7 +957,7 @@ void PstRF_Reply(uint16 cmd, uint8 value)
  * @param: frame 数据解析成的结构体
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/ES_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2013/7/16)
  *-----------------------------------------------------------------------
@@ -805,7 +1004,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
             frm->apdu.stInfo.stUp.bit2.channelFlg, rfpara.rf_channel, frm->apdu.stInfo.stUp.bit1.routeNum, frm->apdu.stInfo.stUp.bit4.relayNum, 
             receive[m+5], receive[m+4],receive[m+3],receive[m+2],receive[m+1],receive[m]);                        
     
-        SA_ERR();
+        SYS_ERR();
     }
 
     frm->apdu.routeNum = frm->apdu.stInfo.stUp.bit1.routeNum;//pkt->apdu.info[1] & 0x0f;
@@ -847,10 +1046,10 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
     
     //frm->apdu.snr = SX1276LR->RegPktSnrValue;
     //frm->apdu.rssi = SX1276LR->RegPktRssiValue;
-    getRegSnrRssi(&frm->apdu.snr, &frm->apdu.rssi);
+//    getRegSnrRssi(&frm->apdu.snr, &frm->apdu.rssi);
     if(frm->apdu.ctrl.ftd > 9)
     {
-        SA_ERR();
+        SYS_ERR();
     }
 
     if(frm->apdu.stInfo.stUp.bit1.addrFlg == 1)
@@ -858,12 +1057,12 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
     
         if(frm->apdu.ctrl.dir == 0)
         {
-            SA_ERR();
+            SYS_ERR();
         }
         
         if(memcmp(destAddr, (uint8 *)&rfpara.shortID, addrLen) != 0)
         {
-            SA_ERR();
+            SYS_ERR();
         }
     }
     else
@@ -882,7 +1081,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
                 }
                 else
                 {
-                    SA_ERR();
+                    SYS_ERR();
                 }
                 LOG_DEBUG( DBGFMT"rssi[%4.1f]HHU comm\n",DBGARG, SX1276LoRaGetPacketRssi());
             }
@@ -891,7 +1090,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
                 LOG_DEBUG( DBGFMT"rssi[%4.1f]down data src %02x%02x%02x%02x%02x%02x dest %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
                 frm->apdu.addr[5], frm->apdu.addr[4],frm->apdu.addr[3],frm->apdu.addr[2],frm->apdu.addr[1],frm->apdu.addr[0],
                 destAddr[5], destAddr[4],destAddr[3],destAddr[2],destAddr[1],destAddr[0]);                        
-                SA_ERR();
+                SYS_ERR();
             }
         }
         else
@@ -904,7 +1103,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
                     LOG_DEBUG( DBGFMT"rssi[%4.1f]dest addr err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
                         destAddr[5], destAddr[4],destAddr[3],destAddr[2],destAddr[1],destAddr[0]);                        
 
-                    SA_ERR();
+                    SYS_ERR();
                 }
                 else
                 {
@@ -925,8 +1124,8 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
 
     //frm->apdu.snr = SX1276LR->RegPktSnrValue;
     //frm->apdu.rssi = SX1276LR->RegPktRssiValue;
-    getRegSnrRssi(&frm->apdu.snr, &frm->apdu.rssi);
-    frm->rssi = (int)calculateRssi(frm->apdu.snr, frm->apdu.rssi);
+//    getRegSnrRssi(&frm->apdu.snr, &frm->apdu.rssi);
+//    frm->rssi = (int)calculateRssi(frm->apdu.snr, frm->apdu.rssi);
 
     
     LOG_DEBUG( DBGFMT"CH[%d] rf recv ftd[%d] fn[%d] rssi[%4.1f] %02x%02x%02x%02x%02x%02x\n",DBGARG, 
@@ -938,7 +1137,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
     {
         LOG_DEBUG( DBGFMT"frame addr %02x%02x%02x%02x%02x%02x wrang data\n",DBGARG, 
             frm->apdu.addr[5], frm->apdu.addr[4],frm->apdu.addr[3],frm->apdu.addr[2],frm->apdu.addr[1],frm->apdu.addr[0]);
-        SA_ERR();
+        SYS_ERR();
     }
     //g_ucPktRssiValue[pkt->head.apdu.seq] = (uint8)(0 - rssi) ;
 
@@ -971,7 +1170,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
     //pkt->downAfn = EzDataTxPkt.TxPkt.downAfn;
     
     
-    SA_OK();                            //让数据通过
+    SYS_OK();                            //让数据通过
 }
 
 
@@ -1000,7 +1199,7 @@ const CMD_TABLE_t stSRFFTDTbl[] = {
  * @param: frm 数据解析成的结构体
  * 
  * @返回: 
- * @return: uint8  ES_ERR_OK/ES_ERR_FT
+ * @return: uint8  SYS_ERR_OK/SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2014/5/27)
  *-----------------------------------------------------------------------
@@ -1025,7 +1224,7 @@ uint8 PST_SRF_Proc(PST_Frame* frame)
     {
         frm->len = 5;
         frm->send[4]=1;                 //设置失败
-        return ES_ERR_DI;              //无效命令ID  
+        return SYS_ERR_DI;              //无效命令ID  
     }
     else
     {
@@ -1035,7 +1234,7 @@ uint8 PST_SRF_Proc(PST_Frame* frame)
         {           
             frm->len = 5;
             frm->send[4]=1;             //设置失败
-            err = ES_ERR_FT;           //如果数据标识不支持读,直接回复错误帧
+            err = SYS_ERR_FT;           //如果数据标识不支持读,直接回复错误帧
         }
         else
         {                               //执行读操作
@@ -1044,23 +1243,23 @@ uint8 PST_SRF_Proc(PST_Frame* frame)
         
     } 
 
-    if(err == ES_ERR_NOREPLY)               //不需要回复数据帧,直接退出
+    if(err == SYS_ERR_NOREPLY)               //不需要回复数据帧,直接退出
     {        
-        return ES_ERR_NOREPLY;
+        return SYS_ERR_NOREPLY;
     }
 
     //frm->send-=3;
-    PST_SRF_Pack(frame, err, &length);     //打包数据帧
+    PST_SRF_Pack(&frame, err, &length);     //打包数据帧
 
 //	    length+=2;
 //	    gfs_PSTChnSend[frame->chninfo & PST_FRM_CHNNO](frm->send, length);
 
-    ES_OK();
+    SYS_OK();
 }
 
 uint8 Star_Rf_Pack(ST_STAR_RF_PACK * pack, STFUNCPARA * stAddr, STFUNCPARA * stData, EZ_TX_PKT * etpkt)
 {
-	uint8 rc = ES_ERR_FT;
+	uint8 rc = SYS_ERR_FT;
     uint16 m = 0;
     PKT *pkt;
     //uint8 recvid , bNotSend = 0;
@@ -1133,25 +1332,25 @@ uint8 Star_Rf_Pack(ST_STAR_RF_PACK * pack, STFUNCPARA * stAddr, STFUNCPARA * stD
     memcpy(pkt->head.apdu.addr, nDeviceMacAddr, UNIQUE_MAC_ADDR_LEN);//节点唯一标识(队列)	
     pkt->head.apdu.addrlen  = UNIQUE_MAC_ADDR_LEN;
     
-    if(pack->id >= SUP_SS_INDEX_START &&  pack->id < MAX_SUP_SS_NUM)
-    {
-        ROUTE temprt = Fill_Route(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN,  MASTER_ROUTE_PATH, pack->id); //接收者地址、路由
-		if(temprt.rinfo.rtype != ERROR_ROUTE_PATH)
-        {
-			pkt->head.apdu.stInfo.stDown.bit1.routeNum = temprt.rinfo.rdepth;
-            
-            memcpy(pkt->head.apdu.addr + (temprt.rinfo.rdepth + 1) * 6, cltor[pack->id].devAddr, UNIQUE_MAC_ADDR_LEN);//节点唯一标识(队列)
-
-            pkt->head.apdu.addrlen = (temprt.rinfo.rdepth + 2) * 6;
-
-            pkt->head.apdu.data = pkt->data + PKT_HEAD_LEN + pkt->head.apdu.addrlen;
-        }      
-    }
-    else
-    {
-        memcpy(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN, stAddr->data, stAddr->len);
-        pkt->head.apdu.addrlen  += stAddr->len;
-    }
+//	    if(pack->id >= SUP_SS_INDEX_START &&  pack->id < MAX_SUP_SS_NUM)
+//	    {
+//	        ROUTE temprt = Fill_Route(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN,  MASTER_ROUTE_PATH, pack->id); //接收者地址、路由
+//			if(temprt.rinfo.rtype != ERROR_ROUTE_PATH)
+//	        {
+//				pkt->head.apdu.stInfo.stDown.bit1.routeNum = temprt.rinfo.rdepth;
+//	            
+//	            memcpy(pkt->head.apdu.addr + (temprt.rinfo.rdepth + 1) * 6, cltor[pack->id].devAddr, UNIQUE_MAC_ADDR_LEN);//节点唯一标识(队列)
+//	
+//	            pkt->head.apdu.addrlen = (temprt.rinfo.rdepth + 2) * 6;
+//	
+//	            pkt->head.apdu.data = pkt->data + PKT_HEAD_LEN + pkt->head.apdu.addrlen;
+//	        }      
+//	    }
+//	    else
+//	    {
+//	        memcpy(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN, stAddr->data, stAddr->len);
+//	        pkt->head.apdu.addrlen  += stAddr->len;
+//	    }
     //info
     memcpy(pkt->data + m, &pkt->head.apdu.stInfo, sizeof(STINFOWIRE));
     m+=sizeof(STINFOWIRE);
@@ -1194,11 +1393,47 @@ uint8 Star_Rf_Pack(ST_STAR_RF_PACK * pack, STFUNCPARA * stAddr, STFUNCPARA * stD
     pkt->index = pack->id;
     etpkt->bValid = 1;//业务缓存有效
     etpkt->nBackOffSlot = 0;
-    rc = ES_ERR_OK;
+    rc = SYS_ERR_OK;
 
 	return rc;	
 }
-
+//EZ_TX_PKT TxPktH[CON_SEND_PRIORITY_HIGH_NUM];//业务包缓存
+//EZ_TX_PKT TxPktN[CON_SEND_PRIORITY_NORMAL_NUM];//@"AHB_RAM_MEMORY";//业务包缓存
+//EZ_TX_PKT TxPktL[CON_SEND_PRIORITY_LOW_NUM];//@"AHB_RAM_MEMORY";//业务包缓存
+//EZ_TX_PKT * getIdelSendCache(uint8 level)//可以索搜比查找优先级低的队列填充缓存
+//{
+//    int i = 0;
+//    switch(level)
+//    {
+//    case CON_SEND_PRIORITY_HIGH:
+//        for(i=0; i < CON_SEND_PRIORITY_HIGH_NUM; i++)
+//        {
+//            if(TxPktH[i].bValid == 0)
+//            {
+//                return &TxPktH[i];
+//            }
+//        }
+//    case CON_SEND_PRIORITY_NORMAL:
+//        for(i=0; i < CON_SEND_PRIORITY_NORMAL_NUM; i++)
+//        {
+//            if(TxPktN[i].bValid == 0)
+//            {
+//                return &TxPktN[i];
+//            }
+//        }
+//    case CON_SEND_PRIORITY_LOW:
+//        for(i=0; i < CON_SEND_PRIORITY_LOW_NUM; i++)
+//        {
+//            if(TxPktL[i].bValid == 0)
+//            {
+//                return &TxPktL[i];
+//            }
+//        }
+//        break;
+//    }
+//
+//    return NULL;
+//}
 /************************************************************************
  * @function: PST_SRF_Pack
  * @描述: 对智源帧进行打包,被动通讯
@@ -1247,9 +1482,9 @@ uint8 PST_SRF_Pack(PST_Frame* frame, uint8 err, uint16* length)
 //	
 //	    if(*length > 0)                     //打包长度>0
 //	    {
-//	        ES_OK();
+//	        SYS_OK();
 //	    }
-//	    return ES_ERR_FT;                  //返回发生致命错误
+//	    return SYS_ERR_FT;                  //返回发生致命错误
 }
 
 /************************************************************************
@@ -1269,14 +1504,14 @@ uint8 PST_SRF_Pack(PST_Frame* frame, uint8 err, uint16* length)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 RfFrmProc(CHN_ENUM channel, uint8 protocol, uint8* rbuffer, uint16 length, uint8* sbuffer, uint8 sbuflen)
+uint8 RfFrmProc(uint8_t channel, uint8 protocol, uint8* rbuffer, uint16 length, uint8* sbuffer, uint8 sbuflen)
 {
     PST_Frame frm;                          //规约帧结构体
 //    uint8 protocal;                         //规约号
 //    uint16 bak;
     //uint8 err;
     
-    ES_VAR_CHECK(channel >= PST_CHN_NO);    //参数检查
+    SYS_VAR_CHECK(channel >= PST_CHN_NO);    //参数检查
                                             //通道规约帧判断
     frm.chninfo = channel & PST_FRM_CHNNO;  //通道号
     frm.protocol = protocol;
@@ -1293,7 +1528,7 @@ uint8 RfFrmProc(CHN_ENUM channel, uint8 protocol, uint8* rbuffer, uint16 length,
         LOG_DUMPHEX(LOG_LEVEL_DEBUG, "data: \n", rbuffer, length);
     }
     
-    ES_OK();
+    SYS_OK();
 }
 
 
@@ -1314,7 +1549,7 @@ uint8 RfFrmProc(CHN_ENUM channel, uint8 protocol, uint8* rbuffer, uint16 length,
 uint8 RF_BuildLinkFrm(uint8 type, uint16_t id, uint8* buffer)
 {
     PST_Frame frame;
-    RF_Frame * _rf = &frame->_rf;
+    SRF_Frame * _srf = &frame._srf;
     
     uint16 len;
     uint32 di;
@@ -1365,9 +1600,16 @@ uint8 RF_BuildLinkFrm(uint8 type, uint16_t id, uint8* buffer)
     buffer[len_pos+1] = (uint8_t)((m - (len_pos + 2)) >> 8);
     
 //	                                        //构建帧
-    len = PST_RF_Pack(0, len);
+//    len = PST_RF_Pack(0, len);
     
     return (uint8)len;                  //返回帧的长度
 }
 
+uint8 PST_RX_Down_PKT(PKT *pkt) //处理无线接收数据
+{
+
+    RfFrmProc(PST_CHN_WL, pkt->protocol, pkt->data, pkt->len, senduppkt.data, (uint8)sizeof(senduppkt.data));
+
+    return 0;
+}
 

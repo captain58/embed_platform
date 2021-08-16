@@ -11,7 +11,7 @@
 #include "task.h"
 #include "farp.h"
 
-
+#include "A7139reg.h"
 uint16 gui_FarpWmSafeCnt;                   //数据通讯状态断线重连安全时间倒计时(秒)
 uint16 gui_FarpSerSafeCnt;                   //数据通讯状态断线重连安全时间倒计时(秒)
 
@@ -77,6 +77,8 @@ cpu_stack_t  gs_RFMngStack[TASK_RFMNG_STKL];
 ktask_t      gs_RFMngHandle;
 kbuf_queue_t gs_RFMngQueue;
 char         gc_RFMngbuf[MSG_BUFF_LEN];
+
+void Farp_SendTestData(uint8 ch);
 /************************************************************************
  * @function: Farp_PreInit
  * @描述: 远程参数初始化
@@ -128,7 +130,44 @@ void Farp_PreInit(void)
     //gs_SysVar.mLPstt |= HLV_LPTASK_MDCK;
 
 }
-
+/************************************************************************
+ * @function: Farp_SendIpData
+ * @描述: 远程通道发送GPRS的IP数据
+ * 
+ * @参数: 
+ * @param: buffer 发送缓存
+ * @param: len 发送的长度
+ * 
+ * @返回: 
+ * @return: uint8  
+ * @说明: 
+ * @作者: yzy (2014/1/14)
+ *-----------------------------------------------------------------------
+ * @修改人: 
+ ************************************************************************/
+uint8 Farp_SendIpData(uint8* buffer, uint16 len)
+{
+                                            //IP数据在通道可用的情况下发送
+//    if(g_ulTcp_fd >=0 )
+//    {                                       //发送IP数据
+////	        if(!SYS_MODM_SendIP(buffer, len))
+//        LOG_DUMPHEX(LOG_LEVEL_DEBUG, "send:\n", buffer, len);
+//
+//        if(HAL_TCP_Write(g_ulTcp_fd, buffer, len,3000) >= 0)
+//        {
+////	            gs_GPIO.LED_BlinkSet(LED_FAR_T, 0, 0, 0);
+//            SYS_OK();                        //发送成功
+//        }
+//        else
+//        {
+//            uint8 msg = MSG_FARP_DISGPRS;
+//            krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
+//            
+//            gui_FarpWmRcSec = 10;
+//        }
+//    }
+    return SYS_ERR_FT;                      //IP数据发生失败
+}
 /************************************************************************
  * @function: Farp_SendTestData
  * @描述: 远程通道发送心跳帧
@@ -145,11 +184,11 @@ void Farp_SendTestData(uint8 ch)
 {
     if(gs_FarpVar.login)
     {
-        gs_FarpVar.hklen = VS_BuildLinkFrm(0x09, 0, gs_FarpVar.hkd);
+        gs_FarpVar.hklen = RF_BuildLinkFrm(0x09, 0, gs_FarpVar.hkd);
     }
     else
     {
-        gs_FarpVar.hklen = VS_BuildLinkFrm(0x05, 0xA619, gs_FarpVar.hkd);
+        gs_FarpVar.hklen = RF_BuildLinkFrm(0x05, 0xA619, gs_FarpVar.hkd);
     }
     if(gs_FarpVar.hklen > 0)
     {
@@ -445,6 +484,216 @@ void Farp_WMSecondProc(void)
         
     }
 }
+
+
+//void wireless_send()
+//{
+//    uint8 msr = getMSR();
+//    if ((msr & EZMAC_STATE_BIT) == EZMAC_PRO_IDLE)    //空闲状态                            
+//    {                                       	
+//		//Switch_Channel(behave.freq); //在业务信道进行通信 
+//		// 在靠近广播时隙的地方，不能够发送业务数据
+//		//if(slot < ((rfpara.rf_slotnum * 2) - 3))
+//		{
+//			if(checkSendCache() )
+//			{	
+//
+//                if(CheckConflict())
+//                {
+//                    goto recv;
+//                }
+//                else
+//                {
+//                    EZMacPRO_Transmit();//发送RTS	
+//                }
+//			}
+//			else
+//            {
+//				goto recv;
+//            }
+//		}
+//        return ;
+//recv: 
+//		{
+//			//采集器老化过程中的点名包处理				
+//			//EZMacPro_PacketType = PACKET_TYPE_2STEP;
+//			EZMacPRO_Receive(); //监听数据包
+////			if (BackOffSlot > 0)
+////			    BackOffSlot--;						
+//		}										
+//        
+//    }
+//
+//    
+//}
+//extern tRadioDriver *Radio;
+extern uint8 g_ucUpgradeFlgForPush;
+extern uint32 g_ucUpgradeCount;
+
+//=======================================================
+//void wireless_mng(void)//状态机处理
+//{
+//    switch( Radio->Process( ) )
+//    {
+//    case RF_RX_TIMEOUT:
+//
+//        break;
+//    case RF_RX_DONE:
+//    {
+//        PKT *pkt;
+//        uint8 tail;
+//        SYS_Dev_HalfBlinkSet(LED_FAR_RX, 0, 0, 0);
+//        
+//        if(g_ucUpgradeFlgForPush != 0xAA)
+//        {
+//            //uint16 frameLen = 0;
+//            tail = rxdopktq.tail;
+//            pkt = &(rxdopktq.rxpkt[tail]); //接收数据包地址                        
+//            //LOG_DEBUG( DBGFMT"======================RF_RX_DONE ========================= = \n",DBGARG);    
+//
+//            pkt->len = Radio->GetRxPacket( pkt->data);//, ( uint16* )&pkt->len );
+//
+//            CHN_ENUM channel = PST_CHN_WL;
+//            uint8 protocal;   
+//            if(gs_FRM.Channel(channel, pkt->data, pkt->len, &protocal) != PST_ERR_OK)
+//            {
+//                LOG_DEBUG( DBGFMT"rssi[%4.1f] crc check err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
+//                    pkt->data[18], pkt->data[17],pkt->data[16],pkt->data[15],pkt->data[14],pkt->data[13]);     
+//
+//                LOG_DUMPHEX(LOG_LEVEL_DEBUG, "err data : \n", pkt->data, pkt->len);
+//                
+//                SYS_Dev_HalfBlinkSet(LED_FAR_RX, 1, 5, 2);
+//                SYS_Dev_HalfBlinkSet(LED_FAR_TX, 1, 5, 2);        
+//                break;
+//            }
+//
+//            //frm.chninfo = channel & PST_FRM_CHNNO;  //通道号
+//            pkt->protocol = protocal;
+//    
+//            rxdopktq.rxpkt[rxdopktq.tail].sentoffset = 0; // 清除offset值
+//            
+//            //保存收到的抄读电表数据
+//            rxdopktq.tail = (rxdopktq.tail + 1) & QUEUE_LEN_MASK;
+//            rxdopktq.len = (rxdopktq.len + 1);                                          
+//        }
+//                //MSR = RX_STATE_BIT | RX_STATE_WAIT_FOR_SEND_ACK;
+//        break;
+//    }
+//                
+//    case RF_TX_DONE:
+//        SYS_Dev_HalfBlinkSet(LED_FAR_TX, 0, 0, 0);
+//
+//        Radio->StartRx( );
+//        if(NULL != g_stSendCacheIndex.ezPkt)
+//        {
+//            uint16 temp8 = 0;
+//            uint8 errCode = 0;
+//            g_stSendCacheIndex.ezPkt->bValid = 0;
+//            g_stSendCacheIndex.ezPkt->nBackOffSlot = 0;
+//            temp8 = g_stSendCacheIndex.ezPkt->TxPkt.index;
+//            
+//            if(g_stSendCacheIndex.level == CON_SEND_PRIORITY_NORMAL)
+//            {
+////	                temp8 = g_stSendCacheIndex.ezPk->TxPkt.index;
+//                if(cltor_shadow[temp8].nodestatus.bDataAck != 0)
+//                {
+//                    cltor_shadow[temp8].nodestatus.bDataAck = 0;
+//                }
+////	                g_stSendCacheIndex.ezPk->bValid = 0;
+////	                g_stSendCacheIndex.ezPk->nBackOffSlot = 0;
+//                errCode = cltor_shadow[temp8].nodestatus.errCode;
+//                
+////	                g_ucPktRssiValue[EzDataTxPkt.TxPkt.apdu.seq] = 0;
+//            }
+//            else if(g_stSendCacheIndex.level == CON_SEND_PRIORITY_HIGH)
+//            {
+//
+//                cltor_shadow[temp8].nodestatus.bNetAck = 0;//对方收到ACK    
+//                
+//                errCode = cltor_shadow[temp8].nodestatus.result;
+//                //cltor[EzNetTxPkt.TxPkt.apdu.index].nod.needack = 0;//对方收到ACK    
+//                
+////	                g_ucPktRssiValue[EzNetTxPkt.TxPkt.apdu.seq] = 0;
+//            }
+////	            else
+////	            {
+////	                EzHHUTxPkt.bValid = 0;
+////	                EzHHUTxPkt.nBackOffSlot = 0;
+////	                temp8 = 0;
+////	            }//	            if(EzCurTxType == EZ_TX_TYPE_DATA)
+////	            {
+////	                temp8 = EzDataTxPkt.TxPkt.index;
+////	                if(cltor[temp8].nodestatus.bDataAck != 0)
+////	                {
+////	                    cltor[temp8].nodestatus.bDataAck = 0;
+////	                }
+////	                EzDataTxPkt.bValid = 0;
+////	                EzDataTxPkt.nBackOffSlot = 0;
+////	                errCode = cltor[temp8].nodestatus.errCode;
+////	                
+////	//	                g_ucPktRssiValue[EzDataTxPkt.TxPkt.apdu.seq] = 0;
+////	            }
+////	            else if(EzCurTxType == EZ_TX_TYPE_NET)
+////	            {
+////	                EzNetTxPkt.bValid = 0;
+////	                EzNetTxPkt.nBackOffSlot = 0;
+////	                temp8 = EzNetTxPkt.TxPkt.index;
+////	                cltor[temp8].nodestatus.bNetAck = 0;//对方收到ACK    
+////	                
+////	                errCode = cltor[temp8].nodestatus.result;
+////	                //cltor[EzNetTxPkt.TxPkt.apdu.index].nod.needack = 0;//对方收到ACK    
+////	                
+////	//	                g_ucPktRssiValue[EzNetTxPkt.TxPkt.apdu.seq] = 0;
+////	            }
+////	            else
+////	            {
+////	                EzHHUTxPkt.bValid = 0;
+////	                EzHHUTxPkt.nBackOffSlot = 0;
+////	                temp8 = 0;
+////	            }
+//            
+//            if ((temp8 != 0) && (cltor[temp8].devAddr[0] < 0xFF)
+//                && (cltor[temp8].nodestatus.NetStatus == NODE_STATUS_OUT
+//                && errCode == 0)
+//                /*&& (cltor[temp8].nod.ans_pkt_type == 0)*/)
+//            {
+//                cltor[temp8].nodestatus.NetStatus = NODE_STATUS_LOGIN;
+//            }
+//        }
+//        break;
+//    case RF_TX_TIMEOUT:
+//        
+////	        if(EzCurTxType == EZ_TX_TYPE_DATA)//1秒后发
+////	        {
+////	            EzDataTxPkt.nBackOffSlot = 40;
+////	        }
+////	        else
+////	        {
+////	            EzNetTxPkt.nBackOffSlot = 40;
+////	        }
+//
+//        g_stSendCacheIndex.ezPkt->nBackOffSlot = FUNC_DELAY_MS(1000);
+//        //Radio->StartRx( );
+//        break;
+//    case RF_IDLE:
+//        Radio->StartRx( );
+//        break;
+////	    case RF_RX_CRCERR:
+////	        LED_BlinkSet(LED_FAR_RX, 1, 5, 2);
+////	        break;
+//    default:
+//        break;
+//    }
+//
+//}
+////=======================================================
+//void wireless_proc(void)//
+//{
+//    wireless_mng();
+//}
+
+extern __IO uint32_t uwTick;
+ktimer_t     g_rf_tick_timer;
 void SYS_RFMng_Task(void * arg)
 {
     TIME time;
@@ -454,10 +703,12 @@ void SYS_RFMng_Task(void * arg)
     
     krhino_buf_queue_create(&gs_RFMngQueue, "rf_queue",
                          gc_RFMngbuf, MSG_BUFF_LEN, BUFQUEUE_MSG_MAX);
+    localid = 1; 
 
     Farp_PreInit();
-    
-    SYS_RF_Init();
+    Radio = RadioDriverInit( );
+    SYS_RF_Init(0,0,0);
+    Radio->Tick((uint32 *)&uwTick);
 //    static uint8_t ble_name[14] = {'V','S'};
 //    ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
     
@@ -471,7 +722,8 @@ void SYS_RFMng_Task(void * arg)
 
 //    LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
     //Flash_Test();
-
+    krhino_timer_create(&g_rf_tick_timer, "rf_tick_timer", Slot_Time_IRQ,
+                        krhino_ms_to_ticks(SYS_TIMER_COUNT_MS), krhino_ms_to_ticks(SYS_TIMER_COUNT_MS), 0, 1);
     for(;;)
     {   
         ret = krhino_buf_queue_recv(&gs_RFMngQueue, 1/*RHINO_WAIT_FOREVER*/, g_RFMng_buf_recv,
@@ -483,6 +735,26 @@ void SYS_RFMng_Task(void * arg)
                 case MSG_SEC:
                     Farp_WMSecondProc();
                     break;
+                case MSG_FARP_RECVDATA:
+                {
+                    PKT *pkt;
+            		while (rxdopktq.len > 0)  //如果接收队列里有数据  	      
+            		{
+            			pkt = &(rxdopktq.rxpkt[rxdopktq.head]); //无线接收队列的数据包地址***
+            			uint8_t Return = PST_RX_Down_PKT(pkt); //处理无线数据包
+            			if(0 == Return)
+            			{
+            				Clean_PKT(pkt); // 清除rxdopktq的已处理数据
+            				rxdopktq.len = (rxdopktq.len - 1); //队列长度减1
+            				rxdopktq.head = (rxdopktq.head + 1) & QUEUE_LEN_MASK; //判断翻转
+            			}
+            			else
+                        {         
+                            break;
+                        }
+            		}
+                    break;
+                }
                 case MSG_LIVE:                  //回复保活消息
                     HB_RetLive(TASK_RFMNG_TKID);
                     break; 
@@ -494,7 +766,7 @@ void SYS_RFMng_Task(void * arg)
         else
         {
 //#ifdef MASTER_NODE          
-//            SYS_A7139_Proc(1);
+//	            SYS_A7139_Proc(1);
 //#else
 //            SYS_A7139_Proc(0);
 //#endif            

@@ -99,6 +99,10 @@ uint8 PST_RF_Proc(PST_Frame* frm);
 uint8 PST_RF_Pack(PST_Frame* frame, uint8 err, uint16* length);
 
 void PstRF_Reply(uint16 cmd, uint8 value);
+uint8 PST_RX_Down_PKT(PKT *pkt) ;
+uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* frame);
+uint8 PST_SRF_Proc(PST_Frame* frame);
+
 #endif
 
 

@@ -281,7 +281,7 @@ void Netp_PreInit(uint8 index);
  * @param: nfrm 通讯的规约编号,0xff表示为中继
  * 
  * @返回: 
- * @return: uint8  SA_ERR_OK, SYS_ERR_FT
+ * @return: uint8  SYS_ERR_OK, SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2011-9-8)
  *-----------------------------------------------------------------------
@@ -374,7 +374,7 @@ uint8 Netp_Trans(uint8* buffer, uint16* len, uint8 overtime, uint8 nfrm);
  * 
  * @参数: 
  * @param: 
- * @返回: SYS_ERR_FT, SA_ERR_OK
+ * @返回: SYS_ERR_FT, SYS_ERR_OK
  * @说明: 
  * @作者: yzy (2012-4-11)
  *-----------------------------------------------------------------------

@@ -68,18 +68,18 @@ uint8 WriteShortPara(uint8 dbno, uint32 addr, uint8* pdata, uint8 plen)
     uint8 temp[8];
     shortParaHeader_t* hdr = (void*)temp;
                                             //写入参数数据域
-    if(SYS_ERR_OK != WriteFlash(dbno, pdata, plen, addr + 4))
-    {
-        return SYS_ERR_FT;
-    }
+//    if(SYS_ERR_OK != WriteFlash(dbno, pdata, plen, addr + 4))
+//    {
+//        return SYS_ERR_FT;
+//    }
                                             //写入4字节头
     hdr->paralen = plen;
     hdr->paralenbk = plen;
     hdr->crc = DoCrc16(pdata, plen, 0x5555);
-    if(SYS_ERR_OK != WriteFlash(dbno, (uint8*)hdr, 4, addr))
-    {
-        return SYS_ERR_FT;
-    }
+//    if(SYS_ERR_OK != WriteFlash(dbno, (uint8*)hdr, 4, addr))
+//    {
+//        return SYS_ERR_FT;
+//    }
     SYS_OK();
 }
 
@@ -151,7 +151,7 @@ void CrackShortPara(uint8 dbno, uint32 addr)
                                 //置无效数据
     memset(temp, 0xff, sizeof(temp));
                                 //写入
-    WriteFlash(dbno, (uint8*)hdr, 4, addr);
+//    WriteFlash(dbno, (uint8*)hdr, 4, addr);
 }
 
 
@@ -175,20 +175,20 @@ void CrackShortPara(uint8 dbno, uint32 addr)
  ************************************************************************/
 uint8 GD_Para_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
 {
-    if(rw)
-    {
-        if(SYS_ERR_OK == WriteFlash(DB_PARA, buff, len, addr))
-        {
-            SYS_OK();
-        }
-    }
-    else
-    {
-        if(SYS_ERR_OK == ReadFlash(DB_PARA, buff, len, addr))
-        {
-            SYS_OK();
-        }
-    }
+//    if(rw)
+//    {
+//        if(SYS_ERR_OK == WriteFlash(DB_PARA, buff, len, addr))
+//        {
+//            SYS_OK();
+//        }
+//    }
+//    else
+//    {
+//        if(SYS_ERR_OK == ReadFlash(DB_PARA, buff, len, addr))
+//        {
+//            SYS_OK();
+//        }
+//    }
     
     return SYS_ERR_FT;
 }
@@ -212,20 +212,20 @@ uint8 GD_Para_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
  ************************************************************************/
 uint8 RUN_Para_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
 {
-    if(rw)
-    {
-        if(SYS_ERR_OK == WriteFlash(DB_RUN_PARA, buff, len, addr))
-        {
-            SYS_OK();
-        }
-    }
-    else
-    {
-        if(SYS_ERR_OK == ReadFlash(DB_RUN_PARA, buff, len, addr))
-        {
-            SYS_OK();
-        }
-    }
+//    if(rw)
+//    {
+//        if(SYS_ERR_OK == WriteFlash(DB_RUN_PARA, buff, len, addr))
+//        {
+//            SYS_OK();
+//        }
+//    }
+//    else
+//    {
+//        if(SYS_ERR_OK == ReadFlash(DB_RUN_PARA, buff, len, addr))
+//        {
+//            SYS_OK();
+//        }
+//    }
     
     return SYS_ERR_FT;
 }
@@ -234,22 +234,22 @@ uint8 RUN_Para_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
 //	uint8_t g_tmp_netpPara[2048];
 uint8 Netp_Framework_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
 {
-    if(rw)
-    {
-//        memcpy(g_tmp_netpPara+addr, buff, len);
-        if(SYS_ERR_OK == WriteFlash(DB_PARA_NETP, buff, len, addr))
-        {
-            SYS_OK();
-        }
-    }
-    else
-    {
-//        memcpy(buff, g_tmp_netpPara+addr, len);
-        if(SYS_ERR_OK == ReadFlash(DB_PARA_NETP, buff, len, addr))
-        {
-            SYS_OK();
-        }
-    }
+//    if(rw)
+//    {
+////        memcpy(g_tmp_netpPara+addr, buff, len);
+//        if(SYS_ERR_OK == WriteFlash(DB_PARA_NETP, buff, len, addr))
+//        {
+//            SYS_OK();
+//        }
+//    }
+//    else
+//    {
+////        memcpy(buff, g_tmp_netpPara+addr, len);
+//        if(SYS_ERR_OK == ReadFlash(DB_PARA_NETP, buff, len, addr))
+//        {
+//            SYS_OK();
+//        }
+//    }
     
     return SYS_ERR_FT;
 }
@@ -486,7 +486,7 @@ uint8 GD_ParaDispatch_W(uint32 addr, uint8* buff, uint8 dplen, uint16 dpidx)
         return SYS_ERR_FT;
     }
                                         //从FLASH读取位图
-    if(GD_Para_RW(addr, bmps, sizeof(bmps), false) != SA_ERR_OK)
+    if(GD_Para_RW(addr, bmps, sizeof(bmps), false) != SYS_ERR_OK)
     {
         return SYS_ERR_FT;
     }
@@ -542,7 +542,7 @@ uint8 GD_ParaDispatch_R(uint32 addr, uint8* buff, uint8 dplen, uint16 dpidx)
         return SYS_ERR_FT;
     }
                                         //从FLASH读取位图
-    if(GD_Para_RW(addr, bmps, sizeof(bmps), false) != SA_ERR_OK)
+    if(GD_Para_RW(addr, bmps, sizeof(bmps), false) != SYS_ERR_OK)
     {
         return SYS_ERR_FT;
     }
@@ -628,7 +628,7 @@ uint8 GD_ParaDispatch_Fn_W(uint16 fn, uint8* buff, uint8 len, uint16 dpidx)
         return SYS_ERR_FT;
     }
                                         //从FLASH读取位图
-    if(GD_Para_RW(pinfo->addr, bmps, sizeof(bmps), false) != SA_ERR_OK)
+    if(GD_Para_RW(pinfo->addr, bmps, sizeof(bmps), false) != SYS_ERR_OK)
     {
         return SYS_ERR_FT;
     }
@@ -704,7 +704,7 @@ uint8 GD_ParaDispatch_Fn_R(uint16 fn, uint8* buff, uint8 len, uint16 dpidx)
         return SYS_ERR_FT;
     }
                                         //从FLASH读取位图
-    if(GD_Para_RW(pinfo->addr, bmps, sizeof(bmps), false) != SA_ERR_OK)
+    if(GD_Para_RW(pinfo->addr, bmps, sizeof(bmps), false) != SYS_ERR_OK)
     {
         return SYS_ERR_FT;
     }

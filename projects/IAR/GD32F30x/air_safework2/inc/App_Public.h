@@ -10,7 +10,7 @@
 #define OFFSET_UP_LEN   1
 #define OFFSET_UP_AFN_BASIC 10
 
-#define UPLINK_TIMEOUT   240 // 240*25ms ,6S
+#define UPLINK_TIMEOUT   120 // 240*25ms ,6S
 #define UPLINK_DATA_TIMEOUT 512 //上行的否定回答时间
 #define UART_BYTE_TIMEOUT   40 // 20*25ms 0.5
 #define UART_PKT_TIMEOUT   	 240 // 6
@@ -115,7 +115,7 @@ enum  //收
 #define MAX_SLOT_TIME  254
 
 #define SUP_SS_INDEX_START  2
-#define MAX_SUP_SS_NUM  (1024+1)
+#define MAX_SUP_SS_NUM  (2+1)
 //#define MAX_SS_UPDATA_BLOCK_NUM  255
 #define MAX_I_SS_UPDATA_BLOCK_NUM  0xFFFF
 #define MAX_SS_DEAD_TIME  60000
@@ -133,7 +133,7 @@ enum  //收
 //#define MAX_DATA_TIME_LIVE 120
 
 #define MAX_NUM_COL 256
-#define MAX_HASH_TABLE_FLASH_SIZE 1024//(MAX_SUP_SS_NUM)
+#define MAX_HASH_TABLE_FLASH_SIZE 3//1024//(MAX_SUP_SS_NUM)
 #define MAX_HASH_TABLE_CACHE_SIZE 32
 #define MAX_HASH_TABLE_SECTOR_SIZE 8
 #define MAX_HASH_TABLE_WB_SIZE 16//white--black
@@ -364,7 +364,257 @@ typedef enum
 #define CON_BEACON_CTRL_BIT_NETIN  0x40
 #define CON_BEACON_CTRL_BIT_BEACON  0x80
 
+
+
+
+
+//#define ROUTE_MODE 1 
+#define AFN_TYPE_INFORM         0x0
+#define AFN_TYPE_INITIALIZE     0x1
+#define AFN_TYPE_DATARELAY      0x2
+#define AFN_TYPE_DATAREQUES     0x3
+#define AFN_TYPE_LINKDET        0x4
+#define AFN_TYPE_CTLCMD         0x5
+#define AFN_TYPE_REPORT         0x6
+#define AFN_TYPE_ROUTE_POLL     0x10
+#define AFN_TYPE_ROUTE_SET      0x11
+#define AFN_TYPE_ROUTE_CTL      0x12
+#define AFN_TYPE_ROUTEDATARELAY 0x13
+
+#define AFN_TYPE_UPDATA         0X15
+#define AFN_TYPE_STATISTIC_REQUEST 0x18
+//#define AFN_TYPE_TOPO_REQUEST 0x19
+#define AFN_TYPE_DEBUG 0xF0  //调试模式
+//#define AFN_TYPE_METER_ADDR_REPORT 0x20
+//#define AFN_TYPE_METER_ADDR_RECV_ACK 0x21
+
+#define CHANNEL_CLEAR_STATE   1
+#define CHANNEL_UNCLEAR_STATE 0
+
+
+
+#define MSG_TYPE_CONFIRM        0x0
+#define MSG_TYPE_CTRL           0x1
+#define MSG_TYPE_RELAY          0x2
+#define MSG_TYPE_UP             0x3
+#define MSG_TYPE_BROADCAST      0x4
+#define MSG_TYPE_QUERY          0x5
+#define MSG_TYPE_ROUTE_MNG      0x6
+#define MSG_TYPE_ROUTE_REQ      0x7
+#define MSG_TYPE_LINK_DETECT    0x8
+#define MSG_TYPE_FILE           0x9
+
+//#define MSG_TYPE_MAX            0x0A
+#define MSG_TYPE_FN_01       0x01
+#define MSG_TYPE_FN_02       0x02
+#define MSG_TYPE_FN_03       0x03
+#define MSG_TYPE_FN_04       0x04
+#define MSG_TYPE_FN_05       0x05
+#define MSG_TYPE_FN_06       0x06
+#define MSG_TYPE_FN_07       0x07
+#define MSG_TYPE_FN_08       0x08
+#define MSG_TYPE_FN_09       0x09
+#define MSG_TYPE_FN_10       0x0A
+#define MSG_TYPE_FN_11       0x0B
+#define MSG_TYPE_FN_12       0x0C
+#define MSG_TYPE_FN_13       0x0D
+#define MSG_TYPE_FN_14       0x0E
+#define MSG_TYPE_FN_15       0x0F
+#define MSG_TYPE_FN_16       0x10//16
+#define MSG_TYPE_FN_17       0x11//17
+#define MSG_TYPE_FN_18       0x12//18
+#define MSG_TYPE_FN_19       0x13//19
+#define MSG_TYPE_FN_20       0x14//20
+#define MSG_TYPE_FN_21       0x15//21
+#define MSG_TYPE_FN_22       0x16//22
+#define MSG_TYPE_FN_23       0x17//23
+#define MSG_TYPE_FN_24       0x18//24
+#define MSG_TYPE_FN_25       0x19//25
+#define MSG_TYPE_FN_26       0x1A//26
+#define MSG_TYPE_FN_27       0x1B//27
+#define MSG_TYPE_FN_28       0x1C//28
+#define MSG_TYPE_FN_29       0x1D//29
+#define MSG_TYPE_FN_30       0x1E//30
+#define MSG_TYPE_FN_31       0x1F//31
+#define MSG_TYPE_FN_39       0x27//39
+#define MSG_TYPE_FN_40       0x28//40
+#define MSG_TYPE_FN_41       0x29//41
+#define MSG_TYPE_FN_42       0x2A//42
+#define MSG_TYPE_FN_43       0x2B//43
+#define MSG_TYPE_FN_44       0x2C//44
+#define MSG_TYPE_FN_45       0x2D//45
+#define MSG_TYPE_FN_46       0x2E//46
+#define MSG_TYPE_FN_47       0x2F//43
+#define MSG_TYPE_FN_48       0x30//44
+#define MSG_TYPE_FN_49       0x31//45
+#define MSG_TYPE_FN_50       0x32//46
+#define MSG_TYPE_FN_52       0x34//52
+#define MSG_TYPE_FN_53       0x35//53
+#define MSG_TYPE_FN_98       0x62//98
+#define MSG_TYPE_FN_99       0x63//99
+
+#define MSG_TYPE_DATA   0x11
+#define MSG_TYPE_ACK     0x1
+#define MSG_TYPE_NACK   0x2
+#define MSG_TYPE_SETLINK  0x3
+#define MSG_TYPE_JREQUE 0x4
+#define MSG_TYPE_JREPON 0x5
+#define MSG_TYPE_TOPO  0x6
+#define MSG_TYPE_BROAD  0x7
+#define MSG_TYPE_RTS  0x8
+#define MSG_TYPE_CTS 0x9
+#define MSG_TYPE_STATC_REQUEST 0x0a
+#define MSG_TYPE_STATC_RESPONSE  0X0b
+	
+#define MSG_TYPE_CALL_REQUEST 0x0c
+#define MSG_TYPE_CALL_RESPONSE  0X0d
+	
+#define MSG_TYPE_EXT_DATA  0X0E
+	
+#define MSG_TYPE_RESET_BOARD_CMD  0X0F
+	
+#define MSG_TYPE_MAX 0x10
+
+#define JOINREQ_SN_OFFSET 6
+#define JOINREQ_ROUTE_OFFSET (JOINREQ_SN_OFFSET+UNIQUE_MAC_ADDR_LEN)
+#define JOINRSP_SN_OFFSET 4
+#define JOINRSP_ROUTE_OFFSET 11
+
+#define CALLRSP_ROUTE_OFFSET 4
+
+
+
+
+
+#define MAX_PRO_STORE_SIZE     0x8000  // 32K大小
+#define PROGRAM_BLOCK_SIZE    200 
+
+#define MAX_PRO_STORE_SIZE_I_SS     0x10000  // 64K大小
+#define PROGRAM_BLOCK_SIZE_I_SS	64 
+
+
+#define DATA_SUBTYPE_METER  0
+#define DATA_SUBTYPE_UPDATE_REQUEST  1
+#define DATA_SUBTYPE_UPDATE_RESPONSE  2
+#define DATA_SUBTYPE_METER_ADDR 3
+#define DATA_SUBTYPE_METER_ADDR_RESPONSE 4
+#define DATA_SUBTYPE_METER_BROAD_DATA 5
+#define DATA_SUBTYPE_METER_BROAD_DATA_RESPONSE 6
+#define DATA_SUBTYPE_METER_ERROR_RESPONSE 7
+#define DATA_SUBTYPE_METER_EVENT 				8
+#define DATA_SUBTYPE_METER_EVENT_RESPONSE 	9
+#define DATA_SUBTYPE_I_SS_UPDATE_REQUEST 	10
+#define DATA_SUBTYPE_I_SS_UPDATE_RESPONSE	11
+
+
+
+#define EXT_DATA_TYPE_SCAN_METER_REQUEST 	18
+#define EXT_DATA_TYPE_SCAN_METER_RESPONE 	19
+#define EXT_DATA_TYPE_TOPO_REPORT_REQUEST 	20
+#define EXT_DATA_TYPE_TOPO_REPORT_RESPONE 	21
+
+#define EXT_DATA_TYPE_ROUTE_ERROR 		22
+#define EXT_DATA_TYPE_FATHER_REQUEST 	23
+#define EXT_DATA_TYPE_FATHER_RESPONE 	24
+
+#define EXT_DATA_TYPE_SET_PARA_REQUEST 	25
+#define EXT_DATA_TYPE_SET_PARA_RESPONE 	26
+
+#define EXT_DATA_TYPE_SET_SS_UPDATA_MODE_REQUEST 	27
+#define EXT_DATA_TYPE_SET_SS_UPDATA_MODE_RESPONE 	28
+
+#define EXT_DATA_TYPE_DATA_TRANS_REQUEST 	29
+#define EXT_DATA_TYPE_DATA_TRANS_RESPONE 	30
+
+#define STA_RESPONSE_TAIL 10
+
+#define NODE_DEAD_TIME   2400//1200  节点更新时间
+#define NODE_UPDATE_TIME (NODE_DEAD_TIME*24)// 2400*25ms*2 , 2 minutes
+
+
+
+
+#define EZ_TEST_BIT         0X30
+#if 1
+#define OCCUPIED 0xf//在哈希表中该位被占用(有效数据)
+#define EMPTY 0xff
+#define DEAD   0//无效数据
+#else 
+#define OCCUPIED 0x2//在哈希表中该位被占用(有效数据)
+#define EMPTY 0x3
+#define DEAD   0//无效数据
+#endif
+#define FM_OCCUPIED 0xf//该位被占用(有效数据)
+#define FM_EMPTY 0xff
+
+#define TIME_FIRE_ON    4000
+#define TIME_ACK_ARRIVE 8
+#define TIME_CTS_ARRIVE 10
+#define TIME_DATA_ARRIVE 20 
+#define TIME_DATA_SENDING  20 
+
+#define BUTT_EVENT_1    1
+#define BUTT_EVENT_2    2
+#define BUTT_FLAG_1     0x10
+#define BUTT_FLAG_2     0x20
+#define BUTT_DEB        2    /* 20ms */
+
+
+#define ADV_TYPE_EMPTY 0   // 普通消息
+#define ADV_TYPE_CTIME  0x1  // 校时消息
+#define ADV_TYPE_FREEZE 0x2 //  冻结消息
+#define ADV_TYPE_ADDR_SEARCH  0x3 //  进行电表地址查询
+#define ADV_TYPE_TRANSMISSION  0x4 //  进行电表地址查询
+#define ADV_TYPE_BOARD_JC  0x5 //  广播抄表时的数据标识
+
+//#define ADV_TYPE_METER_DATA  0x4 //  进行电表地址查询
+
+#define ERR 0  //  失败
+#define SUCCESS  1 //  成功
+
+//#define ENABLE_MAC_INTERRUPTS()        do {VICIntEnable = (1<<EINT2_INT)|(1<<TIMER0_INT);}while(0)
+//#define DISABLE_MAC_INTERRUPTS()      do {VICIntEnClr = (1<<EINT2_INT)|(1<<TIMER0_INT);}while(0)
+
+//#define ENABLE_MAC_EXT_INTERRUPT()     do {VICIntEnable = (1<<EINT2_INT);}while(0)
+//#define DISABLE_MAC_EXT_INTERRUPT()   do {VICIntEnClr = (1<<EINT2_INT);}while(0)
+//#define CLEAR_MAC_EXT_INTERRUPT()      do {EXTINT = 0x04 ; }while(0)
+//#define PHY_SEND_FIRE_ON()             do{SpiWriteRegister(0x07, 0x09);}while(0)
+
+
+//#define	CON_DOWNLOADBITMAP_SIZE		256
+//#define DP_DOWNLOAD_BITMAP_ADDR			0			//记录下载数据的位图,实时的位图记录到后备内存  modify 2013.8.14
+#define DP_DOWNLOAD_SETBITMAP_ADDR		(DP_DOWNLOAD_BITMAP_ADDR + CON_DOWNLOADBITMAP_SIZE)			//设置位图地址
+
+#define DP_DOWNLOAD_EXE_FLAG_ADDR		(DP_DOWNLOAD_BITMAP_ADDR + CON_DOWNLOADBITMAP_SIZE * 2)	//程序下装过程标记地址，8个字节   
+
+#define DP_DOWNLOAD_VERSION_ADDR		(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x20)						//程序数据块版本信息，长度为16个字节
+
+#define DP_SEGMENT_SHIFT_ADDR		    (DP_DOWNLOAD_EXE_FLAG_ADDR + 0x35)
+
+#define DP_DOWNLOAD_LENGTH_ADDR			(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x40)						//程序数据块长度的总字节数，长度为4个字节
+#define DP_DOWNLOAD_START_ADDR			(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x44)						//程序数据块起始地址，长度为4个字节
+#define DP_DOWNLOAD_FRAME_NUM_ADDR		(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x48)						//程序数据块报文的总帧数，长度为2个字节,占用8字节
+#define DP_DOWNLOAD_PARASTART_ADDR		(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x4A)						//参数数据块起始地址，长度为4个字节
+#define DP_DOWNLOAD_PARA_FRAME_NUM_ADDR	(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x4E)						//参数总帧数地址，长度为2个字节
+#define DP_DOWNLOAD_PARA_LENGTH_ADDR	(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x50)						//参数字节数，长度为4个字节
+
+#define DP_DOWNLOAD_OLD_VERSION_ADDR	(DP_DOWNLOAD_EXE_FLAG_ADDR + 0x80)		
+
+
+#define CON_SEND_PRIORITY_HIGH      0
+#define CON_SEND_PRIORITY_NORMAL      1
+#define CON_SEND_PRIORITY_LOW      2
+#define CON_SEND_PRIORITY_HIGH_NUM      2
+#define CON_SEND_PRIORITY_NORMAL_NUM      2
+#define CON_SEND_PRIORITY_LOW_NUM      2
+
 /***************struct*********************************/
+//typedef struct __STFUNCPARA
+//{
+//    uint8 * data;
+//    uint8 len;
+//}STFUNCPARA;
+
 typedef struct rfparameter{
 	uint8 rf_channel;  //无线信道
 	uint8 rf_power;   //主无线模块发射功率

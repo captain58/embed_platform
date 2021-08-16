@@ -54,7 +54,7 @@ extern kbuf_queue_t gs_TKNetp3Queue;
 extern kbuf_queue_t gs_TKNetp4Queue;
 //	uint8_t g_ucMeterPara[1024];
 //	uint8_t g_ucPrepay[1024];
-extern kbuf_queue_t gs_TKFarpQueue;
+//extern kbuf_queue_t gs_TKFarpQueue;
 //extern const NetpFrameDataStr gs_NetpFrameWXICPrepayWDataStr;
 //extern const NetpFrameDataStr gs_NetpFrameWXICPrepayRDataStr;
 //extern const NetpFrameDataStr gs_NetpFrameWXICRechargeWDataStr;
@@ -62,10 +62,14 @@ extern kbuf_queue_t gs_TKFarpQueue;
 //extern const NetpFrameDataStr gs_NetpFrameWXICPriceRDataStr;
 //
 //extern const NetpFrameDataStr gs_NetpFrameWXICVlvWDataStr;
-
+CDATATst gss_CDATATst[CORE_TST_NO];
 uint8 PST_ZY_Pack(PST_Frame* frame, uint8 err, uint16* length);
 uint8 RstSystemParam(uint16 PType);
 uint8 RstPara(bool mode);
+int Netp_PowerMng(uint8_t onoff, uint8_t flag)
+{
+    return 0;
+}
 /************************************************************************
  * @function: ZY_OpDataBlock
  * @描述: 直接读取或者写入数据块数据
@@ -865,7 +869,7 @@ uint8 ParamLoad_F251(void)
     {
 //	       gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
        
-        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
+//        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
         gs_OS.Message_Send(&gs_MainQueue, &msgidA[MSG_MAIN_BLE_CHK], 1);
 
     }
@@ -911,7 +915,7 @@ uint8 ParamLoad_Test(void)
     {
 //	       gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
        
-        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
+//        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
 //	        gs_OS.Message_Send(&gs_MainQueue, &msgidA[MSG_MAIN_BLE_CHK], 1);
 
     }
@@ -936,7 +940,7 @@ uint8 ParamLoad_Test(void)
            (len_apn != strlen((string)gs_FarpVar.gapn)) || 
            (CmpBuffer(buff + 6, gs_FarpVar.gapn, len_apn) != 0))
         {                                   //执行参数更改触发的重连
-            gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);//(MSG_FARP_PARACHG, TASK_FARP_TKID);
+//            gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);//(MSG_FARP_PARACHG, TASK_FARP_TKID);
         }
     }
 
@@ -1307,35 +1311,35 @@ uint32 Test_Flash(void)
     for(uint8 k = 0; k < FLS_CHIP_NO; k++)
     {
                                             //读取原始数据
-        if(ReadFlsInChip(cmp1, 0, 5, k) != SYS_ERR_OK)
-        {
-            err |= Bit_Map8[k];
-            break;
-        }
-                                            //修改原始数据
-        for(uint8 i = 0; i < 5; i++)
-        {
-            cmp2[i] = cmp1[i] + 2;
-        }
-                                            //写入理论写入数据
-        if(WriteFlsInChip(cmp2, 0, 5, k, 0) != SYS_ERR_OK)
-        {
-            err |= Bit_Map8[k];
-            break;
-        }
-                                            //读取实际写入数据
-        if(ReadFlsInChip(cmp3, 0, 5, k) != SYS_ERR_OK)
-        {
-            err |= Bit_Map8[k];
-            break;
-        }
-        
-        WriteFlsInChip(cmp1, 0, 5, k, 0);    //恢复原始值
-        if(CmpBuffer(cmp2, cmp3, 5) != 0)   //比对理论实际值
-        {
-            err |= Bit_Map8[k];
-            break;
-        }
+//        if(ReadFlsInChip(cmp1, 0, 5, k) != SYS_ERR_OK)
+//        {
+//            err |= Bit_Map8[k];
+//            break;
+//        }
+//                                            //修改原始数据
+//        for(uint8 i = 0; i < 5; i++)
+//        {
+//            cmp2[i] = cmp1[i] + 2;
+//        }
+//                                            //写入理论写入数据
+//        if(WriteFlsInChip(cmp2, 0, 5, k, 0) != SYS_ERR_OK)
+//        {
+//            err |= Bit_Map8[k];
+//            break;
+//        }
+//                                            //读取实际写入数据
+//        if(ReadFlsInChip(cmp3, 0, 5, k) != SYS_ERR_OK)
+//        {
+//            err |= Bit_Map8[k];
+//            break;
+//        }
+//        
+//        WriteFlsInChip(cmp1, 0, 5, k, 0);    //恢复原始值
+//        if(CmpBuffer(cmp2, cmp3, 5) != 0)   //比对理论实际值
+//        {
+//            err |= Bit_Map8[k];
+//            break;
+//        }
     }
     if(err)
         return 1;
@@ -1362,7 +1366,7 @@ uint32 Test_Flash(void)
  ************************************************************************/
 uint32 Test_LED(void)
 {
-    SYS_LED_BlinkSetAll(2, 0, 5);//所有LED常亮5秒
+    SYS_Dev_HalfBlinkSetAll(2, 0, 5);//所有LED常亮5秒
     return 0;
 }
 
@@ -1421,10 +1425,10 @@ uint32 Test_Gprs(void)
     {
         stt = 0x02;
     }
-    else if(DevModem->stt.bit.chnrdy)
-    {
-        stt = 0x01;
-    }
+//    else if(DevModem->stt.bit.chnrdy)
+//    {
+//        stt = 0x01;
+//    }
     else
     {
         stt = 0;
@@ -1748,7 +1752,7 @@ uint16_t datatype_bigpig(uint8_t id, uint8_t *pucData, uint16_t usPara1, uint32_
 		break;
 
 	case 2://事件索引信息
-	    CBB_FILE_Read_Event_Num(DB_FLASH,pucData,pucData+1);
+//	    CBB_FILE_Read_Event_Num(DB_FLASH,pucData,pucData+1);
         m+=2;
 		break;
 
@@ -1810,7 +1814,7 @@ uint8 ZY_Test(const PST_TableStr* tbl, PST_Frame* frm)
         snprintf(frame->send+m, CON_VER_MAX_LEN-1, "%s%02x.%x)", gucs_softVer, gul_UsrFuncVer>>24, gul_UsrFuncVer%0x100);
         snprintf(frame->send+m+32, CON_VER_MAX_LEN-1, "%s%02x.%x)", gucs_HDVer, gul_UsrFuncVer>>24, gul_UsrHardcVer%0x100);
         m+=64;
-        frame->send[m++] = DevModem->stt.bit.signl;
+//        frame->send[m++] = DevModem->stt.bit.signl;
         if((gs_SysVar.terstt.lword & 0xf0000000) != 0)
         {
             frame->send[m++] = 2;
@@ -1820,8 +1824,8 @@ uint8 ZY_Test(const PST_TableStr* tbl, PST_Frame* frm)
             frame->send[m++] = 1;
         }
         
-        gs_SysVar.AI0 = SYS_AD_GetValue(AD_ID_AI0) / 100;
-        gs_SysVar.AI1 = SYS_AD_GetValue(AD_ID_AI1) / 100;
+//        gs_SysVar.AI0 = SYS_AD_GetValue(AD_ID_AI0) / 100;
+//        gs_SysVar.AI1 = SYS_AD_GetValue(AD_ID_AI1) / 100;
         uint32 hwtstret = 0;
 
         for(uint8 i = 0; i < sizeof(gss_HwTest)/sizeof(THwTest); i++)
@@ -1910,24 +1914,24 @@ uint8 ZY_Test(const PST_TableStr* tbl, PST_Frame* frm)
         gs_SysVar.terstt.bit.chk4853 = 0;
         gs_SysVar.terstt.bit.chk4854 = 0;
         
-        if(frame->recv[m++] == 1)
-        {
-            gs_OS.Message_Send(&gs_TKNetpQueue, &msgidA[MSG_NETP_CHECK], 1);
-        }
-        
-        if(frame->recv[m++] == 1)
-        {
-        
-            gs_OS.Message_Send(&gs_TKNetp2Queue, &msgidA[MSG_NETP_CHECK], 1);
-        }
-        if(frame->recv[m++] == 1)
-        {
-            gs_OS.Message_Send(&gs_TKNetp3Queue, &msgidA[MSG_NETP_CHECK], 1);
-        }
-        if(frame->recv[m++] == 1)
-        {
-            gs_OS.Message_Send(&gs_TKNetp4Queue, &msgidA[MSG_NETP_CHECK], 1);
-        }
+//        if(frame->recv[m++] == 1)
+//        {
+//            gs_OS.Message_Send(&gs_TKNetpQueue, &msgidA[MSG_NETP_CHECK], 1);
+//        }
+//        
+//        if(frame->recv[m++] == 1)
+//        {
+//        
+//            gs_OS.Message_Send(&gs_TKNetp2Queue, &msgidA[MSG_NETP_CHECK], 1);
+//        }
+//        if(frame->recv[m++] == 1)
+//        {
+//            gs_OS.Message_Send(&gs_TKNetp3Queue, &msgidA[MSG_NETP_CHECK], 1);
+//        }
+//        if(frame->recv[m++] == 1)
+//        {
+//            gs_OS.Message_Send(&gs_TKNetp4Queue, &msgidA[MSG_NETP_CHECK], 1);
+//        }
         
         gs_OS.Message_Send(&gs_TKSlvQueue, &msgidA[MSG_FARP_CHECK], 1);
         gs_SysVar.terstt.bit.blecheck = 1;
@@ -2035,7 +2039,7 @@ uint8 UserVarInit(void)
  * @param: mode mode (true含通讯参数,false不含通讯参数)
  * 
  * @返回: 
- * @return: uint8  SA_ERR_OK,SA_ERR_FT
+ * @return: uint8  SYS_ERR_OK,SA_ERR_FT
  * @说明: 
  * @作者: yzy (2014/2/12)
  *-----------------------------------------------------------------------
@@ -2085,9 +2089,9 @@ uint8 RstPara(bool mode)
 //    {
 //        Netp_Register_Set(gss_NetpFrameFw[i]);
 //    }    
-    extern const uint8_t netp_check[4];
+    const uint8_t netp_check[4];
     GD_Para_RW(NETP_CHECK, netp_check, 4, true);
-    Netp_Register_Init();
+//    Netp_Register_Init();
 
 
     gs_OS.Message_Send(&gs_TKHlvQueue, &msgidA[MSG_HLV_FARP], 1);
@@ -3505,7 +3509,7 @@ uint8 ParamLoad_Gprs(void)
            (len_apn != strlen((string)gs_FarpVar.gapn)) || 
            (CmpBuffer(buff + 6, gs_FarpVar.gapn, len_apn) != 0))
         {                                   //执行参数更改触发的重连
-            gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);//(MSG_FARP_PARACHG, TASK_FARP_TKID);
+//            gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);//(MSG_FARP_PARACHG, TASK_FARP_TKID);
         }
     }
 
@@ -3975,7 +3979,7 @@ ERR_FTP:
  * @param: rbuff 单位100ms
  * 
  * @返回: 
- * @return: uint8 SA_ERR_OK, SYS_ERR_FT
+ * @return: uint8 SYS_ERR_OK, SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2011-10-10)
  *-----------------------------------------------------------------------
@@ -4292,7 +4296,7 @@ uint8 ZY_WarningData(const PST_TableStr* tbl, PST_Frame* frm)//(const PST_DataSt
     to =    frame->recv[1];
     
     
-    len += ALRT_ReadLog(&from, &to, frame->send + 1, 0);
+//    len += ALRT_ReadLog(&from, &to, frame->send + 1, 0);
     //frame->send[0] = to;
     //frame->len = len+1;
 
@@ -4371,7 +4375,7 @@ uint8 ParamLoad_MeterInfo(void)
                                             //规约类型
         gss_CDATATst[k].pt = port;
         //gss_CDATATst[k].pf = GetProtocolNum(gss_CDATATst[k].info.factory_model, gss_CDATATst[k].info.protocol);//buf[0];
-        gss_CDATATst[k].pf = GetProtocolNum(buf+4, buf+6);
+//        gss_CDATATst[k].pf = GetProtocolNum(buf+4, buf+6);
 
         //速率及端口号
         //gss_CDATATst[k].bs = buf[3];//BaudRate[buf[3] >> 5];
@@ -4415,7 +4419,7 @@ uint8 ParamLoad_MeterInfo(void)
  ************************************************************************/
 uint8 RstParaF10(PST_TableStr* pinfo)
 {
-    SetFlashFrom(DB_PARA, F10_PADDR, LEN_TST_BMPS+CORE_TST_NO*LEN_TST_CFG, 0);
+//    SetFlashFrom(DB_PARA, F10_PADDR, LEN_TST_BMPS+CORE_TST_NO*LEN_TST_CFG, 0);
                                         //测量点1默认为交采
     //SetFlashFrom(DB_PARA, F10_PADDR, 1, 0x02);
     //GD_Para_RW(F10_PADDR + LEN_TST_BMPS + LEN_TST_CFG, (uint8*)DefParaF10, sizeof(DefParaF10), true);
@@ -4967,7 +4971,7 @@ uint8 RstSystemParam(uint16 PType)
             }
             else                            //常规全零参数
             {
-                err += SetFlashFrom(DB_PARA, pinfo->addr, pinfo->len, 0);
+//                err += SetFlashFrom(DB_PARA, pinfo->addr, pinfo->len, 0);
             }
         }
     }

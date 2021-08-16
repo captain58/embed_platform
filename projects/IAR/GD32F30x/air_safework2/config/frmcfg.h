@@ -28,17 +28,22 @@
 /******************************************************************************
 **PST_Frame结构体共同体使能
 ******************************************************************************/
+//	#define _DLT_FRM_INC    1               //645规约结构体
+//	#define _VS_FRM_INC     1               //
+//	#define _ZY_FRM_INC     1
+//	#define _NETP_FRM_INC     1
 #define _DLT_FRM_INC    1               //645规约结构体
 #define _VS_FRM_INC     1               //
 #define _ZY_FRM_INC     1
-#define _NETP_FRM_INC     1
+#define _NETP_FRM_INC     0
+#define _WL1_FRM_INC  1
 
 
 
 /******************************************************************************
 **通讯规约的配置
 ******************************************************************************/
-#define PST_FRM_VS_EN   1               //威星规约
+#define PST_FRM_VS_EN   0               //威星规约
 #define PST_FRM_VS_NO   0
 
 #define PST_FRM_BG_EN   0               //645规约
@@ -47,13 +52,18 @@
 #define PST_FRM_ZY_EN   1               //____扩展
 #define PST_FRM_ZY_NO   (PST_FRM_BG_NO + PST_FRM_BG_EN)
 
-#define PST_FRM_MB_EN   1               //____扩展
-#define PST_FRM_MB_NO   (PST_FRM_ZY_NO + PST_FRM_ZY_EN)
+//	#define PST_FRM_MB_EN   1               //____扩展
+//	#define PST_FRM_MB_NO   (PST_FRM_ZY_NO + PST_FRM_ZY_EN)
 
 #define PST_FRM_WL_1_EN  1              //全域微功率无线协议1.0
-#define PST_FRM_WL_1_NO  (PST_FRM_MB_EN + PST_FRM_MB_NO)
-                                                                                //总的帧类型数量
-#define PST_FRM_NO      (PST_FRM_WL_1_EN + PST_FRM_WL_1_NO)
+#define PST_FRM_WL_1_NO  (PST_FRM_ZY_EN + PST_FRM_ZY_NO)
+
+#define PST_FRM_802_R_EN  0              //全域微功率无线协议2.0
+#define PST_FRM_802_R_NO  (PST_FRM_WL_1_EN + PST_FRM_WL_1_NO)
+                                                                                
+                                                                                                                        //总的帧类型数量
+#define PST_FRM_NO      (PST_FRM_802_R_EN + PST_FRM_802_R_NO)
+
 
 
 
@@ -174,7 +184,7 @@
 
 
 #define PST_LEN_MAX     (uint16)0x200   //定义一帧最长为256字节
-#define PST_CHN_NO      6               //总的通道数量
+#define PST_CHN_NO      2               //总的通道数量
 
 
 

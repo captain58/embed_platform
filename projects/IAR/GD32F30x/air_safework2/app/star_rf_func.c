@@ -61,16 +61,16 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 {
                     if(cltor[id].nodestatus.bNeedDelete)
                     {
-                        int ret;
-    					ret = Hash_Table_Search(cltor[id].devAddr); //查找哈希表中的索引值				
-                        if (ret != ( - 1))
-                        {                     
-                            Updata_Hash_Table(ret, NULL);  //删除                                              
-
-                            //删除认证采集器操作
-                            //Del_Validate_W_B(cltor[id].devAddr);
-                        }
-    			        Delete_SS_Node(id);
+//                        int ret;
+//    					ret = Hash_Table_Search(cltor[id].devAddr); //查找哈希表中的索引值				
+//                        if (ret != ( - 1))
+//                        {                     
+//                            Updata_Hash_Table(ret, NULL);  //删除                                              
+//
+//                            //删除认证采集器操作
+//                            //Del_Validate_W_B(cltor[id].devAddr);
+//                        }
+//    			        Delete_SS_Node(id);
                     }
                 }
             }
@@ -79,7 +79,7 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         break;
     }
     
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 /************************************************************************
  * @function: fGRFFTD01
@@ -125,6 +125,9 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
     
     switch(frm->apdu.fn)
     {    
+        case MSG_TYPE_FN_15:
+          
+            break;
         case MSG_TYPE_FN_01:
             if(frm->bDebugFlg == TRUE)
             {
@@ -431,10 +434,10 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 frm->apdu.ctrl.ftd = 0;
                 frm->apdu.fn = 1;
                 
-                if(0 == setRfPwr(rfpara.rf_power))
-                {
-                    SA_ERR();
-                }
+//                if(0 == setRfPwr(rfpara.rf_power))
+//                {
+//                    SYS_ERR();
+//                }
                 
                 berr = TRUE;
 
@@ -447,9 +450,9 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             {
                 ml = 0;
 //	                extern const STSX1276PARA ChannelSetting[];
-                send[ml++] = getSF();//LoRaSettings.SpreadingFactor;//pandId
-                send[ml++] = getBW();//LoRaSettings.SignalBw;
-                send[ml++] = getPreamble();//(uint8)ChannelSetting[rfpara.rf_channel].preamble;
+//                send[ml++] = getSF();//LoRaSettings.SpreadingFactor;//pandId
+//                send[ml++] = getBW();//LoRaSettings.SignalBw;
+//                send[ml++] = getPreamble();//(uint8)ChannelSetting[rfpara.rf_channel].preamble;
                 send[ml++] = rfpara.rf_power;
                 frm->apdu.ctrl.dir = 1;
                 frm->apdu.ctrl.prm = 0;
@@ -747,7 +750,7 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 if((addr <= FLASH_END) )
                 {
                     send[ml++] = len;
-                    BFLS_Read(send + ml, (addr), len);
+//                    BFLS_Read(send + ml, (addr), len);
                     send[0] = len;
                     
                     //ml+=1;
@@ -859,7 +862,7 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             else if(g_ucfactory_mod == 0x55)
             {
                 cltor_shadow[0].rRssi = (uint8)(0 - frm->rssi);
-                AtcmdReply_RF(AT_CMD_CT, READING, frm->apdu.stInfo.stUp.rssi);
+//                AtcmdReply_RF(AT_CMD_CT, READING, frm->apdu.stInfo.stUp.rssi);
 
             }
 
@@ -871,7 +874,7 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 uint8 en = frm->apdu.data[0];
                 uint8 level = frm->apdu.data[1];
                 
-                ES_LOG_OC(en, level);
+                SYS_LOG_OC(en, level);
                 
                 send[ml++] = 0xFF;
                 send[ml++] = 0xFF;
@@ -891,8 +894,8 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         case MSG_TYPE_FN_99:
             if(frm->bDebugFlg == TRUE)
             {
-                send[ml++] = ES_LOG_OCStt();
-                send[ml++] = ES_LOG_LevelStt();
+                send[ml++] = SYS_LOG_OCStt();
+                send[ml++] = SYS_LOG_LevelStt();
                 frm->len = ml;
                 
                 frm->apdu.ctrl.dir = 1;
@@ -919,9 +922,9 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //	        stData.len = ml;
 //	        
 //	        SendPacketToMac(&ctrl_bit, fn, 0, &stAddr, &stData, pkt->head.apdu.seq, (uint8)(0 - rssi), &EzHHUTxPkt);
-        return ES_ERR_OK;  //无需回复
+        return SYS_ERR_OK;  //无需回复
     }
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 
 
@@ -1027,7 +1030,7 @@ uint8 fSRFFTD02(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         
         senduppkt.len = ml;
         
-        UART_PutArray(UART0, senduppkt.data, senduppkt.len); //给集中器发送抄表数据包
+//        UART_PutArray(UART0, senduppkt.data, senduppkt.len); //给集中器发送抄表数据包
 #endif        
         
 //	                LOG_DEBUG( DBGFMT"uart send p2p data    \n",DBGARG);
@@ -1039,7 +1042,7 @@ uint8 fSRFFTD02(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         }
 
     }    
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 
 /************************************************************************
@@ -1095,44 +1098,44 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 stinfo.stUp.bit4.recvSignal = getSignalQuality((int)frm->rssi, RSSI_OFFSET_MF, RSSI_OFFSET_HF);
                 stinfo.stUp.seq = cltor_shadow[1].sendseq++;
 //#ifdef RF_MESH_LEVEL2
-                if(g_bTerType == PST_FRM_802_L_NO)
-                {
-                    uint8 * buffer = frm->apdu.data - 1;//V1.0上报数据带一个序号，序号改造成FN和长度
-                    uint16 length = 0;
-                    uint8 addrLen = 6;
-                    uint8 devAddr[METER_ADDRESS_LENGTH_MAX];
-                    
-                    memset(devAddr, 0, METER_ADDRESS_LENGTH_MAX);
-                    memcpy(devAddr, frm->apdu.addr, addrLen);
-                    
-#if (ADDR_MODE_ASCII > 0)
-                    memset(devAddr, 0, METER_ADDRESS_LENGTH_MAX);
-                    
-                    addrLen = NumToHexString(devAddr, frm->apdu.addr, addrLen, false);
-
-    //	                memcpy(buffer + m + 1, devAddr, addrLen);
-#endif
-
-                    
-                    buffer[0] = 0x54;//上报透传返回信息、
-                    buffer[1] = 1;
-                    buffer[2] = len;
-                    length = frm->apdu.len - 2 + 3;
-                    length = IE_Compose_LD(senduppkt.data, 1, 0, 1, 
-                        frm->apdu.seq, addrLen, devAddr, (uint8 *)&frm->apdu.pandId, buffer, length);
-
-
-                    senduppkt.len = length;
-                    gfs_PSTChnSend[PST_CHN_SET](senduppkt.data, length);
-
-                    muchframe_fill(senduppkt.data, senduppkt.len, &g_stMuchframeindex_port, CON_SOUR_PORT, frm->apdu.seq);
-                }
-                else
-                {
-                    uint8 fn = 6;
-                    Compose_3762Data(0xC1, frm->recv+m+2, len, SN,
-                            addrLenPer, &stinfo, 6, ((fn / 8) * 0x100 + (1 << ((fn - 1) % 8))));
-                }
+//                if(g_bTerType == PST_FRM_802_L_NO)
+//                {
+//                    uint8 * buffer = frm->apdu.data - 1;//V1.0上报数据带一个序号，序号改造成FN和长度
+//                    uint16 length = 0;
+//                    uint8 addrLen = 6;
+//                    uint8 devAddr[METER_ADDRESS_LENGTH_MAX];
+//                    
+//                    memset(devAddr, 0, METER_ADDRESS_LENGTH_MAX);
+//                    memcpy(devAddr, frm->apdu.addr, addrLen);
+//                    
+//#if (ADDR_MODE_ASCII > 0)
+//                    memset(devAddr, 0, METER_ADDRESS_LENGTH_MAX);
+//                    
+//                    addrLen = NumToHexString(devAddr, frm->apdu.addr, addrLen, false);
+//
+//    //	                memcpy(buffer + m + 1, devAddr, addrLen);
+//#endif
+//
+//                    
+//                    buffer[0] = 0x54;//上报透传返回信息、
+//                    buffer[1] = 1;
+//                    buffer[2] = len;
+//                    length = frm->apdu.len - 2 + 3;
+//                    length = IE_Compose_LD(senduppkt.data, 1, 0, 1, 
+//                        frm->apdu.seq, addrLen, devAddr, (uint8 *)&frm->apdu.pandId, buffer, length);
+//
+//
+//                    senduppkt.len = length;
+//                    gfs_PSTChnSend[PST_CHN_SET](senduppkt.data, length);
+//
+//                    muchframe_fill(senduppkt.data, senduppkt.len, &g_stMuchframeindex_port, CON_SOUR_PORT, frm->apdu.seq);
+//                }
+//                else
+//                {
+//                    uint8 fn = 6;
+//                    Compose_3762Data(0xC1, frm->recv+m+2, len, SN,
+//                            addrLenPer, &stinfo, 6, ((fn / 8) * 0x100 + (1 << ((fn - 1) % 8))));
+//                }
                 id = Sn_Search_Id(SN);
 
                 LOG_DEBUG( DBGFMT" search id = %d\n",DBGARG, id);
@@ -1178,7 +1181,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
           break;
     }
     
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 
 
@@ -1249,8 +1252,8 @@ uint8 fSRFFTD04(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     stinfo.stUp.seq = cltor_shadow[1].sendseq++;
                     fn = 6; 
 
-                    Compose_3762Data(0xC1, frm->recv+m + 1,frm->apdu.len - 1, &frm->recv[PKT_HEAD_LEN],
-                            frm->apdu.addrlen-addrLenPer,&stinfo, 6, ((fn / 8) * 0x100 + (1 << ((fn - 1) % 8))));
+//                    Compose_3762Data(0xC1, frm->recv+m + 1,frm->apdu.len - 1, &frm->recv[PKT_HEAD_LEN],
+//                            frm->apdu.addrlen-addrLenPer,&stinfo, 6, ((fn / 8) * 0x100 + (1 << ((fn - 1) % 8))));
                 }
 
             }
@@ -1261,7 +1264,7 @@ uint8 fSRFFTD04(const CMD_TABLE_t* tbl, SRF_Frame* frm)
           break;
     }
     
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 
 /************************************************************************
@@ -1311,7 +1314,7 @@ uint8 fSRFFTD05(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 uint8 version[2];// segmentSeq = pkt->head.apdu.data[2];
                 uint8 flashVersiong[4];
                 uint8 success = 0;
-                BFLS_Read((uint8 *)flashVersiong, EXT_FLASH_SS_CODE_START+10, 4);
+//                BFLS_Read((uint8 *)flashVersiong, EXT_FLASH_SS_CODE_START+10, 4);
 
                 memcpy(version, frm->apdu.data, 2);
                 
@@ -1410,7 +1413,7 @@ uint8 fSRFFTD05(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 memcpy(tmp+ml, frm->apdu.data+2, 20);
                 ml+=20;
 
-                Compose_3762Data(0xC0, tmp, ml, NULL, 0, &stinfo, 6, ((fn / 8) * 0x100 + (1 << ((fn - 1) % 8))));
+//                Compose_3762Data(0xC0, tmp, ml, NULL, 0, &stinfo, 6, ((fn / 8) * 0x100 + (1 << ((fn - 1) % 8))));
                 
 #endif                
                 g_stUpgrade.crc = CRC_16BIT_Check1((uint8 *)&g_stUpgrade, sizeof(STUPGRADE) - 2);
@@ -1424,7 +1427,7 @@ uint8 fSRFFTD05(const CMD_TABLE_t* tbl, SRF_Frame* frm)
           break;
     }
     
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 
 
@@ -1493,10 +1496,10 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             }
             else
             {
-                if( Check_Black(SN, 6))
-                {
-                    break;
-                }
+//                if( Check_Black(SN, 6))
+//                {
+//                    break;
+//                }
                 if((uint8)(0 - frm->rssi) > rfpara.rf_limit)
                 {
                     break;
@@ -1553,10 +1556,10 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 break;
             }
             
-            if( Check_Black(SN, 6))
-            {
-                break;
-            }
+//            if( Check_Black(SN, 6))
+//            {
+//                break;
+//            }
 
             for(i = SUP_SS_INDEX_START; i < MAX_SUP_SS_NUM+1; i++)  //遍历
             {
@@ -1776,7 +1779,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         break;
     }
     
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 
 
@@ -1854,6 +1857,6 @@ uint8 fSRFFTD09(const CMD_TABLE_t* tbl, SRF_Frame* frm)
           break;
     }
     
-    return ES_ERR_NOREPLY;  //无需回复
+    return SYS_ERR_NOREPLY;  //无需回复
 }
 

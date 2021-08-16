@@ -21,8 +21,8 @@ MAIN_VAR uint8 Uart_Status;
 MAIN_VAR uint32 ExtCtrlDeadCont;
 MAIN_VAR const uint8 ucModeVer[];
 MAIN_VAR const STVERSION sVersiong;
-//MAIN_VAR tRadioDriver *Radio;
-MAIN_VAR const uint32 gul_UsrFuncVer;
+MAIN_VAR tRadioDriver *Radio;
+//MAIN_VAR const uint32 gul_UsrFuncVer;
 MAIN_VAR volatile uint8 g_bTerType;
 MAIN_VAR ST_SEND_CACHE_INDEX g_stSendCacheIndex;
 

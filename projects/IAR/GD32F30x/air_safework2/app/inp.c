@@ -325,7 +325,7 @@ const S_DATASEGINFO gss_recSegInfo[] =
 //	        //以下代码占用较多堆栈
 //	        uint8 tempbuf[SA_FLASH_REALDATA_ITMBABY_BYTE];
 //	        S_TstDmdData* dmdata =(S_TstDmdData*)tempbuf; 
-//	        if(SA_REALDATA_Read(tempbuf, tno, 1) != SA_ERR_OK)
+//	        if(SA_REALDATA_Read(tempbuf, tno, 1) != SYS_ERR_OK)
 //	        {
 //	             return 0;
 //	        }
@@ -680,7 +680,7 @@ void gdw_CrackRecData(void)
 //	        //以下代码占用较多堆栈
 //	        uint8 tempbuf[SA_FLASH_REALDATA_ITMBABY_BYTE];
 //	        S_TstDmdData* dmdata =(S_TstDmdData*)tempbuf; 
-//	        if(SA_REALDATA_Read(tempbuf, tno, 1) != SA_ERR_OK)
+//	        if(SA_REALDATA_Read(tempbuf, tno, 1) != SYS_ERR_OK)
 //	        {
 //	             return 0;
 //	        }
@@ -1727,7 +1727,7 @@ void gdw_CrackCureData(void)
 //	            continue;
 //	        }
 //	                                        //读取统计数据
-//	        if(SA_REALDATA_Read(buffer, k, 3) != SA_ERR_OK)
+//	        if(SA_REALDATA_Read(buffer, k, 3) != SYS_ERR_OK)
 //	        {
 //	            continue;
 //	        }
@@ -1894,7 +1894,7 @@ void gdw_CrackCureData(void)
 //	            continue;
 //	        }
 //	        
-//	        if(SA_REALDATA_Read(buffer, k, 3) != SA_ERR_OK)
+//	        if(SA_REALDATA_Read(buffer, k, 3) != SYS_ERR_OK)
 //	        {
 //	            continue;
 //	        }

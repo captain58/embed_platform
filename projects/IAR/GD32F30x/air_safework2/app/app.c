@@ -35,7 +35,7 @@
 #endif
 
 #define _USR_FLASH
-#define USER_VAR
+//#define USER_VAR
 /*******************************************************************************
 **用户程序的每一个源文件都用该引用这个头文件，否则将无法使用系统调用
 ********************************************************************************/
@@ -454,14 +454,16 @@ void KeyProc(uint8 key)
         if(event & 4)               //KEY3
         {
 	        LOG_DEBUG("key 3 failing!\n");
-            gs_SysVar.terstt.bit.DI1linked = 1; 
+//	            gs_SysVar.terstt.bit.DI1linked = 1; 
 //	            msg = MSG_CARD_INSERT;
 //	            krhino_buf_queue_send(&gs_MainQueue, &msg, 1);
+            SYS_RF_Set_FallingEdge(GPI_DIO1);
         }
         
         if(event & 8)               //KEY4
         {
 	
+            SYS_RF_Set_FallingEdge(GPI_DIO2);
             LOG_DEBUG("key 4 failing!\n");
         }
         
@@ -517,7 +519,7 @@ void KeyProc(uint8 key)
             //蓝牙断开建立
             g_ucPutcharEn = 0;
 //	            hal_gpio_output_high(&brd_gpio_table[GPO_BLE_UART_CTL]);
-            gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,true);
+//            gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,true);
 
 	        LOG_DEBUG("key 2 right!\n");
         }

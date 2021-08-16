@@ -2196,7 +2196,7 @@ void SYS_Netp_Init(void)
 
 
 //	    Netp_Register_Set(gss_NetpFrameFw[1]);
-    Netp_Register_Init();
+//    Netp_Register_Init();
 }
 
 /************************************************************************
