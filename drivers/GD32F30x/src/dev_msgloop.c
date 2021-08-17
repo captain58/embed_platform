@@ -127,11 +127,11 @@ void MSG_Server(void *timer, void *arg)
 
     SYS_UART_RevMessageLoop();
 #endif
-//#if (SYS_LGPI_EN > 0)
-//    extern void SYS_LGPI_Scan(void *timer, void *arg);
-//
-//    SYS_LGPI_Scan(timer, arg);
-//#endif
+#if (SYS_LGPI_EN > 0)
+    extern void SYS_LGPI_Scan(void *timer, void *arg);
+
+    SYS_LGPI_Scan(timer, arg);
+#endif
 
 #if (SYS_FGPI_EN > 0)
     extern void SYS_FGPI_Scan(void *timer, void *arg);
@@ -172,7 +172,7 @@ void SYS_MSG_Init(void)
     //创建消息分发服务定时器
 //	    SYS_Timer_Create(MSG_Server, __NULL, 1, TIMER_ID_MSG, false);
     krhino_timer_create(&g_msg_server_timer, "msg_server_timer", MSG_Server,
-                        krhino_ms_to_ticks(100), krhino_ms_to_ticks(100), 0, 1);
+                        krhino_ms_to_ticks(10), krhino_ms_to_ticks(10), 0, 1);
 
 
 }

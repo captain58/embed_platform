@@ -81,7 +81,36 @@ typedef struct __TRFModem{
 }TRFModem;
 
 EXT_RF TRFModem* DevRfModem;             //无线猫参数,状态信息
+/*!
+ * RF packet definition
+ */
+#define RF_BUFFER_SIZE_MAX                          256
+#define RF_BUFFER_SIZE                              256
 
+/*!
+ * SX1276 LoRa General parameters definition
+ */
+typedef struct sLoRaSettings
+{
+    unsigned int RFFrequency;
+    char Power;
+    unsigned char SignalBw;                   // LORA [0: 7.8 kHz, 1: 10.4 kHz, 2: 15.6 kHz, 3: 20.8 kHz, 4: 31.2 kHz,
+                                        // 5: 41.6 kHz, 6: 62.5 kHz, 7: 125 kHz, 8: 250 kHz, 9: 500 kHz, other: Reserved]  
+    unsigned char SpreadingFactor;            // LORA [6: 64, 7: 128, 8: 256, 9: 512, 10: 1024, 11: 2048, 12: 4096  chips]
+    unsigned char ErrorCoding;                // LORA [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]
+    bool CrcOn;                         // [0: OFF, 1: ON]
+    bool ImplicitHeaderOn;              // [0: OFF, 1: ON]
+    bool RxSingleOn;                    // [0: Continuous, 1 Single]
+    bool FreqHopOn;                     // [0: OFF, 1: ON]
+    unsigned char HopPeriod;                  // Hops every frequency hopping period symbols
+    unsigned int TxPacketTimeout;
+    unsigned int RxPacketTimeout;
+    unsigned char PayloadLength;
+    unsigned char LowDatarate;
+    unsigned short preamble;
+    unsigned char hopFreqChNum;               //跳频频道总数
+    
+}tLoRaSettings;
 
 //	#include "main.h"
 /*********************************************************************
@@ -91,17 +120,32 @@ EXT_RF TRFModem* DevRfModem;             //无线猫参数,状态信息
 void  INIT_MCU_RF_MAP(void);
 
 void SYS_A7139_Proc(uint8_t mod);
-uint8_t SYS_RF_Init(void);
+uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr );
 uint8_t SYS_A7139_Send(uint8_t * data, uint16_t len);
 uint16_t SYS_A7139_Recv(uint8_t * data);
 
 
-
+///*!
+// * Radio driver structure defining the different function pointers
+// */
+//typedef struct sRadioDriver
+//{
+//    unsigned char ( *Init )(int freqCode, unsigned char ch, unsigned char pwr );
+//    void ( *Reset )( void );
+//    void ( *StartRx )( void );
+//    uint16_t ( *GetRxPacket )( void *buffer);//, unsigned short *size );
+//    uint8_t ( *SetTxPacket )( const void *buffer, unsigned short size );
+//    unsigned int ( *Process )( void );
+//    void (*Tick)(unsigned int * tick);
+//}tRadioDriver;
 
 
 
 
 TRFModemState SYS_RF_Status(void);
+double SX1276LoRaGetPacketRssi( void );
 
+void SYS_RF_Set_FallingEdge(uint8_t gpio);
+tRadioDriver* RadioDriverInit( void );
 
 #endif

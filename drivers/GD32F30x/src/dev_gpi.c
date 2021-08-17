@@ -11,6 +11,7 @@
 ** Author: yzy
 ** Description: 文件创建
 *************************************************************************/
+#define EXT_GPI
 #define EXT_DEV_GPI
 #ifdef __MODULE__
 #include "WOSsys.h"
@@ -150,7 +151,7 @@ void SYS_LGPI_Scan(void)
                                                     //按键保持事件判断
             if(gsp_GpioStt->lastcnt[uc_i] == LGPI_LAST)
             {
-//                gsp_GpioStt->lastcnt[uc_i] = LGPI_LAST - LGPI_GATE;
+                gsp_GpioStt->lastcnt[uc_i] = 0;//LGPI_LAST - LGPI_GATE;
                 gsp_GpioStt->keylevt |= (0x01 << uc_i);
             }
         }
@@ -352,8 +353,8 @@ void SYS_GPI_Init(void)
 //    SYS_Timer_Create(SYS_LGPI_Scan, __NULL, timeout, ID_SWTIMER_LGPI, false);
 //    krhino_timer_create(&timer_Fgpi, "timer_Fgpi", SYS_FGPI_Scan,
 //                            10, 1, 0, 1);   
-    krhino_timer_create(&timer_Lgpi, "timer_Lgpi", SYS_LGPI_Scan,
-                            krhino_ms_to_ticks(10), krhino_ms_to_ticks(10), 0, 1);         
+//	    krhino_timer_create(&timer_Lgpi, "timer_Lgpi", SYS_LGPI_Scan,
+//	                            krhino_ms_to_ticks(10), krhino_ms_to_ticks(10), 0, 1);         
 #endif
 #endif
 }
@@ -514,32 +515,37 @@ void SYS_GPI_EvtMessageLoop(void)
             if(gsp_GpioStt->fgpifevt & ~gsp_GpioStt->fgpifevtbak)          //快速端口下降沿
             {
                 msg = MSG_FIFEVT;
+                krhino_buf_queue_send(dec[tkid].ktask->msg, &msg, 1);
                 
             }
             if(gsp_GpioStt->fgpirevt & ~gsp_GpioStt->fgpirevtbak)          //快速端口上升沿
             {
                 msg = MSG_FIREVT;
+                krhino_buf_queue_send(dec[tkid].ktask->msg, &msg, 1);
 //	                SYS_Message_Send(MSG_FIREVT, tkid);
             }
             if(gsp_GpioStt->keyfevt & ~gsp_GpioStt->keyfevtbak)           //慢速端口下降沿
             {
                 msg = MSG_LIFEVT;
+                krhino_buf_queue_send(dec[tkid].ktask->msg, &msg, 1);
 //	                SYS_Message_Send(MSG_LIFEVT, tkid);
             }
             if(gsp_GpioStt->keyrevt & ~gsp_GpioStt->keyrevtbak)           //慢速端口上升沿
             {
                 msg = MSG_LIREVT;
+                krhino_buf_queue_send(dec[tkid].ktask->msg, &msg, 1);
 //	                SYS_Message_Send(MSG_LIREVT, tkid);
             }
             if(gsp_GpioStt->keylevt & ~gsp_GpioStt->keylevtbak)           //慢速端口保持
             {
                 msg = MSG_LILEVT;
 //	                SYS_Message_Send(MSG_LILEVT, tkid);
-            }
-            if(msg != 0xff)
-            {
                 krhino_buf_queue_send(dec[tkid].ktask->msg, &msg, 1);
             }
+//            if(msg != 0xff)
+//            {
+//                krhino_buf_queue_send(dec[tkid].ktask->msg, &msg, 1);
+//            }
         }
     }
     CPSR_ALLOC();

@@ -200,7 +200,7 @@ bool STR_ClrFlashBit(uint16 fileid, uint32 start, uint16 bit, uint16 mbyte);
  * @param: data 设置的数据
  * 
  * @返回: 
- * @return: uint8 SA_ERR_OK / SA_ERR_FT
+ * @return: uint8 SYS_ERR_OK / SA_ERR_FT
  * @说明: 
  * @作者: yzy
  *-----------------------------------------------------------------------

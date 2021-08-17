@@ -27,7 +27,7 @@ typedef enum{
 
 #define PORT_UART_BLE   PORT_UART_STD
 #define PST_CHN_TCP     PORT_UART_AT
-#define PST_CHN_SET     PORT_UART_STD
+//#define PST_CHN_SET     PORT_UART_STD
 #define PST_CHN_NETP    NETP_PORT_NO
 #define PORT_UART_PST   PORT_UART_STD
 #define SETP_PORT_NO    NETP_PORT_NO
@@ -84,28 +84,28 @@ typedef enum{
 //	#define WIFI_WU HAL_GPIO_25
 
 
-typedef enum {
-	GPIO_MODEM_ONOFF,
-	GPIO_MODEM_PWR,
-	GPO_485_PWR,
-	GPO_BLE_PWR,
-	GPO_BLE_MODE,
-	GPO_BLE_UART_CTL,
-//		GPIO_LCD_DCX,
-//		GPIO_LCD_PWR,
-//		GPIO_LCD_RST,
-//		GPIO_LED_ALS,
-//		GPIO_LED_GS,
-//		GPIO_LED_HTS,
-//		GPIO_LED_PS,
-//		GPIO_SW_FUNC_A,
-//		GPIO_SW_FUNC_B,
-//		GPIO_SW_WIFI,
-//		GPIO_WIFI_RST,
-//		GPIO_WIFI_WU,
-//		MAX_GPIO_NUM
-    GPO_NUM,
-} BOARD_GPIO, GPOENUM;
+//typedef enum {
+//GPIO_MODEM_ONOFF,
+//GPIO_MODEM_PWR,
+//GPO_485_PWR,
+//GPO_BLE_PWR,
+//GPO_BLE_MODE,
+//GPO_BLE_UART_CTL,
+////		GPIO_LCD_DCX,
+////		GPIO_LCD_PWR,
+////		GPIO_LCD_RST,
+////		GPIO_LED_ALS,
+////		GPIO_LED_GS,
+////		GPIO_LED_HTS,
+////		GPIO_LED_PS,
+////		GPIO_SW_FUNC_A,
+////		GPIO_SW_FUNC_B,
+////		GPIO_SW_WIFI,
+////		GPIO_WIFI_RST,
+////		GPIO_WIFI_WU,
+////		MAX_GPIO_NUM
+//    GPO_NUM,
+//} BOARD_GPIO, GPOENUM;
     
 typedef struct _led_dev_priv
 {
@@ -113,16 +113,21 @@ typedef struct _led_dev_priv
     uint8_t * rvs;
 }led_dev_priv;
 
-typedef enum {
-	GPIO_LED_RUN,
-	GPIO_LED_485,    
-	GPIO_LED_GPRS,   	
-	GPIO_LED_ERR,   	
-	
-    LED_NUM,
-} LedNo;
+//typedef enum {
+//GPIO_LED_RUN,
+//GPIO_LED_SUB1_NORM,    
+//GPIO_LED_SUB1_ERR,   	
+//GPIO_LED_SUB2_NORM,    
+//GPIO_LED_SUB2_ERR,   	
+//GPIO_LED_MASTER_BAT_LOW,
+//    LED_NUM,
+//} LedNo;
 
-#define FGPI_STT_ENG        0x00000008         //置位表示供电正常
+#define GPIO_LED_485 GPIO_LED_SUB1_NORM
+#define LED_FAR_RX GPIO_LED_MASTER_BAT_LOW
+#define LED_FAR_TX GPIO_LED_SUB2_ERR
+
+//#define FGPI_STT_ENG        0x00000008         //置位表示供电正常
 
 /******************************************************************************
 **快速输入口配置
@@ -131,23 +136,22 @@ typedef enum {
 #define SYS_LGPI_GATE    2               //按键扫描门限
 #define SYS_LGPI_LAST    15              //按键长按门限
 
-typedef enum
-{
-    KEY1,
-//	    GPI_CARD,
-//	    GPI_HALL1,
-//	    GPI_HALL2,
-//	    GPI_CARD_SDA,
-//	    GPI_ESAM_SDA, 
-    BLE_LINK,
-    KEY2,
-    EXT_PWR,
-    PRGM,
-    GPI_NUM,
-//	    LGPI_KEY_NUM,
-}GPIENUM;
+//	typedef enum
+//	{
+//	    KEY1,
+//	//	    GPI_CARD,
+//	//	    GPI_HALL1,
+//	//	    GPI_HALL2,
+//	//	    GPI_CARD_SDA,
+//	//	    GPI_ESAM_SDA, 
+//	    BLE_LINK,
+//	    KEY2,
+//	    EXT_PWR,
+//	    PRGM,
+//	    GPI_NUM,
+//	//	    LGPI_KEY_NUM,
+//	}GPIENUM;
 
-#define LGPI_KEY_NUM 5
 
 
 /******************************************************************************

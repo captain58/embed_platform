@@ -119,30 +119,30 @@ uint8 DevFls_ProcMSG(TDevFlsOP* op)
     {
        switch(op->rw)
        {
-           case DEV_FLS_RW_R:           //¶Á²Ù×÷
-               result = FLS_Read((uint8*)op->obj, op->addr, op->len);
-               break;
-           case DEV_FLS_RW_W:           //Ð´²Ù×÷
-               FLS_PreWrite();
-               result = FLS_Write((uint8*)op->obj, op->addr, op->len);
-               break;
-           case DEV_FLS_RW_S:           //ÉèÖÃ²Ù×÷
-               FLS_PreWrite();
-               result = FLS_Set((uint8)(uint32)op->obj, op->addr, op->len);
-               break;
-           case DEV_FLS_RW_E:           //²Á³ý²Ù×÷
-               FLS_PreWrite();
-               result = FLS_Erase(op->addr, op->len);
-               break;
-           case DEV_FLS_RW_BE:           //²Á³ý²Ù×÷
-               FLS_PreWrite();
-               result = FLS_BErase(op->addr, op->len);
-               break;
-               
-           case DEV_FLS_RW_WS:          //FlashÌØÊâÐ´Èë²Ù×÷
-               FLS_PreWrite();
-               result = FLS_WriteSpec((uint8*)op->obj, op->addr, op->len);
-               break;
+//           case DEV_FLS_RW_R:           //¶Á²Ù×÷
+//               result = FLS_Read((uint8*)op->obj, op->addr, op->len);
+//               break;
+//           case DEV_FLS_RW_W:           //Ð´²Ù×÷
+//               FLS_PreWrite();
+//               result = FLS_Write((uint8*)op->obj, op->addr, op->len);
+//               break;
+//           case DEV_FLS_RW_S:           //ÉèÖÃ²Ù×÷
+//               FLS_PreWrite();
+//               result = FLS_Set((uint8)(uint32)op->obj, op->addr, op->len);
+//               break;
+//           case DEV_FLS_RW_E:           //²Á³ý²Ù×÷
+//               FLS_PreWrite();
+//               result = FLS_Erase(op->addr, op->len);
+//               break;
+//           case DEV_FLS_RW_BE:           //²Á³ý²Ù×÷
+//               FLS_PreWrite();
+//               result = FLS_BErase(op->addr, op->len);
+//               break;
+//               
+//           case DEV_FLS_RW_WS:          //FlashÌØÊâÐ´Èë²Ù×÷
+//               FLS_PreWrite();
+//               result = FLS_WriteSpec((uint8*)op->obj, op->addr, op->len);
+//               break;
        }
     }
 #endif

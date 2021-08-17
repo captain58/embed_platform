@@ -346,7 +346,19 @@ typedef struct
     uint16 reserver:4;
 }GPI_PORTS;
 
-	
+	/*!
+ * Radio driver structure defining the different function pointers
+ */
+typedef struct sRadioDriver
+{
+    unsigned char ( *Init )(int freqCode, unsigned char ch, unsigned char pwr );
+    void ( *Reset )( void );
+    void ( *StartRx )( void );
+    uint16_t ( *GetRxPacket )( void *buffer);//, unsigned short *size );
+    uint8_t ( *SetTxPacket )( const void *buffer, unsigned short size );
+    unsigned int ( *Process )( void );
+    void (*Tick)(unsigned int * tick);
+}tRadioDriver;
 #ifndef BOOT_ONLY                       //BOOT不包含定义
 
 #endif

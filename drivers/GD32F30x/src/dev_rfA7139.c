@@ -6,11 +6,15 @@
 
 
 #include "sys.h"
+#include "board.h"
 #include "hal.h"
 #include "bsp.h"
 #include "A7139reg.h"
 
 #include "A7139config.h"
+#include "App_Public.h"
+#include "user_func.h"
+
 
 #define CON_FIFO_LEN 64
 
@@ -51,12 +55,18 @@
 //	#define SDIO_0							Gpio_WriteOutputIO(GpioPortC,GpioPin5,FALSE)
 //	#define SDIO_1							Gpio_WriteOutputIO(GpioPortC,GpioPin5,TRUE)
 
-
-
-
+unsigned int g_startTickTmp;
+unsigned int * g_pSysTick = NULL;
+#define SX1276_TICK_COUNT( )                        ( *g_pSysTick )
+#define TICK_RATE_MS( ms )                          ( ms )
+#define DELAYMS(m)  g_startTickTmp = SX1276_TICK_COUNT( ); \
+                    while( ( SX1276_TICK_COUNT( ) - g_startTickTmp ) < TICK_RATE_MS( m ) ); 
 
 static TRFModem       gs_stRfModem;
-
+void SX7139SysTick(unsigned int * tick)
+{
+    g_pSysTick = tick;
+}
 /***********************************************************
  * @function_name: gs_WifiMODMDrvIntf
  * @function_file: dev_modem.c
@@ -125,6 +135,7 @@ uint8_t    CmdBuf[11];
 uint8_t   tmpbuf[64];
 uint8_t	fb;
 uint8_t	fb_ok;
+static unsigned short TxPacketSize = 0;
 
 const uint8_t BitCount_Tab[16]={0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4};
 const uint8_t ID_Tab[8]={0x34,0x75,0xC5,0x8C,0xC7,0x33,0x45,0xE7};   //ID code
@@ -203,8 +214,45 @@ void FIFO_extension_Infinite_TX(void);
 void FIFO_extension_Infinite_RX(void);
 void Auto_Resend(void);
 void Auto_ACK(void);
+/*!
+ * Local RF buffer for communication support
+ */
+static unsigned char RFBuffer[RF_BUFFER_SIZE];
 
+static unsigned int PacketTimeout;
+/*!
+ * Rx management support variables
+ */
+static unsigned short RxPacketSize = 0;
+static char RxPacketSnrEstimate;
+static double RxPacketRssiValue;
+static unsigned char RxGain = 1;
+static unsigned int RxTimeoutTimer = 0;
+static unsigned int TxTimeoutTimer = 0;
 
+static uint8_t guc_GPIO1Falling = 0;
+static uint8_t guc_GPIO2Falling = 0;
+extern volatile uint32 MSR;       
+// Default settings
+tLoRaSettings LoRaSettings =
+{
+    474600000,        // RFFrequency
+    15,               // Power
+    7,                // SignalBw [0: 7.8kHz, 1: 10.4 kHz, 2: 15.6 kHz, 3: 20.8 kHz, 4: 31.2 kHz,
+                      // 5: 41.6 kHz, 6: 62.5 kHz, 7: 125 kHz, 8: 250 kHz, 9: 500 kHz, other: Reserved]
+    11,                // SpreadingFactor [6: 64, 7: 128, 8: 256, 9: 512, 10: 1024, 11: 2048, 12: 4096  chips]
+    1,                // ErrorCoding [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]
+    true,             // CrcOn [0: OFF, 1: ON]
+    false,            // ImplicitHeaderOn [0: OFF, 1: ON]
+    0,                // RxSingleOn [0: Continuous, 1 Single]
+    0,                // FreqHopOn [0: OFF, 1: ON]
+    4,                // HopPeriod Hops every frequency hopping period symbols
+    200,              // TxPacketTimeout
+    2000,              // RxPacketTimeout
+    128,              // PayloadLength (used for implicit header mode)
+    1,
+    30,             //preamble
+};
 
 /************************************************************************
 **
@@ -335,15 +383,26 @@ uint16_t SYS_A7139_Recv(uint8_t * data)
     SPI_Read((SPIIO*)rfSPI, &gs_RFSpiPort);
 
     uint16_t len = data[1];
-
-    if(len > CON_FIFO_LEN)
-        return 0;
     
-    rfSPI->cmdnum = 0;
+    rfSPI->cmdnum = 1;
     rfSPI->length = len - 2;
+    rfSPI->data = &data[2];
+    if(rfSPI->length > CON_FIFO_LEN)
+        return 0;
     SPI_Read((SPIIO*)rfSPI, &gs_RFSpiPort);
 
     return len;
+}
+uint8_t SYS_A7139SetTxPacket( const void *buffer, unsigned short size )
+{
+    TxPacketSize = size;
+    memcpy( ( void * )RFBuffer, buffer, ( size_t )TxPacketSize ); 
+
+    //RFLRState = RFLR_STATE_TX_INIT;
+    
+    MSR = TX_STATE_BIT | RFLR_STATE_TX_INIT;//设状态机   
+    
+    return 0;
 }
 
 uint8_t SYS_A7139_Send(uint8_t * data, uint16_t len)
@@ -364,7 +423,7 @@ uint8_t SYS_A7139_Send(uint8_t * data, uint16_t len)
 
     SPI_Write((SPIIO*)&gs_RFCmdTx, &gs_RFSpiPort);
 
-    while(SYS_GPI_GetLPort(GPI_DIO2));
+//	    while(SYS_GPI_GetLPort(GPI_DIO2));
 
     SYS_OK();
 }
@@ -379,7 +438,7 @@ void SYS_A7139_Proc(uint8_t mod)
     Init_SPI(&gs_RFSpiPort);
 
     	//power on only
-    SYS_RF_Init();
+    SYS_RF_Init(0,0,0);
 
 //    master_slave=0;
     if(mod == 1)   // master
@@ -734,7 +793,7 @@ void A7139_POR(void)
 /*********************************************************************
 ** InitRF
 *********************************************************************/
-uint8_t SYS_RF_Init(void)
+uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr )
 {
 //    //initial pin
 //    SCS_1;
@@ -1872,6 +1931,275 @@ void Auto_ACK(void)
         RxPacket();
     }
 }
+double SX1276LoRaGetPacketRssi( void )
+{
+    return -130;
+}
+void SYS_RF_Reset(void)
+{
+
+}
+void SYS_RF_StartRX(void)
+{
+//	    SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);
+    unsigned char RFLRState = MSR & 0x0F;
+    if(RFLRState != RFLR_STATE_RX_RUNNING)
+    {
+        MSR = EZMAC_PRO_IDLE | RFLR_STATE_RX_INIT;//设状态机  
+    }
+
+}
+
+void SYS_RF_Set_FallingEdge(uint8_t gpio)
+{
+
+    switch(gpio)
+    {
+        case GPI_DIO1:
+            guc_GPIO1Falling = 1;
+            break;
+        case GPI_DIO2:
+            guc_GPIO2Falling = 1;
+            break;
+
+    }
+
+}
+
+
+/*!
+ * \brief Process the LoRa modem Rx and Tx state machines depending on the
+ *        SX1276 operating mode.
+ *
+ * \retval rfState Current RF state [RF_IDLE, RF_BUSY, 
+ *                                   RF_RX_DONE, RF_RX_TIMEOUT,
+ *                                   RF_TX_DONE, RF_TX_TIMEOUT]
+ */
+unsigned int SX7319Process( void )
+{
+    unsigned int result = RF_BUSY;
+    
+    unsigned char RFLRState = MSR & 0x0F;
+    
+    switch( RFLRState )
+    {
+    case RFLR_STATE_IDLE:
+        result = RF_IDLE;
+        break;
+    case RFLR_STATE_RX_INIT:
+        SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+        SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);
+
+        
+        memset( RFBuffer, 0, ( size_t )RF_BUFFER_SIZE );
+
+        PacketTimeout = LoRaSettings.RxPacketTimeout;
+        RxTimeoutTimer = SX1276_TICK_COUNT( );
+        //RFLRState = ;
+        guc_GPIO2Falling = 0;
+        MSR = EZMAC_PRO_IDLE | RFLR_STATE_RX_RUNNING;//设状态机   
+        break;
+    case RFLR_STATE_RX_RUNNING:
+        
+        if( guc_GPIO2Falling )// !SYS_GPI_GetLPort(GPI_DIO2) ) // RxDone
+        {
+            guc_GPIO2Falling = 0;
+            RxTimeoutTimer = SX1276_TICK_COUNT( );
+
+//	            RxPacketSize = SYS_A7139_Recv(RFBuffer);
+//	            if(RxPacketSize > RF_BUFFER_SIZE)
+//	            {
+//	                RxPacketSize = RF_BUFFER_SIZE;
+//	            }
+
+            
+
+
+            
+
+            //RFLRState = RFLR_STATE_RX_DONE;
+            RFLRState = RFLR_STATE_RX_INIT;
+
+            MSR = EZMAC_PRO_IDLE | RFLRState;//设状态机  
+
+            result = RF_RX_DONE;
+        }
+//	        if(LoRaSettings.FreqHopOn == true && DIO2 == 1 ) // FHSS Changed Channel
+//	        {
+//	            RxTimeoutTimer = SX1276_TICK_COUNT( );
+//	            if( LoRaSettings.FreqHopOn == true )
+//	            {
+//	                SX1276Read( REG_LR_HOPCHANNEL, &SX1276LR->RegHopChannel );
+//	                SX1276LoRaSetRFFrequency( HoppingFrequencies[SX1276LR->RegHopChannel & RFLR_HOPCHANNEL_CHANNEL_MASK] );
+//	            }
+//	            // Clear Irq
+//	            SX1276Write( REG_LR_IRQFLAGS, 0xFF);//RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL );
+//	            // Debug
+//	            RxGain = SX1276LoRaReadRxGain( );
+//	
+//	            
+//	            result = RF_IDLE;
+//	            //MSR = EZMAC_PRO_IDLE;
+//	            MSR = EZMAC_PRO_IDLE | RFLR_STATE_RX_INIT;//设状态机              
+//	        }
+
+//	        if( LoRaSettings.RxSingleOn == true ) // Rx single mode
+        {
+            if( ( SX1276_TICK_COUNT( ) - RxTimeoutTimer ) > PacketTimeout )
+            {
+                RFLRState = RFLR_STATE_RX_TIMEOUT;
+
+                SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+                
+                MSR = EZMAC_PRO_IDLE | RFLR_STATE_RX_TIMEOUT;//设状态机   
+                
+                result = RF_IDLE;
+            }
+        }
+        break;
+
+    case RFLR_STATE_RX_TIMEOUT:
+        RFLRState = RFLR_STATE_RX_INIT;
+        
+        MSR = EZMAC_PRO_IDLE | RFLRState;//设状态机   
+        result = RF_RX_TIMEOUT;
+        break;
+    case RFLR_STATE_TX_INIT:
+//	        SX1276LoRaSetOpMode( RFLR_OPMODE_STANDBY );
+//		
+//	        if( LoRaSettings.FreqHopOn == true )
+//	        {
+//	            SX1276LR->RegIrqFlagsMask = RFLR_IRQFLAGS_RXTIMEOUT |
+//	                                        RFLR_IRQFLAGS_RXDONE |
+//	                                        RFLR_IRQFLAGS_PAYLOADCRCERROR |
+//	                                        RFLR_IRQFLAGS_VALIDHEADER |
+//	                                        //RFLR_IRQFLAGS_TXDONE |
+//	                                        RFLR_IRQFLAGS_CADDONE |
+//	                                        //RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL |
+//	                                        RFLR_IRQFLAGS_CADDETECTED;
+//	            SX1276LR->RegHopPeriod = LoRaSettings.HopPeriod;
+//		
+//	            SX1276Read( REG_LR_HOPCHANNEL, &SX1276LR->RegHopChannel );
+//	            SX1276LoRaSetRFFrequency( HoppingFrequencies[SX1276LR->RegHopChannel & RFLR_HOPCHANNEL_CHANNEL_MASK] );
+//	        }
+//	        else
+//	        {
+//	            SX1276LR->RegIrqFlagsMask = RFLR_IRQFLAGS_RXTIMEOUT |
+//	                                        RFLR_IRQFLAGS_RXDONE |
+//	                                        RFLR_IRQFLAGS_PAYLOADCRCERROR |
+//	                                        RFLR_IRQFLAGS_VALIDHEADER |
+//	                                        //RFLR_IRQFLAGS_TXDONE |
+//	                                        RFLR_IRQFLAGS_CADDONE |
+//	                                        RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL |
+//	                                        RFLR_IRQFLAGS_CADDETECTED;
+//	            SX1276LR->RegHopPeriod = 0;
+//	        }
+//	        SX1276Write( REG_LR_HOPPERIOD, SX1276LR->RegHopPeriod );
+//	        SX1276Write( REG_LR_IRQFLAGSMASK, SX1276LR->RegIrqFlagsMask );
+//	        
+//	//	        SpiWriteRegister( REG_LR_PREAMBLEMSB,0);
+//	//	        SpiWriteRegister( REG_LR_PREAMBLELSB,10);
+//		    SX1276LoRaSetPreambleLength(LoRaSettings.preamble);
+//	        // Initializes the payload size
+//	        SX1276LR->RegPayloadLength = TxPacketSize;
+//	        SX1276Write( REG_LR_PAYLOADLENGTH, SX1276LR->RegPayloadLength );
+//	        
+//	        SX1276LR->RegFifoTxBaseAddr = 0x00; // Full buffer used for Tx
+//	        SX1276Write( REG_LR_FIFOTXBASEADDR, SX1276LR->RegFifoTxBaseAddr );
+//		
+//	        SX1276LR->RegFifoAddrPtr = SX1276LR->RegFifoTxBaseAddr;
+//	        SX1276Write( REG_LR_FIFOADDRPTR, SX1276LR->RegFifoAddrPtr );
+//	        
+//	        // Write payload buffer to LORA modem
+//	        SX1276WriteFifo( RFBuffer, SX1276LR->RegPayloadLength );
+//	        
+//	        SX1276Write(REG_LR_IRQFLAGS,0xff);     
+//	                                        // TxDone               RxTimeout                   FhssChangeChannel          ValidHeader         
+//	        SX1276LR->RegDioMapping1 = RFLR_DIOMAPPING1_DIO0_01 | RFLR_DIOMAPPING1_DIO1_00 | RFLR_DIOMAPPING1_DIO2_00 | RFLR_DIOMAPPING1_DIO3_01;
+//	                                        // PllLock              Mode Ready
+//	        SX1276LR->RegDioMapping2 = RFLR_DIOMAPPING2_DIO4_01 | RFLR_DIOMAPPING2_DIO5_00;
+//	        SX1276WriteBuffer( REG_LR_DIOMAPPING1, &SX1276LR->RegDioMapping1, 2 );
+//		
+//	        SX1276LoRaSetOpMode( RFLR_OPMODE_TRANSMITTER );
+        SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+	    SYS_A7139_Send(RFBuffer,TxPacketSize);
+        PacketTimeout = LoRaSettings.TxPacketTimeout;
+        TxTimeoutTimer = SX1276_TICK_COUNT( );
+        RFLRState = RFLR_STATE_TX_RUNNING;
+        
+        guc_GPIO2Falling = 0;
+        MSR = TX_STATE_BIT | RFLRState;//设状态机   
+        break;
+    case RFLR_STATE_TX_RUNNING:
+        if( guc_GPIO2Falling ) // TxDone
+        {
+            // Clear Irq
+//	            SX1276Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_TXDONE  );
+            RFLRState = RFLR_STATE_TX_DONE; 
+            //LED_TX2_ON();
+            
+            TxTimeoutTimer = SX1276_TICK_COUNT( );
+            MSR = TX_STATE_BIT | RFLRState;//设状态机   
+        }
+//	        if(LoRaSettings.FreqHopOn == true && DIO2 == 1 ) // FHSS Changed Channel
+//	        {
+//	            if( LoRaSettings.FreqHopOn == true )
+//	            {
+//	                SX1276Read( REG_LR_HOPCHANNEL, &SX1276LR->RegHopChannel );
+//	                SX1276LoRaSetRFFrequency( HoppingFrequencies[SX1276LR->RegHopChannel & RFLR_HOPCHANNEL_CHANNEL_MASK] );
+//	            }
+//	            // Clear Irq
+//	            
+//	            TxTimeoutTimer = SX1276_TICK_COUNT( );
+//	            SX1276Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL );
+//	            MSR = EZMAC_PRO_IDLE;
+//	        }
+
+        if( ( SX1276_TICK_COUNT( ) - TxTimeoutTimer ) > PacketTimeout )
+        {
+            RFLRState = RFLR_STATE_TX_TIMEOUT;
+        
+            
+            MSR = EZMAC_PRO_IDLE;//设状态机   
+            
+            result = RF_TX_TIMEOUT;
+        }
+        
+        break;
+    case RFLR_STATE_TX_DONE:
+        // optimize the power consumption by switching off the transmitter as soon as the packet has been sent
+//	        SX1276LoRaSetOpMode( RFLR_OPMODE_STANDBY );
+        //LED_TX2_ON();
+
+        RFLRState = RFLR_STATE_RX_INIT;//RFLR_STATE_IDLE;
+        
+        MSR = EZMAC_PRO_IDLE | RFLRState;
+        result = RF_TX_DONE;
+        break;
+    
+    default:
+        break;
+    } 
+    return result;
+}
+
+tRadioDriver RadioDriver;
+
+tRadioDriver* RadioDriverInit( void )
+{
+
+    RadioDriver.Init = SYS_RF_Init;
+    RadioDriver.Reset = SYS_RF_Reset;
+    RadioDriver.StartRx = SYS_RF_StartRX;
+    RadioDriver.GetRxPacket = SYS_A7139_Recv;
+    RadioDriver.SetTxPacket = SYS_A7139SetTxPacket;//SYS_A7139_Send;
+    RadioDriver.Process = SX7319Process;
+    RadioDriver.Tick = SX7139SysTick;
+  
+
+    return &RadioDriver;
+}
+
 
 #endif
 

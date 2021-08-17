@@ -13,7 +13,7 @@
 ** 与v5.0的差别:1)定时处理有10个tick改为1个tick,用于提供更快的闪烁频率
 **            2)接口函数中的 持续时间 单位改为tick.
 *************************************************************************/
-#define EXT_DEV_LED
+#define EXT_LED
 #ifdef __MODULE__
 #include "WOSsys.h"
 #endif

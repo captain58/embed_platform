@@ -49,7 +49,16 @@ typedef uint32 TStack;
 typedef String string;
 typedef uint8  BS8;
 
+#ifndef TRUE
+#define TRUE               1
+#endif
 
+#ifndef FALSE
+#define FALSE              0
+#endif
+
+
+typedef unsigned char       BOOL; 
 
 /**********************************************************************************************************
 *                   数据类型2
@@ -203,6 +212,8 @@ typedef union{
 #define SYS_VAR_CHECK(X)    {if(X){return SYS_ERR_VAR;}}
 #define SYS_OK()            {return SYS_ERR_OK;}
 #define SYS_ERR()            {return SYS_ERR_FT;}
+#define SYS_NOREPLY()            {return SYS_ERR_NOREPLY;}
+
 //API错误码定义
 #define API_SUCCESS						0		//操作成功
 #define API_ERR_FAILURE					-1		//操作失败
@@ -217,12 +228,12 @@ typedef union{
 //	/******************************************************************************
 //	**兼容旧版本宏定义
 //	******************************************************************************/
-//	#define SA_ERR_OK	SYS_ERR_OK
+//	#define SYS_ERR_OK	SYS_ERR_OK
 //	#define SA_ERR_VAR	SYS_ERR_VAR
 //	#define SYS_ERR_FT   SYS_ERR_FT
 //	
 //	#define SA_VAR_CHECK(X)  {if(X){return SA_ERR_VAR;}}
-//	#define SYS_OK()			 {return SA_ERR_OK;}
+//	#define SYS_OK()			 {return SYS_ERR_OK;}
 
 
 

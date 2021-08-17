@@ -11,7 +11,7 @@
 ** Author: yzy
 ** Description: 文件创建
 *************************************************************************/
-#define EXT_DEV_GPO
+#define EXT_GPO
 
 #include "sys.h"
 #include "hal.h"

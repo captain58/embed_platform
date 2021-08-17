@@ -78,6 +78,16 @@ typedef struct
 
 
 
+/*******************************************************************************
+通道序号定义
+*******************************************************************************/
+typedef enum
+{
+    PST_CHN_SET = 0,             //本地485
+    PST_CHN_WL,                 //无线
+    PST_CHN_DUMB,                //空通道
+}CHN_ENUM;
+
 
 /***********************************************************************
 **定义每个通道所支持的帧的类型数量以及允许的前导符
@@ -230,6 +240,7 @@ typedef struct
 typedef struct
 {
     uint8 chninfo;
+    uint8 protocol;
     union
     {
 #if (_DLT_FRM_INC > 0 || _VS_FRM_INC > 0)
@@ -250,9 +261,9 @@ typedef struct
 #if PST_FRM_XML_EN > 0 
          XML_Frame _xml;
 #endif
- #if _HXRF_FRM_INC > 0 
-        RF_Frame _rf;
-#endif  
+#if (_WL1_FRM_INC > 0)
+        SRF_Frame _srf;
+#endif 
     };
   
 }PST_Frame;

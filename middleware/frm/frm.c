@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "pst_zy.h"
+#include "pst_RF.h"
 const uint8 gucs_PSTEndX16[] =          //定义部规的尾
 {
     0x16,
@@ -523,6 +524,10 @@ const uint8 gucs_PSTWL1Head[] =
 {
     PST_FRM_ANY,
 };
+const uint8 gucs_PSTWL1End[] =
+{
+    PST_FRM_ANY,
+};
 
 
 #define PST_FRM_WL_1_LP       0x01        //定义长度起始的位置
@@ -547,7 +552,9 @@ const PSTFrameStr gs_PSTFrameWL1Str =
     PST_FRM_WL_1_LATR,
     PST_FRM_WL_1_LLFT,
     PST_FRM_WL_1_LRFT,
-    PST_FRM_WL_1_END,
+//	    PST_FRM_WL_1_END,
+    NULL,
+    0,
     PST_FRM_WL_1_CSSP,
     PST_FRM_WL_1_MLEN,
     PST_FRM_WL_1_ATR,
@@ -1563,6 +1570,9 @@ uint8 (*const gfs_PSTDecode[])(uint8* rbuffer, uint8* sbuffer, uint16 sbuflen, P
 #if (PST_FRM_ZY_EN > 0)
     PST_ZY_Decode,
 #endif
+#if (PST_FRM_WL_1_EN > 0)
+    PST_SRF_Decode,
+#endif
 
 #if (PST_FRM_ZBF_EN > 0)
     PST_ZBF_Decode,
@@ -1653,6 +1663,9 @@ uint8 (*const gfs_PSTProc[])(PST_Frame* frm) =
 
 #if (PST_FRM_ZY_EN > 0)
     PST_ZY_Proc,
+#endif
+#if (PST_FRM_WL_1_EN > 0)
+    PST_SRF_Proc,
 #endif
 
 #if (PST_FRM_ZBF_EN > 0)

@@ -149,4 +149,31 @@
 
 //#endif
 
+#define CHANNEL_SETTING_WITH_ORDER
+
+
+#define MAX_FREQ_SCAN       64
+#define MAX_AVAILBLE_FRQ    64
+/*!
+ * Constant values need to compute the RSSI value
+ */
+#define RSSI_OFFSET_LF                              -164.0
+#define RSSI_OFFSET_HF                              -157.0
+#define RSSI_OFFSET_MF                              10
+//sx127x open
+//#define RF_ON()         HAL_IO_SET(RESET_PORT, RESET_P, 1)//    do{FIO2SET_bit.P2_4 = 0x1; }while(0)		//Ê¹ÄÜRF
+//sx127x close 
+//#define RF_OFF()        HAL_IO_CLR(RESET_PORT, RESET_P, 1)//    do{FIO2CLR_bit.P2_4 = 0x1; }while(0)
+
+//------------------------------------------------------------------------------------------------
+// EZMacProReg.name.MSR states
+//------------------------------------------------------------------------------------------------
+#define EZMAC_PRO_SLEEP     0x00
+#define TX_STATE_BIT        0x10
+#define RX_STATE_BIT        0x20
+#define EZMAC_PRO_IDLE      0x40
+#define EZMAC_PRO_WAKE_UP   0x80
+#define WAKE_UP_ERROR       0x8F
+#define EZMAC_STATE_BIT     0xF0
+
 
