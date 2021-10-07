@@ -103,6 +103,7 @@
 #define MSG_MAIN_UPDATA_CHK     40      //升级文件校验
 #define MSG_MAIN_HARD_CHK       41      //硬件自检
 #define MSG_MAIN_BLE_CHK       42      //硬件自检
+#define MSG_MAIN_RFID_CHK       42      //硬件自检
 #define MSG_MAIN_ADDR_CHG       43      //地址变更
 
 //	#define MSG_FARP_PRIOCNT        51
@@ -177,6 +178,7 @@
 #define MSG_ALRT_ERC1           105      //参数及数据初始化 erc1
 #define MSG_ALRT_CLR            106      //清除所有记录
 
+#define MSG_SWITCH_CHANGE   110
 
 //	#define MSG_FTP_OPEN            110
 //	#define MSG_FTP_OPEN_SUCC       111

@@ -26,8 +26,16 @@ MAIN_VAR tRadioDriver *Radio;
 MAIN_VAR volatile uint8 g_bTerType;
 MAIN_VAR ST_SEND_CACHE_INDEX g_stSendCacheIndex;
 
+USER_VAR uint8 nParentMacAddr[METER_ADDRESS_LENGTH_MAX];
+USER_VAR uint8 nParentMacAddrTemp[METER_ADDRESS_LENGTH_MAX];
+USER_VAR uint8 guc_SwitchOnOff;
+USER_VAR uint8 guc_SwitchNorErr;
+USER_VAR uint8 guc_BuzzerNorErr;
+USER_VAR uint16 nDeviceShortAddr;
 USER_VAR uint8 nDeviceMacAddrLen;
 USER_VAR uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];
+USER_VAR uint8 nDeviceCardId[METER_ADDRESS_LENGTH_MAX];
+
 USER_VAR uint8 nFreqChannelNum;
 USER_VAR uint32 nChangeChannelTime;
 USER_VAR uint8 bNeedChangeChannel;
@@ -57,6 +65,7 @@ USER_VAR const uint8 sBroadAddrAA[8];
 USER_VAR const uint8 sBroadAddrFC[8];
 USER_VAR const uint8 sBroadAddrFD[8];
 USER_VAR const uint8 sBroadAddrFE[8];
+USER_VAR const uint8 sBroadAddrFF[8];
 USER_VAR uint8 StaAck;
 USER_VAR PKT negapkt;
 //	USER_VAR EZ_TX_PKT EzDataTxPkt;//ÒµÎñ°ü»º´æ

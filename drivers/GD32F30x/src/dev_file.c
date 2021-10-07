@@ -97,7 +97,37 @@ uint8 DevFls_ProcMSG(TDevFlsOP* op)
     {
 
     }
+#if SYS_IFLASH_EN == 1
 
+    else if(op->type == DEV_FLS_TYPE_IFLS)     //操作Flash
+    {
+       switch(op->rw)
+       {
+           case DEV_FLS_RW_R:           //读操作
+               result = HAL_IFLASH_Read((uint8*)op->obj, op->addr, op->len);
+               break;
+           case DEV_FLS_RW_W:           //写操作
+//	               FLS_PreWrite();
+               result = HAL_IFLASH_Write((uint8*)op->obj, op->addr, op->len);
+               break;
+#ifndef __NO_SYS__           
+           case DEV_FLS_RW_S:           //设置操作
+//	               FLS_PreWrite();
+               result = HAL_IFLASH_Set((uint8)(uint32)op->obj, op->addr, op->len);
+               break;
+           case DEV_FLS_RW_E:           //擦除操作
+//	               FLS_PreWsrite();
+               result = HAL_IFLASH_Erase(op->addr, op->len);
+               break;
+           case DEV_FLS_RW_WS:          //Flash特殊写入操作
+//	               FLS_PreWrite();
+               result = HAL_IFLASH_WriteSpec((uint8*)op->obj, op->addr, op->len, 1);
+               break;
+#endif           
+       }
+       return result;
+    }
+#endif   
 #if SYS_EEPROM_EN > 0
     
     else if(op->type == DEV_FLS_TYPE_EEPROM)//操作FRAM
@@ -332,6 +362,10 @@ uint32 SYS_FILE_Test(void)
     
     return err;
 }
+//#include "stdlib.h"
+//	#define DEF_IFLS_BUF          512
+//	#define DEF_IFLS_SIZE         0x4000
+
 
 
 /***********************************************************
@@ -955,6 +989,570 @@ TResult SYS_FILE_DB_BErase(TDataBlock* db, uint32 sectorfrom, uint32 sectornum)
 
 
 #endif
+#if SYS_IFLASH_EN > 0
+
+/***********************************************************
+ * @function_name: SYS_FILE_Write
+ * @function_file: dev_file.c
+ * @描述:写入数据
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult _SYS_IFLS_Write(uint8* buffer, uint32 addr, uint32 length)
+{
+    TDevFlsOP op;                       //定义一个Flash操作结构
+    uint8 result;
+#ifndef __NO_SYS__    
+                                        //判断是否已被其他进程占用
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif    
+    op.addr = addr;                     //地址
+    op.len = length;                    //长度
+    op.obj = buffer;                    //缓存
+    op.type = DEV_FLS_TYPE_IFLS;         //类型
+    op.rw = DEV_FLS_RW_W;               //读写方式
+
+                                        //发送消息
+    result = DevFls_ProcMSG(&op);  
+    return result;                      //未知错误
+}
+
+
+
+/***********************************************************
+ * @function_name: SYS_FILE_ReadFromAddr
+ * @function_file: app_calc.c
+ * @描述:从指定的偏移地址开始读取数据
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/21)
+ **********************************************************/
+TResult _SYS_IFLS_Read(uint8* buffer, uint32 addr, uint32 length)
+{
+    TDevFlsOP op;                       //定义一个Flash操作结构
+    uint8 result;
+#ifndef __NO_SYS__     
+                                        //判断是否已被其他进程占用
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif    
+    op.addr = addr;                     //地址
+    op.len = length;                    //长度
+    op.obj = buffer;                    //缓存
+    op.type = DEV_FLS_TYPE_IFLS;         //类型
+    op.rw = DEV_FLS_RW_R;               //读写方式
+    
+    result = DevFls_ProcMSG(&op);
+    return result;
+}
+
+/************************************************************************
+ * @function: SYS_FILE_Test
+ * @描述: flash功能测试
+ * @参数: 
+ * 
+ * @返回: 
+ * @return: uint32  SYS_ERR_OK 功能正常, SYS_ERR_FT 功能异常(该类型为了与dev_file2.c一致)
+ * @说明: 
+ * @作者: yzy (2013/6/8)
+ *-----------------------------------------------------------------------
+ * @修改人: 
+ ************************************************************************/
+//#include "stdlib.h"
+#define DEF_IFLS_BUF          512
+#define DEF_IFLS_SIZE         0x40000
+
+/************************************************************************
+ * @function: SYS_FILE_Test
+ * @描述: flash功能测试
+ * @参数: 
+ * 
+ * @返回: 
+ * @return: uint32  SYS_ERR_OK 功能正常, SYS_ERR_FT 功能异常(该类型为了与dev_file2.c一致)
+ * @说明: 
+ * @作者: yzy (2013/6/8)
+ *-----------------------------------------------------------------------
+ * @修改人: 
+ ************************************************************************/
+uint32 SYS_IFLS_Test(void)
+{
+    uint8 cmp1[DEF_IFLS_BUF];                          //原始数据
+    uint8 cmp2[DEF_IFLS_BUF];                          //修改后理论写入数据
+    uint8 cmp3[DEF_IFLS_BUF];                          //修改后实际写入数据
+    uint32 err = 0;
+    SYS_FILE_Open();
+#ifndef __NO_SYS__
+
+    //判断是否已被其他进程占用
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif    
+                                            //执行测试
+    for(int k = 460; k < DEF_IFLS_SIZE/DEF_IFLS_BUF; k++)
+    {
+                                            //读取原始数据
+        if(_SYS_IFLS_Read(cmp1, k*DEF_IFLS_BUF, DEF_IFLS_BUF) != SYS_ERR_OK)
+        {
+            err = k+1;
+            break;
+        }
+                                            //修改原始数据
+        for(int i = 0; i < DEF_IFLS_BUF; i++)
+        {
+            cmp2[i] = cmp1[i] + i;
+        }
+                                            //写入理论写入数据
+        if(_SYS_IFLS_Write(cmp2, k*DEF_IFLS_BUF, DEF_IFLS_BUF) != SYS_ERR_OK)
+        {
+            err = k+1;
+            break;
+        }
+                                            //读取实际写入数据
+        if(_SYS_IFLS_Read(cmp3, k*DEF_IFLS_BUF, DEF_IFLS_BUF) != SYS_ERR_OK)
+        {
+            err = k+1;
+            break;
+        }
+        
+        _SYS_IFLS_Write(cmp1, k*DEF_IFLS_BUF, DEF_IFLS_BUF);   //恢复原始值
+        if(memcmp(cmp2, cmp3, DEF_IFLS_BUF) != 0)   //比对理论实际值
+        {
+            err = k+1;
+            break;
+        }
+    }
+    SYS_FILE_Close();
+    return err;
+}
+
+
+/***********************************************************
+ * @function_name: SYS_IFILE_DB_ReadFrom
+ * @function_file: es_file.c
+ * @描述:从指定的偏移开始读取数据
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/21)
+ **********************************************************/
+TResult SYS_IFILE_DB_ReadFrom(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr)
+{
+    TDevFlsOP op;                       //定义一个Flash操作结构
+    uint8 result;
+    
+    if(!(db->RW & TDB_MODE_R))          //需要支持读属性才允许读取
+    {
+        return SYS_ERR_TYPE;
+    }
+#ifndef __NO_SYS__    
+                                        //判断是否已被其他进程占用
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif
+    op.addr = db->start + addr;         //地址
+    op.len = length;                    //长度
+    op.obj = buffer;                    //缓存
+    op.type = DEV_FLS_TYPE_IFLS;         //类型
+    op.rw = DEV_FLS_RW_R;               //读写方式
+
+    result = DevFls_ProcMSG(&op);
+
+    return result;
+}
+/***********************************************************
+ * @function_name: SYS_IFILE_DB_WriteFrom
+ * @function_file: es_file.c
+ * @描述:写入数据
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult SYS_IFILE_DB_WriteFrom(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr)
+{
+    if(!(db->RW & TDB_MODE_W))          //需要支持读属性才允许读取
+    {
+        return SYS_ERR_TYPE;
+    }
+                                        //确认参数是否正确
+    SYS_VAR_CHECK(db->length < addr + length);
+#ifndef __NO_SYS__    
+                                        //判断是否已被其他进程占用
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif
+    TDevFlsOP op;                       //定义一个Flash操作结构
+    uint8 result;
+
+    op.addr = db->start + addr;         //地址
+    op.len = length;                    //长度
+    op.obj = buffer;                    //缓存
+    op.type = DEV_FLS_TYPE_IFLS;         //类型
+    op.rw = DEV_FLS_RW_W;               //读写方式
+
+    result = DevFls_ProcMSG(&op);
+    
+    return result; 
+}
+/***********************************************************
+ * @function_name: SYS_IFILE_DB_SetFrom
+ * @function_file: es_file.c
+ * @描述:设置相同数据
+ * 
+ * 
+ * @参数: 
+ * @param:db    
+ * @param:addr 
+ * @param:length
+ * @param:templet
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult SYS_IFILE_DB_SetFrom(TDataBlock* db, uint32 addr, uint32 length, uint8 templet)
+{
+    if(!(db->RW & TDB_MODE_W))          //需要支持读属性才允许读取
+    {
+        return SYS_ERR_TYPE;
+    }
+                                        //确认参数是否正确
+    SYS_VAR_CHECK(db->length < addr + length);
+                                        //判断是否已被其他进程占用
+#ifndef __NO_SYS__                                         
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif
+    TDevFlsOP op;                       //定义一个Flash操作结构
+    uint8 result;
+
+    op.addr = db->start + addr;         //地址
+    op.len = length;                    //长度
+    op.obj = (Object)templet;           //样本
+    op.type = DEV_FLS_TYPE_IFLS;         //类型
+    op.rw = DEV_FLS_RW_S;               //读写方式
+
+    result = DevFls_ProcMSG(&op);
+    
+    return result;
+}
+/***********************************************************
+ * @function_name: SYS_IFILE_DB_Erase
+ * @function_file: es_file.c
+ * @描述:
+ * 
+ * 
+ * @参数: 
+ * @param: db 要擦除的数据块
+ * @param: sectorfrom 起始擦除扇区(0~)
+ * @param: sectornum 擦除扇区的数量(超出数据块大小部分不擦)
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult SYS_IFILE_DB_Erase(TDataBlock* db, uint32 sectorfrom, uint32 sectornum)
+{
+    TDevFlsOP op;                       //定义一个Flash操作结构
+    uint8 result;
+    uint32 dbsectors;                   //数据块包含的总扇区数量
+                                        //确认参数是否正确
+    SYS_VAR_CHECK(sectorfrom > sectornum);
+    SYS_VAR_CHECK(sectornum == 0);
+    
+                                        //判断是否已被其他进程占用
+#ifndef __NO_SYS__                                         
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif    
+                                        //总扇区数量
+    dbsectors = (db->length >> 9);
+                                        //起始sector必须在数据块范围内
+    if(sectorfrom >= dbsectors)
+    {
+        return SYS_ERR_FT;
+    }
+                                        //擦除扇区数量必须在数据块范围内
+    if((sectorfrom + sectornum) > dbsectors)
+    {
+        sectornum = dbsectors - sectorfrom;
+    }
+
+    op.addr = db->start + (sectorfrom << 9);//要擦除区域在数据块内的绝对地址
+    op.len = sectornum;                 //擦除扇区总数
+    op.obj = __NULL;
+    op.type = DEV_FLS_TYPE_IFLS;
+    op.rw = DEV_FLS_RW_E;
+    
+    result = DevFls_ProcMSG(&op);
+    
+    return result;
+}
+/*******************************************************************************
+** @function_name:  SYS_FILE_DB_WriteSpec
+** @function_file:  dev_file.c
+** @描述: 文件数据块特殊写操作(适用于无须保存原有数据的写操作,特别适用于大数据量连续写入)
+** 
+** 
+** @参数: 
+** @param: db 
+** @param: buffer 
+** @param: length 
+** @param: addr 
+** 
+** @返回: 
+** @return:  TResult   
+** @作者: yzy (2011-07-25)
+**-----------------------------------------------------------------------------
+** @修改人: 
+** @修改说明: 
+*******************************************************************************/
+TResult SYS_IFILE_DB_WriteSpec(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr)
+{
+    if(!(db->RW & TDB_MODE_W))          //需要支持写属性才允许读取
+    {
+        return SYS_ERR_TYPE;
+    }
+                                        //确认参数是否正确
+    SYS_VAR_CHECK(db->length < addr + length);
+    
+                                        //判断是否已被其他进程占用
+#ifndef __NO_SYS__                                         
+    if(guc_FileUserTkid != krhino_cur_task_get())
+    {
+        return SYS_ERR_FT;
+    }
+#endif
+    TDevFlsOP op;                       //定义一个Flash操作结构
+    uint8 result;
+
+    op.addr = db->start + addr;         //地址
+    op.len = length;                    //长度
+    op.obj = buffer;                    //缓存
+    op.type = DEV_FLS_TYPE_IFLS;         //类型
+    op.rw = DEV_FLS_RW_WS;              //读写方式
+
+    result = DevFls_ProcMSG(&op);
+    
+    return result;
+}
+
+
+/***********************************************************
+ * @function_name: SYS_FILE_DB_WriteWithCRC
+ * @function_file: es_file.c
+ * @描述:带CRC校验的写入,注意写入的缓存要开大两个字节
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult SYS_IFILE_DB_WriteWithCRC(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr)
+{
+    BuildBufferCRC(buffer, length, true);
+    return SYS_IFILE_DB_WriteFrom(db, buffer, length, addr);
+}
+
+
+/***********************************************************
+ * @function_name: SYS_FILE_DB_WriteWithBackup
+ * @function_file: es_file.c
+ * @描述:写入数据,不仅带CRC校验,还带备份,这样的block实际能用的大小只有
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult SYS_IFILE_DB_WriteWithBackup(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr)
+{
+    TResult r1, r2; 
+
+    if(!(db->RW & TDB_MODE_BK))         //确保支持备份块属性
+    {
+        return SYS_ERR_TYPE;
+    }
+                                        //确认参数的正确性
+    SYS_VAR_CHECK(addr + length > (db->length >> 1));
+                                        //备份地址
+    uint32 bkaddr = addr + (db->length >> 1);
+                                        //带CRC校验的写入
+    r1 = SYS_IFILE_DB_WriteWithCRC(db, buffer, length, addr);
+    r2 = SYS_IFILE_DB_WriteWithCRC(db, buffer, length, bkaddr);
+    
+    if(!ER(r1) && ER(r2))               //主区错误,备份区正确
+    {
+        return SYS_ERR_MAIN;
+    }
+
+    if(!ER(r2) && ER(r1))               //备份区错误,主区正确
+    {
+        return SYS_ERR_BACK;
+    }
+    
+    if(!ER(r2) && !ER(r1))              //备份区错误,主区错误
+    {
+        return SYS_ERR_CHK;
+    }
+    SYS_OK();
+}
+
+
+/***********************************************************
+ * @function_name: SYS_FILE_DB_ReadWithCRC
+ * @function_file: es_file.c
+ * @描述:带校验的读取
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult SYS_IFILE_DB_ReadWithCRC(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr)
+{
+    TResult r;
+    r = SYS_IFILE_DB_ReadFrom(db, buffer, length, addr);
+
+    if(ER(r))
+    {
+        if(!CheckBufferCRC(buffer, length, true))
+        {
+            memset(buffer, 0x00, length);
+            r = SYS_ERR_CHK;
+        }
+    }
+    return r;
+}
+
+/***********************************************************
+ * @function_name: SYS_FILE_DB_ReadWithBackup
+ * @function_file: es_file.c
+ * @描述:带备份+校验的读取
+ * 
+ * 
+ * @参数: 
+ * @param:db  
+ * @param:buffer  
+ * @param:length  
+ * @param:addr  
+ * 
+ * @返回: 
+ * @return: TResult 
+ * @作者:
+ *---------------------------------------------------------
+ * @修改人: yzy (2010/2/22)
+ **********************************************************/
+TResult SYS_IFILE_DB_ReadWithBackup(TDataBlock* db, uint8* buffer, uint32 length, uint32 addr)
+{
+    TResult r; 
+
+    if(!(db->RW & TDB_MODE_BK))         //确保支持备份块属性
+    {
+        return SYS_ERR_TYPE;
+    }
+                                        //确认参数的正确性
+    SYS_VAR_CHECK(addr + length > (db->length >> 1));
+                                        //备份地址
+    uint32 bkaddr = addr + (db->length >> 1);
+                                        //带CRC校验的读取
+    r = SYS_IFILE_DB_ReadWithCRC(db, buffer, length, addr);
+
+    if(!ER(r))                          //主区错误则读取备份区
+    {
+        r = SYS_IFILE_DB_ReadWithCRC(db, buffer, length, bkaddr);
+        if(ER(r))
+        {
+            return SYS_ERR_MAIN;         //主区错误,但备份区正确
+        }
+    }
+    return r;                           //返回写入结果
+
+}
+
+#endif
 
 
 #if SYS_FRAM_EN > 0
@@ -1423,9 +2021,15 @@ void SYS_FILE_Init(void)
     //flash使用SPI接口,故不需要单独创建资源.
     
     krhino_sem_create(&gs_FileRes, "flash_sem", 1);
-    krhino_sem_create(&gs_EepromRes, "eeprom_sem", 1);
     guc_FileUserTkid = NULL;
+
+#if SYS_EEPROM_EN > 0    
+    krhino_sem_create(&gs_EepromRes, "eeprom_sem", 1);
     guc_EepromUserTkid = NULL;
+    
+#endif 
+    
+    HAL_IFlash_Init();
 }
 /************************************************************************
  * @function: SYS_FILE_Start

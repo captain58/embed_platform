@@ -25,6 +25,7 @@
 #include "user_func.h"
 #include "wirelessSendCache.h"
 #include "LinkMng.h"
+#include "paradef.h"
 #define PKT_HEAD_LEN (1+2+1+1+sizeof(STINFOWIRE)+2)
 #define RSSI_OFFSET_LF                              -164.0
 #define RSSI_OFFSET_HF                              -157.0
@@ -204,10 +205,10 @@ uint8 PST_SRF_Pack(PST_Frame* frame, uint8 err, uint16* length);
 //}
 
 //#pragma location= FLASH_MAP_ADD
-__no_init HASHT htable1[MAX_HASH_TABLE_FLASH_SIZE]; //哈希表(32K)
+__no_init HASHT *htable1;//[MAX_HASH_TABLE_FLASH_SIZE]; //哈希表(32K)
 
 //#pragma location= FLASH_MAP_ADD2
-__no_init HASHT htable2[MAX_HASH_TABLE_FLASH_SIZE]; //哈希表(32K)
+__no_init HASHT *htable2;//[MAX_HASH_TABLE_FLASH_SIZE]; //哈希表(32K)
 
 #include "star_rf_func.c"
 //	/********************************************************** 
@@ -1075,7 +1076,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
                 {
                     frm->apdu.broadCastFlg = 0;
                 }
-                else if(memcmp(frm->apdu.addr, sBroadAddr99, addrLen) == 0)
+                else if(memcmp(destAddr/*frm->apdu.addr*/, sBroadAddr99, addrLen) == 0)
                 {
                     frm->apdu.broadCastFlg = 1;                        
                 }
@@ -1084,6 +1085,22 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
                     SYS_ERR();
                 }
                 LOG_DEBUG( DBGFMT"rssi[%4.1f]HHU comm\n",DBGARG, SX1276LoRaGetPacketRssi());
+            }
+            else if(memcmp(destAddr, sBroadAddr99, addrLen) == 0 || 
+                    memcmp(destAddr, sBroadAddrFF, addrLen) == 0)
+            {
+                frm->apdu.broadCastFlg = 1;
+//	                if(guc_AllowLogin)
+                {
+                    
+                }
+                
+            }
+            else if(memcmp(destAddr, nDeviceMacAddr, addrLen) == 0 ||
+                    memcmp(destAddr, nParentMacAddr, addrLen) == 0 ||
+                memcmp(destAddr, nParentMacAddrTemp, addrLen) == 0)
+            {
+                frm->apdu.broadCastFlg = 0;
             }
             else
             {
@@ -1098,7 +1115,8 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
             if(memcmp(destAddr, nDeviceMacAddr, addrLen) != 0 )
             {
                 if(memcmp(destAddr, sBroadAddr99, addrLen) != 0 && 
-                    memcmp(destAddr, sBroadAddrAA, addrLen) != 0)
+                    memcmp(destAddr, sBroadAddrAA, addrLen) != 0 &&
+                      memcmp(destAddr, sBroadAddrFE, addrLen) != 0)
                 {
                     LOG_DEBUG( DBGFMT"rssi[%4.1f]dest addr err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
                         destAddr[5], destAddr[4],destAddr[3],destAddr[2],destAddr[1],destAddr[0]);                        
@@ -1145,7 +1163,13 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
     //memcpy(SN, pkt->head.apdu.addr, 6);
     
     
-    if(Meter_Check(srcAddr))
+//	    if(Meter_Check(srcAddr))
+    extern uint8_t guc_AllowLogin;
+#ifdef MASTER_NODE    
+    if(guc_AllowLogin || Meter_Check(srcAddr))
+#else
+    if(guc_AllowLogin )
+#endif      
     {
         frm->bNeedReAllocate = TRUE;
     }
@@ -1249,7 +1273,7 @@ uint8 PST_SRF_Proc(PST_Frame* frame)
     }
 
     //frm->send-=3;
-    PST_SRF_Pack(&frame, err, &length);     //打包数据帧
+    PST_SRF_Pack(frame, err, &length);     //打包数据帧
 
 //	    length+=2;
 //	    gfs_PSTChnSend[frame->chninfo & PST_FRM_CHNNO](frm->send, length);
@@ -1332,25 +1356,25 @@ uint8 Star_Rf_Pack(ST_STAR_RF_PACK * pack, STFUNCPARA * stAddr, STFUNCPARA * stD
     memcpy(pkt->head.apdu.addr, nDeviceMacAddr, UNIQUE_MAC_ADDR_LEN);//节点唯一标识(队列)	
     pkt->head.apdu.addrlen  = UNIQUE_MAC_ADDR_LEN;
     
-//	    if(pack->id >= SUP_SS_INDEX_START &&  pack->id < MAX_SUP_SS_NUM)
-//	    {
-//	        ROUTE temprt = Fill_Route(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN,  MASTER_ROUTE_PATH, pack->id); //接收者地址、路由
-//			if(temprt.rinfo.rtype != ERROR_ROUTE_PATH)
-//	        {
-//				pkt->head.apdu.stInfo.stDown.bit1.routeNum = temprt.rinfo.rdepth;
-//	            
-//	            memcpy(pkt->head.apdu.addr + (temprt.rinfo.rdepth + 1) * 6, cltor[pack->id].devAddr, UNIQUE_MAC_ADDR_LEN);//节点唯一标识(队列)
-//	
-//	            pkt->head.apdu.addrlen = (temprt.rinfo.rdepth + 2) * 6;
-//	
-//	            pkt->head.apdu.data = pkt->data + PKT_HEAD_LEN + pkt->head.apdu.addrlen;
-//	        }      
-//	    }
-//	    else
-//	    {
-//	        memcpy(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN, stAddr->data, stAddr->len);
-//	        pkt->head.apdu.addrlen  += stAddr->len;
-//	    }
+    if(pack->id >= SUP_SS_INDEX_START &&  pack->id < MAX_SUP_SS_NUM)
+    {
+        ROUTE temprt = Fill_Route(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN,  MASTER_ROUTE_PATH, pack->id); //接收者地址、路由
+		if(temprt.rinfo.rtype != ERROR_ROUTE_PATH)
+        {
+			pkt->head.apdu.stInfo.stDown.bit1.routeNum = temprt.rinfo.rdepth;
+            
+            memcpy(pkt->head.apdu.addr + (temprt.rinfo.rdepth + 1) * 6, cltor[pack->id].devAddr, UNIQUE_MAC_ADDR_LEN);//节点唯一标识(队列)
+	
+            pkt->head.apdu.addrlen = (temprt.rinfo.rdepth + 2) * 6;
+	
+            pkt->head.apdu.data = pkt->data + PKT_HEAD_LEN + pkt->head.apdu.addrlen;
+        }      
+    }
+    else
+    {
+        memcpy(pkt->head.apdu.addr + UNIQUE_MAC_ADDR_LEN, stAddr->data, stAddr->len);
+        pkt->head.apdu.addrlen  += stAddr->len;
+    }
     //info
     memcpy(pkt->data + m, &pkt->head.apdu.stInfo, sizeof(STINFOWIRE));
     m+=sizeof(STINFOWIRE);

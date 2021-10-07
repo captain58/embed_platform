@@ -27,7 +27,10 @@
 #endif
 
 
-
+#if SYS_IFLASH_EN > 0
+#define WriteFlash  WriteIFlash
+#define ReadFlash   ReadIFlash
+#else
 /************************************************************************
  * @function: ReadFlash
  * @描述: 从Flash里读取数据,不验证校验码.重试3次
@@ -66,7 +69,7 @@ TResult ReadFlash(uint16 fileid, uint8* buffer, uint16 len, uint32 start);
  * @修改人: 
  ************************************************************************/
 TResult WriteFlash(uint16 fileid, uint8* buffer, uint16 len, uint32 start);
-
+#endif
 
 /************************************************************************
  * @function: ReadFlashWithCRC
@@ -200,7 +203,7 @@ bool STR_ClrFlashBit(uint16 fileid, uint32 start, uint16 bit, uint16 mbyte);
  * @param: data 设置的数据
  * 
  * @返回: 
- * @return: uint8 SYS_ERR_OK / SA_ERR_FT
+ * @return: uint8 SYS_ERR_OK / SYS_ERR_FT
  * @说明: 
  * @作者: yzy
  *-----------------------------------------------------------------------

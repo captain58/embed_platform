@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include "public.h"
 //#include "flsmap.h"
-#include "saextapi.h"
+#include "extapi.h"
 #include "pst_param.c"
 #include "lib_com/calclib_gw.h"
 #include "netp.h"
@@ -862,20 +862,23 @@ uint8 ParamLoad_F251(void)
     {
         GD_Para_RW(F251_PADDR, temp, 6, false);
     }
-
-    MoveBuffer(gs_PstPara.Addr, addrbak, 6);
-    MoveBuffer(temp, gs_PstPara.Addr, 6);
-    if(CmpBuffer(gs_PstPara.Addr, addrbak, 6) && (gl_SysRunStt & HRS_PARALD))
+    
+//	    MoveBuffer(gs_PstPara.Addr, addrbak, 6);
+//	    MoveBuffer(temp, gs_PstPara.Addr, 6);
+//	    if(CmpBuffer(gs_PstPara.Addr, addrbak, 6) && (gl_SysRunStt & HRS_PARALD))
+//	    {
+//	//	       gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
+//	//        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
+//	        gs_OS.Message_Send(&gs_MainQueue, &msgidA[MSG_MAIN_BLE_CHK], 1);
+//	    }
+    MoveBuffer(nDeviceMacAddr, addrbak, 6);
+    MoveBuffer(temp, nDeviceMacAddr, 6);
+    if(CmpBuffer(nDeviceMacAddr, addrbak, 6) && (gl_SysRunStt & HRS_PARALD))
     {
-//	       gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
-       
+//         gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
 //        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
         gs_OS.Message_Send(&gs_MainQueue, &msgidA[MSG_MAIN_BLE_CHK], 1);
-
     }
-    
-//	    MoveBuffer(gs_PstPara.Addr, gucs_FcAddr + 2, 2);
-//	    MoveBuffer(gs_PstPara.Addr + 2, gucs_FcAddr, 2);
     
     SYS_OK();
 }
@@ -2039,7 +2042,7 @@ uint8 UserVarInit(void)
  * @param: mode mode (true含通讯参数,false不含通讯参数)
  * 
  * @返回: 
- * @return: uint8  SYS_ERR_OK,SA_ERR_FT
+ * @return: uint8  SYS_ERR_OK,SYS_ERR_FT
  * @说明: 
  * @作者: yzy (2014/2/12)
  *-----------------------------------------------------------------------
@@ -4578,7 +4581,7 @@ const PST_TableStr gss_PstZyTbl[] =
         PARA_GPRS_PLEN,
         PARA_GPRS,
         
-        PARA_TYPE_FARP,
+        0,//PARA_TYPE_FARP,
         
         (void*)ParamLoad_Gprs,
         DefParaGPRS,

@@ -174,21 +174,21 @@ void Handle_JRep(void)//处理入网请求包
 		Create_JRep(AckID, ezPkt);
 
 		//删除采集器节点
-		if(cltor[AckID].nodestatus.bNeedDelete && decDeleteCtrlST(AckID))
-        {
-            int ret;
-			ret = Hash_Table_Search1(cltor[AckID].devAddr, cltor[AckID].addrLen); //查找哈希表中的索引值				
-            if (ret != ( - 1))
-            {                     
-                Updata_Hash_Table(ret, NULL);  //删除                                              
-
-                //删除认证采集器操作
-                //Del_Validate_W_B(cltor[id].devAddr);
-            }
-            Delete_SS_Node(AckID);
+//			if(cltor[AckID].nodestatus.bNeedDelete && decDeleteCtrlST(AckID))
+//	        {
+//	            int ret;
+//				ret = Hash_Table_Search1(cltor[AckID].devAddr, cltor[AckID].addrLen); //查找哈希表中的索引值				
+//	            if (ret != ( - 1))
+//	            {                     
+//	                Updata_Hash_Table(ret, NULL);  //删除                                              
+//	
+//	                //删除认证采集器操作
+//	                //Del_Validate_W_B(cltor[id].devAddr);
+//	            }
+//	            Delete_SS_Node(AckID);
                         
             
-        }      
+//        }      
 	}
 		
 }
@@ -725,3 +725,64 @@ void wireless_proc(void)//
 {
     wireless_mng();
 }
+
+void Handle_Led()
+{
+#ifdef MASTER_NODE
+	uint16 i,m = 0 ;
+    uint8_t flag = 0;
+	for(i=MAX_SUP_SS_NUM;i >= SUP_SS_INDEX_START; i--)//遍历
+	{
+		if ( cltor[i].devAddr[0] < 0xFF/* && cltor[i].nodestatus.NetStatus*/)
+        {
+            if((flag & (1 << cltor[i].loginNo)) == 0)
+            {
+                flag |= 1 << cltor[i].loginNo;
+    			switch(cltor[i].loginNo)	
+                {
+                    case 1:
+                        if(cltor_shadow[i].nodestatus.switchstt)
+                        {
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 2, 0, 0, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
+                        }
+                        else
+                        {
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 1, 50, 50, 0);
+                        }
+                        break;
+                    case 2:
+                        if(cltor_shadow[i].nodestatus.switchstt)
+                        {
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 2, 0, 0, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 3, 0, 0, 0);
+                        }
+                        else
+                        {
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 1, 50, 50, 0);
+                        }
+                        break;
+                    default:
+                        break;
+            
+                }     
+            }
+        }
+    }
+#endif    
+}
+
+void Handle_Proc()
+{
+    static uint32_t count = 0;
+    count++;
+    Handle_JRep();//处理入网包
+    if(count % 2 == 0)
+    {
+        Handle_Affirm();
+    }
+    Handle_Led();
+}
+

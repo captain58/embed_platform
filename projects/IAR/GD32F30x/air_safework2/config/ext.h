@@ -52,6 +52,10 @@
 *******************************************************************************/
 #define SYS_FILE_EN      1
 #define CBB_FILE_EN SYS_FILE_EN
+/******************************************************************************
+**片内flash相关
+*******************************************************************************/
+#define SYS_IFLASH_EN   1
 
 /******************************************************************************
 **GPIO
@@ -65,13 +69,13 @@
 #define SYS_GPIEVT_EN  1                 //GPI消息分发使能
 
 #if (SYS_GPO_EN > 0)
-    #define GPO_PORT_NUM    1
+    #define GPO_PORT_NUM    2
 #endif
 
 #if (SYS_LGPI_EN > 0)
-    #define LGPI_PORT_NUM   4
-    #define LGPI_GATE       1               //按键扫描门限
-    #define LGPI_LAST       20              //按键长按门限
+    #define LGPI_PORT_NUM   5
+    #define LGPI_GATE       3               //按键扫描门限
+    #define LGPI_LAST       200              //按键长按门限
 
 #endif
 
@@ -151,7 +155,7 @@
 #define  UART_CHANNEL_GPRS		SYS_UART1_IDX//SYS_UART0_IDX    //gprs串口
 #define  UART_CHANNEL_DEBUG		PORT_UART_STD//SYS_UART2_IDX    //debug串口
 #define  UART_CHANNEL_ESAM      SYS_UART0_IDX
-#define  UART_CHANNEL_CARD      SYS_UART3_IDX
+#define  UART_CHANNEL_CARD      SYS_UART2_IDX
 //	#define  UART_CHANNEL_NETP		PORT_UART_STD//
 //	#define  UART_CHANNEL_DEBUG		PORT_UART_STD//
 //	#define  UART_CHANNEL_DEBUG		PORT_UART_STD//
@@ -185,6 +189,10 @@
 **RF
 ******************************************************************************/
 #define SYS_RF_EN   1                   //rf模块使能
+/******************************************************************************
+**RFID
+******************************************************************************/
+#define SYS_RFID_EN   1                   //rfid模块使能
 
 /******************************************************************************
 **LED Beep
@@ -377,12 +385,15 @@
 /*******************************************************************************
 **蓝牙
 ********************************************************************************/ 
-#define SYS_BLEMODEM_EN                 1
+#define SYS_BLEMODEM_EN                 0
+/*******************************************************************************
+**蓝牙
+********************************************************************************/ 
+#define SYS_RFIDMODEM_EN                 1
 
-
-#if SYS_BLEMODEM_EN > 0
+#if SYS_RFIDMODEM_EN > 0
     //支持的模块
-    #define Modem_LSB4BT_EN   1
+    #define Modem_ICM522_EN   1
 #endif
 #endif
 

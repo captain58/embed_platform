@@ -93,6 +93,12 @@
 #include "dev_rfA7139.h"
 #endif
 
+#if (SYS_RFID_EN > 0)
+#include "dev_icm522.h"
+#include "dev_rfid.h"
+#endif
+
+
 #endif
 
 

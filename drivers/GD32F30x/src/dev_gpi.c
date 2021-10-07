@@ -137,7 +137,9 @@ void SYS_LGPI_Scan(void)
                 else                                //低电平
                 {
                     gsp_GpioStt->cnt[uc_i] = 0;     //计数器清零
-                    gsp_GpioStt->lastcnt[uc_i]++;   //低电平状态下按键保持计数器累加
+                    
+                    if(gsp_GpioStt->lastcnt[uc_i] <= LGPI_LAST)
+                        gsp_GpioStt->lastcnt[uc_i]++;   //低电平状态下按键保持计数器累加
                 }
             }
                                                     //按键事件
@@ -151,7 +153,7 @@ void SYS_LGPI_Scan(void)
                                                     //按键保持事件判断
             if(gsp_GpioStt->lastcnt[uc_i] == LGPI_LAST)
             {
-                gsp_GpioStt->lastcnt[uc_i] = 0;//LGPI_LAST - LGPI_GATE;
+//	                gsp_GpioStt->lastcnt[uc_i] = 0;//LGPI_LAST - LGPI_GATE;
                 gsp_GpioStt->keylevt |= (0x01 << uc_i);
             }
         }

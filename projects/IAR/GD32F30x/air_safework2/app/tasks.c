@@ -59,7 +59,11 @@ const KTaskDeclare __TKDeclare[SYS_TK_NUM] =
     {__NULL, 0},//TASK_DECLARE_6_NETP(),//{__NULL, 0},
     {__NULL, 0},//TASK_DECLARE_7_NETP(),//
     {__NULL, 0},
-    {__NULL, 0},//TASK_DECLARE_9_SLV(),
+#ifndef MASTER_NODE     
+    TASK_DECLARE_9_SLV(),
+#else
+    {__NULL, 0}, 
+#endif    
     TASK_DECLARE_10_RFMNG(),
     
 };

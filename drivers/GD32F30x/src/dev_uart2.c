@@ -520,6 +520,7 @@ uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length, uint32_t to)
     uint16 pr;
     uint16 count;
     uint16 i;
+    uint16_t leftLength = length;
                                     //参数合法性判断
     if((_ucPortMap[port] >= NO_OF_SERIAL) || (length == 0))
     {
@@ -532,53 +533,63 @@ uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length, uint32_t to)
 //        return 0;
 //    }
 #endif    
-    SYS_ENTER_AllSCRT();
-    count = uart->rcnt;
-    if(count > length)              //获取实际读取的数据长度
+    while(to > 0)
     {
-        count = length;
-    }
-    SYS_EXIT_AllSCRT();
-                                    //循环转移数据
-    if(__NULL != buffer)            //not dequeue
-    {
-        pr = uart->pr;              //数据读取起始指针
-        for(i = 0; i < count; i++)
+        SYS_ENTER_AllSCRT();
+        count = uart->rcnt;
+        if(count > length)              //获取实际读取的数据长度
         {
-            buffer[i] = uart->rbuff[pr];
-            pr++;
-            if(pr >= uart->rlen)    //卷绕
+            count = length;
+        }
+        SYS_EXIT_AllSCRT();
+                                        //循环转移数据
+        if(__NULL != buffer)            //not dequeue
+        {
+            pr = uart->pr;              //数据读取起始指针
+            for(i = 0; i < count; i++)
             {
-                pr = 0;
+                buffer[i] = uart->rbuff[pr];
+                pr++;
+                if(pr >= uart->rlen)    //卷绕
+                {
+                    pr = 0;
+                }
             }
         }
-    }
-    else                            //dequeue
-    {
+        else                            //dequeue
+        {
 #if UART_READ_HOOK_EN > 0
-        if(count > (uart->rlen - uart->pr))
-        {
-            _UartReadHook(_ucPortMap[port], &uart->rbuff[uart->pr], uart->rlen - uart->pr);
-            _UartReadHook(_ucPortMap[port], &uart->rbuff[0], count - (uart->rlen - uart->pr));
-        }
-        else
-        {
-            _UartReadHook(_ucPortMap[port], &uart->rbuff[uart->pr], count);
-        }
+            if(count > (uart->rlen - uart->pr))
+            {
+                _UartReadHook(_ucPortMap[port], &uart->rbuff[uart->pr], uart->rlen - uart->pr);
+                _UartReadHook(_ucPortMap[port], &uart->rbuff[0], count - (uart->rlen - uart->pr));
+            }
+            else
+            {
+                _UartReadHook(_ucPortMap[port], &uart->rbuff[uart->pr], count);
+            }
 #endif
-    }
-    
-    uart->pr += count;              //数据处理指针前移
-    while(uart->pr >= uart->rlen)   //卷绕
-    {
-        uart->pr -= uart->rlen;
-    }
-    
-    SYS_ENTER_AllSCRT();
-    uart->rcnt -= count;            //未处理数据长度递减 yzy->rcnt在handler中会被改变
-    SYS_EXIT_AllSCRT();
-    
+        }
+        
+        uart->pr += count;              //数据处理指针前移
+        while(uart->pr >= uart->rlen)   //卷绕
+        {
+            uart->pr -= uart->rlen;
+        }
+        
+        SYS_ENTER_AllSCRT();
+        uart->rcnt -= count;            //未处理数据长度递减 yzy->rcnt在handler中会被改变
+        SYS_EXIT_AllSCRT();
 
+        leftLength -= count;
+
+        if(0 == leftLength)
+        {
+            break;
+        }
+        msleep(10);
+        to -= 10;
+    }
 #if UART_READ_HOOK_EN > 0
      _IF_TRUE_DO(__NULL != buffer, _UartReadHook(_ucPortMap[port], buffer, count));
 #endif

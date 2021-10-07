@@ -30,8 +30,14 @@
 
 
 #ifdef EXT_LED                          //LED端口定义
+    const COMPORT gs_LedRun       = {GPIOB, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
-    const COMPORT gs_LedRun       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_50MHZ,    1};
+    const COMPORT gs_LedBat       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedCard       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+
+//	    const COMPORT gs_LedSwitch  = {GPIOB, 14,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_BuzCard       = {GPIOB, 13,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedNull       = {GPIOB, 4,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
     
     
@@ -41,9 +47,15 @@
     const GPO_PORTS gs_LedPort[] = 
     {
         {(COMPORT*)&gs_LedRun,     0, 1, 1},     //true:低电平点亮
+//	        {(COMPORT*)&gs_LedSwitch,     1, 0, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedBat,     0, 1, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedCard,     0, 1, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_BuzCard,     0, 0, 0},
+        {(COMPORT*)&gs_LedNull,     0, 1, 1},     //true:低电平点亮
+        
     };
 
-    #define LED_NUM 1// (sizeof(gs_LedPort) / sizeof(GPO_PORTS))
+    #define LED_NUM 5// (sizeof(gs_LedPort) / sizeof(GPO_PORTS))
 
 #endif                                      //#ifdef EXT_DEV_LED
 
@@ -55,12 +67,17 @@
 //	    BEEP_WARN = 0,                        //告警蜂鸣器
 //	}LedNo;
 typedef enum {
-GPIO_LED_RUN,
-GPIO_LED_SUB1_NORM,    
-GPIO_LED_SUB1_ERR,   	
-GPIO_LED_SUB2_NORM,    
-GPIO_LED_SUB2_ERR,   	
-GPIO_LED_MASTER_BAT_LOW,
+    GPIO_LED_RUN,
+    GPIO_LED_BAT,
+    
+    GPIO_LED_CARD,
+    GPIO_BUZ_CARD,
+    GPIO_LED_NULL,
+//	GPIO_LED_SUB1_NORM,    
+//	GPIO_LED_SUB1_ERR,   	
+//	GPIO_LED_SUB2_NORM,    
+//	GPIO_LED_SUB2_ERR,   	
+//	GPIO_LED_MASTER_BAT_LOW,
 //    LED_NUM,
 } LedNo;
 
@@ -71,6 +88,7 @@ GPIO_LED_MASTER_BAT_LOW,
 typedef enum
 {
     GPO_ADC_ONOFF,
+    GPO_SWITCH_PWR,
     GPO_MODEM_PWR,
     GPO_MODEM_ONOFF,
     GPO_VALVE_SLEEP,
@@ -88,7 +106,9 @@ typedef enum
 
 #ifdef EXT_GPO                      //GPO的端口定义
 
-    const COMPORT gs_GpoAdcCtl      = {0x2, 1,  1, 0,    1};
+    const COMPORT gs_GpoAdcCtl      = {GPIOB, 3,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_SwitchVccCtl       = {GPIOB, 11,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+
 //    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
 //    const COMPORT gs_GpoModemOnOff  = {12,  5,  1, (IOCON_FUNC0 ),    1};
 //    const COMPORT gs_GpoValveSleep  = {0x0, 7,  0, (IOCON_FUNC0 ),    1};
@@ -105,6 +125,7 @@ typedef enum
     const GPO_PORTS gs_GpoPort[] = 
     {
         {(COMPORT*)&gs_GpoAdcCtl,       false, false},      //adc采样开关
+        {(COMPORT*)&gs_SwitchVccCtl,       false, false}, 
 //        {(COMPORT*)&gs_GpoModemPwr,     false, false},      //gprs电源脚
 //        {(COMPORT*)&gs_GpoModemOnOff,   false, false},      //gprs Power Key脚
 //        {(COMPORT*)&gs_GpoValveSleep,   false, false},      //阀门芯片休眠 低电平休眠
@@ -126,7 +147,7 @@ typedef enum
 **慢速输入口配置
 ******************************************************************************/
 //#define LGPI_KEY_NUM    5               //数值小于 LGPI_PORT_NUM
-#define LGPI_KEY_NUM    3
+#define LGPI_KEY_NUM    5
 
 
 #define SYS_LGPI_GATE    2               //按键扫描门限
@@ -145,7 +166,7 @@ typedef enum
     GPI_KEY2,
     GPI_DIO1,
     GPI_DIO2,
-    GPI_HALL2,
+    GPI_Switch,
     GPI_CARD_SDA,
     GPI_ESAM_SDA,    
 }GPIENUM;
@@ -159,10 +180,12 @@ typedef enum
     /******************************************************************************
     **LGPI端口信息
     ******************************************************************************/
-    const COMPORT gs_GpiKey1      = {GPIOB, 15,  1, GPIO_MODE_IPU,  GPIO_OSPEED_50MHZ,    0};//key1
-    const COMPORT gs_GpiKey2      = {GPIOA, 0,  1, GPIO_MODE_IPU,  GPIO_OSPEED_50MHZ,    0};//key2
+    const COMPORT gs_GpiKey1      = {GPIOB, 15,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key1
+    const COMPORT gs_GpiKey2      = {GPIOA, 0,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key2
     const COMPORT gs_GpiDIO1      = {GPIOB, 0,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
     const COMPORT gs_GpiDIO2      = {GPIOA, 6,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiSwitch      = {GPIOB, 14,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+
 //    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
 //    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
 //    const COMPORT gs_GpiHall2      = {0, 2,  1, (IOCON_FUNC0 ),    0};//Hall2
@@ -175,6 +198,7 @@ typedef enum
         {(COMPORT*)&gs_GpiKey2,       1, 0, 0},      //key2
         {(COMPORT*)&gs_GpiDIO1,    1, 0, 0},      //key3     
         {(COMPORT*)&gs_GpiDIO2,      1, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiSwitch,      0, 0, 0},      //key1
 //        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
 //        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu卡sda脚
 //        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda脚

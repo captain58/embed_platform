@@ -693,7 +693,9 @@ extern uint32 g_ucUpgradeCount;
 //}
 
 extern __IO uint32_t uwTick;
+extern uint8_t guc_netStat;
 ktimer_t     g_rf_tick_timer;
+ktimer_t     g_rf_mainloop_timer;
 void SYS_RFMng_Task(void * arg)
 {
     TIME time;
@@ -724,6 +726,12 @@ void SYS_RFMng_Task(void * arg)
     //Flash_Test();
     krhino_timer_create(&g_rf_tick_timer, "rf_tick_timer", Slot_Time_IRQ,
                         krhino_ms_to_ticks(SYS_TIMER_COUNT_MS), krhino_ms_to_ticks(SYS_TIMER_COUNT_MS), 0, 1);
+#ifdef MASTER_NODE
+    extern void Handle_Proc();
+    krhino_timer_create(&g_rf_mainloop_timer, "rf_mainloop_timer", Handle_Proc,
+                        krhino_ms_to_ticks(100), krhino_ms_to_ticks(100), 0, 1);
+   
+#endif    
     for(;;)
     {   
         ret = krhino_buf_queue_recv(&gs_RFMngQueue, 1/*RHINO_WAIT_FOREVER*/, g_RFMng_buf_recv,
@@ -734,6 +742,12 @@ void SYS_RFMng_Task(void * arg)
             {
                 case MSG_SEC:
                     Farp_WMSecondProc();
+                    break;
+
+
+                case MSG_SWITCH_CHANGE:
+                    if(guc_netStat == NODE_STATUS_LOGIN)
+                        EZMacPRO_Transmit_Adv(3, NULL, 0);	
                     break;
                 case MSG_FARP_RECVDATA:
                 {

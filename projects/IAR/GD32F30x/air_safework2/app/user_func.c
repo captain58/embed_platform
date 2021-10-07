@@ -85,7 +85,8 @@ uint8 rf_clk;//射频校准中断标识位
 
 USER_VAR STMUCHFRAMEINDEX g_stMuchframeindex_port@"AHB_RAM_MEMORY";
 USER_VAR uint8 g_ucfactory_mod = 0;
-
+extern HASHT * htable1; //哈希表(2K)
+extern HASHT * htable2; //哈希表(2K)
 //	USER_VAR uint8 	CurWhiteSSMap;		// 0: 白名单1;     1: 白名单2
 //	USER_VAR uint8 	CurBlackSSMap;		// 0: 黑名单1;     1: 黑名单2  
 //uint8 	SSMapShadowSpace[MAX_VALIDATE_SS_NUM];
@@ -261,6 +262,7 @@ USER_VAR const uint8 sBroadAddrAA[8] = {0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA
 USER_VAR const uint8 sBroadAddrFC[8] = {0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 USER_VAR const uint8 sBroadAddrFD[8] = {0xFD, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 USER_VAR const uint8 sBroadAddrFE[8] = {0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+USER_VAR const uint8 sBroadAddrFF[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 USER_VAR ST_PENDING_ADDR_LIST g_stPendingAddrList;
 USER_VAR uint32 g_nModuleResetTime = 0;
@@ -1250,6 +1252,65 @@ void Record_Handled_Addr(int hash)
     shadow_space[hash].handled=HANDLED;
     I2cWrite(0xA0, (uint8*)&shadow_space[hash], hash,1);//写入E2PR0M
 }
+/*************************************************************************
+ * Function Name: htable1_search
+ * Parameters:  ammeter 's address 
+ * Return: none
+ * Description: 根据电表地址查找ID
+ *
+ *************************************************************************/
+
+int Hash_Table_Search(uint8 *addr)
+{
+    uint16 hash;
+    uint16 index;
+    uint8 metertable[6];
+    uint8 j;
+    for (j = 0; j < 6; j++)
+    {
+        metertable[j] = addr[j];
+        /*            
+        if (metertable[j] == 0xAA)
+        {
+        metertable[j] = 0x0;
+        }*/
+    }
+    hash = Cal_Hash_Value(metertable); //计算得到哈希值
+    if(HASH_Table_Used==0)
+    {
+        if ((htable1[hash].status== OCCUPIED) && (!(memcmp(metertable, htable1[hash].addr, 6))))
+        {
+            return hash; //返回哈希索引
+        }
+        index = (hash + 1)  % (MAX_HASH_TABLE_FLASH_SIZE); //如果不是它，则加1往下对比
+        while (index != hash)
+        {
+            if ((htable1[index].status== OCCUPIED) && (!(memcmp(metertable, htable1[index].addr, 6)))) //如果哈希表里有其值
+            {
+                return index; //返回哈希索引
+            }
+            index = (index + 1)  % (MAX_HASH_TABLE_FLASH_SIZE); //如果不是它，则加1往下对比
+        }
+        return ( - 1); //如果找不到，返回-1
+    }   
+    else
+    {
+        if ((htable2[hash].status== OCCUPIED) && (!(memcmp(metertable, htable2[hash].addr, 6))))    //如果哈希表里有其值	      
+        {
+            return hash; //返回哈希索引
+        }
+        index = (hash + 1)  % (MAX_HASH_TABLE_FLASH_SIZE); //如果不是它，则加1往下对比
+        while (index != hash)
+        {	
+            if ((htable2[index].status== OCCUPIED) && (!(memcmp(metertable, htable2[index].addr, 6))))    //如果哈希表里有其值
+            {
+                return index; //返回哈希索引
+            }
+            index = (index + 1)  % (MAX_HASH_TABLE_FLASH_SIZE); //如果不是它，则加1往下对比
+        }
+        return ( - 1); //如果找不到，返回-1
+    }   
+}
 
 //通过黑白名单, 检查输入的表地址地址
 uint8 Meter_Check(uint8* addr)	
@@ -1257,10 +1318,10 @@ uint8 Meter_Check(uint8* addr)
 	uint8 rc = FALSE;
     int ret;
 
-//    ret = Hash_Table_Search(addr);
-//
-//	if(ret != (-1))
-//		rc = TRUE;
+    ret = Hash_Table_Search(addr);
+
+    if(ret != (-1))
+    	rc = TRUE;
 	return rc; 
 }
 
@@ -1529,7 +1590,7 @@ void User_Parameter_Init(void)
     Set_Self_ID();
 	Cltor_init();
     //资产初始化
-    RecoverCltorPara();
+//    RecoverCltorPara();
 //    memset(g_ucPktRssiValue, 0, 256);
     negapkt.len = 0;
     negapkt.data[0] = START_FLAG;
@@ -1586,7 +1647,7 @@ void User_Parameter_Init(void)
     memset((uint8 *)&g_stMuchframeindex_port, 0, sizeof(STMUCHFRAMEINDEX));
 
     DeleteProcInit();
-    CompressAddrInit(CON_DEV_ADDR_LEN_8, 5, 0);
+//    CompressAddrInit(CON_DEV_ADDR_LEN_8, 5, 0);
     sendCacheInit();
 }
 
@@ -1633,303 +1694,308 @@ void Get_Net_Parameter(void)
 //	uint8  P[10]={0};
     UPDATE_PKT tmpPkt;
     uint8 bNeedSave = 0;
-    I2cRead(0xA0,  (uint8 *)&tmpPkt, EEPROM_UPDATE_PARA, sizeof(UPDATE_PKT));  
-
-    if(tmpPkt.crc == CRC_16BIT_Check1((uint8 *)&tmpPkt, sizeof(UPDATE_PKT) - 2))
-    {
-        memcpy((uint8 *)&upd_pkt,(uint8 *)&tmpPkt,sizeof(UPDATE_PKT));
-        if(upd_pkt.nextSeq !=0) upd_pkt.nextSeq++;
-    }
-    else
-    {
-        memset((uint8 *)&upd_pkt,0,sizeof(UPDATE_PKT));
-    }
-    
-    I2cRead(0xA0,  (uint8 *)&g_stUpgrade, DP_DOWNLOAD_PROC_PARA_ADDR, sizeof(STUPGRADE));  
-
-    if(g_stUpgrade.crc == CRC_16BIT_Check1((uint8 *)&g_stUpgrade, sizeof(STUPGRADE) - 2))
-    {
-        g_stUpgrade.timeCount = GET_TICK_COUNT( );
-    }
-    else
-    {
-        //memset((uint8 *)&g_stUpgrade,0,sizeof(STUPGRADE));
-    }
-    
-	I2cRead(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, sizeof(CLTP)); //获取路由参数         
-	if (cltparm.maxttl == 0xff)// 如果I2C读出来都是零，则默认值
-	{
-		cltparm.routeuptime = 60;//心跳      
-		cltparm.maxttl = 120;//生存周期
-		cltparm.routeseltime = 30;//选父节点时间    
-		I2cWrite(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, sizeof(CLTP)); //写入路由参数         
-	}
-	I2cRead(0xA0,  &temp, FM_SS_CODEUPDATA_ENABLE, 1); //获取路由参数         
-	if(0xff == temp)
-	{
-		temp = 0;
-		I2cWrite(0xA0,  &temp, FM_SS_CODEUPDATA_ENABLE, 1);         
-	}
-//	    adpkt.subtype.SSCodeUpdataEnable = temp;
-	
-	//载波主节点地址
-	memset(nDeviceMacAddr, 0, 10);
-	I2cRead(0xA0, &nDeviceMacAddrLen, FM_DEVICE_ADDR_LEN, 1); //载波主节点地址
-    if(nDeviceMacAddrLen > 10)
-    {
-        nDeviceMacAddrLen = 10;
-    }
-	I2cRead(0xA0, nDeviceMacAddr, FM_DEVICE_ADDR, nDeviceMacAddrLen); //载波主节点地址
-	
-	//I型采集器底座的升级使能
-//		I2cRead(0xA0,  &temp, FM_I_SS_CODEUPDATA_ENABLE, 1); 
+//	    I2cRead(0xA0,  (uint8 *)&tmpPkt, EEPROM_UPDATE_PARA, sizeof(UPDATE_PKT));  
+//	
+//	    if(tmpPkt.crc == CRC_16BIT_Check1((uint8 *)&tmpPkt, sizeof(UPDATE_PKT) - 2))
+//	    {
+//	        memcpy((uint8 *)&upd_pkt,(uint8 *)&tmpPkt,sizeof(UPDATE_PKT));
+//	        if(upd_pkt.nextSeq !=0) upd_pkt.nextSeq++;
+//	    }
+//	    else
+//	    {
+//	        memset((uint8 *)&upd_pkt,0,sizeof(UPDATE_PKT));
+//	    }
+//	    
+//	    I2cRead(0xA0,  (uint8 *)&g_stUpgrade, DP_DOWNLOAD_PROC_PARA_ADDR, sizeof(STUPGRADE));  
+//	
+//	    if(g_stUpgrade.crc == CRC_16BIT_Check1((uint8 *)&g_stUpgrade, sizeof(STUPGRADE) - 2))
+//	    {
+//	        g_stUpgrade.timeCount = GET_TICK_COUNT( );
+//	    }
+//	    else
+//	    {
+//	        //memset((uint8 *)&g_stUpgrade,0,sizeof(STUPGRADE));
+//	    }
+//	    
+//		I2cRead(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, sizeof(CLTP)); //获取路由参数         
+//		if (cltparm.maxttl == 0xff)// 如果I2C读出来都是零，则默认值
+//		{
+//			cltparm.routeuptime = 60;//心跳      
+//			cltparm.maxttl = 120;//生存周期
+//			cltparm.routeseltime = 30;//选父节点时间    
+//			I2cWrite(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, sizeof(CLTP)); //写入路由参数         
+//		}
+//		I2cRead(0xA0,  &temp, FM_SS_CODEUPDATA_ENABLE, 1); //获取路由参数         
 //		if(0xff == temp)
 //		{
 //			temp = 0;
-//			I2cWrite(0xA0,  &temp, FM_I_SS_CODEUPDATA_ENABLE, 1);         
+//			I2cWrite(0xA0,  &temp, FM_SS_CODEUPDATA_ENABLE, 1);         
 //		}
-//	    adpkt.subtype.I_SSCodeUpdataEnable = temp;
-		
-	//电表老化次数
-	I2cRead(0xA0,  &temp, FM_METER_DEAD_COUNT, 1); 
-	if((0xff == temp) || (0 == temp))
-	{
-		temp = METER_DEAD_COUNT;
-		I2cWrite(0xA0,  &temp, FM_METER_DEAD_COUNT, 1);         
-	}
-    MeterDeadCount = temp;
-	//拓扑显示的显示内容来源
-	I2cRead(0xA0,  &temp, FM_TUOPU_SOURCE, 1); 
-	if((0xff == temp) || (temp >= 2))
-	{
-		temp = 0;
-		I2cWrite(0xA0,  &temp, FM_TUOPU_SOURCE, 1);         
-	}
-    u8TuopuDisplaySource = temp;
-		
-    I2cRead(0xA0, (uint8*) &HASH_Table_Used, FM_HASH_USED, 1); //获取有效哈希位
-    if(HASH_Table_Used==0xff)
+//	//	    adpkt.subtype.SSCodeUpdataEnable = temp;
+//		
+//		//载波主节点地址
+//		memset(nDeviceMacAddr, 0, 10);
+//		I2cRead(0xA0, &nDeviceMacAddrLen, FM_DEVICE_ADDR_LEN, 1); //载波主节点地址
+//	    if(nDeviceMacAddrLen > 10)
+//	    {
+//	        nDeviceMacAddrLen = 10;
+//	    }
+//		I2cRead(0xA0, nDeviceMacAddr, FM_DEVICE_ADDR, nDeviceMacAddrLen); //载波主节点地址
+//		
+//		//I型采集器底座的升级使能
+//	//		I2cRead(0xA0,  &temp, FM_I_SS_CODEUPDATA_ENABLE, 1); 
+//	//		if(0xff == temp)
+//	//		{
+//	//			temp = 0;
+//	//			I2cWrite(0xA0,  &temp, FM_I_SS_CODEUPDATA_ENABLE, 1);         
+//	//		}
+//	//	    adpkt.subtype.I_SSCodeUpdataEnable = temp;
+//			
+//		//电表老化次数
+//		I2cRead(0xA0,  &temp, FM_METER_DEAD_COUNT, 1); 
+//		if((0xff == temp) || (0 == temp))
+//		{
+//			temp = METER_DEAD_COUNT;
+//			I2cWrite(0xA0,  &temp, FM_METER_DEAD_COUNT, 1);         
+//		}
+//	    MeterDeadCount = temp;
+//		//拓扑显示的显示内容来源
+//		I2cRead(0xA0,  &temp, FM_TUOPU_SOURCE, 1); 
+//		if((0xff == temp) || (temp >= 2))
+//		{
+//			temp = 0;
+//			I2cWrite(0xA0,  &temp, FM_TUOPU_SOURCE, 1);         
+//		}
+//	    u8TuopuDisplaySource = temp;
+//			
+//	    I2cRead(0xA0, (uint8*) &HASH_Table_Used, FM_HASH_USED, 1); //获取有效哈希位
+//	    if(HASH_Table_Used==0xff)
+//	    {
+//	        HASH_Table_Used=0x0; 
+//	        I2cWrite(0xA0, (uint8*) &HASH_Table_Used, FM_HASH_USED, 1);       
+//	    }
+//		
+//	    I2cRead(0xA0, (uint8*) &CurWhiteSSMap, FM_WRITE_HASH_USED, 1); //获取有效哈希位
+//	    if(CurWhiteSSMap==0xff)
+//	    {
+//	        CurWhiteSSMap=0x0; 
+//	        I2cWrite(0xA0, (uint8*) &CurWhiteSSMap, FM_WRITE_HASH_USED, 1);       
+//	    }
+//	
+//	    I2cRead(0xA0, (uint8*) &CurBlackSSMap, FM_BLACK_HASH_USED, 1); //获取有效哈希位
+//	    if(CurBlackSSMap==0xff)
+//	    {
+//	        CurBlackSSMap=0x0; 
+//	        I2cWrite(0xA0, (uint8*) &CurBlackSSMap, FM_BLACK_HASH_USED, 1);       
+//	    }
+//	
+//	    I2cRead(0xA0, (uint8*) &bSSValidateEnable, FM_SS_VALIDATE_ENABLE, 1); //采集器认证使能参数
+//	    if(bSSValidateEnable==0xff)
+//	    {
+//	        bSSValidateEnable = 0x0; 
+//	        I2cWrite(0xA0, (uint8*) &bSSValidateEnable, FM_SS_VALIDATE_ENABLE, 1);       
+//	    }
+//	
+//		//需要开启认证使能的参数，在激活主动注册时触发
+//		bNeedOpenSSValidateEnable = 0;
+//		I2cRead(0xA0, (uint8*)&bNeedOpenSSValidateEnable, FM_NEED_OPEN_SS_VALIDATE , 1); 
+//		if(0xff == bNeedOpenSSValidateEnable)	
+//		{
+//			bNeedOpenSSValidateEnable = 0;
+//			I2cWrite(0xA0, &bNeedOpenSSValidateEnable, FM_NEED_OPEN_SS_VALIDATE , 1); 		
+//		}
+//		if(bNeedOpenSSValidateEnable)
+//		{
+//			if(0 == bSSValidateEnable)
+//			{
+//				bSSValidateEnable = 1;
+//				I2cWrite(0xA0, &bSSValidateEnable, FM_SS_VALIDATE_ENABLE , 1); 		
+//			}
+//			bNeedOpenSSValidateEnable = 0;
+//			I2cWrite(0xA0, &bNeedOpenSSValidateEnable, FM_NEED_OPEN_SS_VALIDATE , 1); 		
+//		}
+//		
+//		 I2cRead(0xA0, (uint8*) &bMeterInfoSynEnable, FM_METER_INFO_SYN_ENABLE, 1); //采集器认证使能参数
+//		 if(bMeterInfoSynEnable==0xff)
+//		 {
+//			bMeterInfoSynEnable = 0x1; 
+//			I2cWrite(0xA0, (uint8*) &bMeterInfoSynEnable, FM_METER_INFO_SYN_ENABLE, 1);       
+//		 }
+//		
+//		EZMacProReg.Temper_ADC_Value = 0;
+//		EZMacProReg.Cur_Crystal_Value = 0;	 
+//		I2cRead(0xA0, (uint8*) &EZMacProReg.CrystalValue, FM_CAP_MEND, 1); //获取有校准值         
+//		if(EZMacProReg.CrystalValue == 0xff)
+//		{
+//			EZMacProReg.CrystalValue = 0xC7;
+//			//by peter 校准值不能随便改动!!!
+//			//I2cWrite(0xA0, (uint8*) &CrystalValue, FM_CAP_MEND, 1);       
+//		}
+//		Set_Crastyle(EZMacProReg.CrystalValue); // 设置晶振电容补偿值
+//		
+//	#ifdef EN_TEMPERAUREDEGC
+//		uint8 temp8;
+//		macSpiWriteReg(SI4432_ADC_CONFIGURATION, 0x80);
+//		while(1)
+//		{
+//			temp8 = macSpiReadReg(SI4432_ADC_CONFIGURATION);
+//			if(temp8 & 0x80)
+//				break;
+//		}
+//		EZMacProReg.Temper_ADC_Value = macSpiReadReg(SI4432_ADC_VALUE);
+//		Set_Crystal_Value(EZMacProReg.Temper_ADC_Value);
+//	#endif
+//		
+//		I2cRead(0xA0, (uint8*) &rf_define, FM_FREQ_DEFINE , 7); //获取频点定义
+//		if(rf_define.startChanne[0]==0xff&&rf_define.frq_num==0xff)
+//	    {
+//			if(USER_DEFINE == USER_JuHua_433m)
+//			{
+//				rf_define.startChanne[0]=0x04;//
+//				rf_define.startChanne[1]=0x33;
+//				rf_define.startChanne[2]=0x0;
+//				rf_define.startChanne[3]=0x0;
+//				rf_define.channel_Wideth=0xc8;//广播步长
+//				rf_define.frq_num=0x64;//频点个数	
+//			}
+//			else if(USER_DEFINE == USER_LuDeng)
+//			{
+//				rf_define.startChanne[0]=0x04;//
+//				rf_define.startChanne[1]=0x70;
+//				rf_define.startChanne[2]=0x0;
+//				rf_define.startChanne[3]=0x0;
+//				rf_define.channel_Wideth=0xc8;//广播步长
+//				rf_define.frq_num=0x64;//频点个数				
+//			}
+//			else
+//			{
+//				if(nFreqChannel == FREQ_470M)
+//				{
+//					rf_define.startChanne[0]=0x04;//
+//					rf_define.startChanne[1]=0x70;
+//					rf_define.startChanne[2]=0x0;
+//					rf_define.startChanne[3]=0x0;
+//					rf_define.channel_Wideth=0xc8;//广播步长
+//					rf_define.frq_num=0x64;//频点个数				
+//				}
+//				else if(nFreqChannel == FREQ_433M)
+//				{
+//					rf_define.startChanne[0]=0x04;//
+//					rf_define.startChanne[1]=0x33;
+//					rf_define.startChanne[2]=0x0;
+//					rf_define.startChanne[3]=0x0;
+//					rf_define.channel_Wideth=0xc8;//广播步长
+//					rf_define.frq_num=0x64;//频点个数	
+//				}	
+//				else if(nFreqChannel == FREQ_868M)
+//				{
+//					rf_define.startChanne[0]=0x08;//
+//					rf_define.startChanne[1]=0x68;
+//					rf_define.startChanne[2]=0x0;
+//					rf_define.startChanne[3]=0x0;
+//					rf_define.channel_Wideth=0xc8;//广播步长
+//					rf_define.frq_num=0x64;//频点个数					
+//				}
+//				else if(nFreqChannel == FREQ_915M)
+//				{
+//					rf_define.startChanne[0]=0x09;//
+//					rf_define.startChanne[1]=0x15;
+//					rf_define.startChanne[2]=0x0;
+//					rf_define.startChanne[3]=0x0;
+//					rf_define.channel_Wideth=0xc8;//广播步长
+//					rf_define.frq_num=0x64;//频点个数					
+//				}
+//	            else if(nFreqChannel == FREQ_928M)
+//				{
+//					rf_define.startChanne[0]=0x09;//
+//					rf_define.startChanne[1]=0x28;
+//					rf_define.startChanne[2]=0x0;
+//					rf_define.startChanne[3]=0x0;
+//					rf_define.channel_Wideth=0xc8;//广播步长
+//					rf_define.frq_num=0x64;//频点个数					
+//				}
+//			}
+//	    }       
+//	
+//	    gab=(rf_define.startChanne[0]&0xf)*100+(rf_define.startChanne[1]&0xf)+(rf_define.startChanne[1]>>4)*10;//输入的频点
+//	
+//	    uint16 usBase = 0;
+//	    
+//	    
+//		if(USER_DEFINE == USER_JuHua_433m)
+//	    {   
+//			usBase = 433;//gab = ((gab-433)>>1)*10;//偏移值
+//	    }
+//		else if(USER_DEFINE == USER_LuDeng)
+//	    {   
+//			usBase = 470;//gab = ((gab-470)>>1)*10;//偏移值
+//	    }
+//		else
+//		{
+//		    switch(nFreqChannel)
+//	        {
+//	        case FREQ_470M:
+//	            usBase = 470;
+//	            break;
+//	        case FREQ_433M:
+//	            usBase = 433;
+//	            break;
+//	        case FREQ_868M:
+//	            usBase = 868;
+//	            break;
+//	        case FREQ_915M:
+//	            usBase = 915;
+//	            break;
+//	        case FREQ_928M:
+//	            usBase = 928;
+//	            break;            
+//	        default:
+//	            break;
+//	
+//	        }   
+//	    }
+//	        
+//	    if(gab >= usBase )
+//	    {
+//	        gab = ((gab-usBase)>>1)*10;//偏移值
+//	    }
+//	    else
+//	    {
+//	        gab = 0;
+//	    }
+//	
+//	    gab=(gab + (rf_define.startChanne[2] >> 5));//偏移值
+//	    	
+//		I2cRead(0xA0, (uint8*)&rfpara, FM_NETPARA_ADDR, sizeof(RF_PARAMETER)); //获取网络参数	
+//		//I2cRead(0xA0, P, FM_NETPARA_ADDR+4, 5); //获取网络参数	
+//		
+//	//		rfpara.rf_net_id=*(P+1) <<8|*(P);
+//	//		rfpara.rf_route = *(P+2);//路由方式
+//	//		rfpara.rf_jump_chaneel=*(P+3);//调频序列号
+//	//		rfpara.rf_slotnum=MAX_SUP_SS_NUM;//*(P+4);//时帧长度 
+//	
+//	    if (rfpara.rf_channel== 0xff && rfpara.rf_boad== 0xff && rfpara.rf_power== 0xff && rfpara.rf_route== 0xff)
     {
-        HASH_Table_Used=0x0; 
-        I2cWrite(0xA0, (uint8*) &HASH_Table_Used, FM_HASH_USED, 1);       
-    }
-	
-    I2cRead(0xA0, (uint8*) &CurWhiteSSMap, FM_WRITE_HASH_USED, 1); //获取有效哈希位
-    if(CurWhiteSSMap==0xff)
-    {
-        CurWhiteSSMap=0x0; 
-        I2cWrite(0xA0, (uint8*) &CurWhiteSSMap, FM_WRITE_HASH_USED, 1);       
-    }
-
-    I2cRead(0xA0, (uint8*) &CurBlackSSMap, FM_BLACK_HASH_USED, 1); //获取有效哈希位
-    if(CurBlackSSMap==0xff)
-    {
-        CurBlackSSMap=0x0; 
-        I2cWrite(0xA0, (uint8*) &CurBlackSSMap, FM_BLACK_HASH_USED, 1);       
-    }
-
-    I2cRead(0xA0, (uint8*) &bSSValidateEnable, FM_SS_VALIDATE_ENABLE, 1); //采集器认证使能参数
-    if(bSSValidateEnable==0xff)
-    {
-        bSSValidateEnable = 0x0; 
-        I2cWrite(0xA0, (uint8*) &bSSValidateEnable, FM_SS_VALIDATE_ENABLE, 1);       
-    }
-
-	//需要开启认证使能的参数，在激活主动注册时触发
-	bNeedOpenSSValidateEnable = 0;
-	I2cRead(0xA0, (uint8*)&bNeedOpenSSValidateEnable, FM_NEED_OPEN_SS_VALIDATE , 1); 
-	if(0xff == bNeedOpenSSValidateEnable)	
-	{
-		bNeedOpenSSValidateEnable = 0;
-		I2cWrite(0xA0, &bNeedOpenSSValidateEnable, FM_NEED_OPEN_SS_VALIDATE , 1); 		
-	}
-	if(bNeedOpenSSValidateEnable)
-	{
-		if(0 == bSSValidateEnable)
-		{
-			bSSValidateEnable = 1;
-			I2cWrite(0xA0, &bSSValidateEnable, FM_SS_VALIDATE_ENABLE , 1); 		
-		}
-		bNeedOpenSSValidateEnable = 0;
-		I2cWrite(0xA0, &bNeedOpenSSValidateEnable, FM_NEED_OPEN_SS_VALIDATE , 1); 		
-	}
-	
-	 I2cRead(0xA0, (uint8*) &bMeterInfoSynEnable, FM_METER_INFO_SYN_ENABLE, 1); //采集器认证使能参数
-	 if(bMeterInfoSynEnable==0xff)
-	 {
-		bMeterInfoSynEnable = 0x1; 
-		I2cWrite(0xA0, (uint8*) &bMeterInfoSynEnable, FM_METER_INFO_SYN_ENABLE, 1);       
-	 }
-	
-	EZMacProReg.Temper_ADC_Value = 0;
-	EZMacProReg.Cur_Crystal_Value = 0;	 
-	I2cRead(0xA0, (uint8*) &EZMacProReg.CrystalValue, FM_CAP_MEND, 1); //获取有校准值         
-	if(EZMacProReg.CrystalValue == 0xff)
-	{
-		EZMacProReg.CrystalValue = 0xC7;
-		//by peter 校准值不能随便改动!!!
-		//I2cWrite(0xA0, (uint8*) &CrystalValue, FM_CAP_MEND, 1);       
-	}
-	Set_Crastyle(EZMacProReg.CrystalValue); // 设置晶振电容补偿值
-	
-#ifdef EN_TEMPERAUREDEGC
-	uint8 temp8;
-	macSpiWriteReg(SI4432_ADC_CONFIGURATION, 0x80);
-	while(1)
-	{
-		temp8 = macSpiReadReg(SI4432_ADC_CONFIGURATION);
-		if(temp8 & 0x80)
-			break;
-	}
-	EZMacProReg.Temper_ADC_Value = macSpiReadReg(SI4432_ADC_VALUE);
-	Set_Crystal_Value(EZMacProReg.Temper_ADC_Value);
-#endif
-	
-	I2cRead(0xA0, (uint8*) &rf_define, FM_FREQ_DEFINE , 7); //获取频点定义
-	if(rf_define.startChanne[0]==0xff&&rf_define.frq_num==0xff)
-    {
-		if(USER_DEFINE == USER_JuHua_433m)
-		{
-			rf_define.startChanne[0]=0x04;//
-			rf_define.startChanne[1]=0x33;
-			rf_define.startChanne[2]=0x0;
-			rf_define.startChanne[3]=0x0;
-			rf_define.channel_Wideth=0xc8;//广播步长
-			rf_define.frq_num=0x64;//频点个数	
-		}
-		else if(USER_DEFINE == USER_LuDeng)
-		{
-			rf_define.startChanne[0]=0x04;//
-			rf_define.startChanne[1]=0x70;
-			rf_define.startChanne[2]=0x0;
-			rf_define.startChanne[3]=0x0;
-			rf_define.channel_Wideth=0xc8;//广播步长
-			rf_define.frq_num=0x64;//频点个数				
-		}
-		else
-		{
-			if(nFreqChannel == FREQ_470M)
-			{
-				rf_define.startChanne[0]=0x04;//
-				rf_define.startChanne[1]=0x70;
-				rf_define.startChanne[2]=0x0;
-				rf_define.startChanne[3]=0x0;
-				rf_define.channel_Wideth=0xc8;//广播步长
-				rf_define.frq_num=0x64;//频点个数				
-			}
-			else if(nFreqChannel == FREQ_433M)
-			{
-				rf_define.startChanne[0]=0x04;//
-				rf_define.startChanne[1]=0x33;
-				rf_define.startChanne[2]=0x0;
-				rf_define.startChanne[3]=0x0;
-				rf_define.channel_Wideth=0xc8;//广播步长
-				rf_define.frq_num=0x64;//频点个数	
-			}	
-			else if(nFreqChannel == FREQ_868M)
-			{
-				rf_define.startChanne[0]=0x08;//
-				rf_define.startChanne[1]=0x68;
-				rf_define.startChanne[2]=0x0;
-				rf_define.startChanne[3]=0x0;
-				rf_define.channel_Wideth=0xc8;//广播步长
-				rf_define.frq_num=0x64;//频点个数					
-			}
-			else if(nFreqChannel == FREQ_915M)
-			{
-				rf_define.startChanne[0]=0x09;//
-				rf_define.startChanne[1]=0x15;
-				rf_define.startChanne[2]=0x0;
-				rf_define.startChanne[3]=0x0;
-				rf_define.channel_Wideth=0xc8;//广播步长
-				rf_define.frq_num=0x64;//频点个数					
-			}
-            else if(nFreqChannel == FREQ_928M)
-			{
-				rf_define.startChanne[0]=0x09;//
-				rf_define.startChanne[1]=0x28;
-				rf_define.startChanne[2]=0x0;
-				rf_define.startChanne[3]=0x0;
-				rf_define.channel_Wideth=0xc8;//广播步长
-				rf_define.frq_num=0x64;//频点个数					
-			}
-		}
-    }       
-
-    gab=(rf_define.startChanne[0]&0xf)*100+(rf_define.startChanne[1]&0xf)+(rf_define.startChanne[1]>>4)*10;//输入的频点
-
-    uint16 usBase = 0;
-    
-    
-	if(USER_DEFINE == USER_JuHua_433m)
-    {   
-		usBase = 433;//gab = ((gab-433)>>1)*10;//偏移值
-    }
-	else if(USER_DEFINE == USER_LuDeng)
-    {   
-		usBase = 470;//gab = ((gab-470)>>1)*10;//偏移值
-    }
-	else
-	{
-	    switch(nFreqChannel)
-        {
-        case FREQ_470M:
-            usBase = 470;
-            break;
-        case FREQ_433M:
-            usBase = 433;
-            break;
-        case FREQ_868M:
-            usBase = 868;
-            break;
-        case FREQ_915M:
-            usBase = 915;
-            break;
-        case FREQ_928M:
-            usBase = 928;
-            break;            
-        default:
-            break;
-
-        }   
-    }
-        
-    if(gab >= usBase )
-    {
-        gab = ((gab-usBase)>>1)*10;//偏移值
-    }
-    else
-    {
-        gab = 0;
-    }
-
-    gab=(gab + (rf_define.startChanne[2] >> 5));//偏移值
-    	
-	I2cRead(0xA0, (uint8*)&rfpara, FM_NETPARA_ADDR, sizeof(RF_PARAMETER)); //获取网络参数	
-	//I2cRead(0xA0, P, FM_NETPARA_ADDR+4, 5); //获取网络参数	
-	
-//		rfpara.rf_net_id=*(P+1) <<8|*(P);
-//		rfpara.rf_route = *(P+2);//路由方式
-//		rfpara.rf_jump_chaneel=*(P+3);//调频序列号
-//		rfpara.rf_slotnum=MAX_SUP_SS_NUM;//*(P+4);//时帧长度 
-
-    if (rfpara.rf_channel== 0xff && rfpara.rf_boad== 0xff && rfpara.rf_power== 0xff && rfpara.rf_route== 0xff)
-    {
-        uint8 channelId;
-        if(nDeviceMacAddr[0] != 0xFF)
-        {
-            channelId = Cal_Hash_Value(nDeviceMacAddr) % LORA_CHANNEL_NUM;
-            if(channelId == 0)
-            {
-                channelId = 1;
-            }                  
-
-        }
-        else
-        {
-            channelId = 0;
-        }
-        rfpara.rf_channel = channelId; //信道号
+//	        uint8 channelId;
+//	        if(nDeviceMacAddr[0] != 0xFF)
+//	        {
+//	            channelId = Cal_Hash_Value(nDeviceMacAddr) % LORA_CHANNEL_NUM;
+//	            if(channelId == 0)
+//	            {
+//	                channelId = 1;
+//	            }                  
+//	
+//	        }
+//	        else
+//	        {
+//	            channelId = 0;
+//	        }
+//        uint32_t addr = Cal_Hash_Value(nDeviceMacAddr);
+//        memcpy(nDeviceMacAddr+1, &addr, 4);
+//	        sys_time_t ul_TkTick = krhino_sys_tick_get();
+//	        memcpy(nDeviceMacAddr, &addr, 4);
+//        nDeviceMacAddr[5] = krhino_sys_tick_get();
+        rfpara.rf_channel = 0;// channelId; //信道号
         rfpara.rf_power = 0;//发射功率
         rfpara.rf_boad = 0x1;//空中波特率
 #ifdef RF_MESH_LEVEL2
@@ -1948,159 +2014,159 @@ void Get_Net_Parameter(void)
         bNeedSave = 1;
     }
 
-    if(rfpara.rf_channel < 1 || rfpara.rf_channel > 6)
-    {
-        //extern uint8 nDeviceMacAddr[6];
-        uint8 channelId = Cal_Hash_Value(nDeviceMacAddr) % LORA_CHANNEL_NUM;
-        if(channelId == 0)
-        {
-            channelId = 1;
-        }                  
-    
-        rfpara.rf_channel = channelId; //信道号
-        bNeedSave = 1;
-    }
-    if(rfpara.rf_power > 4)
-    {
-        rfpara.rf_power = 0;//发射功率
-        bNeedSave = 1;
-    }
-    if(rfpara.rf_slotnum > MAX_SUP_SS_NUM)
-    {
-        rfpara.rf_slotnum = MAX_SUP_SS_NUM;
-        bNeedSave = 1;
-    }
-    
-    if(rfpara.shortID == 0xFFFF || rfpara.shortID == 0xEEEE || rfpara.shortID == 0)
-    {
-        rfpara.shortID = localid;
-        bNeedSave = 1;
-    }
-    
-    if(rfpara.panid == 0xFFFF || rfpara.panid == 0xEEEE || rfpara.panid == 0)
-    {
-        memcpy((uint8 *)&rfpara.panid, nDeviceMacAddr, 2);
-        bNeedSave = 1;
-    }
-
-    if(rfpara.rf_limit > 157)
-    {
-#ifdef RF_MESH_LEVEL2
-        rfpara.rf_limit = 80;//rssi门限    
-#else
-        rfpara.rf_limit = 157;//rssi门限    
-#endif        
-        bNeedSave = 1;
-    }
-    if(bNeedSave)
-    {
-	    I2cWrite(0xA0, (uint8*)&rfpara, FM_NETPARA_ADDR, sizeof(RF_PARAMETER)); //获取网络参数	
-    }
-	nDefaultJumpChannel = rfpara.rf_jump_chaneel;
-
-	//信道配置模式
-	I2cRead(0xA0, &temp, FM_CHANNEL_SET_MODE, 1); //信道配置模式
-	if(0xff == temp)
-	{
-		temp = 0;
-		I2cWrite(0xA0,  &temp, FM_CHANNEL_SET_MODE, 1);         		
-	}
-	bChannelSetManualMode = temp;
-//		if((0 == bChannelSetManualMode) && (USER_DEFINE == USER_DianLi))
-//		{
-//			temp = nDeviceMacAddr[2];
-//			temp = (temp / 16) * 10 + temp % 16;
-//			temp = temp % 16 + 1;
-//			if(temp != rfpara.rf_channel)
-//			{
-//				rfpara.rf_channel = temp;	    
-//				rfpara.rf_net_id = temp;
+//	    if(rfpara.rf_channel < 1 || rfpara.rf_channel > 6)
+//	    {
+//	        //extern uint8 nDeviceMacAddr[6];
+//	        uint8 channelId = Cal_Hash_Value(nDeviceMacAddr) % LORA_CHANNEL_NUM;
+//	        if(channelId == 0)
+//	        {
+//	            channelId = 1;
+//	        }                  
+//	    
+//	        rfpara.rf_channel = channelId; //信道号
+//	        bNeedSave = 1;
+//	    }
+//	    if(rfpara.rf_power > 4)
+//	    {
+//	        rfpara.rf_power = 0;//发射功率
+//	        bNeedSave = 1;
+//	    }
+//	    if(rfpara.rf_slotnum > MAX_SUP_SS_NUM)
+//	    {
+//	        rfpara.rf_slotnum = MAX_SUP_SS_NUM;
+//	        bNeedSave = 1;
+//	    }
+//	    
+//	    if(rfpara.shortID == 0xFFFF || rfpara.shortID == 0xEEEE || rfpara.shortID == 0)
+//	    {
+//	        rfpara.shortID = localid;
+//	        bNeedSave = 1;
+//	    }
+//	    
+//	    if(rfpara.panid == 0xFFFF || rfpara.panid == 0xEEEE || rfpara.panid == 0)
+//	    {
+//	        memcpy((uint8 *)&rfpara.panid, nDeviceMacAddr, 2);
+//	        bNeedSave = 1;
+//	    }
 //	
-//				memcpy(Temp1, (uint8*)&rfpara, 3);
-//				Temp1[3] = rfpara.rf_net_id;
-//				Temp1[4] = 0;
-//				Temp1[5] = rfpara.rf_route;
-//				Temp1[6] = nDefaultJumpChannel;
-//				Temp1[7] = rfpara.rf_slotnum;
-//				Temp1[8] = 0;
-//				I2cWrite(0xA0, Temp1, FM_NETPARA_ADDR, 8); //存网络参数***			
+//	    if(rfpara.rf_limit > 157)
+//	    {
+//	#ifdef RF_MESH_LEVEL2
+//	        rfpara.rf_limit = 80;//rssi门限    
+//	#else
+//	        rfpara.rf_limit = 157;//rssi门限    
+//	#endif        
+//	        bNeedSave = 1;
+//	    }
+//	    if(bNeedSave)
+//	    {
+//		    I2cWrite(0xA0, (uint8*)&rfpara, FM_NETPARA_ADDR, sizeof(RF_PARAMETER)); //获取网络参数	
+//	    }
+//		nDefaultJumpChannel = rfpara.rf_jump_chaneel;
+//	
+//		//信道配置模式
+//		I2cRead(0xA0, &temp, FM_CHANNEL_SET_MODE, 1); //信道配置模式
+//		if(0xff == temp)
+//		{
+//			temp = 0;
+//			I2cWrite(0xA0,  &temp, FM_CHANNEL_SET_MODE, 1);         		
+//		}
+//		bChannelSetManualMode = temp;
+//	//		if((0 == bChannelSetManualMode) && (USER_DEFINE == USER_DianLi))
+//	//		{
+//	//			temp = nDeviceMacAddr[2];
+//	//			temp = (temp / 16) * 10 + temp % 16;
+//	//			temp = temp % 16 + 1;
+//	//			if(temp != rfpara.rf_channel)
+//	//			{
+//	//				rfpara.rf_channel = temp;	    
+//	//				rfpara.rf_net_id = temp;
+//	//	
+//	//				memcpy(Temp1, (uint8*)&rfpara, 3);
+//	//				Temp1[3] = rfpara.rf_net_id;
+//	//				Temp1[4] = 0;
+//	//				Temp1[5] = rfpara.rf_route;
+//	//				Temp1[6] = nDefaultJumpChannel;
+//	//				Temp1[7] = rfpara.rf_slotnum;
+//	//				Temp1[8] = 0;
+//	//				I2cWrite(0xA0, Temp1, FM_NETPARA_ADDR, 8); //存网络参数***			
+//	//			}
+//	//		}
+//		
+//		//add by peter
+//		 rfpara.rf_net_id = rfpara.rf_net_id-1;//实际使用值比显示值小1  
+//		 rfpara.rf_jump_chaneel=FH_SEQ[ rfpara.rf_channel-1];//调频序列号
+//		 
+//		 
+//	//	    temp=  rfpara.rf_power &0x7;
+//	//	    SpiWriteRegister(SI4432_TX_POWER, (temp|0x18)); // 发射功率0 ~ 7
+//	
+//	         // rfpra.rf_boad、 以后要设置
+//		 // I2cWrite(0xA0, (uint8*) &P, FM_NETPARA_ADDR, 8); //获取网络参数
+//		I2cRead(0xA0,  (uint8*) &channel_para, (FM_CHANNEL_PARA+((rfpara.rf_channel-1)<<2)), 4);//获取信道参数
+//		 
+//		if(channel_para.channel_num==0xff)
+//		{
+//			if(USER_DEFINE == USER_JuHua_433m)
+//			{
+//				channel_para.channel_num=1;
+//				channel_para.data_start=2;
+//				channel_para.data_end=7;
+//				channel_para.data_freq_num=6;
+//			}
+//			else
+//			{
+//				channel_para.channel_num=1;
+//				channel_para.data_start=16;
+//				channel_para.data_end=46;
+//				channel_para.data_freq_num = MAX_AVAILBLE_FRQ - 1;
 //			}
 //		}
-	
-	//add by peter
-	 rfpara.rf_net_id = rfpara.rf_net_id-1;//实际使用值比显示值小1  
-	 rfpara.rf_jump_chaneel=FH_SEQ[ rfpara.rf_channel-1];//调频序列号
-	 
-	 
-//	    temp=  rfpara.rf_power &0x7;
-//	    SpiWriteRegister(SI4432_TX_POWER, (temp|0x18)); // 发射功率0 ~ 7
-
-         // rfpra.rf_boad、 以后要设置
-	 // I2cWrite(0xA0, (uint8*) &P, FM_NETPARA_ADDR, 8); //获取网络参数
-	I2cRead(0xA0,  (uint8*) &channel_para, (FM_CHANNEL_PARA+((rfpara.rf_channel-1)<<2)), 4);//获取信道参数
-	 
-	if(channel_para.channel_num==0xff)
-	{
-		if(USER_DEFINE == USER_JuHua_433m)
-		{
-			channel_para.channel_num=1;
-			channel_para.data_start=2;
-			channel_para.data_end=7;
-			channel_para.data_freq_num=6;
-		}
-		else
-		{
-			channel_para.channel_num=1;
-			channel_para.data_start=16;
-			channel_para.data_end=46;
-			channel_para.data_freq_num = MAX_AVAILBLE_FRQ - 1;
-		}
-	}
-	
-	if(USER_DEFINE == USER_JuHua_433m)
-		channel_para.data_freq_num = 6;
-	else
-		channel_para.data_freq_num = MAX_AVAILBLE_FRQ - 1;
-	
-	broad_fhc= (rfpara.rf_channel - 1 + gab);//广播实际偏移值
-	data_fhc=(channel_para.data_start + gab);//业务实际偏移值
-
-	 
-	I2cRead(0xA0,  &ad,  FM_RESET_MESAGE, 1);//获取复位信息值
-	if(ad==0xff)
-	{
-		ad=0;
-	}
-	ad=ad+1;//
-	I2cWrite(0xA0,  &ad,  FM_RESET_MESAGE, 1);//获取复位信息值
-//		adv_pkt[POWER]=(ad&0xf)<<4|temp;//放入广播包的对应位置
-
-	bSendResetCmd = 1;	//启动时需要发生重启广播命令
-	uint8 bNotNeedSendResetCmd = 0;
-	I2cRead(0xA0,  &bNotNeedSendResetCmd, FM_NEED_RESET_CMD, 1); 
-	if(bNotNeedSendResetCmd)
-	{
-		if(1 == bNotNeedSendResetCmd)
-			bSendResetCmd = 0;
-		bNotNeedSendResetCmd = 0;
-		I2cWrite(0xA0, &bNotNeedSendResetCmd, FM_NEED_RESET_CMD, 1);        		
-	}
-
-	bBroadMeterEnable = 0;
-    I2cRead(0xA0,  &bBroadMeterEnable, FM_BROAD_METER_ENABLE, 1); 
-    if(0x01 != bBroadMeterEnable)
-    {
-    	bBroadMeterEnable = 0;
-    }
-    else
-    {
-        bMeterSearchStart = 1;
-    }
-		
-	nBroadMeterTime = 0;
-    
-//    temp = SpiReadRegister(SI4432_TX_POWER);
-    I2cRead(0xA0, (uint8*)&nBroadMeterTime, FM_BROAD_METER_TIME , 2); 
+//		
+//		if(USER_DEFINE == USER_JuHua_433m)
+//			channel_para.data_freq_num = 6;
+//		else
+//			channel_para.data_freq_num = MAX_AVAILBLE_FRQ - 1;
+//		
+//		broad_fhc= (rfpara.rf_channel - 1 + gab);//广播实际偏移值
+//		data_fhc=(channel_para.data_start + gab);//业务实际偏移值
+//	
+//		 
+//		I2cRead(0xA0,  &ad,  FM_RESET_MESAGE, 1);//获取复位信息值
+//		if(ad==0xff)
+//		{
+//			ad=0;
+//		}
+//		ad=ad+1;//
+//		I2cWrite(0xA0,  &ad,  FM_RESET_MESAGE, 1);//获取复位信息值
+//	//		adv_pkt[POWER]=(ad&0xf)<<4|temp;//放入广播包的对应位置
+//	
+//		bSendResetCmd = 1;	//启动时需要发生重启广播命令
+//		uint8 bNotNeedSendResetCmd = 0;
+//		I2cRead(0xA0,  &bNotNeedSendResetCmd, FM_NEED_RESET_CMD, 1); 
+//		if(bNotNeedSendResetCmd)
+//		{
+//			if(1 == bNotNeedSendResetCmd)
+//				bSendResetCmd = 0;
+//			bNotNeedSendResetCmd = 0;
+//			I2cWrite(0xA0, &bNotNeedSendResetCmd, FM_NEED_RESET_CMD, 1);        		
+//		}
+//	
+//		bBroadMeterEnable = 0;
+//	    I2cRead(0xA0,  &bBroadMeterEnable, FM_BROAD_METER_ENABLE, 1); 
+//	    if(0x01 != bBroadMeterEnable)
+//	    {
+//	    	bBroadMeterEnable = 0;
+//	    }
+//	    else
+//	    {
+//	        bMeterSearchStart = 1;
+//	    }
+//			
+//		nBroadMeterTime = 0;
+//	    
+//	//    temp = SpiReadRegister(SI4432_TX_POWER);
+//	    I2cRead(0xA0, (uint8*)&nBroadMeterTime, FM_BROAD_METER_TIME , 2); 
 //	    if(0xffff == nBroadMeterTime)	
 //	    	nBroadMeterTime = 0;
 }
@@ -2267,101 +2333,101 @@ void Create_JRep(uint16 k, EZ_TX_PKT * ezPkt)//组入网应答包
 			bNotSend = 1;
         }
 	}
-    else if(cltor[k].nodestatus.protocol == PST_FRM_802_R_NO)
-    {
-        uint8 m = 0;
-        memset((uint8 *)&pkt->head.mhr, 0, sizeof(STIEEE));
-
-//	        LOG_DEBUG( DBGFMT"Create_JRep ID[%x] rssi[%d] level[%d]\n",DBGARG, k, cltor_shadow[k].rRssi,
-//	                getRssiQualityByRssi(cltor_shadow[k].rRssi));                        
-
-        
-        pkt->head.mhr.seg_ctrl.ctrl_net.bit3.OC = 0;
-        pkt->head.mhr.seg_ctrl.ctrl_net.bit2.signalQ = getRssiQualityByRssi(cltor_shadow[k].rRssi);
-        pkt->head.mhr.seg_ctrl.ctrl_net.bit2.pwr = rfpara.rf_power;
-        
-        pkt->head.mhr.frame_ctrl.bit2.prm = 0;
-        pkt->head.mhr.frame_ctrl.bit1.ftd = 3;
-        pkt->head.mhr.frame_ctrl.bit1.panid = 1;
-        pkt->head.mhr.frame_ctrl.bit1.dir = 0;
-        
-        pkt->head.mhr.seq = cltor_shadow[k].recvseq;
-        pkt->head.mhr.srssi = cltor_shadow[k].rRssi;
-    
-        pkt->head.mhr.app = pkt->data;
-
-        
-        if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_LOGIN 
-            || cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_REGISTER)
-        {
-            if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_LOGIN)
-            {
-                pkt->head.mhr.fn = 0x02;//入网应答
-            }
-            else if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_REGISTER)
-            {
-                pkt->head.mhr.fn = 0x0E;//注册应答
-            }
-            
-            if(cltor[k].addrLen == CON_DEV_ADDR_LEN_8)
-            {
-                pkt->head.mhr.frame_ctrl.bit2.dest = 3;
-            }
-            else
-            {
-                pkt->head.mhr.frame_ctrl.bit2.dest = 1;
-            }
-            
-            if(nDeviceMacAddrLen == CON_DEV_ADDR_LEN_8)
-            {
-                pkt->head.mhr.frame_ctrl.bit2.src = 3;
-            }
-            else
-            {
-                pkt->head.mhr.frame_ctrl.bit2.src = 1;
-            }
-            pkt->head.mhr.app[m++] = pkt->head.mhr.fn;
-            memcpy(pkt->head.mhr.app + m, (uint8 *)&rfpara.shortID, 2);
-            m+=2;
-            memcpy(pkt->head.mhr.app + m, (uint8 *)&k, 2);
-            m+=2;
-            pkt->head.mhr.app[m++] = 0x18 | cltor_shadow[k].nodestatus.result;//信标允许，设备类型ffd
-
-            
-        }
-        else if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_HEARTBEAT)
-        {
-            pkt->head.mhr.fn = 0x0F;//心跳 
-            pkt->head.mhr.frame_ctrl.bit2.dest = 2;
-            pkt->head.mhr.frame_ctrl.bit2.src = 2;
-            pkt->head.mhr.app[m++] = pkt->head.mhr.fn;
-            pkt->head.mhr.app[m++] = 0x18 | cltor_shadow[k].nodestatus.result;//信标允许，设备类型ffd
-
-            //pkt->head.apdu.fn = 5;//心跳
-        }
-        else if(cltor_shadow[k].nodestatus.ans_pkt_type == 0x03)
-        {
-            pkt->head.mhr.fn = 0x03;//离网 
-            pkt->head.mhr.frame_ctrl.bit2.dest = 2;
-            pkt->head.mhr.frame_ctrl.bit2.src = 2;
-            pkt->head.mhr.app[m++] = pkt->head.mhr.fn;
-            pkt->head.mhr.app[m++] = 0x01;//协调器希望设备断开PAN
-
-//	            pkt->head.apdu.fn = 6;//剔除
+//	    else if(cltor[k].nodestatus.protocol == PST_FRM_802_R_NO)
+//	    {
+//	        uint8 m = 0;
+//	        memset((uint8 *)&pkt->head.mhr, 0, sizeof(STIEEE));
+//	
+//	//	        LOG_DEBUG( DBGFMT"Create_JRep ID[%x] rssi[%d] level[%d]\n",DBGARG, k, cltor_shadow[k].rRssi,
+//	//	                getRssiQualityByRssi(cltor_shadow[k].rRssi));                        
+//	
+//	        
+//	        pkt->head.mhr.seg_ctrl.ctrl_net.bit3.OC = 0;
+//	        pkt->head.mhr.seg_ctrl.ctrl_net.bit2.signalQ = getRssiQualityByRssi(cltor_shadow[k].rRssi);
+//	        pkt->head.mhr.seg_ctrl.ctrl_net.bit2.pwr = rfpara.rf_power;
+//	        
+//	        pkt->head.mhr.frame_ctrl.bit2.prm = 0;
+//	        pkt->head.mhr.frame_ctrl.bit1.ftd = 3;
+//	        pkt->head.mhr.frame_ctrl.bit1.panid = 1;
+//	        pkt->head.mhr.frame_ctrl.bit1.dir = 0;
+//	        
+//	        pkt->head.mhr.seq = cltor_shadow[k].recvseq;
+//	        pkt->head.mhr.srssi = cltor_shadow[k].rRssi;
+//	    
+//	        pkt->head.mhr.app = pkt->data;
+//	
+//	        
+//	        if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_LOGIN 
+//	            || cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_REGISTER)
+//	        {
+//	            if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_LOGIN)
+//	            {
+//	                pkt->head.mhr.fn = 0x02;//入网应答
+//	            }
+//	            else if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_REGISTER)
+//	            {
+//	                pkt->head.mhr.fn = 0x0E;//注册应答
+//	            }
 //	            
-//	            pkt->head.apdu.ctrl.prm = 1;
-//	            cltor_shadow[k].sendseq++;
-//	            pkt->head.apdu.seq = cltor_shadow[k].sendseq;
-        }
-        else
-        {
-//	            pkt->head.apdu.fn = 4;//登出
-        }  
-        pkt->head.mhr.len = m;
-        
-        uint8 err = IE_Compose_RD(k, ezPkt, &pkt->head.mhr.seg_ctrl, &pkt->head.mhr.frame_ctrl, 
-                               pkt->head.mhr.seq, pkt->head.mhr.app, pkt->head.mhr.len);
-    }
+//	            if(cltor[k].addrLen == CON_DEV_ADDR_LEN_8)
+//	            {
+//	                pkt->head.mhr.frame_ctrl.bit2.dest = 3;
+//	            }
+//	            else
+//	            {
+//	                pkt->head.mhr.frame_ctrl.bit2.dest = 1;
+//	            }
+//	            
+//	            if(nDeviceMacAddrLen == CON_DEV_ADDR_LEN_8)
+//	            {
+//	                pkt->head.mhr.frame_ctrl.bit2.src = 3;
+//	            }
+//	            else
+//	            {
+//	                pkt->head.mhr.frame_ctrl.bit2.src = 1;
+//	            }
+//	            pkt->head.mhr.app[m++] = pkt->head.mhr.fn;
+//	            memcpy(pkt->head.mhr.app + m, (uint8 *)&rfpara.shortID, 2);
+//	            m+=2;
+//	            memcpy(pkt->head.mhr.app + m, (uint8 *)&k, 2);
+//	            m+=2;
+//	            pkt->head.mhr.app[m++] = 0x18 | cltor_shadow[k].nodestatus.result;//信标允许，设备类型ffd
+//	
+//	            
+//	        }
+//	        else if(cltor_shadow[k].nodestatus.ans_pkt_type == CON_NODE_UPDATE_HEARTBEAT)
+//	        {
+//	            pkt->head.mhr.fn = 0x0F;//心跳 
+//	            pkt->head.mhr.frame_ctrl.bit2.dest = 2;
+//	            pkt->head.mhr.frame_ctrl.bit2.src = 2;
+//	            pkt->head.mhr.app[m++] = pkt->head.mhr.fn;
+//	            pkt->head.mhr.app[m++] = 0x18 | cltor_shadow[k].nodestatus.result;//信标允许，设备类型ffd
+//	
+//	            //pkt->head.apdu.fn = 5;//心跳
+//	        }
+//	        else if(cltor_shadow[k].nodestatus.ans_pkt_type == 0x03)
+//	        {
+//	            pkt->head.mhr.fn = 0x03;//离网 
+//	            pkt->head.mhr.frame_ctrl.bit2.dest = 2;
+//	            pkt->head.mhr.frame_ctrl.bit2.src = 2;
+//	            pkt->head.mhr.app[m++] = pkt->head.mhr.fn;
+//	            pkt->head.mhr.app[m++] = 0x01;//协调器希望设备断开PAN
+//	
+//	//	            pkt->head.apdu.fn = 6;//剔除
+//	//	            
+//	//	            pkt->head.apdu.ctrl.prm = 1;
+//	//	            cltor_shadow[k].sendseq++;
+//	//	            pkt->head.apdu.seq = cltor_shadow[k].sendseq;
+//	        }
+//	        else
+//	        {
+//	//	            pkt->head.apdu.fn = 4;//登出
+//	        }  
+//	        pkt->head.mhr.len = m;
+//	        
+//	        uint8 err = IE_Compose_RD(k, ezPkt, &pkt->head.mhr.seg_ctrl, &pkt->head.mhr.frame_ctrl, 
+//	                               pkt->head.mhr.seq, pkt->head.mhr.app, pkt->head.mhr.len);
+//	    }
 	else
     {      
 		bNotSend = 1;
@@ -2469,58 +2535,58 @@ void Create_Affirm(uint16 k, EZ_TX_PKT * ezPkt)//推送数据应答包
 		else
 			bNotSend = 1;
 	}
-    else if(cltor[k].nodestatus.protocol == PST_FRM_802_R_NO)
-    {
-        uint8 m = 0;
-        memset((uint8 *)&pkt->head.mhr, 0, sizeof(STIEEE));
-        pkt->head.mhr.seg_ctrl.ctrl_ack.bit3.OC = 0;
-        pkt->head.mhr.seg_ctrl.ctrl_ack.bit2.rssiQ = getSignalQuality(cltor_shadow[k].rRssi, RSSI_OFFSET_MF, RSSI_OFFSET_HF);
-
-        pkt->head.mhr.frame_ctrl.bit2.prm = 0;
-        pkt->head.mhr.frame_ctrl.bit1.ftd = 2;
-        pkt->head.mhr.frame_ctrl.bit1.panid = 1;
-        pkt->head.mhr.frame_ctrl.bit1.dir = 0;
-        pkt->head.mhr.frame_ctrl.bit2.version = 2;
-        
-        pkt->head.mhr.seq = cltor_shadow[k].recvseq;
-        pkt->head.mhr.srssi = cltor_shadow[k].rRssi;
-    
-        pkt->head.mhr.app = pkt->data;
-        pkt->head.mhr.afn = 0;
-        if(cltor_shadow[k].nodestatus.errCode == 0x00)
-        {
-            pkt->head.mhr.fn = 0x01;//确认
-        }
-        else
-        {
-            pkt->head.mhr.fn = 0x02;//否认
-        }
-        
-
-        pkt->head.mhr.frame_ctrl.bit2.dest = 2;
-        pkt->head.mhr.frame_ctrl.bit2.src = 2;
-        
-        pkt->head.mhr.app[m++] = (pkt->head.mhr.afn << 4) | (pkt->head.mhr.fn);
-
-        switch(pkt->head.mhr.fn)
-        {
-        case 0x01:
-            break;
-        default:   
-            pkt->head.mhr.app[m++] = cltor_shadow[k].nodestatus.errCode;//信标允许，设备类型ffd
-            break;
-        }
-        //pkt->head.mhr.app[m++] = 0x18 | cltor[k].nodestatus.result;//信标允许，设备类型ffd
-        pkt->head.mhr.len = m;
-        
-        uint8 err = IE_Compose_RD(k, ezPkt, &pkt->head.mhr.seg_ctrl, &pkt->head.mhr.frame_ctrl, 
-                               pkt->head.mhr.seq, pkt->head.mhr.app, pkt->head.mhr.len);
-
-        if(err != SYS_ERR_OK)
-        {
-            bNotSend = 1;
-        }
-    }
+//	    else if(cltor[k].nodestatus.protocol == PST_FRM_802_R_NO)
+//	    {
+//	        uint8 m = 0;
+//	        memset((uint8 *)&pkt->head.mhr, 0, sizeof(STIEEE));
+//	        pkt->head.mhr.seg_ctrl.ctrl_ack.bit3.OC = 0;
+//	        pkt->head.mhr.seg_ctrl.ctrl_ack.bit2.rssiQ = getSignalQuality(cltor_shadow[k].rRssi, RSSI_OFFSET_MF, RSSI_OFFSET_HF);
+//	
+//	        pkt->head.mhr.frame_ctrl.bit2.prm = 0;
+//	        pkt->head.mhr.frame_ctrl.bit1.ftd = 2;
+//	        pkt->head.mhr.frame_ctrl.bit1.panid = 1;
+//	        pkt->head.mhr.frame_ctrl.bit1.dir = 0;
+//	        pkt->head.mhr.frame_ctrl.bit2.version = 2;
+//	        
+//	        pkt->head.mhr.seq = cltor_shadow[k].recvseq;
+//	        pkt->head.mhr.srssi = cltor_shadow[k].rRssi;
+//	    
+//	        pkt->head.mhr.app = pkt->data;
+//	        pkt->head.mhr.afn = 0;
+//	        if(cltor_shadow[k].nodestatus.errCode == 0x00)
+//	        {
+//	            pkt->head.mhr.fn = 0x01;//确认
+//	        }
+//	        else
+//	        {
+//	            pkt->head.mhr.fn = 0x02;//否认
+//	        }
+//	        
+//	
+//	        pkt->head.mhr.frame_ctrl.bit2.dest = 2;
+//	        pkt->head.mhr.frame_ctrl.bit2.src = 2;
+//	        
+//	        pkt->head.mhr.app[m++] = (pkt->head.mhr.afn << 4) | (pkt->head.mhr.fn);
+//	
+//	        switch(pkt->head.mhr.fn)
+//	        {
+//	        case 0x01:
+//	            break;
+//	        default:   
+//	            pkt->head.mhr.app[m++] = cltor_shadow[k].nodestatus.errCode;//信标允许，设备类型ffd
+//	            break;
+//	        }
+//	        //pkt->head.mhr.app[m++] = 0x18 | cltor[k].nodestatus.result;//信标允许，设备类型ffd
+//	        pkt->head.mhr.len = m;
+//	        
+//	        uint8 err = IE_Compose_RD(k, ezPkt, &pkt->head.mhr.seg_ctrl, &pkt->head.mhr.frame_ctrl, 
+//	                               pkt->head.mhr.seq, pkt->head.mhr.app, pkt->head.mhr.len);
+//	
+//	        if(err != SYS_ERR_OK)
+//	        {
+//	            bNotSend = 1;
+//	        }
+//	    }
 	else
     {   
 	    bNotSend = 1;
@@ -4252,10 +4318,221 @@ uint8 getSignalQuality(int rssi, int max, int low)
 
     return ret;
 }
+
+#ifdef MASTER_NODE
+
+/*************************************************************************
+ * Function Name: UpdataHashTable
+ * Parameters:  insert a record to hashtable1 
+ * Return: the location in the hashtable1 if successed ,-1 for negative
+ * Description: 
+ *
+ *************************************************************************/
+void Updata_Hash_Table(uint16 hash, HASHT *elem) //更新哈希表
+{
+    uint32 i;
+    uint32 sector;
+    uint32 location;
+    HASHT *p;
+    
+    TDataBlock db;
+    p=( HASHT *)updata_code_cache; 
+    sector = hash / MAX_HASH_TABLE_SECTOR_SIZE;
+    location = sector * MAX_HASH_TABLE_SECTOR_SIZE;
+
+//	    if(IapAction == IAP_ACTION_IDLE)//内存保护
+    {
+        switch(HASH_Table_Used)
+        {
+        case 0://当前使用table1
+        
+            for (i = 0; i < MAX_HASH_TABLE_SECTOR_SIZE; i++)
+            {
+                if(htable1[location + i].status==OCCUPIED)//如果该哈希元素的值有效     
+                {
+                    p[i] = htable1[location + i]; //把原来哈希表里的数据保存在缓存中
+                }
+                else if(htable1[location + i].status==EMPTY)
+                {   // 如果该哈希元素的值无效                     
+                    memset(&p[i], 0xFF, sizeof(HASHT)); //缓冲中的数都置成0X0***
+                }
+                else if(htable1[location + i].status==DEAD)
+                {   // 如果该哈希元素的值无效                     
+                    memset(&p[i], 0x0, sizeof(HASHT)); //缓冲中的数都置成0X0***
+                }
+
+            }	
+            break;
+        case 1://当前使用table2
+            for (i = 0; i < MAX_HASH_TABLE_SECTOR_SIZE; i++)
+            {
+
+                if(htable2[location + i].status==OCCUPIED)//如果该哈希元素的值有效     
+                {
+                    p[i] = htable2[location + i]; //把原来哈希表里的数据保存在缓存中
+                }
+                else if(htable2[location + i].status==EMPTY)
+                {   // 如果该哈希元素的值无效                     
+                    memset(&p[i], 0xFF, sizeof(HASHT)); //缓冲中的数都置成0X0***
+                }
+                else if(htable2[location + i].status==DEAD)
+                {   // 如果该哈希元素的值无效                     
+                    memset(&p[i], 0x0, sizeof(HASHT)); //缓冲中的数都置成0X0***
+                }
+            }	
+            break; 
+        }
+        
+
+        if (elem != NULL)//如果有新添加的哈希元素        
+        {
+                // 更新哈希缓存
+    		memcpy((uint8 *)&p[hash - location], (uint8 *)elem, sizeof(HASHT)); //把新添加的哈希表元素放到哈希缓存表
+//	    		memcpy(p[hash - location].falsh_sn, elem->falsh_sn,6);
+    		p[hash - location].status	= OCCUPIED;	
+//	    		p[hash - location].SubType = elem->SubType;
+//	    		p[hash - location].src = elem->src;
+//	            p[hash - location].devType = elem->devType;
+            
+    		shadow_space[hash].handled=UN_HANDLED;              
+    		shadow_space[hash].times= MeterDeadCount;
+    		I2cWrite(0xA0, (uint8*)&shadow_space[hash], hash,1);//写入E2PR0M		
+        }
+        else
+        {           
+        	//p[hash - location].status	= DEAD;	
+        	memset(&p[hash - location],0x0,sizeof(HASHT));
+        }
+	
+
+                // 写入flash
+		if(HASH_Table_Used==0)
+		{
+		
+            SYS_FILE_DB_Open(DB_HASH1, &db, TDB_MODE_RW);
+            SYS_IFILE_DB_WriteFrom(&db, updata_code_cache, MAX_HASH_TABLE_CACHE_SIZE*MAX_HASH_TABLE_SECTOR_SIZE,0);
+            SYS_FILE_DB_Close(&db);
+//				IapAction = IAP_ACTION_TRANSFER_HASH1;//写table1
+//			    HashUpdateSectorAdd = FLASH_MAP_ADD + sector * MAX_HASH_TABLE_SECTOR_SIZE * MAX_HASH_TABLE_CACHE_SIZE ;
+		}
+		else
+		{
+            SYS_FILE_DB_Open(DB_HASH2, &db, TDB_MODE_RW);
+            SYS_IFILE_DB_WriteFrom(&db, updata_code_cache, MAX_HASH_TABLE_CACHE_SIZE*MAX_HASH_TABLE_SECTOR_SIZE,0);
+            SYS_FILE_DB_Close(&db);
+		
+//				IapAction = IAP_ACTION_TRANSFER_HASH2;//写table2
+//			    HashUpdateSectorAdd = FLASH_MAP_ADD2 + sector * MAX_HASH_TABLE_SECTOR_SIZE * MAX_HASH_TABLE_CACHE_SIZE;
+		}
+//			while (IapAction != IAP_ACTION_IDLE);   // hold on
+//			
+//			if(Write_Sucess==ERR)//如果成功失败
+//			{
+//			    Hash_Correct(HashUpdateSectorAdd,(uint8*)&updata_code_cache);		
+//			}
+    }
+}
+
+
+/*************************************************************************
+ * Function Name: htable1_insert
+ * Parameters:  insert a record to hashtable1 
+ * Return: the location in the hashtable1 if successed ,-1 for negative
+ * Description: 
+ *
+ *************************************************************************/
+
+int Hash_Table_Insert(HASHT *elem, int* pReturnHash) //添加哈希表
+{
+    uint16 hash;
+    uint16 index;
+    hash = Cal_Hash_Value(elem->addr); //计算得到哈希索引	
+    HASHT* pHasht;
+    
+    TDataBlock db;
+	if(HASH_Table_Used==0)//当前使用table1
+    {   
+    
+        SYS_FILE_DB_Open(DB_HASH1, &db, TDB_MODE_RW);
+ 		pHasht = (HASHT *)(0x08000000 + db.start);
+        SYS_FILE_DB_Close(&db);
+    }
+	else
+    {   
+        SYS_FILE_DB_Open(DB_HASH2, &db, TDB_MODE_RW);
+ 		pHasht = (HASHT *)(0x08000000 + db.start);
+        SYS_FILE_DB_Close(&db);
+    }
+		
+	if(pHasht[hash].status==EMPTY)//空
+	{                        
+        Updata_Hash_Table(hash, elem); //更新哈希表
+        *pReturnHash =  hash;
+        return hash; //返回索引值并退出
+	}
+	 else if (pHasht[hash].status==OCCUPIED && (!LPC_Memory_CMP(pHasht[hash].addr, elem->addr, 6)))//该位被相同电表地址占用
+	{
+        if (/*(LPC_Memory_CMP(pHasht[hash].falsh_sn, elem->falsh_sn ,6))
+            || */(pHasht[hash].SubType != elem->SubType)) 			//如果器件sn不一样                 
+        {
+            Updata_Hash_Table(hash, NULL);    //置原先的记录无效，再继续插入		                  
+        }
+        else
+        {   // 器件ID一样，不再插入                             
+			*pReturnHash =  hash;
+            return hash;//( - 1);
+        }
+	}
+
+	index = (hash + 1) % (MAX_HASH_TABLE_FLASH_SIZE); //如果被别的数占据，则索引加1再判断
+	while (hash != index)
+	{
+        if (pHasht[index].status==EMPTY)    //如果索引对应的位置为空
+        {
+            Updata_Hash_Table(index, elem); //把哈希所以加1后添加进哈希表
+            *pReturnHash =  index;
+            return index; //返回索引值并退出循环
+        }
+        else if ((pHasht[index].status==OCCUPIED) && (!LPC_Memory_CMP(pHasht[index].addr, elem->addr, 6)))//该位被相同电表地址占用
+        {
+        	 if (/*(LPC_Memory_CMP(pHasht[index].falsh_sn, elem->falsh_sn ,6))
+			 || */(pHasht[index].SubType != elem->SubType)) 	//如果器件sn不一样                           
+            {
+                Updata_Hash_Table(index, NULL);//置原先的记录无效
+            }
+            else // 器件ID一样，不再插入            
+            {                                  
+    			*pReturnHash =  index;    		
+                 return index;//( - 1);
+            }
+        }
+        index = (index + 1) %(MAX_HASH_TABLE_FLASH_SIZE);//加1、翻转
+	}
+	*pReturnHash =  MAX_HASH_TABLE_FLASH_SIZE;    
+	return ( MAX_HASH_TABLE_FLASH_SIZE);//哈希表已满
+}
+#else
+
 int Hash_Table_Insert(HASHT *elem, int* pReturnHash) //添加哈希表
 {
     return 0;
 }
+
+#endif
+
+void Hash_Table_Init(void)
+{
+    
+    TDataBlock db;
+    SYS_FILE_DB_Open(DB_HASH1, &db, TDB_MODE_RW);
+    htable1 = (HASHT *)(0x08000000 + db.start);
+    SYS_FILE_DB_Close(&db);
+    
+    SYS_FILE_DB_Open(DB_HASH2, &db, TDB_MODE_RW);
+    htable2 = (HASHT *)(0x08000000 + db.start);
+    SYS_FILE_DB_Close(&db);
+}
+
 void Hash_Transfer(void)
 {
 }

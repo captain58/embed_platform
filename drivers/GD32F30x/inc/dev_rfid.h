@@ -17,17 +17,17 @@
 ********************************************************************************************************/
 
 
-#ifndef _EXT_BLE_H_
-#define _EXT_BLE_H_
+#ifndef _EXT_RFID_H_
+#define _EXT_RFID_H_
 
-#ifndef EXT_BLE
-#define EXT_BLE extern
+#ifndef EXT_RFID
+#define EXT_RFID extern
 #endif
 
 /*******************************************************************************
 **模块交互过程的识别信息
 ********************************************************************************/
-EXT_BLE uint8 gucs_BLEMAC[6];              //蓝牙模块MAC
+EXT_RFID uint8 gucs_RFIDMAC[6];              //蓝牙模块MAC
 
 
 
@@ -44,8 +44,8 @@ typedef struct{
     void (*on)(void);                   //打开模块的过程
     void (*off)(void);                  //关闭模块的过程
     int (*set_name)(uint8_t *, uint8_t);                //确定是否为该类型的函数
-    
-}TBLEModemDrive;
+    int (*get_pagex)(uint8_t pagex, uint8_t *data, uint8_t * len);
+}TRFIDModemDrive;
 
 
 typedef union{
@@ -55,17 +55,18 @@ typedef union{
         uint32 chnrdy:1;            //AT指令是否完成基本配置并准备就绪
         uint32 linked:1;
     }bit;
-}TBLEModemState;
+}TRFIDModemState;
 
 
-typedef struct __TBLEModem{
+typedef struct __TRFIDModem{
 //    TDev dev;
-    const TBLEModemDrive* drive;
+    const TRFIDModemDrive* drive;
 
-    TBLEModemState stt;
-    
+    TRFIDModemState stt;
+    uint16 card_len;
+    uint8_t card_id[16];
 
-}TBLEModem;
+}TRFIDModem;
 
 
 
@@ -85,24 +86,25 @@ typedef struct __TBLEModem{
 /************************************************************************
  *无线猫参数,状态信息
  ************************************************************************/
-EXT_BLE TBLEModem* DevBleModem;             //无线猫参数,状态信息
+EXT_RFID TRFIDModem* DevBleModem;             //无线猫参数,状态信息
 
 
-int HAL_BLE_Init(kbuf_queue_t *queue, uint8_t * name, uint8_t len);
+int HAL_RFID_Init(kbuf_queue_t *queue, uint8_t * name, uint8_t len);
 
-void HAL_BLE_Init_Delayed_Action(void *arg);
+void HAL_RFID_Init_Delayed_Action(void *arg);
 
 
-uint8 HAL_BLE_ShutDown();
-uint8 HAL_BLE_Reset();
+uint8 HAL_RFID_ShutDown();
+uint8 HAL_RFID_Reset();
 
-TBLEModemState HAL_BLE_Status(void);
+TRFIDModemState HAL_RFID_Status(void);
+int HAL_RFID_GetCardID(uint8_t *data);
 
 //	
 //	
 //	
 //	/************************************************************************
-//	 * @function: SYS_BLEMODM_Send
+//	 * @function: SYS_RFIDMODM_Send
 //	 * @描述: 发送IP通道的数据
 //	 * 
 //	 * @参数: 
@@ -117,7 +119,7 @@ TBLEModemState HAL_BLE_Status(void);
 //	 *-----------------------------------------------------------------------
 //	 * @修改人: 
 //	 ************************************************************************/
-//	TResult SYS_BLEMODM_Send(uint8* data, uint16 length);
+//	TResult SYS_RFIDMODM_Send(uint8* data, uint16 length);
 //	
 //	
 //	
@@ -138,7 +140,7 @@ TBLEModemState HAL_BLE_Status(void);
 //	 *-----------------------------------------------------------------------
 //	 * @修改人: 
 //	 ************************************************************************/
-//	uint8 SYS_BLEMODM_Reset(uint8 way);
+//	uint8 SYS_RFIDMODM_Reset(uint8 way);
 //	
 //	
 //	
@@ -157,7 +159,7 @@ TBLEModemState HAL_BLE_Status(void);
 //	 *-----------------------------------------------------------------------
 //	 * @修改人: 
 //	 ************************************************************************/
-//	TBLEModemState SYS_BLEMODM_Status(void);
+//	TRFIDModemState SYS_RFIDMODM_Status(void);
 //	
 //	
 //	

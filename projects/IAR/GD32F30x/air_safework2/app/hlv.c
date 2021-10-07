@@ -21,7 +21,7 @@
 #include "lib_com/calclib_gw.h"
 #include "hlv.h"
 #include "netp.h"
-#include "saextapi.h"
+#include "extapi.h"
 #include "alert.h"
 #include "inp.h"
 //#include "dev_ble.h"

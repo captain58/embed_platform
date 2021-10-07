@@ -261,7 +261,13 @@ uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 pro
         cltor_shadow[id].nodestatus.result = errCode;
         cltor[id].realPos = pstMeter->realPos;
         cltor[id].panid = pstMeter->panid;
-        cltor_shadow[id].nodeRssi = rssiQ;        
+        cltor_shadow[id].nodeRssi = rssiQ;  
+        extern uint8_t guc_SwitchSeq;
+        if(cltor[id].loginNo == 0)
+        {
+            cltor[id].loginNo = (++guc_SwitchSeq)%3;
+            if(cltor[id].loginNo == 0) cltor[id].loginNo = 1;
+        }
         break;
     case CON_NODE_UPDATE_HEARTBEAT:
         cltor_shadow[id].nodestatus.bNetAck= 0x1;         //表示该点需要回复

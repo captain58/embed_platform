@@ -115,7 +115,12 @@ enum  //收
 #define MAX_SLOT_TIME  254
 
 #define SUP_SS_INDEX_START  2
-#define MAX_SUP_SS_NUM  (2+1)
+#ifdef MASTER_NODE
+#define MAX_SUP_SS_NUM  (8+1)
+#else
+#define MAX_SUP_SS_NUM  (3+1)
+#endif
+
 //#define MAX_SS_UPDATA_BLOCK_NUM  255
 #define MAX_I_SS_UPDATA_BLOCK_NUM  0xFFFF
 #define MAX_SS_DEAD_TIME  60000
@@ -133,7 +138,11 @@ enum  //收
 //#define MAX_DATA_TIME_LIVE 120
 
 #define MAX_NUM_COL 256
+#ifdef MASTER_NODE
+#define MAX_HASH_TABLE_FLASH_SIZE 8//1024//(MAX_SUP_SS_NUM)
+#else
 #define MAX_HASH_TABLE_FLASH_SIZE 3//1024//(MAX_SUP_SS_NUM)
+#endif
 #define MAX_HASH_TABLE_CACHE_SIZE 32
 #define MAX_HASH_TABLE_SECTOR_SIZE 8
 #define MAX_HASH_TABLE_WB_SIZE 16//white--black
@@ -166,6 +175,7 @@ enum  //收
 #define BEHAVIOR_SHARE_TX       5
 #define BEHAVIOR_RECV_ADV       6
 #define BEHAVIOR_COMPETITION    7
+#define BEHAVIOR_BROADALLOWLOGIN      8
 
 #define MAX_ROUTE_DEPTH  0xf 
 #define FULLTIME 1600   // 40S 广播消息
@@ -766,7 +776,9 @@ typedef struct  __ST_NOD_STAS{
 	//V1 0正常，1无效数据，2长度错误，3校验错误，4信息类不支持，5格式错误，6表号重复，7表号不存在
 	//V2 0正常，1业务溢出，2业务过期，3信道接入失败，4无效地址，5无效GTS时隙，6无应答，7计数器出错，8帧太长，9密钥不可用，10不支持加密，11无效参数
 	uint8 errCode:3;
-    uint8 reverse:5;
+    uint8 switchstt:1;
+    uint8 cardstt:1;
+    uint8 reserve:3;
 }__packed ST_NOD_STAS;
 
 
@@ -835,6 +847,7 @@ typedef struct _STMETERPARARAM
 
     uint8 addrLen;
 	uint8 devAddr[CON_DEV_ADDR_LEN_8];
+    uint8 card[CON_DEV_ADDR_LEN_16];
 	uint8 hop; //节点的路由级别
 	
 	uint16 father;//第一父节点
@@ -845,6 +858,7 @@ typedef struct _STMETERPARARAM
     NOD_STATUS nodestatus;
     uint8 loginFailedTimes;
 	uint8 neighnum; // 邻居个数
+	uint8 loginNo;
 }COLLECTOR;
 
 typedef struct _STMETERPARARAMSHADOW

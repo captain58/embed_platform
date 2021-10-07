@@ -26,7 +26,7 @@
 
 #include "public.h"
 #include "hlv.h"
-#include "saextapi.h"
+#include "extapi.h"
 #include "evt.h"
 #include "inp.h"
 

@@ -37,6 +37,7 @@
     const COMPORT gs_LedSub2Norm       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_LedSub2Err       = {GPIOB, 14,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_LedMasterBatLow       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedNull       = {GPIOB, 5,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
     
     
@@ -46,11 +47,13 @@
     const GPO_PORTS gs_LedPort[] = 
     {
         {(COMPORT*)&gs_LedRun,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedSub1Norm,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedSub1Err,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedSub2Norm,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedSub2Err,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedMasterBatLow,     0, 1, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedSub1Norm,     1, 0, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedSub1Err,     1, 0, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedSub2Norm,     1, 0, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedSub2Err,     1, 0, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedMasterBatLow,     1, 0, 1},     //true:低电平点亮
+        
+        {(COMPORT*)&gs_LedNull,     0, 1, 1},     //true:低电平点亮
     };
         
 
@@ -66,12 +69,13 @@
 //    BEEP_WARN = 0,                        //告警蜂鸣器
 //}LedNo;
 typedef enum {
-GPIO_LED_RUN,
-GPIO_LED_SUB1_NORM,    
-GPIO_LED_SUB1_ERR,   	
-GPIO_LED_SUB2_NORM,    
-GPIO_LED_SUB2_ERR,   	
-GPIO_LED_MASTER_BAT_LOW,
+    GPIO_LED_RUN,
+    GPIO_LED_SUB1_NORM,    
+    GPIO_LED_SUB1_ERR,   	
+    GPIO_LED_SUB2_NORM,    
+    GPIO_LED_SUB2_ERR,   	
+    GPIO_LED_MASTER_BAT_LOW,
+    GPIO_LED_NULL,
 //    LED_NUM,
 } LedNo;
 

@@ -45,6 +45,7 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "sys.h"
 #include "public.h"
 #include "app.h"
 #include "pst.h"
@@ -52,6 +53,8 @@
 //#include "farp.h"
 //#include "netp.h"
 #include "task.h"
+#include "bsp.h"
+#include "paradef.h"
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
@@ -74,6 +77,11 @@ cpu_stack_t  gs_MainStack[TASK_MAIN_STKL];
 ktask_t      gs_MainHandle;
 kbuf_queue_t gs_MainQueue;
 char         gc_MQbuf[MSG_BUFF_LEN];
+uint8_t guc_netStat = NODE_STATUS_OUT;
+uint8_t guc_RegisterStat = NODE_STATUS_OUT;
+uint8_t guc_SwitchSeq = 0;
+
+uint8_t guc_AllowLogin = 0;
 /*******************************************************************************
  * @function_name:  SYS_MAIN_Init
  * @function_file:  __WaitForAllTaskReady
@@ -393,13 +401,33 @@ void SYS_MAIN_Init(void)
     
     SYS_Dev_OptBlinkSetAll(3, 0, 0, 0);               //所有灯灭
 
-    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 10, 10, 0);    //运行灯秒闪(overlay last configuration)
 //	    
+    Hash_Table_Init();
 
      //SER_Open(UART_CHANNEL_DEBUG, TDB_MODE_R | TDB_MODE_W);
-     LogInit(LOG_LEVEL_DEBUG,256, (log_fun_ptr *)Log_Send);
+    LogInit(LOG_LEVEL_DEBUG,256, (log_fun_ptr *)Log_Send);
      //SER_Open(UART_CHANNEL_GPRS, TDB_MODE_R | TDB_MODE_W);
 //	    gl_SysRunInit = 1;
+    Get_Net_Parameter();
+    User_Parameter_Init();
+    
+    GD_Para_RW(REGISTER_FLAG, &guc_RegisterStat, 1, false);
+    GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, false);
+
+#ifndef MASTER_NODE
+
+//    if(NODE_STATUS_LOGIN == guc_RegisterStat)
+//    {
+//        SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+//    }
+//    else
+//    {
+        SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 2, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
+//    }
+#else
+    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+#endif
+    LoadSystemParam(PARA_TYPE_FARP);
 }
 
 
@@ -448,7 +476,7 @@ void KeyProc(uint8 key)
 //            if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
 //                g_ucPutcharEn = 1;
             gs_SysVar.terstt.bit.blecheck = 0;
-	        LOG_DEBUG("key 2 !\n");
+	        LOG_DEBUG("key 2 failing!\n");
         }
         
         if(event & 4)               //KEY3
@@ -457,7 +485,11 @@ void KeyProc(uint8 key)
 //	            gs_SysVar.terstt.bit.DI1linked = 1; 
 //	            msg = MSG_CARD_INSERT;
 //	            krhino_buf_queue_send(&gs_MainQueue, &msg, 1);
+#ifdef MASTER_NODE
             SYS_RF_Set_FallingEdge(GPI_DIO1);
+#else
+//	            guc_SwitchOnOff = 0;
+#endif
         }
         
         if(event & 8)               //KEY4
@@ -469,18 +501,30 @@ void KeyProc(uint8 key)
         
         if(event & 0x10)               //KEY5
         {
-        
             LOG_DEBUG("key 5 failing!\n");
+//	            guc_SwitchOnOff = 0;
         }
         
     }
     if(key == MSG_LILEVT)
     {
-        event = SYS_GPI_Event(GPI_TYPE_LILEVT);  //慢速口下降沿状态(按键松开)
+        event = SYS_GPI_Event(GPI_TYPE_LILEVT);  //慢速口保持状态(按键长按)
         
         if(event & 1)               //KEY1
         {
 	        LOG_DEBUG("key 1 keep !\n");
+            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 10, 10, 0);
+            guc_AllowLogin = 1;
+            bBroadMeterEnable = 1;
+#ifdef MASTER_NODE            
+//	            Cltor_init();
+            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
+            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
+            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
+            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 3, 0, 0, 0);
+#else
+            guc_netStat = NODE_STATUS_OUT;
+#endif
         }
         
         if(event & 2)               //KEY2
@@ -511,7 +555,19 @@ void KeyProc(uint8 key)
         if(event & 1)               //KEY1
         {
 	        LOG_DEBUG("key 1 right!\n");
-            gs_SysVar.terstt.bit.DI0linked = 0; 
+//	            gs_SysVar.terstt.bit.DI0linked = 0; 
+//	            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);
+            guc_AllowLogin = 0;
+#ifndef MASTER_NODE
+            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 2, 100, 100, 0);
+            if(NODE_STATUS_LOGIN == guc_netStat)
+            {
+                SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+            }
+#else
+            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0); 
+#endif
+
         }
         
         if(event & 2)               //KEY2
@@ -527,7 +583,13 @@ void KeyProc(uint8 key)
         if(event & 4)               //KEY3
         {
             LOG_DEBUG("key 3 right!\n");
-	        gs_SysVar.terstt.bit.DI0linked = 0; 
+//		        gs_SysVar.terstt.bit.DI0linked = 0; 
+
+#ifdef MASTER_NODE
+//	            SYS_RF_Set_FallingEdge(GPI_DIO1);
+#else
+//	            guc_SwitchOnOff = 1;
+#endif
         }
         
         if(event & 8)               //KEY4
@@ -538,6 +600,7 @@ void KeyProc(uint8 key)
         if(event & 0x10)               //KEY4
         {
             LOG_DEBUG("key 5 right!\n");
+//	            guc_SwitchOnOff = 1;
         }
     }        
 }
@@ -864,6 +927,10 @@ int application_start(int argc, char *argv[])
         aos_msleep(CON_LIVE_SLEEP);
     };
 }
+//	uint8_t guc_CardID[16];
+extern uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];
+extern const uint8 sBroadAddrFE[8];
+
 void SYS_MAIN_Task(void * arg)
 {
     TIME time;
@@ -877,7 +944,28 @@ void SYS_MAIN_Task(void * arg)
     ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
     
     g_ucPutcharEn = 1;
-//    HAL_BLE_Init(&gs_MainQueue, ble_name, 14);
+
+#ifndef MASTER_NODE    
+//	    memcpy(nDeviceMacAddr, (uint8_t *)sBroadAddrAA, 8);
+    memset(nDeviceMacAddr, 0, 8);
+    memset(nParentMacAddr, 0xff, 8);
+    memset(nParentMacAddrTemp, 0xff, 8);
+
+    nDeviceMacAddr[0] = 1;
+    HAL_RFID_Init(&gs_MainQueue, ble_name, 14);
+    guc_SwitchOnOff = 0;
+    guc_SwitchNorErr = 0;
+    guc_BuzzerNorErr = 0;
+    SYS_GPO_Out(GPO_SWITCH_PWR,true);
+    msleep(10);
+    if(SYS_GPI_GetLPort(GPI_Switch))
+    {
+        guc_SwitchOnOff = 1;
+    }
+    SYS_GPO_Out(GPO_SWITCH_PWR,false);
+#else
+    memset(nDeviceMacAddr, 0, 8);
+#endif    
 //    if(SYS_GPI_GetStt(0) & 0x02)
 //    {
 //        g_ucPutcharEn = 0;
@@ -906,6 +994,12 @@ void SYS_MAIN_Task(void * arg)
     LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
 //    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
+//	    SYS_IFLS_Test();
+//    uint8_t tmp[10] = {2,1,3,0,0,0,0,0,0,0};
+//    GD_Para_RW(F251_PADDR, tmp, 10, true);
+//    memset(tmp,0,10);
+//    GD_Para_RW(F251_PADDR, tmp, 10, false);
+//    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
 
     for(;;)
     {   
@@ -918,6 +1012,7 @@ void SYS_MAIN_Task(void * arg)
 //	                MAIN_SecProc();
 //	                SYS_ReadDateTime(&time);
 //	                LOG_DEBUG("second !\n");
+          
                 break;
                 
             case MSG_MIN:

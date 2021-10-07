@@ -44,7 +44,7 @@ typedef struct
     //模块内部使用,对外只读
 #if (SYS_LGPI_EN > 0)
     uint8 cnt[LGPI_PORT_NUM];                //输入端口扫描计数器
-    uint8 lastcnt[LGPI_PORT_NUM];            //按键持续时间计数器
+    uint16_t lastcnt[LGPI_PORT_NUM];            //按键持续时间计数器
 #endif
     
 #if (SYS_FGPI_EN > 0)

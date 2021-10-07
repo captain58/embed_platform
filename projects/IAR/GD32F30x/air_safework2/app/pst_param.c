@@ -175,20 +175,20 @@ void CrackShortPara(uint8 dbno, uint32 addr)
  ************************************************************************/
 uint8 GD_Para_RW(uint32 addr, uint8* buff, uint16 len, bool rw)
 {
-//    if(rw)
-//    {
-//        if(SYS_ERR_OK == WriteFlash(DB_PARA, buff, len, addr))
-//        {
-//            SYS_OK();
-//        }
-//    }
-//    else
-//    {
-//        if(SYS_ERR_OK == ReadFlash(DB_PARA, buff, len, addr))
-//        {
-//            SYS_OK();
-//        }
-//    }
+    if(rw)
+    {
+        if(SYS_ERR_OK == WriteFlash(DB_PARA, buff, len, addr))
+        {
+            SYS_OK();
+        }
+    }
+    else
+    {
+        if(SYS_ERR_OK == ReadFlash(DB_PARA, buff, len, addr))
+        {
+            SYS_OK();
+        }
+    }
     
     return SYS_ERR_FT;
 }

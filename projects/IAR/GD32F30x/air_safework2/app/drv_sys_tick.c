@@ -2,6 +2,8 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "sys.h"
+#include "bsp.h"
 #include "public.h"
 #include "user_func.h"
 #include "A7139reg.h"
@@ -96,7 +98,8 @@ tRadioDriver *Radio = NULL;
 //extern uint8 g_ucPktRssiValue[256];
 
 uint8 g_ucMacBSN = 0;
-
+extern uint8_t guc_netStat;
+extern uint8_t guc_RegisterStat;
 uint8 Flash_Proc(void);
 unsigned char getMSR(void);
 void setMSR(unsigned char cmsr);
@@ -140,7 +143,7 @@ void Switch_Channel(unsigned char channel)
 //        return (cksum);
 //}
 
-uint32 sysSlotTimeCycle = 0;
+uint32 sysSlotTimeCycle = 10;
 void Slot_Time_IRQ(void * arg)
 {
 	//uint16 slot;
@@ -148,7 +151,7 @@ void Slot_Time_IRQ(void * arg)
     uint16 curSlot = sysSlotTime % slotNum;
 	BEHAVIOR behave;
 	//uint16 temp8;
-    behave = Get_Current_Behave2(curSlot, sysSlotTimeCycle & 0xFF);//获得当前行为
+    behave = Get_Current_Behave2(curSlot, sysSlotTimeCycle);//获得当前行为
     uint8 msr = getMSR();
     uint32 tcnt1,tcnt2;
 
@@ -169,10 +172,30 @@ void Slot_Time_IRQ(void * arg)
 //	                //
 //	            }
 //            EZMacPRO_Transmit_Beacon(1, behave.rebirth);
-            EZMacPRO_Transmit_Adv(3, NULL, 0);	
+            if(guc_RegisterStat == NODE_STATUS_LOGIN)
+            {
+                if(guc_netStat == NODE_STATUS_LOGIN)
+                {
+                    EZMacPRO_Transmit_Adv(3, NULL, 0);	
+                    sysSlotTimeCycle = 1000;
+                }
+                else
+                {
+                    EZMacPRO_Transmit_Adv(5, NULL, 0);
+                    sysSlotTimeCycle = 30;
+                }
+            }
+            else
+            {
+                sysSlotTimeCycle = 1000;
+            }
+
             break;
 
         }
+        case BEHAVIOR_BROADALLOWLOGIN:
+            EZMacPRO_Transmit_Adv(4, NULL, 0);	
+            break;
         case BEHAVIOR_RECV_ADV://收广播
         {
 
@@ -204,7 +227,38 @@ void Slot_Time_IRQ(void * arg)
 
     sysSlotTime++;
 
-
+		//取最大有效SS存储空间
+		for (int Loop = 1; Loop <= rfpara.rf_slotnum; Loop++)
+	{
+    	COLLECTOR *pCltor = &(cltor[Loop]);
+        COLLECTOR_SHADOW *pCltor_shadow = &(cltor_shadow[Loop]);
+    	if(pCltor->devAddr[0] < 0xFF)
+  		{
+  			//老化入网回复包与心跳包
+	   		if(pCltor_shadow->nodestatus.bNetAck || pCltor_shadow->nodestatus.bDataAck)
+	   		{
+	   			if(pCltor_shadow->FrameDeadTime > 1)
+					pCltor_shadow->FrameDeadTime --;	
+				else
+                {            
+	   				pCltor_shadow->nodestatus.bDataAck = 0;
+                    pCltor_shadow->nodestatus.bNetAck = 0;
+                }
+	   		}
+            else if(pCltor->nodestatus.bNeedDelete)
+            {
+                if(pCltor_shadow->FrameDeadTime > 0)
+					pCltor_shadow->FrameDeadTime --;	
+            }
+  		}
+		else
+		{
+			//老化SS空间的消亡时间
+//					if(pCltor->DeadTime > 0)
+//						pCltor->DeadTime --;
+		}
+    }
+ 
 
 //	tcnt2 = T1TC; //记录IAP终止时间
 //	if(tcnt2>tcnt1)
@@ -1194,6 +1248,20 @@ uint8 EZMacPRO_Transmit(void)/*STAPDU * stPdu*/
                 memset(pEzTxPkt->TxPkt.data + m, 0x99, 6);
                 m+=6;
             }
+            else if(pEzTxPkt->TxPkt.head.apdu.broadCastFlg == 0x66)
+            {
+                memcpy(pEzTxPkt->TxPkt.data + m, (uint8_t *)sBroadAddrFE, 6);
+                m+=6;
+                memset(pEzTxPkt->TxPkt.data + m, 0x99, 6);
+                m+=6;
+            }
+            else  if(pEzTxPkt->TxPkt.head.apdu.broadCastFlg == 0x77)
+            {
+                memcpy(pEzTxPkt->TxPkt.data + m, nDeviceMacAddr, 6);
+                m+=6;
+                memcpy(pEzTxPkt->TxPkt.data + m, nParentMacAddr, 6);
+                m+=6;
+            }
             else
             {
                 memcpy(pEzTxPkt->TxPkt.data + m, pEzTxPkt->TxPkt.head.apdu.addr, pEzTxPkt->TxPkt.head.apdu.addrlen);
@@ -1650,10 +1718,11 @@ static uint8 sOffNetworkMeterMngBit = 0;
 uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命令
 {   
     uint16 k = 0;
-    
+    uint16 m = 0, n = 0;
+    uint32 stt = 0;
     PKT *pkt;
 
-    EZ_TX_PKT * ezPkt = getIdelSendCache(CON_SEND_PRIORITY_HIGH);
+    EZ_TX_PKT * ezPkt = getIdelSendCache(CON_SEND_PRIORITY_NORMAL);
     if(ezPkt == NULL)//网络报文缓存有效
     {
         return 0;
@@ -1784,15 +1853,117 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
     		ezPkt->bValid = 1;//业务缓存有效
     		ezPkt->nBackOffSlot = FUNC_DELAY_MS(500);
         break;
+#ifndef MASTER_NODE        
         case 3:
+        {
             pkt->head.apdu.ctrl.dir = 1;//服务器  发广播
             pkt->head.apdu.ctrl.prm = 1;
             pkt->head.apdu.ctrl.evtmode = 1;
-            pkt->head.apdu.ctrl.ftd = 1;
+            pkt->head.apdu.ctrl.ftd = 3;
+            pkt->head.apdu.seq = cltor_shadow[k].sendseq;
+            pkt->head.apdu.broadCastFlg = 0x77;
+
+            pkt->head.apdu.fn = 20;//上告
+
+            pkt->head.apdu.stInfo.stDown.bit1.routeFlg = 0;
+            pkt->head.apdu.stInfo.stDown.bit1.nodeFlg = 0;
+            pkt->head.apdu.stInfo.stDown.bit1.addrFlg = 0;
+            pkt->head.apdu.stInfo.stDown.bit1.conflict = 1;
+            pkt->head.apdu.stInfo.stDown.bit1.routeNum = 0;;//pkt->rarea->stDown.bit1.routeNum;
+            pkt->head.apdu.stInfo.stDown.bit2.channelFlg = rfpara.rf_channel;//Cal_Hash_Value(nDeviceMacAddr) % LORA_CHANNEL_NUM;//pkt->rarea->stDown.bit2.channelFlg;
+            pkt->head.apdu.stInfo.stDown.bit2.errEncodeFlg = 0;
+            pkt->head.apdu.addrlen = 12;
+            pkt->head.apdu.addr = pkt->data + PKT_HEAD_LEN;
+            pkt->head.apdu.data = pkt->data + PKT_HEAD_LEN + pkt->head.apdu.addrlen;
+//	            n = PKT_HEAD_LEN + pkt->head.apdu.addrlen;
+            m+=4;
+//	            pkt->head.apdu.len = len;
+//	            memcpy(pkt->head.apdu.data, data, len);
+//	            pkt->head.apdu.broadCastFlg = 0x55;//地址广播
+#define CON_STT_SWITCH_OFFSET 0
+#define CON_STT_CARD_OFFSET 1
+#define CON_STT_CARD_ID_OFFSET 2
+            stt |= 1<<CON_STT_SWITCH_OFFSET;
+            pkt->head.apdu.data[m++] = guc_SwitchNorErr;//guc_SwitchOnOff;
+            
+            TRFIDModemState strfstt = HAL_RFID_Status();
+            stt |= 1<<CON_STT_CARD_OFFSET;
+            pkt->head.apdu.data[m++] = strfstt.bit.linked;
+
+            if(strfstt.bit.linked)
+            {
+                stt |= 1<<CON_STT_CARD_ID_OFFSET;
+                pkt->head.apdu.data[m++] = strfstt.bit.linked;
+                m += HAL_RFID_GetCardID(pkt->head.apdu.data  + m);
+            }
+            memcpy(pkt->head.apdu.data, &stt, 4);
+            pkt->head.apdu.len = m;
+
+            cltor_shadow[k].sendseq++;
+    		ezPkt->bValid = 1;//业务缓存有效
+    		ezPkt->nBackOffSlot = FUNC_DELAY_MS(500);
+            break;
+        }
+        case 5://入网帧
+        {
+            pkt->head.apdu.ctrl.dir = 1;//服务器  发广播
+            pkt->head.apdu.ctrl.prm = 1;
+            pkt->head.apdu.ctrl.evtmode = 1;
+            pkt->head.apdu.ctrl.ftd = 7;
+            pkt->head.apdu.seq = cltor_shadow[k].sendseq;
+            pkt->head.apdu.broadCastFlg = 0x77;
+
+            pkt->head.apdu.fn = 3;//入网
+
+            pkt->head.apdu.stInfo.stDown.bit1.routeFlg = 0;
+            pkt->head.apdu.stInfo.stDown.bit1.nodeFlg = 0;
+            pkt->head.apdu.stInfo.stDown.bit1.addrFlg = 0;
+            pkt->head.apdu.stInfo.stDown.bit1.conflict = 1;
+            pkt->head.apdu.stInfo.stDown.bit1.routeNum = 0;;//pkt->rarea->stDown.bit1.routeNum;
+            pkt->head.apdu.stInfo.stDown.bit2.channelFlg = rfpara.rf_channel;//Cal_Hash_Value(nDeviceMacAddr) % LORA_CHANNEL_NUM;//pkt->rarea->stDown.bit2.channelFlg;
+            pkt->head.apdu.stInfo.stDown.bit2.errEncodeFlg = 0;
+            pkt->head.apdu.addrlen = 12;
+            pkt->head.apdu.addr = pkt->data + PKT_HEAD_LEN;
+            pkt->head.apdu.data = pkt->data + PKT_HEAD_LEN + pkt->head.apdu.addrlen;
+//	            m = n = PKT_HEAD_LEN + pkt->head.apdu.addrlen;
+
+
+            pkt->head.apdu.data[m++] = 0;
+            pkt->head.apdu.data[m++] = 0;
+            //GIS
+            memset(pkt->head.apdu.data+m,0,8);
+            m+=8;
+            //心跳周期（分）
+            pkt->head.apdu.data[m++] = 5;
+            //精简模块软件版本号
+            pkt->head.apdu.data[m++] = 0;
+            pkt->head.apdu.data[m++] = 1;
+            //精简模块硬件版本号
+            pkt->head.apdu.data[m++] = 1;
+            //本地时间
+            memcpy(pkt->head.apdu.data+m,(uint8_t *)GetTime(),6);
+            m+=6;
+
+
+
+            pkt->head.apdu.len = m;
+
+            cltor_shadow[k].sendseq++;
+            ezPkt->bValid = 1;//业务缓存有效
+            ezPkt->nBackOffSlot = FUNC_DELAY_MS(500);
+            break;
+        }
+#else        
+       
+        case 4:
+            pkt->head.apdu.ctrl.dir = 0;//服务器  发广播
+            pkt->head.apdu.ctrl.prm = 1;
+            pkt->head.apdu.ctrl.evtmode = 1;
+            pkt->head.apdu.ctrl.ftd = 4;
             pkt->head.apdu.seq = cltor_shadow[k].sendseq;
             pkt->head.apdu.broadCastFlg = 0x55;
 
-            pkt->head.apdu.fn = 15;//剔除
+            pkt->head.apdu.fn = 99;//广播入网
 
             pkt->head.apdu.stInfo.stDown.bit1.routeFlg = 0;
             pkt->head.apdu.stInfo.stDown.bit1.nodeFlg = 0;
@@ -1806,13 +1977,13 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
             pkt->head.apdu.data = pkt->data + PKT_HEAD_LEN + pkt->head.apdu.addrlen;
             pkt->head.apdu.len = len;
             memcpy(pkt->head.apdu.data, data, len);
-            pkt->head.apdu.broadCastFlg = 0x55;//地址广播
-
+//            pkt->head.apdu.broadCastFlg = 0x55;//地址广播
 
             cltor_shadow[k].sendseq++;
     		ezPkt->bValid = 1;//业务缓存有效
     		ezPkt->nBackOffSlot = FUNC_DELAY_MS(500);
-            break;
+            break; 
+#endif             
         default:
             break;
     }
@@ -2078,7 +2249,8 @@ BEHAVIOR Get_Current_Behave(uint16 slot, uint8 timeframe) //获取要操作的行为
     uint16 temp16;	
     uint32 temp32;
 #ifndef MASTER_NODE    
-    if ((slot % 1000) == (localid - 1))    //本地发广播    
+    if(timeframe < 10) timeframe = 10;
+    if ((slot % timeframe) == (localid - 1))    //本地发广播    
     {
         ret.behave = BEHAVIOR_BROADCAST;
         ret.freq = broad_fhc;
@@ -2087,6 +2259,14 @@ BEHAVIOR Get_Current_Behave(uint16 slot, uint8 timeframe) //获取要操作的行为
     {              
         ret.behave = BEHAVIOR_RECV_ADV;
         ret.freq = broad_fhc; //广播频率
+    }
+    else
+#else
+    extern uint8 guc_AllowLogin;
+    if (guc_AllowLogin && (slot % 100) == (localid - 1))    //本地发广播
+    {
+        ret.behave = BEHAVIOR_BROADALLOWLOGIN;
+        ret.freq = broad_fhc;
     }
     else
 #endif      

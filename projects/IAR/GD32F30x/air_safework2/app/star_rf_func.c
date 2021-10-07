@@ -53,7 +53,11 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
     switch(frm->apdu.fn)
     {
         case MSG_TYPE_FN_01:
-            
+            extern uint8_t guc_netStat;
+            if(NODE_STATUS_LOGIN == guc_netStat)
+            {
+                SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+            }
             if(frm->bNeedReAllocate)
             {
                 id = Sn_Search_Id(SN);
@@ -74,6 +78,13 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     }
                 }
             }
+            break;
+        case MSG_TYPE_FN_02:
+#ifndef MASTER_NODE
+            extern uint8_t guc_netStat;
+            guc_netStat = NODE_STATUS_OUT;
+//            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 2, 100, 100, 0); 
+#endif
             break;
         default:
         break;
@@ -126,7 +137,7 @@ uint8 fSRFFTD01(const CMD_TABLE_t* tbl, SRF_Frame* frm)
     switch(frm->apdu.fn)
     {    
         case MSG_TYPE_FN_15:
-          
+            
             break;
         case MSG_TYPE_FN_01:
             if(frm->bDebugFlg == TRUE)
@@ -1177,6 +1188,56 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                             (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
         }
         break;          
+        case MSG_TYPE_FN_20:
+        {
+
+            
+            len = frm->len - m - 1 - 2;//pkt->data[m++];
+            stinfo.stUp.bit1.moduleFlg = 1;
+            stinfo.stUp.bit3.meterFlg = 0x05;
+            stinfo.stUp.bit4.recvSignal = getSignalQuality((int)frm->rssi, RSSI_OFFSET_MF, RSSI_OFFSET_HF);
+            stinfo.stUp.seq = cltor_shadow[1].sendseq++;
+
+            id = Sn_Search_Id(SN);
+
+            LOG_DEBUG( DBGFMT" search id = %d\n",DBGARG, id);
+			
+			errCode = 0;
+
+            if ((id > MAX_SUP_SS_NUM) ||( id < SUP_SS_INDEX_START) || (id > rfpara.rf_slotnum)/* || (id >= MAX_REAL_SUP_SS_NUM)*/)
+            {               
+                if(frm->apdu.broadCastFlg == 1)
+                {
+                    break;
+                }
+
+                id = 0;                 //当没有分配到有效ID时，分配到0，用于回复SS 
+                errCode = 6;
+            }
+                
+            uint32 stt = 0;
+            m=0;
+            memcpy(&stt, frm->apdu.data + m, 4);
+            m+=4;
+            cltor_shadow[id].nodestatus.switchstt = frm->apdu.data[m++];
+            cltor_shadow[id].nodestatus.cardstt = frm->apdu.data[m++];
+            if(cltor_shadow[id].nodestatus.cardstt)
+            {
+                memcpy(cltor[id].card, frm->apdu.data + m, 16);
+            }
+            
+            STMETERPARAFLASH stMeter;
+            
+            GetCltorPara(id, &stMeter);
+            stMeter.reverse = getSignalQuality((int)(-frm->apdu.stInfo.stUp.rssi), RSSI_OFFSET_MF, RSSI_OFFSET_HF);;//frame->app[m++];
+            stMeter.hop = frm->apdu.stInfo.stUp.bit1.routeNum;
+
+            UpdataRouteInfo2(id, cltor[id].nodestatus.protocol, frm->apdu.stInfo.stUp.bit1.addrFlg, frm->apdu.addr + addrLenPer,frm->apdu.stInfo.stUp.bit1.routeNum);//joinreq->route.rdepth);
+
+            updataNodeCache(id, CON_NODE_UPDATE_PUSHUP, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
+                            (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
+        }
+        break;              
         default:
           break;
     }
@@ -1203,8 +1264,10 @@ uint8 fSRFFTD04(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 {
 //    uint16 len, ml = 0;
     uint8 m = PKT_HEAD_LEN + frm->apdu.addrlen;
+    uint8 ml = 0;
     STINFO3762 stinfo;
     uint8 fn;
+    uint8 *send = frm->send;
     memset((uint8 *)&stinfo, 0, sizeof(STINFO3762));
 //    uint16 id = 0;
     uint8 SN[CON_DEV_ADDR_LEN_6];
@@ -1259,7 +1322,40 @@ uint8 fSRFFTD04(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             }
             break;
         }
-        break;      
+        break;     
+        
+        case MSG_TYPE_FN_99:
+        {
+            frm->apdu.ctrl.dir = 1;
+            frm->apdu.ctrl.prm = 1;
+            frm->apdu.ctrl.evtmode = 0;
+            frm->apdu.ctrl.ftd = 7;
+            frm->apdu.fn = 7;
+            //序号及优先标志PIID
+            send[ml++] = 0;
+            send[ml++] = 0;
+            //GIS
+            memset(send,0,8);
+            ml+=8;
+            //心跳周期（分）
+            send[ml++] = 5;
+            //精简模块软件版本号
+            send[ml++] = 0;
+            send[ml++] = 1;
+            //精简模块硬件版本号
+            send[ml++] = 1;
+            //本地时间
+            memcpy(send,(uint8_t *)GetTime(),6);
+            m+=6;
+            extern uint8_t guc_AllowLogin;
+            if(guc_AllowLogin)
+            {
+                frm->len = ml;
+                memcpy(nParentMacAddrTemp, frm->apdu.addr, 6);
+                return SYS_ERR_OK;  //无需回复
+            }
+            break;
+        }
         default:
           break;
     }
@@ -1469,7 +1565,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
     {
         case MSG_TYPE_FN_03://登陆
         {
-            
+#ifdef MASTER_NODE
             if(frm->bNeedReAllocate)
             {
                 id = getOrAllocateIdByAddr(1, SN, 6);
@@ -1490,7 +1586,10 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     
                     I2cWrite(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, 1); //写入路由参数         
                 }
-                            
+
+                updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
+                    (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
+                
                 //更新中继节点
                 
             }
@@ -1541,7 +1640,23 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 
             updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
                             (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
-            
+#else
+//	            if(frm->bNeedReAllocate)
+            {
+//	                memcpy(nDeviceMacAddr, frm->apdu.data+5, 6);
+//	                if(memcmp(nParentMacAddrTemp, frm->apdu.addr, 6) == 0)
+//	                {
+                    memcpy(&nDeviceShortAddr, frm->apdu.data+5, 2);
+                    extern uint8_t guc_netStat;
+                    guc_netStat = NODE_STATUS_LOGIN;
+//	                    memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
+                    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);
+                    guc_AllowLogin = 0;
+//                }
+            }
+
+
+#endif
             break;
         }        
         case MSG_TYPE_FN_07:
@@ -1550,6 +1665,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             int return_hash = 0, ReturnHash = 0;
             uint8 bError = 0, devType = 0;
             HASHT elem;
+#ifdef MASTER_NODE
 
             if(frm->apdu.broadCastFlg == 1)
             {
@@ -1572,9 +1688,9 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             }   
             if(0 == nFoundNum)
             {
-                id = 0;
+                id = Re_Allocate_Id(SN);    //根据SN重新分配
                 cltor_shadow[id].nodestatus.result = 0x6;
-                //id = Re_Allocate_Id(SN);    //根据SN重新分配
+//	                id = Re_Allocate_Id(SN);    //根据SN重新分配
             }
             else if(1 == nFoundNum)
             {
@@ -1687,6 +1803,25 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             {
                 SyncCltorPara(id, &cltor[id], &stMeter);
             }
+#else
+            if(frm->bNeedReAllocate)
+            {
+//                  memcpy(nDeviceMacAddr, frm->apdu.data+5, 6);
+                if(memcmp(nParentMacAddrTemp, frm->apdu.addr, 6) == 0)
+                {
+                    memcpy(&nDeviceShortAddr, frm->apdu.data+5, 2);
+                    extern uint8_t guc_RegisterStat;
+                    guc_RegisterStat = NODE_STATUS_LOGIN;
+                    
+                    GD_Para_RW(REGISTER_FLAG, &guc_RegisterStat, 1, true);
+                    memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
+                    
+                    GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, true);
+                    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);
+                    guc_AllowLogin = 0;
+                }
+            }
+#endif
             break;
         }
         case MSG_TYPE_FN_05://心跳

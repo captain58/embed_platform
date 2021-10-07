@@ -177,6 +177,7 @@
 #define MSG_ALRT_ERC1           105      //参数及数据初始化 erc1
 #define MSG_ALRT_CLR            106      //清除所有记录
 
+#define MSG_SWITCH_CHANGE   110
 
 //	#define MSG_FTP_OPEN            110
 //	#define MSG_FTP_OPEN_SUCC       111

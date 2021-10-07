@@ -861,7 +861,7 @@ void SLV_InitProc(void)
 
 
 
-
+int32_t guc_CardLen = 0;
 /*******************************************************************************
  * @function_name:  ES_SLV_Task
  * @function_file:  
@@ -896,36 +896,94 @@ void SYS_SLV_Task(void)
         switch(g_TKSlvQ_buf_recv[0])        //根据消息分别处理
         {
             case MSG_SEC:                   //秒消息处理
-                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_SLV;
-                
-                SLV_SecProc();
-           
-                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_SLV;
-                HB_RetLive(TASK_SLV_TKID);
-                break;
-                
-            case MSG_MIN:                   //分消息处理
-                SLV_MinProc();
-                break;
-            case MSG_HOUR:
-                Task_HourProc();
-                break;
-            case MSG_NETP_FINISH:
-                if((gs_SysVar.mDGstt & HLV_STT_NENG)  == 0)
-                {
-                    gss_TaskATimer.atr |= TKT_ATR_FLAG; 
-                    
-                    gs_SysVar.mLPstt |= HLV_LPTASK_RP;
+            {
+//                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_SLV;
+//                
+//                SLV_SecProc();
+//           
+//                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_SLV;
+//                HB_RetLive(TASK_SLV_TKID);
+#ifndef MASTER_NODE    
+                    SYS_GPO_Out(GPO_SWITCH_PWR,true);
+                    msleep(100);
+
+                    if(SYS_GPI_GetLPort(GPI_Switch))
+                    {
+
+                        if(guc_SwitchOnOff != 1)
+                        {
+                            extern kbuf_queue_t gs_RFMngQueue;
+                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+                        }
+                        guc_SwitchOnOff = 1;
+                    }
+                    else
+                    {
+                        if(guc_SwitchOnOff != 0)
+                        {
+                            extern kbuf_queue_t gs_RFMngQueue;
+                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+                        }
+                        guc_SwitchOnOff = 0;
+                    }
+    //	                SYS_GPO_Out(GPO_SWITCH_PWR,false);
+                    SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 0, 0, 0, 0); 
+                    int32_t CardLen = HAL_RFID_ReadCardID(nDeviceCardId, guc_CardLen);
+                    if(CardLen != guc_CardLen)
+                    {
+                        guc_CardLen = CardLen;
+                        extern kbuf_queue_t gs_RFMngQueue;
+                        krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+                        
+                    }
+
+                    if(guc_CardLen > 0 && guc_SwitchOnOff > 0)
+                    {
+                        if(guc_BuzzerNorErr != 1)
+                        {
+                            SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
+                            guc_BuzzerNorErr = 1;
+                        }
+                        guc_SwitchNorErr = 1;
+                        
+                    }
+                    else
+                    {
+                        
+                        if(guc_CardLen <= 0 && guc_SwitchOnOff == 0)
+                        {
+                            guc_BuzzerNorErr = 0;
+                            guc_SwitchNorErr = 0;
+                        }
+                    }
+#endif                  
                 }
-//	                JudgeTaskFlag(g_TKSlvQ_buf_recv[1]);
                 break;
-//	            case MSG_NETP_TASK_RUN_FLAG_PER_485:
-//	                
-//	                gss_TaskATimer.runflag |= 1 << g_TKSlvQ_buf_recv[1];
-//	                break;
-            case MSG_FARP_CHECK:
-                IP_Check();
-                break;
+                
+//            case MSG_MIN:                   //分消息处理
+//                SLV_MinProc();
+//                break;
+//            case MSG_HOUR:
+//                Task_HourProc();
+//                break;
+//            case MSG_NETP_FINISH:
+//                if((gs_SysVar.mDGstt & HLV_STT_NENG)  == 0)
+//                {
+//                    gss_TaskATimer.atr |= TKT_ATR_FLAG; 
+//                    
+//                    gs_SysVar.mLPstt |= HLV_LPTASK_RP;
+//                }
+////	                JudgeTaskFlag(g_TKSlvQ_buf_recv[1]);
+//                break;
+////	            case MSG_NETP_TASK_RUN_FLAG_PER_485:
+////	                
+////	                gss_TaskATimer.runflag |= 1 << g_TKSlvQ_buf_recv[1];
+////	                break;
+//            case MSG_FARP_CHECK:
+//                IP_Check();
+//                break;
 //	            case MSG_FTP_OPEN_SUCC:
 //	                g_ulFtp_Timeout = 0;
 //	                gs_FtpPara.flag = FTP_STEP_ING;

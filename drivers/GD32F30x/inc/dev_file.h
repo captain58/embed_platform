@@ -79,7 +79,8 @@ enum
     DEV_FLS_TYPE_EEPROM = 1,   //操作eeprom
     DEV_FLS_TYPE_FRAM = 2,  //操作FRAM
     DEV_FLS_TYPE_VFRAM = 3, //操作虚拟FRAM
-    DEV_FLS_TYPE_IDEL = 4, //操作虚拟FRAM
+    DEV_FLS_TYPE_IFLS = 4,  //操作内部flash
+    DEV_FLS_TYPE_IDEL = 5, //操作虚拟FRAM
 };
 
 #define DB_FLASH            0x1//     flash

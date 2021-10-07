@@ -207,8 +207,9 @@ const uint8 gucs_PSTChn0frms[] =        //定义通道0支持的规约的编号
 #if PST_CHN_NO > 1                      //定义通道1的信息             
 const uint8 gucs_PSTChn1frms[] =        //定义通道1支持的规约的编号   
 {                                                                     
-    PST_FRM_VS_NO,
-    PST_FRM_ZY_NO,    
+//    PST_FRM_VS_NO,
+//    PST_FRM_ZY_NO,    
+    PST_FRM_WL_1_NO,
 };                                                                    
 #define PST_CHN1_HCHARS  6              //定义通道1允许的前导符的数量 
 #endif

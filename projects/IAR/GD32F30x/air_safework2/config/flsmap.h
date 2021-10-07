@@ -57,10 +57,13 @@
 **flash块号宏
 ******************************************************************************/
 //注意:需要与初始化文件一致
-#define DB_UPDATE               0               //升级
-#define DB_FACTORY              1               //出厂配置
+#define DB_CODE                 0 
+
+#define DB_UPDATE               1               //升级
+//	#define DB_FACTORY              1               //出厂配置
 
 #define DB_PARA                 2               //参数
+#define DB_DEV                  3
 #define DB_UPDATA_PARA          3               //模块升级参数
 #define DB_RUN_PARA             4               //运行参数
 #define DB_MON_FREEZE           5               //月冻结
@@ -73,7 +76,8 @@
 #define DB_DAY_FREEZE_LAST      12              //最近六条日冻结
 #define DB_PARA_NETP            13               //参数
 #define DB_CURE                 14                              //电表曲线数据文件号
-
+#define DB_HASH1                15
+#define DB_HASH2                16
 #ifdef _USR_FLASH                        //应用层主文件中定义
 
 /******************************************************************************
@@ -82,21 +86,25 @@
 __root const S_FILEBLOCKS gss_FileBlocks[] = 
 {
     //起始文件号, 同类项, 最小数据块数
-    {DB_UPDATE,         0, 64, TDB_MODE_RW},    //远程升级
-    {DB_FACTORY,        0, 2, TDB_MODE_RW},     //出厂配置    
+    
+    {DB_CODE,         0, 52, TDB_MODE_RW},    //远程升级
+    {DB_UPDATE,         0, 48, TDB_MODE_RW},    //远程升级
+//	    {DB_FACTORY,        0, 2, TDB_MODE_RW},     //出厂配置    
     
     {DB_PARA,           0, 2,  TDB_MODE_RW},    //参数
-    {DB_UPDATA_PARA,    0, 1,  TDB_MODE_RW},    //升级所用的参数
-    {DB_RUN_PARA,       0, 4, TDB_MODE_RW},     //ftp运行参数
-//	    {DB_MON_FREEZE,     0, 4,  TDB_MODE_RW},   //月冻结
-    {DB_EVENT,          0, 8,  TDB_MODE_RW},   //事件记录
-    {DB_USER_DEFINE,    0, 12, TDB_MODE_RW},  //用户自定义
-    {DB_EVENT_INDEX,    0, 2,  TDB_MODE_RW},  //用户自定义
-    {DB_HOUR_FREEZE,    0, 50, TDB_MODE_RW},   //小时冻结
-    {DB_RECHARGE_INDEX, 0, 2,  TDB_MODE_RW},   //充值索引
-    {DB_RECHARGE,       0, 5,  TDB_MODE_RW},   //充值事件记录
-    {DB_PARA_NETP,      0, 34,  TDB_MODE_RW},   //协议配置记录
-    {DB_CURE,           0, 5008,  TDB_MODE_RW},   //此区域擦除64k擦，8个测量点31天的曲线  
+    {DB_DEV,            0, 2,  TDB_MODE_RW},
+    {DB_HASH1,            0, 1,  TDB_MODE_RW},    
+    {DB_HASH2,            0, 1,  TDB_MODE_RW},    
+//	    {DB_RUN_PARA,       0, 4, TDB_MODE_RW},     //ftp运行参数
+//	//	    {DB_MON_FREEZE,     0, 4,  TDB_MODE_RW},   //月冻结
+//	    {DB_EVENT,          0, 8,  TDB_MODE_RW},   //事件记录
+//	    {DB_USER_DEFINE,    0, 12, TDB_MODE_RW},  //用户自定义
+//	    {DB_EVENT_INDEX,    0, 2,  TDB_MODE_RW},  //用户自定义
+//	    {DB_HOUR_FREEZE,    0, 50, TDB_MODE_RW},   //小时冻结
+//	    {DB_RECHARGE_INDEX, 0, 2,  TDB_MODE_RW},   //充值索引
+//	    {DB_RECHARGE,       0, 5,  TDB_MODE_RW},   //充值事件记录
+//	    {DB_PARA_NETP,      0, 34,  TDB_MODE_RW},   //协议配置记录
+//	    {DB_CURE,           0, 5008,  TDB_MODE_RW},   //此区域擦除64k擦，8个测量点31天的曲线  
     
 };
 
@@ -109,7 +117,7 @@ const uint8 LEN_DB_LIST = (sizeof(gss_FileBlocks) / sizeof(S_FILEBLOCKS));
 #if (SYS_FILE_EN > 0)
     #define SYS_FILE_DYM_EN  0
 
-    #define DB_LEN_BLOCK(X)    ((X) << 12)     //X段的长度
+    #define DB_LEN_BLOCK(X)    ((X) << 11)     //X段的长度
 
     #if SYS_FILE_DYM_EN > 0
     #define DB_DYMI_DB          4               //支持动态分配的DB的索引DB,该DB必须支持BACKUP属性

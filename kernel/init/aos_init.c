@@ -246,8 +246,9 @@ void cli_service_init(kinit_t *kinit)
 
 void aos_show_welcome(void)
 {
-    puts("             Welcome to AliOS Things           ");
+
 #ifdef CONFIG_AOS_INIT_WELCOME
+    puts("             Welcome to AliOS Things           ");
     puts("       ¨€¨€¨€¨€¨€¨[ ¨€¨€¨[     ¨€¨€¨[ ¨€¨€¨€¨€¨€¨€¨[ ¨€¨€¨€¨€¨€¨€¨€¨[     ");
     puts("      ¨€¨€¨X¨T¨T¨€¨€¨[¨€¨€¨U     ¨€¨€¨U¨€¨€¨X¨T¨T¨T¨€¨€¨[¨€¨€¨X¨T¨T¨T¨T¨a     ");
     puts("      ¨€¨€¨€¨€¨€¨€¨€¨U¨€¨€¨U     ¨€¨€¨U¨€¨€¨U   ¨€¨€¨U¨€¨€¨€¨€¨€¨€¨€¨[     ");
