@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Captain Group Holding Limited
  */
 
 #include "debug_api.h"

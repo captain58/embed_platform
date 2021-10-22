@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2017 Captain Group Holding Limited
  */
 
 #ifndef _RFID_ICM522_CONFIG_MODULE

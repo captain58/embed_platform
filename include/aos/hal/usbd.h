@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2017 Captain Group Holding Limited
  */
 #ifndef USB_DEVICE_HAL_H
 #define USB_DEVICE_HAL_H

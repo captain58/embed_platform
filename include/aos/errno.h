@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2017 Captain Group Holding Limited
  */
 
 #ifndef AOS_ERRNO_H
