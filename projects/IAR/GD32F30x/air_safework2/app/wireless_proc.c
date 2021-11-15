@@ -743,24 +743,24 @@ void Handle_Led()
                     case 1:
                         if(cltor_shadow[i].nodestatus.switchstt)
                         {
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 2, 0, 0, 0);
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
+//                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 2, 0, 0, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 2, 0, 0, 0);
                         }
                         else
                         {
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
+//                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
                             SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 1, 50, 50, 0);
                         }
                         break;
                     case 2:
                         if(cltor_shadow[i].nodestatus.switchstt)
                         {
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 2, 0, 0, 0);
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 3, 0, 0, 0);
+//                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 2, 0, 0, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 2, 0, 0, 0);
                         }
                         else
                         {
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
+//                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
                             SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 1, 50, 50, 0);
                         }
                         break;

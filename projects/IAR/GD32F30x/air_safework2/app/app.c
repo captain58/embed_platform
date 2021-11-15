@@ -81,7 +81,7 @@ uint8_t guc_netStat = NODE_STATUS_OUT;
 uint8_t guc_RegisterStat = NODE_STATUS_OUT;
 uint8_t guc_SwitchSeq = 0;
 
-uint8_t guc_AllowLogin = 0;
+uint8_t guc_AllowLogin = 1;
 /*******************************************************************************
  * @function_name:  SYS_MAIN_Init
  * @function_file:  __WaitForAllTaskReady
@@ -422,10 +422,10 @@ void SYS_MAIN_Init(void)
 //    }
 //    else
 //    {
-        SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 2, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
+        SYS_Dev_OptBlinkSet(SYS_LED_RUN, 2, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
 //    }
 #else
-    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+    SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
 #endif
     LoadSystemParam(PARA_TYPE_FARP);
 }
@@ -513,14 +513,14 @@ void KeyProc(uint8 key)
         if(event & 1)               //KEY1
         {
 	        LOG_DEBUG("key 1 keep !\n");
-            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 10, 10, 0);
+            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 10, 10, 0);
             guc_AllowLogin = 1;
             bBroadMeterEnable = 1;
 #ifdef MASTER_NODE            
 //	            Cltor_init();
-            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
+//            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
             SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
-            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
+//            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
             SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 3, 0, 0, 0);
 #else
             guc_netStat = NODE_STATUS_OUT;
@@ -556,16 +556,16 @@ void KeyProc(uint8 key)
         {
 	        LOG_DEBUG("key 1 right!\n");
 //	            gs_SysVar.terstt.bit.DI0linked = 0; 
-//	            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);
+//	            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
             guc_AllowLogin = 0;
 #ifndef MASTER_NODE
-            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 2, 100, 100, 0);
+            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 2, 100, 100, 0);
             if(NODE_STATUS_LOGIN == guc_netStat)
             {
-                SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+                SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
             }
 #else
-            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0); 
+            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 
 #endif
 
         }
@@ -995,11 +995,11 @@ void SYS_MAIN_Task(void * arg)
 //    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 //	    SYS_IFLS_Test();
-//    uint8_t tmp[10] = {2,1,3,0,0,0,0,0,0,0};
+//    uint8_t tmp[10] = {2,0,4,0,0,0,0,0,0,0};
 //    GD_Para_RW(F251_PADDR, tmp, 10, true);
 //    memset(tmp,0,10);
 //    GD_Para_RW(F251_PADDR, tmp, 10, false);
-//    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
+//	    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
 
     for(;;)
     {   

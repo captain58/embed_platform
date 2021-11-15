@@ -89,7 +89,7 @@ void HLV_SecProc(void)
     gs_SysVar.batVal = vol/100;
     if(gs_SysVar.mDGstt & HLV_STT_USBP)         //升级过程中100ms闪烁
     {
-        gs_GPIO.BlinkSet(GPIO_LED_RUN, 1, 1, 0);
+        gs_GPIO.BlinkSet(SYS_LED_RUN, 1, 1, 0);
     }
     else if(gs_SysVar.mDGstt & HLV_STT_USBE)    //U盘存在200ms闪烁
     {

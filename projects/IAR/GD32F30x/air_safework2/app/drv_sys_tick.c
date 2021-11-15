@@ -143,7 +143,7 @@ void Switch_Channel(unsigned char channel)
 //        return (cksum);
 //}
 
-uint32 sysSlotTimeCycle = 10;
+uint32 sysSlotTimeCycle = 100;
 void Slot_Time_IRQ(void * arg)
 {
 	//uint16 slot;
@@ -182,7 +182,7 @@ void Slot_Time_IRQ(void * arg)
                 else
                 {
                     EZMacPRO_Transmit_Adv(5, NULL, 0);
-                    sysSlotTimeCycle = 30;
+                    sysSlotTimeCycle = 300;
                 }
             }
             else
@@ -704,7 +704,7 @@ void Set_System_Tick_Flag(void *arg) //每隔25ms运行一次
 //	    LED_NET_OFF();
     if(curslottime % 4 == 0)
     {
-        LED_Server(NULL);
+//        LED_Server(NULL);
     }
 	slot = curslottime % (rfpara.rf_slotnum * 2);//当前时隙在实帧中的第几个时隙
 	uint8 bSSFound;

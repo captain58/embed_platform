@@ -139,11 +139,11 @@ void MSG_Server(void *timer, void *arg)
     SYS_FGPI_Scan(timer, arg);
 #endif
     
-#if (SYS_LED_BEEP_EN > 0)
-    extern void LED_Server(void *timer, void *arg);
-	
-    LED_Server(timer,arg);
-#endif    
+//#if (SYS_LED_BEEP_EN > 0)
+//    extern void LED_Server(void *timer, void *arg);
+//	
+//    LED_Server(timer,arg);
+//#endif    
 }
 
 

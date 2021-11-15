@@ -228,8 +228,11 @@ void SYS_BlinkDev_Init(void)
 //    SYS_Timer_Create(LED_Server, __NULL, 10, ID_SWTIMER_LED, false);
     
     krhino_timer_create(&gst_LedTimer, "gst_LedTimer", LED_Server,
-                        2, 10, 0, 1);   
-    
+                        2, 1, 0, 1);   
+//	    
+//	    SysTimer_DlyConfig(LED_Server, __NULL, 1, 10);
+//		SysTimer_DlyStart(1);
+
 #endif
 #endif
 }

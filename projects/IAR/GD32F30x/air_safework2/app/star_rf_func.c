@@ -56,7 +56,7 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             extern uint8_t guc_netStat;
             if(NODE_STATUS_LOGIN == guc_netStat)
             {
-                SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+                SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
             }
             if(frm->bNeedReAllocate)
             {
@@ -83,7 +83,7 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 #ifndef MASTER_NODE
             extern uint8_t guc_netStat;
             guc_netStat = NODE_STATUS_OUT;
-//            SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 2, 100, 100, 0); 
+//            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 2, 100, 100, 0); 
 #endif
             break;
         default:
@@ -1326,6 +1326,13 @@ uint8 fSRFFTD04(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         
         case MSG_TYPE_FN_99:
         {
+            extern uint8_t guc_RegisterStat;
+            if(guc_RegisterStat == NODE_STATUS_LOGIN)
+            {
+                break;
+            }
+          
+          
             frm->apdu.ctrl.dir = 1;
             frm->apdu.ctrl.prm = 1;
             frm->apdu.ctrl.evtmode = 0;
@@ -1650,7 +1657,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     extern uint8_t guc_netStat;
                     guc_netStat = NODE_STATUS_LOGIN;
 //	                    memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
-                    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);
+                    SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
                     guc_AllowLogin = 0;
 //                }
             }
@@ -1688,7 +1695,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             }   
             if(0 == nFoundNum)
             {
-                id = Re_Allocate_Id(SN);    //根据SN重新分配
+                id = Re_Allocate_Id(SN, 6);    //根据SN重新分配
                 cltor_shadow[id].nodestatus.result = 0x6;
 //	                id = Re_Allocate_Id(SN);    //根据SN重新分配
             }
@@ -1817,7 +1824,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
                     
                     GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, true);
-                    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);
+                    SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
                     guc_AllowLogin = 0;
                 }
             }

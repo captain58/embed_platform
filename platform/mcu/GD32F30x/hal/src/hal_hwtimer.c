@@ -168,56 +168,130 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
                 use the locking parameters level 0.
                 ----------------------------------------------------------------------- */
 
-                rcu_periph_clock_enable(RCU_TIMER0);
+//	                rcu_periph_clock_enable(RCU_TIMER0);
+//	
+//	                timer_deinit(TIMER0);
+//	
+//	                /* TIMER0 configuration */
+//	                timer_initpara.prescaler         = 119;
+//	                timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
+//	                timer_initpara.counterdirection  = TIMER_COUNTER_UP;
+//	                timer_initpara.period            = 599;
+//	                timer_initpara.clockdivision     = TIMER_CKDIV_DIV1;
+//	                timer_initpara.repetitioncounter = 0;
+//	                timer_init(TIMER0,&timer_initpara);
+//	
+//	                 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
+//	                timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
+//	                timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
+//	                timer_ocintpara.ocpolarity   = TIMER_OC_POLARITY_HIGH;
+//	                timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
+//	                timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
+//	                timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
+//	
+//	                timer_channel_output_config(TIMER0,TIMER_CH_0,&timer_ocintpara);
+//	                timer_channel_output_config(TIMER0,TIMER_CH_1,&timer_ocintpara);
+//	                timer_channel_output_config(TIMER0,TIMER_CH_2,&timer_ocintpara);
+//	
+//	                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_0,299);
+//	                timer_channel_output_mode_config(TIMER0,TIMER_CH_0,TIMER_OC_MODE_TIMING);
+//	                timer_channel_output_shadow_config(TIMER0,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
+//	
+//	                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_1,299);
+//	                timer_channel_output_mode_config(TIMER0,TIMER_CH_1,TIMER_OC_MODE_TIMING);
+//	                timer_channel_output_shadow_config(TIMER0,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
+//	
+//	                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_2,299);
+//	                timer_channel_output_mode_config(TIMER0,TIMER_CH_2,TIMER_OC_MODE_TIMING);
+//	                timer_channel_output_shadow_config(TIMER0,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
+//	
+//	
+//	                /* automatic output enable, break, dead time and lock configuration*/
+//	                timer_breakpara.runoffstate      = TIMER_ROS_STATE_ENABLE;
+//	                timer_breakpara.ideloffstate     = TIMER_IOS_STATE_ENABLE ;
+//	                timer_breakpara.deadtime         = 164;
+//	                timer_breakpara.breakpolarity    = TIMER_BREAK_POLARITY_LOW;
+//	                timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
+//	                timer_breakpara.protectmode      = TIMER_CCHP_PROT_OFF;
+//	                timer_breakpara.breakstate       = TIMER_BREAK_DISABLE;
+//	                timer_break_config(TIMER0,&timer_breakpara);
+//	                
+//	                /* TIMER0 primary output function enable */
+//	                timer_primary_output_config(TIMER0,ENABLE);
+#ifndef GD32F30X_HD
+						nvic_irq_enable(TIMER0_TRG_CMT_TIMER10_IRQn, 2, 1);
+#else
+						nvic_irq_enable(TIMER0_TRG_CMT_IRQn, 0, 1);
+#endif
+    rcu_periph_clock_enable(RCU_GPIOA);
+    rcu_periph_clock_enable(RCU_GPIOB);
 
-                timer_deinit(TIMER0);
+//	    uint32_t temp_reg = AFIO_PCF0;
+//	    temp_reg &= PCF_SWJCFG_MASK;
+//	    temp_reg |= 0x04000000;
+//	
+//	    AFIO_PCF0 = temp_reg;
+				rcu_periph_clock_enable(RCU_TIMER0);
+				
+				timer_deinit(TIMER0);
+				
+				/* TIMER0 configuration */
+				timer_initpara.prescaler		 = 119;
+				timer_initpara.alignedmode		 = TIMER_COUNTER_EDGE;
+				timer_initpara.counterdirection  = TIMER_COUNTER_UP;
+				timer_initpara.period			 = 599;
+				timer_initpara.clockdivision	 = TIMER_CKDIV_DIV1;
+				timer_initpara.repetitioncounter = 0;
+				timer_init(TIMER0,&timer_initpara);
+				
+				 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
+				timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
+				timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
+				timer_ocintpara.ocpolarity	 = TIMER_OC_POLARITY_HIGH;
+				timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
+				timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
+				timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
+				
+				timer_channel_output_config(TIMER0,TIMER_CH_0,&timer_ocintpara);
+				timer_channel_output_config(TIMER0,TIMER_CH_1,&timer_ocintpara);
+				timer_channel_output_config(TIMER0,TIMER_CH_2,&timer_ocintpara);
+				
+				timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_0,299);
+				timer_channel_output_mode_config(TIMER0,TIMER_CH_0,TIMER_OC_MODE_TIMING);
+				timer_channel_output_shadow_config(TIMER0,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
+				
+				timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_1,299);
+				timer_channel_output_mode_config(TIMER0,TIMER_CH_1,TIMER_OC_MODE_TIMING);
+				timer_channel_output_shadow_config(TIMER0,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
+				
+				timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_2,299);
+				timer_channel_output_mode_config(TIMER0,TIMER_CH_2,TIMER_OC_MODE_TIMING);
+				timer_channel_output_shadow_config(TIMER0,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
+				
+				
+				/* automatic output enable, break, dead time and lock configuration*/
+				timer_breakpara.runoffstate 	 = TIMER_ROS_STATE_ENABLE;
+				timer_breakpara.ideloffstate	 = TIMER_IOS_STATE_ENABLE ;
+				timer_breakpara.deadtime		 = 164;
+				timer_breakpara.breakpolarity	 = TIMER_BREAK_POLARITY_LOW;
+				timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
+				timer_breakpara.protectmode 	 = TIMER_CCHP_PROT_OFF;
+				timer_breakpara.breakstate		 = TIMER_BREAK_DISABLE;
+				timer_break_config(TIMER0,&timer_breakpara);
+				
+				/* TIMER0 primary output function enable */
+				timer_primary_output_config(TIMER0,ENABLE);
+				    /* auto-reload preload enable */
+    timer_auto_reload_shadow_enable(TIMER0);
+					timer_slave_mode_select(TIMER0,TIMER_SLAVE_MODE_EVENT);
+				/* TIMER0 channel control update interrupt enable */
+				timer_interrupt_enable(TIMER0,TIMER_INT_CMT);
+				/* TIMER0 break interrupt disable */
+				timer_interrupt_disable(TIMER0,TIMER_INT_BRK);
+				
+				/* TIMER0 counter enable */
+				timer_enable(TIMER0);
 
-                /* TIMER0 configuration */
-                timer_initpara.prescaler         = 119;
-                timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
-                timer_initpara.counterdirection  = TIMER_COUNTER_UP;
-                timer_initpara.period            = 599;
-                timer_initpara.clockdivision     = TIMER_CKDIV_DIV1;
-                timer_initpara.repetitioncounter = 0;
-                timer_init(TIMER0,&timer_initpara);
-
-                 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
-                timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
-                timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
-                timer_ocintpara.ocpolarity   = TIMER_OC_POLARITY_HIGH;
-                timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
-                timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
-                timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
-
-                timer_channel_output_config(TIMER0,TIMER_CH_0,&timer_ocintpara);
-                timer_channel_output_config(TIMER0,TIMER_CH_1,&timer_ocintpara);
-                timer_channel_output_config(TIMER0,TIMER_CH_2,&timer_ocintpara);
-
-                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_0,299);
-                timer_channel_output_mode_config(TIMER0,TIMER_CH_0,TIMER_OC_MODE_TIMING);
-                timer_channel_output_shadow_config(TIMER0,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
-
-                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_1,299);
-                timer_channel_output_mode_config(TIMER0,TIMER_CH_1,TIMER_OC_MODE_TIMING);
-                timer_channel_output_shadow_config(TIMER0,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
-
-                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_2,299);
-                timer_channel_output_mode_config(TIMER0,TIMER_CH_2,TIMER_OC_MODE_TIMING);
-                timer_channel_output_shadow_config(TIMER0,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
-
-
-                /* automatic output enable, break, dead time and lock configuration*/
-                timer_breakpara.runoffstate      = TIMER_ROS_STATE_ENABLE;
-                timer_breakpara.ideloffstate     = TIMER_IOS_STATE_ENABLE ;
-                timer_breakpara.deadtime         = 164;
-                timer_breakpara.breakpolarity    = TIMER_BREAK_POLARITY_LOW;
-                timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
-                timer_breakpara.protectmode      = TIMER_CCHP_PROT_OFF;
-                timer_breakpara.breakstate       = TIMER_BREAK_DISABLE;
-                timer_break_config(TIMER0,&timer_breakpara);
-                
-                /* TIMER0 primary output function enable */
-                timer_primary_output_config(TIMER0,ENABLE);
             }
             break;
         case 1:
@@ -339,13 +413,18 @@ uint8 SysTimer_DlyStart(uint8 tmrIdx)
     {
     case 0:
         //信号源参数
-        /* TIMER0 channel control update interrupt enable */
-        timer_interrupt_enable(TIMER0,TIMER_INT_CMT);
-        /* TIMER0 break interrupt disable */
-        timer_interrupt_disable(TIMER0,TIMER_INT_BRK);
-
-        /* TIMER0 counter enable */
-        timer_enable(TIMER0);
+//        /* TIMER0 channel control update interrupt enable */
+//        timer_interrupt_enable(TIMER0,TIMER_INT_CMT);
+//        /* TIMER0 break interrupt disable */
+//        timer_interrupt_enable(TIMER0,TIMER_INT_BRK);
+//
+//        /* TIMER0 counter enable */
+//        timer_enable(TIMER0);
+//#ifndef GD32F30X_HD
+//		nvic_irq_enable(TIMER0_TRG_CMT_TIMER10_IRQn, 2, 1);
+//#else
+//		nvic_irq_enable(TIMER0_TRG_CMT_IRQn, 0, 1);
+//#endif
 
         break;
     case 1:
