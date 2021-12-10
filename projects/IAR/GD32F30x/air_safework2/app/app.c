@@ -81,7 +81,7 @@ uint8_t guc_netStat = NODE_STATUS_OUT;
 uint8_t guc_RegisterStat = NODE_STATUS_OUT;
 uint8_t guc_SwitchSeq = 0;
 
-uint8_t guc_AllowLogin = 1;
+uint8_t guc_AllowLogin = 0;
 /*******************************************************************************
  * @function_name:  SYS_MAIN_Init
  * @function_file:  __WaitForAllTaskReady
@@ -995,7 +995,7 @@ void SYS_MAIN_Task(void * arg)
 //    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 //	    SYS_IFLS_Test();
-//    uint8_t tmp[10] = {2,0,4,0,0,0,0,0,0,0};
+//    uint8_t tmp[10] = {3,0,4,0,0,0,0,0,0,0};
 //    GD_Para_RW(F251_PADDR, tmp, 10, true);
 //    memset(tmp,0,10);
 //    GD_Para_RW(F251_PADDR, tmp, 10, false);
@@ -1011,8 +1011,10 @@ void SYS_MAIN_Task(void * arg)
                 //SYS_WDT_Feed(0xFF);          //*Î¹¹·
 //	                MAIN_SecProc();
 //	                SYS_ReadDateTime(&time);
-//	                LOG_DEBUG("second !\n");
-          
+                extern uint32_t g_timer_tick;
+                g_timer_tick++;
+                LOG_DEBUG("second ! %d\n", g_timer_tick);
+                
                 break;
                 
             case MSG_MIN:

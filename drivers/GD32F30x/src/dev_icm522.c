@@ -259,7 +259,8 @@ int icm522_getpagex(uint8_t pagex, uint8_t *data, uint8_t * len)
 {
     int ret = 0;
     int m = 0;
-    uint8_t cmd[32] = {0x00, 0x00, 0x0A, 0x04, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F};
+//    uint8_t cmd[32] = {0x00, 0x00, 0x0A, 0x04, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F};
+    uint8_t cmd[32] = {0x00, 0x00, 0x03, 0x14, 0x04, 0x13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F};
     uint8_t rsp_result[3] = {0xfe};
     uint8_t rsp[ICM522_DEFAULT_RSP_LEN];
 
@@ -270,7 +271,8 @@ int icm522_getpagex(uint8_t pagex, uint8_t *data, uint8_t * len)
 //	    m+=4;
 //	    memcpy(cmd+4, name, len);
 //	    m+=len;
-    m=13;
+//    m=13;
+    m=6;
     memset(rsp,0,ICM522_DEFAULT_RSP_LEN);
     if (uart_send_with_retry(cmd, m, false, NULL, 0,
         rsp, ICM522_DEFAULT_RSP_LEN, rsp_result, 1, 0) < 0) 
@@ -279,7 +281,7 @@ int icm522_getpagex(uint8_t pagex, uint8_t *data, uint8_t * len)
     }
     else
     {
-        if(0x04 == rsp[2])
+        if(0x14 == rsp[2])
         {
             memcpy(data, &rsp[3], 16);
             *len = 16;

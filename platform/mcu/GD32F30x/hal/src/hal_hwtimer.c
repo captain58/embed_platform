@@ -84,14 +84,24 @@ void _sysTimerDoNothing(void *a)
     
 
 }
+uint32_t g_timer_tick = 0;
 
-
+void TIMER0_Channel_IRQHandler(void)
+{
+	/* clear TIMER interrupt flag */
+    timer_interrupt_flag_clear(TIMER0,TIMER_INT_FLAG_CH0);
+    g_timer_tick++;
+    krhino_intrpt_enter();
+    gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
+    krhino_intrpt_exit();
+    
+}
 
 void TIMER1_IRQHandler(void)
 
 {
     /* clear TIMER interrupt flag */
-    timer_interrupt_flag_clear(TIMER1,TIMER_INT_FLAG_CMT);
+    timer_interrupt_flag_clear(TIMER1,TIMER_INT_FLAG_CH0);
 
     krhino_intrpt_enter();
     gfs_hwTimerDelay[1](paraHwTimerDelay[1]);
@@ -143,7 +153,8 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
 	timer_oc_parameter_struct timer_ocintpara;
 	timer_parameter_struct timer_initpara;
 	timer_break_parameter_struct timer_breakpara;
-    
+    timer_ic_parameter_struct timer_icinitpara;
+	
     uint32 cycle;
     SYS_VAR_CHECK(tmrIdx >= 3);           //判断参数的正确性
     cycle = gul_HwTimerDelay[tmrIdx];    //获取延时间隔
@@ -168,69 +179,7 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
                 use the locking parameters level 0.
                 ----------------------------------------------------------------------- */
 
-//	                rcu_periph_clock_enable(RCU_TIMER0);
-//	
-//	                timer_deinit(TIMER0);
-//	
-//	                /* TIMER0 configuration */
-//	                timer_initpara.prescaler         = 119;
-//	                timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
-//	                timer_initpara.counterdirection  = TIMER_COUNTER_UP;
-//	                timer_initpara.period            = 599;
-//	                timer_initpara.clockdivision     = TIMER_CKDIV_DIV1;
-//	                timer_initpara.repetitioncounter = 0;
-//	                timer_init(TIMER0,&timer_initpara);
-//	
-//	                 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
-//	                timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
-//	                timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
-//	                timer_ocintpara.ocpolarity   = TIMER_OC_POLARITY_HIGH;
-//	                timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
-//	                timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
-//	                timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
-//	
-//	                timer_channel_output_config(TIMER0,TIMER_CH_0,&timer_ocintpara);
-//	                timer_channel_output_config(TIMER0,TIMER_CH_1,&timer_ocintpara);
-//	                timer_channel_output_config(TIMER0,TIMER_CH_2,&timer_ocintpara);
-//	
-//	                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_0,299);
-//	                timer_channel_output_mode_config(TIMER0,TIMER_CH_0,TIMER_OC_MODE_TIMING);
-//	                timer_channel_output_shadow_config(TIMER0,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
-//	
-//	                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_1,299);
-//	                timer_channel_output_mode_config(TIMER0,TIMER_CH_1,TIMER_OC_MODE_TIMING);
-//	                timer_channel_output_shadow_config(TIMER0,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
-//	
-//	                timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_2,299);
-//	                timer_channel_output_mode_config(TIMER0,TIMER_CH_2,TIMER_OC_MODE_TIMING);
-//	                timer_channel_output_shadow_config(TIMER0,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
-//	
-//	
-//	                /* automatic output enable, break, dead time and lock configuration*/
-//	                timer_breakpara.runoffstate      = TIMER_ROS_STATE_ENABLE;
-//	                timer_breakpara.ideloffstate     = TIMER_IOS_STATE_ENABLE ;
-//	                timer_breakpara.deadtime         = 164;
-//	                timer_breakpara.breakpolarity    = TIMER_BREAK_POLARITY_LOW;
-//	                timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
-//	                timer_breakpara.protectmode      = TIMER_CCHP_PROT_OFF;
-//	                timer_breakpara.breakstate       = TIMER_BREAK_DISABLE;
-//	                timer_break_config(TIMER0,&timer_breakpara);
-//	                
-//	                /* TIMER0 primary output function enable */
-//	                timer_primary_output_config(TIMER0,ENABLE);
-#ifndef GD32F30X_HD
-						nvic_irq_enable(TIMER0_TRG_CMT_TIMER10_IRQn, 2, 1);
-#else
-						nvic_irq_enable(TIMER0_TRG_CMT_IRQn, 0, 1);
-#endif
-    rcu_periph_clock_enable(RCU_GPIOA);
-    rcu_periph_clock_enable(RCU_GPIOB);
 
-//	    uint32_t temp_reg = AFIO_PCF0;
-//	    temp_reg &= PCF_SWJCFG_MASK;
-//	    temp_reg |= 0x04000000;
-//	
-//	    AFIO_PCF0 = temp_reg;
 				rcu_periph_clock_enable(RCU_TIMER0);
 				
 				timer_deinit(TIMER0);
@@ -239,58 +188,67 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
 				timer_initpara.prescaler		 = 119;
 				timer_initpara.alignedmode		 = TIMER_COUNTER_EDGE;
 				timer_initpara.counterdirection  = TIMER_COUNTER_UP;
-				timer_initpara.period			 = 599;
+				timer_initpara.period			 = cycle * 400 -1;//399;
 				timer_initpara.clockdivision	 = TIMER_CKDIV_DIV1;
 				timer_initpara.repetitioncounter = 0;
 				timer_init(TIMER0,&timer_initpara);
 				
 				 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
-				timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
-				timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
-				timer_ocintpara.ocpolarity	 = TIMER_OC_POLARITY_HIGH;
-				timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
-				timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
-				timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
+//					timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
+//					timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
+//					timer_ocintpara.ocpolarity	 = TIMER_OC_POLARITY_HIGH;
+//					timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
+//					timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
+//					timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
+//					
+//					timer_channel_output_config(TIMER0,TIMER_CH_0,&timer_ocintpara);
+//					timer_channel_output_config(TIMER0,TIMER_CH_1,&timer_ocintpara);
+//					timer_channel_output_config(TIMER0,TIMER_CH_2,&timer_ocintpara);
 				
-				timer_channel_output_config(TIMER0,TIMER_CH_0,&timer_ocintpara);
-				timer_channel_output_config(TIMER0,TIMER_CH_1,&timer_ocintpara);
-				timer_channel_output_config(TIMER0,TIMER_CH_2,&timer_ocintpara);
-				
-				timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_0,299);
-				timer_channel_output_mode_config(TIMER0,TIMER_CH_0,TIMER_OC_MODE_TIMING);
-				timer_channel_output_shadow_config(TIMER0,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
-				
-				timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_1,299);
-				timer_channel_output_mode_config(TIMER0,TIMER_CH_1,TIMER_OC_MODE_TIMING);
-				timer_channel_output_shadow_config(TIMER0,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
-				
-				timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_2,299);
-				timer_channel_output_mode_config(TIMER0,TIMER_CH_2,TIMER_OC_MODE_TIMING);
-				timer_channel_output_shadow_config(TIMER0,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
-				
-				
-				/* automatic output enable, break, dead time and lock configuration*/
-				timer_breakpara.runoffstate 	 = TIMER_ROS_STATE_ENABLE;
-				timer_breakpara.ideloffstate	 = TIMER_IOS_STATE_ENABLE ;
-				timer_breakpara.deadtime		 = 164;
-				timer_breakpara.breakpolarity	 = TIMER_BREAK_POLARITY_LOW;
-				timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
-				timer_breakpara.protectmode 	 = TIMER_CCHP_PROT_OFF;
-				timer_breakpara.breakstate		 = TIMER_BREAK_DISABLE;
-				timer_break_config(TIMER0,&timer_breakpara);
-				
+//					timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_0,299);
+//					timer_channel_output_mode_config(TIMER0,TIMER_CH_0,TIMER_OC_MODE_TIMING);
+//					timer_channel_output_shadow_config(TIMER0,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
+//					
+//					timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_1,299);
+//					timer_channel_output_mode_config(TIMER0,TIMER_CH_1,TIMER_OC_MODE_TIMING);
+//					timer_channel_output_shadow_config(TIMER0,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
+//					
+//					timer_channel_output_pulse_value_config(TIMER0,TIMER_CH_2,299);
+//					timer_channel_output_mode_config(TIMER0,TIMER_CH_2,TIMER_OC_MODE_TIMING);
+//					timer_channel_output_shadow_config(TIMER0,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
+//					
+//					
+//					/* automatic output enable, break, dead time and lock configuration*/
+//					timer_breakpara.runoffstate 	 = TIMER_ROS_STATE_ENABLE;
+//					timer_breakpara.ideloffstate	 = TIMER_IOS_STATE_ENABLE ;
+//					timer_breakpara.deadtime		 = 164;
+//					timer_breakpara.breakpolarity	 = TIMER_BREAK_POLARITY_LOW;
+//					timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
+//					timer_breakpara.protectmode 	 = TIMER_CCHP_PROT_OFF;
+//					timer_breakpara.breakstate		 = TIMER_BREAK_DISABLE;
+//					timer_break_config(TIMER0,&timer_breakpara);
+
+				/* TIMER1 CH0 input capture configuration */
+//					timer_icinitpara.icpolarity  = TIMER_IC_POLARITY_RISING;
+//					timer_icinitpara.icselection = TIMER_IC_SELECTION_DIRECTTI;
+//					timer_icinitpara.icprescaler = TIMER_IC_PSC_DIV1;
+//					timer_icinitpara.icfilter	 = 0x02;
+//					timer_input_capture_config(TIMER0,TIMER_CH_0,&timer_icinitpara);
+
+
 				/* TIMER0 primary output function enable */
-				timer_primary_output_config(TIMER0,ENABLE);
+//					timer_primary_output_config(TIMER0,ENABLE);
 				    /* auto-reload preload enable */
-    timer_auto_reload_shadow_enable(TIMER0);
-					timer_slave_mode_select(TIMER0,TIMER_SLAVE_MODE_EVENT);
+    			timer_auto_reload_shadow_enable(TIMER0);
+				timer_slave_mode_select(TIMER0,TIMER_SLAVE_MODE_EVENT);
 				/* TIMER0 channel control update interrupt enable */
-				timer_interrupt_enable(TIMER0,TIMER_INT_CMT);
+//					timer_interrupt_enable(TIMER0,TIMER_INT_CH0);
+//					timer_interrupt_enable(TIMER0,TIMER_INT_CMT);
 				/* TIMER0 break interrupt disable */
-				timer_interrupt_disable(TIMER0,TIMER_INT_BRK);
+//					timer_interrupt_disable(TIMER0,TIMER_INT_BRK);
 				
 				/* TIMER0 counter enable */
-				timer_enable(TIMER0);
+//					timer_enable(TIMER0);
 
             }
             break;
@@ -305,48 +263,51 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
                 timer_initpara.prescaler         = 119;
                 timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
                 timer_initpara.counterdirection  = TIMER_COUNTER_UP;
-                timer_initpara.period            = 599;
+                timer_initpara.period            = cycle * 400 -1;//399;
                 timer_initpara.clockdivision     = TIMER_CKDIV_DIV1;
                 timer_initpara.repetitioncounter = 0;
                 timer_init(TIMER1,&timer_initpara);
+//	
+//	                 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
+//	                timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
+//	                timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
+//	                timer_ocintpara.ocpolarity   = TIMER_OC_POLARITY_HIGH;
+//	                timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
+//	                timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
+//	                timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
+//	
+//	                timer_channel_output_config(TIMER1,TIMER_CH_0,&timer_ocintpara);
+//	                timer_channel_output_config(TIMER1,TIMER_CH_1,&timer_ocintpara);
+//	                timer_channel_output_config(TIMER1,TIMER_CH_2,&timer_ocintpara);
+//	
+//	                timer_channel_output_pulse_value_config(TIMER1,TIMER_CH_0,299);
+//	                timer_channel_output_mode_config(TIMER1,TIMER_CH_0,TIMER_OC_MODE_TIMING);
+//	                timer_channel_output_shadow_config(TIMER1,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
+//	
+//	                timer_channel_output_pulse_value_config(TIMER1,TIMER_CH_1,299);
+//	                timer_channel_output_mode_config(TIMER1,TIMER_CH_1,TIMER_OC_MODE_TIMING);
+//	                timer_channel_output_shadow_config(TIMER1,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
+//	
+//	                timer_channel_output_pulse_value_config(TIMER1,TIMER_CH_2,299);
+//	                timer_channel_output_mode_config(TIMER1,TIMER_CH_2,TIMER_OC_MODE_TIMING);
+//	                timer_channel_output_shadow_config(TIMER1,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
+//	
+//	
+//	                /* automatic output enable, break, dead time and lock configuration*/
+//	                timer_breakpara.runoffstate      = TIMER_ROS_STATE_ENABLE;
+//	                timer_breakpara.ideloffstate     = TIMER_IOS_STATE_ENABLE ;
+//	                timer_breakpara.deadtime         = 164;
+//	                timer_breakpara.breakpolarity    = TIMER_BREAK_POLARITY_LOW;
+//	                timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
+//	                timer_breakpara.protectmode      = TIMER_CCHP_PROT_OFF;
+//	                timer_breakpara.breakstate       = TIMER_BREAK_DISABLE;
+//	                timer_break_config(TIMER1,&timer_breakpara);
+//	                
+//	                /* TIMER0 primary output function enable */
+//	                timer_primary_output_config(TIMER1,ENABLE);
+    			timer_auto_reload_shadow_enable(TIMER1);
+				timer_slave_mode_select(TIMER1,TIMER_SLAVE_MODE_EVENT);
 
-                 /* CH0/CH0N,CH1/CH1N and CH2/CH2N configuration in timing mode */
-                timer_ocintpara.outputstate  = TIMER_CCX_ENABLE;
-                timer_ocintpara.outputnstate = TIMER_CCXN_ENABLE;
-                timer_ocintpara.ocpolarity   = TIMER_OC_POLARITY_HIGH;
-                timer_ocintpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
-                timer_ocintpara.ocidlestate  = TIMER_OC_IDLE_STATE_HIGH;
-                timer_ocintpara.ocnidlestate = TIMER_OCN_IDLE_STATE_HIGH;
-
-                timer_channel_output_config(TIMER1,TIMER_CH_0,&timer_ocintpara);
-                timer_channel_output_config(TIMER1,TIMER_CH_1,&timer_ocintpara);
-                timer_channel_output_config(TIMER1,TIMER_CH_2,&timer_ocintpara);
-
-                timer_channel_output_pulse_value_config(TIMER1,TIMER_CH_0,299);
-                timer_channel_output_mode_config(TIMER1,TIMER_CH_0,TIMER_OC_MODE_TIMING);
-                timer_channel_output_shadow_config(TIMER1,TIMER_CH_0,TIMER_OC_SHADOW_ENABLE);
-
-                timer_channel_output_pulse_value_config(TIMER1,TIMER_CH_1,299);
-                timer_channel_output_mode_config(TIMER1,TIMER_CH_1,TIMER_OC_MODE_TIMING);
-                timer_channel_output_shadow_config(TIMER1,TIMER_CH_1,TIMER_OC_SHADOW_ENABLE);
-
-                timer_channel_output_pulse_value_config(TIMER1,TIMER_CH_2,299);
-                timer_channel_output_mode_config(TIMER1,TIMER_CH_2,TIMER_OC_MODE_TIMING);
-                timer_channel_output_shadow_config(TIMER1,TIMER_CH_2,TIMER_OC_SHADOW_ENABLE);
-
-
-                /* automatic output enable, break, dead time and lock configuration*/
-                timer_breakpara.runoffstate      = TIMER_ROS_STATE_ENABLE;
-                timer_breakpara.ideloffstate     = TIMER_IOS_STATE_ENABLE ;
-                timer_breakpara.deadtime         = 164;
-                timer_breakpara.breakpolarity    = TIMER_BREAK_POLARITY_LOW;
-                timer_breakpara.outputautostate  = TIMER_OUTAUTO_ENABLE;
-                timer_breakpara.protectmode      = TIMER_CCHP_PROT_OFF;
-                timer_breakpara.breakstate       = TIMER_BREAK_DISABLE;
-                timer_break_config(TIMER1,&timer_breakpara);
-                
-                /* TIMER0 primary output function enable */
-                timer_primary_output_config(TIMER1,ENABLE);
             }
             break;
 
@@ -426,16 +387,22 @@ uint8 SysTimer_DlyStart(uint8 tmrIdx)
 //		nvic_irq_enable(TIMER0_TRG_CMT_IRQn, 0, 1);
 //#endif
 
+		timer_interrupt_enable(TIMER0,TIMER_INT_CH0);
+		timer_enable(TIMER0);
+
+		nvic_irq_enable(TIMER0_Channel_IRQn, 0, 1);
+
         break;
     case 1:
         //信号源参数
 		/* TIMER1 channel control update interrupt enable */
-		timer_interrupt_enable(TIMER1,TIMER_INT_CMT);
+		timer_interrupt_enable(TIMER1,TIMER_INT_CH0);
 		/* TIMER1 break interrupt disable */
-		timer_interrupt_disable(TIMER1,TIMER_INT_BRK);
+//			timer_interrupt_disable(TIMER1,TIMER_INT_BRK);
 
 		/* TIMER1 counter enable */
 		timer_enable(TIMER1);
+		nvic_irq_enable(TIMER1_IRQn, 0, 1);
 
 
         break;        
@@ -468,12 +435,13 @@ uint8 SysTimer_DlyStop(uint8 tmrIdx)
     {
         case 0:                         //关闭中断功能
             /* TIMER0 channel control update interrupt enable */
-            timer_interrupt_disable(TIMER0,TIMER_INT_CMT);
+//	            timer_interrupt_disable(TIMER0,TIMER_INT_CMT);
             /* TIMER0 break interrupt disable */
-            timer_interrupt_disable(TIMER0,TIMER_INT_BRK);
+            timer_interrupt_disable(TIMER0,TIMER_INT_CH0);
 
             /* TIMER0 counter enable */
             timer_disable(TIMER0);
+			nvic_irq_disable(TIMER0_Channel_IRQn);
 
             break;
         case 1:                         //关闭中断功能
@@ -485,6 +453,7 @@ uint8 SysTimer_DlyStop(uint8 tmrIdx)
 			/* TIMER0 counter enable */
 			timer_disable(TIMER1);
 
+			nvic_irq_disable(TIMER1_IRQn);
 
             break;
 

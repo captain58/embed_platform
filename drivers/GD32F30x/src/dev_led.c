@@ -227,11 +227,11 @@ void SYS_BlinkDev_Init(void)
     //创建亮灯服务定时器
 //    SYS_Timer_Create(LED_Server, __NULL, 10, ID_SWTIMER_LED, false);
     
-    krhino_timer_create(&gst_LedTimer, "gst_LedTimer", LED_Server,
-                        2, 1, 0, 1);   
+//	    krhino_timer_create(&gst_LedTimer, "gst_LedTimer", LED_Server,
+//	                        2, 1, 0, 1);   
 //	    
-//	    SysTimer_DlyConfig(LED_Server, __NULL, 1, 10);
-//		SysTimer_DlyStart(1);
+    SysTimer_DlyConfig(LED_Server, __NULL, 1, 10);
+	SysTimer_DlyStart(1);
 
 #endif
 #endif

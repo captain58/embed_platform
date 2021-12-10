@@ -1327,10 +1327,10 @@ uint8 fSRFFTD04(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         case MSG_TYPE_FN_99:
         {
             extern uint8_t guc_RegisterStat;
-            if(guc_RegisterStat == NODE_STATUS_LOGIN)
-            {
-                break;
-            }
+//            if(guc_RegisterStat == NODE_STATUS_LOGIN)
+//            {
+//                break;
+//            }
           
           
             frm->apdu.ctrl.dir = 1;
