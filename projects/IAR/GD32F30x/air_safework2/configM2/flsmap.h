@@ -79,7 +79,9 @@
 #define DB_HASH1                15
 #define DB_HASH2                16
 #ifdef _USR_FLASH                        //应用层主文件中定义
-
+//8k  boot
+//96k code
+//96k upgrade
 /******************************************************************************
 **数据块编号及对应最小数据块数
 ******************************************************************************/
@@ -87,7 +89,7 @@ __root const S_FILEBLOCKS gss_FileBlocks[] =
 {
     //起始文件号, 同类项, 最小数据块数
     
-    {DB_CODE,         0, 52, TDB_MODE_RW},    //远程升级
+    {DB_CODE,         0, 54, TDB_MODE_RW},    //远程升级
     {DB_UPDATE,         0, 48, TDB_MODE_RW},    //远程升级
 //	    {DB_FACTORY,        0, 2, TDB_MODE_RW},     //出厂配置    
     

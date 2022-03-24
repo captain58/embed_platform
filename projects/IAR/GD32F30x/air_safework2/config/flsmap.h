@@ -28,7 +28,7 @@
 #define  FLS_BOOTVER_ADDR       0x00000104              //bootloader版本号
 
 //usr区范围限制
-#define  FLS_APPSTART_ADDR      0x08006000
+#define  FLS_APPSTART_ADDR      0x08003000
 #define  FLS_APPEND_ADDR        0x0007FFFF
 
 //usr区定义
@@ -87,7 +87,7 @@ __root const S_FILEBLOCKS gss_FileBlocks[] =
 {
     //起始文件号, 同类项, 最小数据块数
     
-    {DB_CODE,         0, 52, TDB_MODE_RW},    //远程升级
+    {DB_CODE,         0, 54, TDB_MODE_RW},    //远程升级
     {DB_UPDATE,         0, 48, TDB_MODE_RW},    //远程升级
 //	    {DB_FACTORY,        0, 2, TDB_MODE_RW},     //出厂配置    
     
