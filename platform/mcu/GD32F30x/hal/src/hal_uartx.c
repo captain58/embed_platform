@@ -848,5 +848,17 @@ void USART2_IRQHandler(void)
     krhino_intrpt_exit();
 }
 
+void USART1_IRQHandler(void)
+{
+    //引入gps_uartInfoList是为了隔离，防止hal驱动直接引用外部 gs_Uart1SID。
+    krhino_intrpt_enter();
+    if((gps_uartInfoList[1] != __NULL)
+       && (gps_uartInfoList[1]->uart_no == 1))
+    {
+        UartN_Handler(gps_uartInfoList[1]);
+    }
+       
+    krhino_intrpt_exit();
+}
 
 

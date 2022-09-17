@@ -115,8 +115,8 @@
 
 #if SYS_SER_EN > 0
 #define SYS_UART0_EN     1               //UART0串口使能
-#define SYS_UART1_EN     0               //UART1串口使能
-#define SYS_UART2_EN     1               //UART2串口使能
+#define SYS_UART1_EN     1               //UART1串口使能
+#define SYS_UART2_EN     0               //UART2串口使能
 #define SYS_UART3_EN     0               //UART3串口使能
 #define SYS_UART4_EN     0               //UART4串口使能
 #define SYS_UART5_EN     0               //UART5串口使能
@@ -141,11 +141,11 @@
 /***********************************************************
 设置485芯片为发送/接收状态. 高发低收
 ***********************************************************/
-#define UART0_485_EN  0
-#define UART1_485_EN  1
-#define UART2_485_EN  1
-#define UART3_485_EN  0
-#define UART4_485_EN  0
+//	#define UART0_485_EN  0
+//	#define UART1_485_EN  1
+//	#define UART2_485_EN  1
+//	#define UART3_485_EN  0
+//	#define UART4_485_EN  0
 
 //通道定义
 //	#define  UART_CHANNEL_PARA		0//SYS_UART0_IDX    //参数设置串口

@@ -105,45 +105,81 @@
 //        UART_ADVFEATURE_NO_INIT,
     };
     
-//    void UART0_IRQHandler_Send(void)
-//    {
-//        CPSR_ALLOC();
-//        RHINO_CPU_INTRPT_DISABLE();
-//        RHINO_CPU_INTRPT_ENABLE();
-//    
-//        Uartx_Handler_Send(&gs_Uart0SID);
-//    }
-//
-//    void UART0_IRQHandler_Recv(void)
-//    {
-//        CPSR_ALLOC();
-//        RHINO_CPU_INTRPT_DISABLE();
-//        RHINO_CPU_INTRPT_ENABLE();
-//    
-//        Uartx_Handler_Rcv(&gs_Uart0SID);
-//    }
-        
+       
 #else
 
 
 #endif
 
 #if  SYS_UART1_EN > 0
-    const uart_dev_t gst_Uart1Dev = 
+    SerialBuffer gs_Uart1Buffer;
+    unsigned char guc_Uart1BufRcv[LEN_OF_RECV1];
+    unsigned char guc_Uart0BufSnd[LEN_OF_SND1];
+    
+    void Uart1_RS485_SetModeInit(void)
     {
-        PORT_UART_STD,
-        {9600,DATA_WIDTH_8BIT,NO_PARITY,STOP_BITS_1,FLOW_CONTROL_DISABLED,MODE_TX_RX},
-        NULL,
+
+    };
+    
+    void Uart1_RS485_SetModeSnd(void)
+    {
+        
+    };
+    
+    void Uart1_RS485_SetModeRcv(void)
+    {
+        
     };
 
+
+    void Uart1_PinCfg(void)
+    {
+       
+        /* enable GPIO clock */
+        rcu_periph_clock_enable(RCU_GPIOA);
+        
+        gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_2);
+        /* connect port to USARTx_Rx */
+        gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_3);
+    
+    };
+        void Uart1_Msp(void)
+    {
+//        __HAL_RCC_USART1_CLK_ENABLE();
+    }
+//    void Uart0Send(uint8 data)
+//    {
+////            TXD0 = data;
+//        RENSE_UART_SDR0(0) = (RENSE_UART_SDR0(0) & 0xff00) | data;
+//        
+//    }
+//    void Uart0Rcv(uint8 * data)
+//    {
+//        *data = RENSE_UART_SDR0(1)&0xFF;
+//    }
     const SerialID gs_Uart1SID = 
     {
-        (uart_dev_t *)&gst_Uart1Dev,
-        SYS_UART1_IDX,
-        LPUART1,
+        1,
+        PRI_UART1,
+        USART1_IRQn,
+        &gucs_UartInited[SYS_UART1_IDX],
+        USART1,
+        RCU_USART1,
+        Uart1_PinCfg,
+        Uart1_Msp,
+        NULL,//(SerialTRC *)&_rs485_usart2,
+        &gs_Uart1Buffer,
         &gucs_UartRevFlag[SYS_UART1_IDX],
-        &gucs_UartRevByteTimeout[SYS_UART1_IDX],
-        &gucs_UartRevStart[SYS_UART1_IDX],
+        LEN_OF_RECV1,  
+//        &gs_Uart1Handle,
+//        &gs_Uart1Mutex,
+//        &gs_Uart1RxMutex,
+//        &gs_Uart1TxMutex,
+//        &gs_Uart1RxSem,
+//        &gs_Uart1TxSem,
+//        UART_OVERSAMPLING_16,
+//        UART_ONE_BIT_SAMPLE_DISABLE,
+//        UART_ADVFEATURE_NO_INIT,
     };
 
 #else
@@ -358,7 +394,7 @@ const SerialID* const gss_UartSID[NO_OF_SERIAL] =
 
 };
 
-const uint8_t _ucPortMap[] = {SYS_UART2_IDX,SYS_UART0_IDX,SYS_UART0_IDX};
+const uint8_t _ucPortMap[] = {SYS_UART1_IDX,SYS_UART0_IDX,SYS_UART0_IDX};
 
 //	#endif                                  //#ifdef _USR_MAIN
 

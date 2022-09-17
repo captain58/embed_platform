@@ -502,6 +502,14 @@ void KeyProc(uint8 key)
         if(event & 0x10)               //KEY5
         {
             LOG_DEBUG("key 5 failing!\n");
+            if(guc_SwitchOnOff != 0)
+            {
+                extern kbuf_queue_t gs_RFMngQueue;
+                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//                          SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+            }
+            guc_SwitchOnOff = 0;
+            
 //	            guc_SwitchOnOff = 0;
         }
         
@@ -600,6 +608,14 @@ void KeyProc(uint8 key)
         if(event & 0x10)               //KEY4
         {
             LOG_DEBUG("key 5 right!\n");
+            if(guc_SwitchOnOff != 1)
+            {
+                extern kbuf_queue_t gs_RFMngQueue;
+                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//                          SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+            }
+            guc_SwitchOnOff = 1;
+            
 //	            guc_SwitchOnOff = 1;
         }
     }        
@@ -956,13 +972,13 @@ void SYS_MAIN_Task(void * arg)
     guc_SwitchOnOff = 0;
     guc_SwitchNorErr = 0;
     guc_BuzzerNorErr = 0;
-    SYS_GPO_Out(GPO_SWITCH_PWR,true);
+//	    SYS_GPO_Out(GPO_SWITCH_PWR,true);
     msleep(10);
     if(SYS_GPI_GetLPort(GPI_Switch))
     {
         guc_SwitchOnOff = 1;
     }
-    SYS_GPO_Out(GPO_SWITCH_PWR,false);
+//	    SYS_GPO_Out(GPO_SWITCH_PWR,false);
 #else
     memset(nDeviceMacAddr, 0, 8);
 #endif    

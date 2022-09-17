@@ -904,30 +904,30 @@ void SYS_SLV_Task(void)
 //                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_SLV;
 //                HB_RetLive(TASK_SLV_TKID);
 #ifndef MASTER_NODE    
-                    SYS_GPO_Out(GPO_SWITCH_PWR,true);
-                    msleep(100);
+//	                    SYS_GPO_Out(GPO_SWITCH_PWR,true);
+//	                    msleep(100);
 
-                    if(SYS_GPI_GetLPort(GPI_Switch))
-                    {
-
-                        if(guc_SwitchOnOff != 1)
-                        {
-                            extern kbuf_queue_t gs_RFMngQueue;
-                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
-                        }
-                        guc_SwitchOnOff = 1;
-                    }
-                    else
-                    {
-                        if(guc_SwitchOnOff != 0)
-                        {
-                            extern kbuf_queue_t gs_RFMngQueue;
-                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
-                        }
-                        guc_SwitchOnOff = 0;
-                    }
+//	                    if(SYS_GPI_GetLPort(GPI_Switch))
+//	                    {
+//	
+//	                        if(guc_SwitchOnOff != 1)
+//	                        {
+//	                            extern kbuf_queue_t gs_RFMngQueue;
+//	                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//	    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+//	                        }
+//	                        guc_SwitchOnOff = 1;
+//	                    }
+//	                    else
+//	                    {
+//	                        if(guc_SwitchOnOff != 0)
+//	                        {
+//	                            extern kbuf_queue_t gs_RFMngQueue;
+//	                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//	    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+//	                        }
+//	                        guc_SwitchOnOff = 0;
+//	                    }
     //	                SYS_GPO_Out(GPO_SWITCH_PWR,false);
                     SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 0, 0, 0, 0); 
                     int32_t CardLen = HAL_RFID_ReadCardID(nDeviceCardId, guc_CardLen);
