@@ -67,3 +67,6 @@ AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](h
 ## License
 
   AliOS Things is released under the [Apache 2.0 license](LICENSE)
+
+
+test
