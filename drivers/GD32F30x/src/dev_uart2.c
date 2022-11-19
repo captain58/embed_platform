@@ -518,9 +518,10 @@ uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length, uint32_t to)
 {
     SerialBuffer* uart = gss_UartSID[_ucPortMap[port]]->buffer;
     uint16 pr;
-    uint16 count;
+    uint16 count=0;
     uint16 i;
     uint16_t leftLength = length;
+    int32_t timeout = to;
                                     //参数合法性判断
     if((_ucPortMap[port] >= NO_OF_SERIAL) || (length == 0))
     {
@@ -533,7 +534,7 @@ uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length, uint32_t to)
 //        return 0;
 //    }
 #endif    
-    while(to > 0)
+    while(timeout >= 0)
     {
         SYS_ENTER_AllSCRT();
         count = uart->rcnt;
@@ -588,7 +589,7 @@ uint16 SYS_SER_Read(uint8 port, uint8* buffer, uint16 length, uint32_t to)
             break;
         }
         msleep(10);
-        to -= 10;
+        timeout -= 10;
     }
 #if UART_READ_HOOK_EN > 0
      _IF_TRUE_DO(__NULL != buffer, _UartReadHook(_ucPortMap[port], buffer, count));

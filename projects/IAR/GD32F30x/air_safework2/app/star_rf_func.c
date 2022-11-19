@@ -78,6 +78,9 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     }
                 }
             }
+//#ifndef MASTER_NODE            
+////            gn_loginTO = 0;
+//#endif              
             break;
         case MSG_TYPE_FN_02:
 #ifndef MASTER_NODE
@@ -1200,7 +1203,6 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 
             id = Sn_Search_Id(SN);
 
-            LOG_DEBUG( DBGFMT" search id = %d\n",DBGARG, id);
 			
 			errCode = 0;
 
@@ -1221,6 +1223,10 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             m+=4;
             cltor_shadow[id].nodestatus.switchstt = frm->apdu.data[m++];
             cltor_shadow[id].nodestatus.cardstt = frm->apdu.data[m++];
+            
+            LOG_DEBUG( DBGFMT"------id[%d] switch[%d] card[%d]--------\n",DBGARG, id, 
+                      cltor_shadow[id].nodestatus.switchstt,cltor_shadow[id].nodestatus.cardstt);
+
             if(cltor_shadow[id].nodestatus.cardstt)
             {
                 memcpy(cltor[id].card, frm->apdu.data + m, 16);
@@ -1819,7 +1825,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     memcpy(&nDeviceShortAddr, frm->apdu.data+5, 2);
                     extern uint8_t guc_RegisterStat;
                     guc_RegisterStat = NODE_STATUS_LOGIN;
-                    
+                    guc_netStat = NODE_STATUS_LOGIN;
                     GD_Para_RW(REGISTER_FLAG, &guc_RegisterStat, 1, true);
                     memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
                     

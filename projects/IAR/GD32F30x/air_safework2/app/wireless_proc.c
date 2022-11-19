@@ -749,7 +749,7 @@ void Handle_Led()
                         else
                         {
 //                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 1, 50, 50, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 1, 10, 10, 0);
                         }
                         break;
                     case 2:
@@ -761,7 +761,7 @@ void Handle_Led()
                         else
                         {
 //                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
-                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 1, 50, 50, 0);
+                            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 1, 10, 10, 0);
                         }
                         break;
                     default:

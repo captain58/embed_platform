@@ -1006,7 +1006,8 @@ uint8 ZY_GwAddr(const PST_TableStr* tbl, PST_Frame* frm)
     
     if(frame->cmd == 0x01)          //¶ÁÊý¾Ý
     {
-        MoveBuffer(gs_PstPara.Addr, frame->send, 6);
+//        MoveBuffer(gs_PstPara.Addr, frame->send, 6);
+        GD_Para_RW(F251_PADDR, frame->send, 6, false);
 //	        frame->send[4] = 0;
 //	        frame->send[5] = 0;
         frame->len = 6;

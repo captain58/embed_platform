@@ -32,9 +32,9 @@
 #ifdef EXT_LED                          //LED端口定义
 
     const COMPORT gs_LedRun       = {GPIOA, 15,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-    const COMPORT gs_LedSub1Norm       = {GPIOB, 2,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-    const COMPORT gs_LedSub1Err       = {GPIOB, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-//	    const COMPORT gs_LedSub2Norm       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedSub1Norm       = {GPIOB, 3,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedSub1Err       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedSub2Norm       = {GPIOA, 15,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_LedSub2Err       = {GPIOB, 14,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_LedMasterBatLow       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_LedNull       = {GPIOB, 5,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
@@ -49,7 +49,7 @@
         {(COMPORT*)&gs_LedRun,     0, 1, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedSub1Norm,     1, 0, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedSub1Err,     1, 0, 1},     //true:低电平点亮
-//	        {(COMPORT*)&gs_LedSub2Norm,     1, 0, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedSub2Norm,     1, 0, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedSub2Err,     1, 0, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedMasterBatLow,     1, 0, 1},     //true:低电平点亮
         
@@ -57,7 +57,7 @@
     };
         
 
-    #define LED_NUM 5// (sizeof(gs_LedPort) / sizeof(GPO_PORTS))
+    #define LED_NUM 6// (sizeof(gs_LedPort) / sizeof(GPO_PORTS))
 
 #endif                                      //#ifdef EXT_DEV_LED
 
@@ -72,7 +72,7 @@ typedef enum {
     GPIO_LED_RUN,
     GPIO_LED_SUB1_NORM,    
     GPIO_LED_SUB1_ERR,   	
-//	    GPIO_LED_SUB2_NORM,    
+    GPIO_LED_SUB2_NORM,    
     GPIO_LED_SUB2_ERR,   	
     GPIO_LED_MASTER_BAT_LOW,
     GPIO_LED_NULL,

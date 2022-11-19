@@ -476,12 +476,12 @@ void KeyProc(uint8 key)
 //            if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
 //                g_ucPutcharEn = 1;
             gs_SysVar.terstt.bit.blecheck = 0;
-	        LOG_DEBUG("key 2 failing!\n");
+//		        LOG_DEBUG("key 2 failing!\n");
         }
         
         if(event & 4)               //KEY3
         {
-	        LOG_DEBUG("key 3 failing!\n");
+//		        LOG_DEBUG("key 3 failing!\n");
 //	            gs_SysVar.terstt.bit.DI1linked = 1; 
 //	            msg = MSG_CARD_INSERT;
 //	            krhino_buf_queue_send(&gs_MainQueue, &msg, 1);
@@ -496,7 +496,7 @@ void KeyProc(uint8 key)
         {
 	
             SYS_RF_Set_FallingEdge(GPI_DIO2);
-            LOG_DEBUG("key 4 failing!\n");
+//	            LOG_DEBUG("key 4 failing!\n");
         }
         
         if(event & 0x10)               //KEY5
@@ -504,9 +504,12 @@ void KeyProc(uint8 key)
             LOG_DEBUG("key 5 failing!\n");
             if(guc_SwitchOnOff != 0)
             {
-                extern kbuf_queue_t gs_RFMngQueue;
-                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//	                extern kbuf_queue_t gs_RFMngQueue;
+//	                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
 //                          SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+                extern kbuf_queue_t gs_TKSlvQueue;
+                krhino_buf_queue_send(&gs_TKSlvQueue, &msgidA[MSG_EVENT_CHANGE], 1);
+
             }
             guc_SwitchOnOff = 0;
             
@@ -538,17 +541,17 @@ void KeyProc(uint8 key)
         if(event & 2)               //KEY2
         {
 
-	        LOG_DEBUG("key 2 keep!\n");
+//		        LOG_DEBUG("key 2 keep!\n");
         }
         
         if(event & 4)               //KEY3
         {
-	        LOG_DEBUG("key 3 keep!\n");
+//		        LOG_DEBUG("key 3 keep!\n");
         }
         
         if(event & 8)               //KEY4
         {
-            LOG_DEBUG("key 4 keep!\n");
+//	            LOG_DEBUG("key 4 keep!\n");
         }
         
         if(event & 0x10)               //KEY5
@@ -585,12 +588,12 @@ void KeyProc(uint8 key)
 //	            hal_gpio_output_high(&brd_gpio_table[GPO_BLE_UART_CTL]);
 //            gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,true);
 
-	        LOG_DEBUG("key 2 right!\n");
+//		        LOG_DEBUG("key 2 right!\n");
         }
         
         if(event & 4)               //KEY3
         {
-            LOG_DEBUG("key 3 right!\n");
+//	            LOG_DEBUG("key 3 right!\n");
 //		        gs_SysVar.terstt.bit.DI0linked = 0; 
 
 #ifdef MASTER_NODE
@@ -602,7 +605,7 @@ void KeyProc(uint8 key)
         
         if(event & 8)               //KEY4
         {
-            LOG_DEBUG("key 4 right!\n");
+//	            LOG_DEBUG("key 4 right!\n");
         }
         
         if(event & 0x10)               //KEY4
@@ -610,13 +613,15 @@ void KeyProc(uint8 key)
             LOG_DEBUG("key 5 right!\n");
             if(guc_SwitchOnOff != 1)
             {
-                extern kbuf_queue_t gs_RFMngQueue;
-                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//	                extern kbuf_queue_t gs_RFMngQueue;
+//	                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
 //                          SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+                extern kbuf_queue_t gs_TKSlvQueue;
+                krhino_buf_queue_send(&gs_TKSlvQueue, &msgidA[MSG_EVENT_CHANGE], 1);
+
             }
             guc_SwitchOnOff = 1;
             
-//	            guc_SwitchOnOff = 1;
         }
     }        
 }
@@ -1005,16 +1010,16 @@ void SYS_MAIN_Task(void * arg)
                                             //申请获取时间消息
     SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
     SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_GPIO);
-//    SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
+    SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
 //    printf("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
     LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
 //    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 //	    SYS_IFLS_Test();
-//    uint8_t tmp[10] = {3,0,4,0,0,0,0,0,0,0};
-//    GD_Para_RW(F251_PADDR, tmp, 10, true);
-//    memset(tmp,0,10);
-//    GD_Para_RW(F251_PADDR, tmp, 10, false);
+    uint8_t tmp[10] = {88,1,4,0,0,0,0,0,0,0};
+ //   GD_Para_RW(F251_PADDR, tmp, 10, true);
+    memset(tmp,0,10);
+    GD_Para_RW(F251_PADDR, tmp, 10, false);
 //	    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
 
     for(;;)
@@ -1080,7 +1085,7 @@ void SYS_MAIN_Task(void * arg)
                 break;
             case MSG_PSTP:                  //串口消息
 //	                PST_RecvProc();
-//                Setp_RecvProc();
+                Setp_RecvProc();
                 break;
             case MSG_CARD_INSERT:
                 break;

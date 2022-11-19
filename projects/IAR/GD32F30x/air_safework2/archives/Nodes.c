@@ -228,12 +228,13 @@ uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 pro
     {
         return 0;
     }
-    if(addr != NULL && errCode == 0)
+//    if(addr != NULL && errCode == 0)
     {
         cltor[id].addrLen = len;
         memset(cltor[id].devAddr, 0xFF, CON_DEV_ADDR_LEN_8);
         memcpy(cltor[id].devAddr, addr, len);  // 记录添加节点的唯一标识SN 
     }
+    
 //	    LOG_DEBUG( DBGFMT"updataNodeCache ID[%x] err[%x] cmd[%d] \n",DBGARG, id, errCode, type);                        
 //	    LOG_DUMPHEX(LOG_LEVEL_DEBUG, "devAddr : \n", cltor[id].devAddr, len);
 

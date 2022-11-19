@@ -215,7 +215,7 @@ uint8_t SYS_MSG_Apply(uint32_t tkid, uint8_t msgcls)
     return true;
 }
 
-
+extern const uint8_t _ucPortMap[];
 /*******************************************************************************
 * @function_name:  SYS_MSG_ApplyUartRecv
 * @function_file:  dev_messageloop.c
@@ -243,7 +243,7 @@ uint8 SYS_MSG_ApplyExt(uint8 tkid, uint8 msgcls, uint8 subcls )
 //        {
 //            return false;
 //        }
-        STR_SetBit(guc_MsgUartTkMap[subcls], tkid);
+        STR_SetBit(guc_MsgUartTkMap[_ucPortMap[subcls]], tkid);
     }
                                             //标记大类
     guc_MsgApplied[tkid] |= Bit_Map8[msgcls];

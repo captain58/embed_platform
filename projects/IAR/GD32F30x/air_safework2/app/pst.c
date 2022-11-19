@@ -74,7 +74,7 @@ uint8 PstFrmProc(uint8_t channel, uint8* rbuffer, uint16 length, uint8* sbuffer,
 #if SYS_MODEM_EN > 0
         extern kbuf_queue_t gs_TKFarpQueue;
         uint8 msg = MSG_FARP_RECVVALIDIP;
-        krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
+//        krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
 #endif        
     }
 //	    else if(channel == PST_CHN_SER)

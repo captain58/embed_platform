@@ -849,9 +849,41 @@ void SLV_InitProc(void)
 
 
 
+#if (SYS_LOW_POWER > 0)
+
+typedef struct _ST_AIR_SAFE_MNG_
+{
+    uint32_t delay;
+    uint8_t interval;
+
+}ST_AIR_SAFE_MNG;
+ST_AIR_SAFE_MNG gst_asw_mng;
 
 
+#else
 
+#endif
+
+#define CON_WIRELESS_WORK_DELAY 60 //1分钟
+uint8_t airsafe_mng_init()
+{
+#if (SYS_LOW_POWER > 0)
+
+    memset(gst_asw_mng, 0, sizeof(ST_AIR_SAFE_MNG));
+    gst_asw_mng.delay = CON_WIRELESS_WORK_DELAY;
+
+#endif
+}
+#define CON_AIR_SAFE_STATUS_IEDL        0
+#define CON_AIR_SAFE_STATUS_HOOKUP      0x01
+#define CON_AIR_SAFE_STATUS_HOOKUP      0x01
+
+uint8_t get_status(void)
+{
+    
+
+
+}
 
 
 
@@ -883,6 +915,7 @@ void SYS_SLV_Task(void)
                          gc_TKSlvQbuf, MSG_BUFF_LEN, BUFQUEUE_MSG_MAX);
     
     SYS_MSG_Apply(TASK_SLV_TKID, MSG_CLS_TM);
+    memset(gst_asw_mng, 0, sizeof(ST_AIR_SAFE_MNG));
     //gs_OS.Message_Send(&gs_TKSlvQueue, &msgidA[MSG_FARP_CHECK], 1);
     aos_msleep(2000);
     for(;;)
@@ -896,6 +929,11 @@ void SYS_SLV_Task(void)
         switch(g_TKSlvQ_buf_recv[0])        //根据消息分别处理
         {
             case MSG_SEC:                   //秒消息处理
+#if (SYS_LOW_POWER > 0)
+
+#endif
+
+            case MSG_EVENT_CHANGE:
             {
 //                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_SLV;
 //                
@@ -929,7 +967,6 @@ void SYS_SLV_Task(void)
 //	                        guc_SwitchOnOff = 0;
 //	                    }
     //	                SYS_GPO_Out(GPO_SWITCH_PWR,false);
-                    SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 0, 0, 0, 0); 
                     int32_t CardLen = HAL_RFID_ReadCardID(nDeviceCardId, guc_CardLen);
                     if(CardLen != guc_CardLen)
                     {
@@ -946,16 +983,36 @@ void SYS_SLV_Task(void)
                             SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
                             guc_BuzzerNorErr = 1;
                         }
+                        if(!guc_SwitchNorErr)
+                        {
+                            extern kbuf_queue_t gs_RFMngQueue;
+                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+                        }                        
                         guc_SwitchNorErr = 1;
+                        
+                        SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 2, 0, 0, 0); 
                         
                     }
                     else
                     {
-                        
-                        if(guc_CardLen <= 0 && guc_SwitchOnOff == 0)
+
+                        if(guc_SwitchNorErr)
                         {
+                            extern kbuf_queue_t gs_RFMngQueue;
+                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+                        }                        
+                        if(/*guc_CardLen <= 0 && */guc_SwitchOnOff == 0)
+                        {
+                            if(guc_SwitchNorErr)
+                            {
+                                extern kbuf_queue_t gs_RFMngQueue;
+                                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+                            }
+                        
                             guc_BuzzerNorErr = 0;
                             guc_SwitchNorErr = 0;
+                            
+                            SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 3, 0, 0, 0); 
                         }
                     }
 #endif                  

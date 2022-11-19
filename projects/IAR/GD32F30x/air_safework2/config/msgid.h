@@ -86,7 +86,7 @@
 #define MSG_RING         25             //收到语音振铃
 
 //===============(排列需按实际串口编号从小到大排列)=======================================
-#define MSG_PSTP         MSG_UART0      
+#define MSG_PSTP         MSG_UART1      
 #define MSG_MDMP        (MSG_UART0 + 1)
 #define MSG_ESAM        (MSG_UART0 + 2)           //与 SYS_PST_PORT 对应
 #define MSG_CARD        (MSG_UART0 + 3) 
@@ -179,7 +179,7 @@
 #define MSG_ALRT_CLR            106      //清除所有记录
 
 #define MSG_SWITCH_CHANGE   110
-
+#define MSG_EVENT_CHANGE   111
 //	#define MSG_FTP_OPEN            110
 //	#define MSG_FTP_OPEN_SUCC       111
 //	#define MSG_FTP_OPEN_FAILED     112

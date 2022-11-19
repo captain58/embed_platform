@@ -59,12 +59,13 @@
     {
        
         /* enable GPIO clock */
-        rcu_periph_clock_enable(RCU_GPIOA);
+        rcu_periph_clock_enable(RCU_GPIOB);
         
-        gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_9);
+        gpio_init(GPIOB, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_6);
         /* connect port to USARTx_Rx */
-        gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_10);
-    
+        gpio_init(GPIOB, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_7);
+        
+        gpio_pin_remap_config(GPIO_USART0_REMAP,ENABLE);
     };
         void Uart0_Msp(void)
     {
@@ -429,7 +430,7 @@ const SerialID* const gss_UartSID[NO_OF_SERIAL] =
 
 };
 
-const uint8_t _ucPortMap[] = {SYS_UART2_IDX,SYS_UART0_IDX,SYS_UART0_IDX};
+const uint8_t _ucPortMap[] = {SYS_UART0_IDX,SYS_UART0_IDX,SYS_UART0_IDX};
 
 //	#endif                                  //#ifdef _USR_MAIN
 

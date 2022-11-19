@@ -199,7 +199,7 @@ typedef enum
         {(COMPORT*)&gs_GpiKey2,       1, 0, 0},      //key2
         {(COMPORT*)&gs_GpiDIO1,    1, 0, 0},      //key3     
         {(COMPORT*)&gs_GpiDIO2,      1, 0, 0},      //key1
-        {(COMPORT*)&gs_GpiSwitch,      0, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiSwitch,      1, 0, 0},      //key1
 //        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
 //        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu¿¨sda½Å
 //        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda½Å

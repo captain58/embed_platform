@@ -142,13 +142,15 @@ void Switch_Channel(unsigned char channel)
 //
 //        return (cksum);
 //}
-
-uint32 sysSlotTimeCycle = 100;
+#define CON_LOGIN_TIME_OUT 400
+#define CON_LOGIN_INTERVAL 160
+uint32 sysSlotTimeCycle = 50;
+//uint32_t gn_loginTO = 0;
 void Slot_Time_IRQ(void * arg)
 {
 	//uint16 slot;
     uint16 slotNum = MAX_SLOT_NUM;
-    uint16 curSlot = sysSlotTime % slotNum;
+    uint16 curSlot = sysSlotTime ;//% slotNum;
 	BEHAVIOR behave;
 	//uint16 temp8;
     behave = Get_Current_Behave2(curSlot, sysSlotTimeCycle);//获得当前行为
@@ -177,17 +179,17 @@ void Slot_Time_IRQ(void * arg)
                 if(guc_netStat == NODE_STATUS_LOGIN)
                 {
                     EZMacPRO_Transmit_Adv(3, NULL, 0);	
-                    sysSlotTimeCycle = 1000;
+                    sysSlotTimeCycle = CON_LOGIN_TIME_OUT;
                 }
                 else
                 {
                     EZMacPRO_Transmit_Adv(5, NULL, 0);
-                    sysSlotTimeCycle = 300;
+                    sysSlotTimeCycle = CON_LOGIN_INTERVAL;
                 }
             }
             else
             {
-                sysSlotTimeCycle = 1000;
+                sysSlotTimeCycle = CON_LOGIN_TIME_OUT;
             }
 
             break;
@@ -1884,7 +1886,7 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
 #define CON_STT_CARD_OFFSET 1
 #define CON_STT_CARD_ID_OFFSET 2
             stt |= 1<<CON_STT_SWITCH_OFFSET;
-            pkt->head.apdu.data[m++] = guc_SwitchNorErr;//guc_SwitchOnOff;
+            pkt->head.apdu.data[m++] = guc_SwitchNorErr;//;guc_SwitchOnOff;//
             
             TRFIDModemState strfstt = HAL_RFID_Status();
             stt |= 1<<CON_STT_CARD_OFFSET;
@@ -2242,11 +2244,11 @@ uint8 EZMacPRO_Receive(void)
  * Description: channel is clear
  *		
  *************************************************************************/
-BEHAVIOR Get_Current_Behave(uint16 slot, uint8 timeframe) //获取要操作的行为
+BEHAVIOR Get_Current_Behave(uint32_t slot, uint32_t timeframe) //获取要操作的行为
 {
 	BEHAVIOR ret;
 	//uint16 index;
-    uint16 temp16;	
+    uint32 temp16;	
     uint32 temp32;
 #ifndef MASTER_NODE    
     if(timeframe < 10) timeframe = 10;
@@ -2282,6 +2284,13 @@ BEHAVIOR Get_Current_Behave(uint16 slot, uint8 timeframe) //获取要操作的行为
         //printf("Get_Current_Behave timeframe = %d temp16 = %d temp32 = %d index = %d freq = %d\n", timeframe, temp16, temp32, index, ret.freq);
 #endif           
     }
+//#ifndef MASTER_NODE     
+////    gn_loginTO ++;
+//    if(gn_loginTO > 2*CON_LOGIN_TIME_OUT)
+//    {
+//        guc_netStat = NODE_STATUS_OUT;
+//    }
+//#endif    
     return ret;
 }
 
