@@ -2183,6 +2183,32 @@ unsigned int SX7319Process( void )
     return result;
 }
 
+/*********************************************************************
+** entry_deep_sleep_mode进入深度睡眠
+*********************************************************************/
+//void entry_deep_sleep_mode(void)
+//{
+//    StrobeCMD(CMD_RF_RST);              //RF reset
+//    A7139_WriteReg(PIN_REG, A7139Config[PIN_REG] | 0x0800);             //SCMDS=1
+//    A7139_WritePageA(PM_PAGEA, A7139Config_PageA[PM_PAGEA] | 0x1010);   //STS=1, QDS=1
+//    StrobeCMD(CMD_SLEEP);               //entry sleep mode
+//    msleep(1);                      //delay 600us for VDD_A shutdown, C load=0.1uF
+//    
+//	StrobeCMD(CMD_DEEP_SLEEP);          //entry deep sleep mode
+//    msleep(1);                      //delay 200us for VDD_D shutdown, C load=0.1uF
+//}
+//
+///*********************************************************************
+//** wake_up_from_deep_sleep_mode从睡眠模式中唤醒
+//*********************************************************************/
+//void wake_up_from_deep_sleep_mode(void)
+//{
+//    StrobeCMD(CMD_STBY);    //wake up
+//    msleep(2);            //delay 2ms for VDD_D stabilized
+//    //InitRF();
+//}
+
+
 tRadioDriver RadioDriver;
 
 tRadioDriver* RadioDriverInit( void )
@@ -2195,6 +2221,8 @@ tRadioDriver* RadioDriverInit( void )
     RadioDriver.SetTxPacket = SYS_A7139SetTxPacket;//SYS_A7139_Send;
     RadioDriver.Process = SX7319Process;
     RadioDriver.Tick = SX7139SysTick;
+    RadioDriver.enter_sleep = entry_deep_sleep_mode;
+    RadioDriver.wake_up = wake_up_from_deep_sleep_mode;
   
 
     return &RadioDriver;

@@ -358,6 +358,8 @@ typedef struct sRadioDriver
     uint8_t ( *SetTxPacket )( const void *buffer, unsigned short size );
     unsigned int ( *Process )( void );
     void (*Tick)(unsigned int * tick);
+    void ( * enter_sleep )( void );
+    void ( * wake_up )( void );
 }tRadioDriver;
 #ifndef BOOT_ONLY                       //BOOT不包含定义
 

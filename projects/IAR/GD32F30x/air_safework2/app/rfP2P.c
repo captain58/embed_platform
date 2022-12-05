@@ -775,6 +775,33 @@ void SYS_RFMng_Task(void * arg)
                 case MSG_LIVE:                  //回复保活消息
                     HB_RetLive(TASK_RFMNG_TKID);
                     break; 
+#if (SYS_LOW_POWER > 0)                
+                case MSG_ENTER_SLEEP://进入休眠
+                    if(!gs_FarpVar.sleep)
+                    {
+                        Radio->enter_sleep();
+                        gs_FarpVar.sleep = 1;
+                        
+                        msleep(500);
+                        
+                        krhino_timer_stop(&g_rf_tick_timer);
+                        SYS_Dev_OptBlinkSet(SYS_LED_RUN, 3, 1, 99, 0); 
+	
+                    }
+                    break;
+                case MSG_WAKE_UP://唤醒
+                    if(gs_FarpVar.sleep)
+                    {
+                        krhino_timer_start(&g_rf_tick_timer);
+                        msleep(1);
+                        SYS_RF_Init(0,0,0);
+//                        Radio->wake_up();
+                        gs_FarpVar.sleep = 0;
+                        SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 
+	
+                    }
+                    break;
+#endif                    
                 default:
                     
                     break;

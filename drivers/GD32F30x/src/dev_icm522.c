@@ -51,7 +51,7 @@ int uart_send_wait_reply(const char *cmd, int cmdlen, uint8_t delimiter,
         }
     }
     
-    msleep(100);
+    msleep(80);
     if (SYS_SER_Read(UART_CHANNEL_CARD,replybuf,bufsize,350) <=  0) {
         return -1;
     }
@@ -82,7 +82,7 @@ static int uart_send_with_retry(const char *cmd, int cmdlen, bool delimiter,
 
             LOG_INFO( "%s %d failed retry count %d\r\n", __func__, __LINE__, retry);
             LOG_DUMPHEX(LOG_LEVEL_INFO, "rsp:\n", rspbuf, len);
-            aos_msleep(100);
+            aos_msleep(20);
         } else {
             break;
         }
@@ -110,38 +110,41 @@ int icm522_uart_selfadaption(const char *command, uint32_t cmdlen, const char *r
 }
 
 const uint8 closeRfid[] = {0,0, 0x03, 0x02, 0x00, 0x01};
-const uint8 openRfid[] = {0,0, 0x03, 0x02, 0x01, 0x00};
+const uint8 openRfid[] = {0,0, 0x03, 0x02, 0x03, 0x02};
 
 //mode 0:关闭天线和寻卡 1:打开天线
 void icm522_modem_set_mode(uint8_t mode)
 {
 
-//    int ret = 0;
-//    int m = 0;
-//    uint8_t cmd[ICM522_SET_MODE_RSP_LEN] = {0,0, 0x03, 0x02, 0x03, 0x02};
-//    uint8_t rsp_result[4] = {0xfe,0x02,0x02,0x00};
-//    uint8_t rsp[ICM522_SET_MODE_RSP_LEN];
-//
-//    if(mode)
-//    {
-//        memcpy(cmd, openRfid, sizeof(openRfid));
-//    }
-//    else
-//    {
-//        memcpy(cmd, closeRfid, sizeof(closeRfid));
-//    }
-//
-//    m=6;
-//    memset(rsp,0,ICM522_SET_MODE_RSP_LEN);
-//    if (uart_send_with_retry(cmd, m, false, NULL, 0,
-//        rsp, ICM522_SET_MODE_RSP_LEN, rsp_result, 4, 0) < 0) 
-//    {
-//        ret = -1;
-//    }
-//    else
-//    {
-//
-//    }
+    int ret = 0;
+    int m = 0;
+    uint8_t cmd[ICM522_SET_MODE_RSP_LEN] = {0,0, 0x03, 0x02, 0x03, 0x02};
+    uint8_t rsp_result[4] = {0xfe,0x02,0x02,0x00};
+    uint8_t rsp[ICM522_SET_MODE_RSP_LEN];
+#if (SYS_LOW_POWER > 0) 
+
+    if(mode)
+    {
+        memcpy(cmd, openRfid, sizeof(openRfid));
+        
+        m=6;
+        memset(rsp,0,ICM522_SET_MODE_RSP_LEN);
+        if (uart_send_with_retry(cmd, m, false, NULL, 0,
+            rsp, ICM522_SET_MODE_RSP_LEN, rsp_result, 4, 1) < 0) 
+        {
+            ret = -1;
+        }
+        else
+        {
+	
+        }
+        
+    }
+    else
+    {
+        memcpy(cmd, closeRfid, sizeof(closeRfid));
+    }
+#endif
 
 //    return ret;                            //返回成功
 }
@@ -275,7 +278,7 @@ int icm522_getpagex(uint8_t pagex, uint8_t *data, uint8_t * len)
     m=6;
     memset(rsp,0,ICM522_DEFAULT_RSP_LEN);
     if (uart_send_with_retry(cmd, m, false, NULL, 0,
-        rsp, ICM522_DEFAULT_RSP_LEN, rsp_result, 1, 0) < 0) 
+        rsp, ICM522_DEFAULT_RSP_LEN, rsp_result, 1, 1) < 0) 
     {
         ret = -1;
     }
@@ -350,7 +353,41 @@ int icm522_getpagex(uint8_t pagex, uint8_t *data, uint8_t * len)
 //	    
 //	}
 
+int icm522_sleep(void)
+{
+    int ret = 0;
+#if (SYS_LOW_POWER > 0)      
+    int m = 0;
+    uint8_t cmd[32] = {0x00, 0x00, 0x02, 0x01, 0x03};
+    uint8_t rsp_result[4] = {0xfe,0x02,0x01,0x03};
+    uint8_t rsp[ICM522_DEFAULT_RSP_LEN];
+	
+    icm522_modem_set_mode(1);
+	
+	
+    m=5;
+    memset(rsp,0,ICM522_DEFAULT_RSP_LEN);
+    if (uart_send_with_retry(cmd, m, false, NULL, 0,
+        rsp, ICM522_DEFAULT_RSP_LEN, rsp_result, 4, 0) < 0) 
+    {
+        ret = -1;
+    }
+    else
+    {
+        if(0x02 == rsp[1])
+        {
+        }
+        else
+        {
+            ret = -1;
+        }
+    }
+	
+    icm522_modem_set_mode(0);
+#endif
+    return ret;                            //返回成功
 
+}
 
 
 

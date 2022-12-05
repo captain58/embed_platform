@@ -846,8 +846,7 @@ void SLV_InitProc(void)
     ;
 }
 
-
-
+int32_t guc_CardLen = 0;
 
 #if (SYS_LOW_POWER > 0)
 
@@ -855,7 +854,9 @@ typedef struct _ST_AIR_SAFE_MNG_
 {
     uint32_t delay;
     uint8_t interval;
-
+    uint8_t switch_stt;
+    int32_t card_stt;
+    uint8_t stt;
 }ST_AIR_SAFE_MNG;
 ST_AIR_SAFE_MNG gst_asw_mng;
 
@@ -865,35 +866,84 @@ ST_AIR_SAFE_MNG gst_asw_mng;
 #endif
 
 #define CON_WIRELESS_WORK_DELAY 60 //1分钟
+#define CON_WIRELESS_INIT_DELAY 30 //1分钟
+
 uint8_t airsafe_mng_init()
 {
 #if (SYS_LOW_POWER > 0)
 
-    memset(gst_asw_mng, 0, sizeof(ST_AIR_SAFE_MNG));
-    gst_asw_mng.delay = CON_WIRELESS_WORK_DELAY;
+    memset((uint8_t *)&gst_asw_mng, 0, sizeof(ST_AIR_SAFE_MNG));
+    gst_asw_mng.delay = CON_WIRELESS_INIT_DELAY;
 
 #endif
 }
 #define CON_AIR_SAFE_STATUS_IEDL        0
 #define CON_AIR_SAFE_STATUS_HOOKUP      0x01
-#define CON_AIR_SAFE_STATUS_HOOKUP      0x01
+#define CON_AIR_SAFE_STATUS_HOOKDOWN    0x02
+#define CON_AIR_SAFE_STATUS_WAIT    0x04        //钩子拿开后继续保持60秒通讯
+#define CON_AIR_SAFE_SLEEP_RUN_1M   0x08
 
 uint8_t get_status(void)
 {
     
+    uint8_t ret = CON_WIRELESS_WORK_DELAY;
+#if (SYS_LOW_POWER > 0)
+    static uint32_t ulcount = 0;
 
+    ulcount++;
+    uint8_t ucswitch_stt = guc_SwitchOnOff;
+    int32_t lcard_stt = guc_CardLen;
+
+    if(gst_asw_mng.delay >0)
+    {
+        gst_asw_mng.delay --;
+    }
+
+    if(ucswitch_stt > 0)//勾子在线，正常通讯
+    {
+        gst_asw_mng.delay = CON_WIRELESS_WORK_DELAY;
+        gst_asw_mng.switch_stt = ucswitch_stt;
+        ret |= CON_AIR_SAFE_STATUS_HOOKUP;
+    }
+    else
+    {
+        if(gst_asw_mng.delay >0)//钩子掉线后，运行一段时间
+        {
+            ret |= CON_AIR_SAFE_STATUS_WAIT;
+        }
+        else
+        {
+//            if((ulcount % CON_WIRELESS_WORK_DELAY) == 0)
+//            {
+//                ret |= CON_AIR_SAFE_SLEEP_RUN_1M;
+//            }
+        }
+    }
+
+    if(gst_asw_mng.stt != ret)
+    {//状态发生变化
+        if(0 == ret)
+        {
+            extern kbuf_queue_t gs_RFMngQueue;
+            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_ENTER_SLEEP], 1);
+        }
+        else
+        {
+            extern kbuf_queue_t gs_RFMngQueue;
+            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_WAKE_UP], 1);
+
+        }
+        gst_asw_mng.stt = ret;
+    }
+    
+#else
+    ret |= CON_AIR_SAFE_STATUS_HOOKUP;
+#endif
+    return ret;
 
 }
+    volatile int g_i=0;
 
-
-
-
-
-
-
-
-
-int32_t guc_CardLen = 0;
 /*******************************************************************************
  * @function_name:  ES_SLV_Task
  * @function_file:  
@@ -910,14 +960,18 @@ int32_t guc_CardLen = 0;
  ******************************************************************************/
 void SYS_SLV_Task(void)
 {
-                                            //链表消息
+    uint8_t stt;
+    //链表消息
     krhino_buf_queue_create(&gs_TKSlvQueue, "slv_queue",
                          gc_TKSlvQbuf, MSG_BUFF_LEN, BUFQUEUE_MSG_MAX);
     
     SYS_MSG_Apply(TASK_SLV_TKID, MSG_CLS_TM);
-    memset(gst_asw_mng, 0, sizeof(ST_AIR_SAFE_MNG));
+
     //gs_OS.Message_Send(&gs_TKSlvQueue, &msgidA[MSG_FARP_CHECK], 1);
     aos_msleep(2000);
+    
+    airsafe_mng_init();
+    
     for(;;)
     {
         
@@ -929,53 +983,36 @@ void SYS_SLV_Task(void)
         switch(g_TKSlvQ_buf_recv[0])        //根据消息分别处理
         {
             case MSG_SEC:                   //秒消息处理
-#if (SYS_LOW_POWER > 0)
 
-#endif
 
             case MSG_EVENT_CHANGE:
             {
-//                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_SLV;
-//                
-//                SLV_SecProc();
-//           
-//                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_SLV;
-//                HB_RetLive(TASK_SLV_TKID);
+                stt = get_status();
 #ifndef MASTER_NODE    
-//	                    SYS_GPO_Out(GPO_SWITCH_PWR,true);
-//	                    msleep(100);
-
-//	                    if(SYS_GPI_GetLPort(GPI_Switch))
-//	                    {
-//	
-//	                        if(guc_SwitchOnOff != 1)
-//	                        {
-//	                            extern kbuf_queue_t gs_RFMngQueue;
-//	                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-//	    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
-//	                        }
-//	                        guc_SwitchOnOff = 1;
-//	                    }
-//	                    else
-//	                    {
-//	                        if(guc_SwitchOnOff != 0)
-//	                        {
-//	                            extern kbuf_queue_t gs_RFMngQueue;
-//	                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-//	    //	                        SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
-//	                        }
-//	                        guc_SwitchOnOff = 0;
-//	                    }
-    //	                SYS_GPO_Out(GPO_SWITCH_PWR,false);
-                    int32_t CardLen = HAL_RFID_ReadCardID(nDeviceCardId, guc_CardLen);
-                    if(CardLen != guc_CardLen)
+                if(stt > 0)
+                {
+                    if(guc_SwitchOnOff > 0)
                     {
-                        guc_CardLen = CardLen;
-                        extern kbuf_queue_t gs_RFMngQueue;
-                        krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-                        
-                    }
+                        if(!guc_SwitchNorErr)
+                        {
+                            for(g_i = 0; g_i < 1; g_i++)
+                            {
+                                int32_t CardLen = HAL_RFID_ReadCardID(nDeviceCardId, guc_CardLen);
+                                if(CardLen > 0 /*&& CardLen != guc_CardLen*/)
+                                {
+                                    guc_CardLen = CardLen;
+                                    extern kbuf_queue_t gs_RFMngQueue;
+                                    krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+                                    break;
+                                    
+                                }
+                                msleep(10);
+                            }
+                            HAL_RFID_Sleep();
+                            g_i = 0x11;
 
+                        }
+                    }
                     if(guc_CardLen > 0 && guc_SwitchOnOff > 0)
                     {
                         if(guc_BuzzerNorErr != 1)
@@ -1007,83 +1044,21 @@ void SYS_SLV_Task(void)
                             {
                                 extern kbuf_queue_t gs_RFMngQueue;
                                 krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+
+                                guc_CardLen = 0;
                             }
+
                         
                             guc_BuzzerNorErr = 0;
                             guc_SwitchNorErr = 0;
-                            
                             SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 3, 0, 0, 0); 
                         }
                     }
-#endif                  
                 }
+#endif                  
                 break;
-                
-//            case MSG_MIN:                   //分消息处理
-//                SLV_MinProc();
-//                break;
-//            case MSG_HOUR:
-//                Task_HourProc();
-//                break;
-//            case MSG_NETP_FINISH:
-//                if((gs_SysVar.mDGstt & HLV_STT_NENG)  == 0)
-//                {
-//                    gss_TaskATimer.atr |= TKT_ATR_FLAG; 
-//                    
-//                    gs_SysVar.mLPstt |= HLV_LPTASK_RP;
-//                }
-////	                JudgeTaskFlag(g_TKSlvQ_buf_recv[1]);
-//                break;
-////	            case MSG_NETP_TASK_RUN_FLAG_PER_485:
-////	                
-////	                gss_TaskATimer.runflag |= 1 << g_TKSlvQ_buf_recv[1];
-////	                break;
-//            case MSG_FARP_CHECK:
-//                IP_Check();
-//                break;
-//	            case MSG_FTP_OPEN_SUCC:
-//	                g_ulFtp_Timeout = 0;
-//	                gs_FtpPara.flag = FTP_STEP_ING;
-//	                gs_FtpPara.err_times = 0;
-//	                break;
-//	            case MSG_FTP_OPEN_FAILED:
-//	                gs_FtpPara.err_times++;
-//	                g_ulFtp_Timeout = 60;
-//	                break;
-//	            case MSG_FTP_GET_SUCC:
-//	            {
-//	                uint16_t len = 0;
-//	                memcpy((uint8_t *)&len, &g_TKSlvQ_buf_recv[1], 2);
-//	                gs_FtpPara.getLen += len;
-//	                gs_FtpPara.fileLen += len;
-//	                gs_FtpPara.err_times = 0;
-//	                
-//	                g_ulFtp_Timeout = 2;
-//	                break;
-//	            }
-//	            case MSG_FTP_GET_FAILED:
-//	                gs_FtpPara.err_times++;
-//	                g_ulFtp_Timeout = 15;
-//	                gs_FtpPara.flag = FTP_STEP_OPEN;
-//	                break;
-//	            case MSG_FTP_PROJ_FAILED:
-//	//	                gs_FtpPara.err_times++;
-//	                g_ulFtp_Timeout = 2;
-//	                gs_FtpPara.flag = FTP_STEP_FAILED;
-//	                break;
-//	            case MSG_FTP_GET_FNS:
-//	            {
-//	                uint16_t len = 0;
-//	                memcpy((uint8_t *)&len, &g_TKSlvQ_buf_recv[1], 2);
-//	                gs_FtpPara.getLen += len;
-//	                gs_FtpPara.fileLen += len;
-//	                gs_FtpPara.err_times = 0;
-//	                
-//	                g_ulFtp_Timeout = 0;
-//	                gs_FtpPara.flag = FTP_STEP_FINISH;
-//	                //上告
-//	                break;
-//	            }
+            }
+
             case MSG_LIVE:
 				HB_RetLive(TASK_SLV_TKID);
                 break;

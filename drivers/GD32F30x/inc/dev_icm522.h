@@ -14,7 +14,7 @@ void icm522_modemoff(void);
 int icm522_modemcheck(void);
 int icm522_setname(uint8_t *name, uint8_t len);
 int icm522_getpagex(uint8_t pagex, uint8_t *data, uint8_t * len);
-
+int icm522_sleep(void);
 
 
 

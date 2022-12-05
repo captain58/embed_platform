@@ -69,7 +69,8 @@ const TRFIDModemDrive gs_BleMODMDrvIntf[] =
         icm522_modemoff,
 
         icm522_setname,
-        icm522_getpagex, 
+        icm522_getpagex,
+        icm522_sleep,
     },
 #endif 
     
@@ -132,7 +133,11 @@ uint8 HAL_RFID_Reset(void)
 }
 
 
-
+int HAL_RFID_Sleep(void)
+{
+    DevBleModem->drive->sleep();
+    return 0;
+}
 /************************************************************************
  * @function: SYS_MODM_Check
  * @描述: 初始化蓝牙模块,自动判断模块类型
@@ -248,7 +253,7 @@ int HAL_RFID_Init(kbuf_queue_t *queue, uint8_t *name, uint8_t len)
 //    }
     DevBleModem->stt.bit.chnrdy = 1;
     
-    
+    DevBleModem->drive->sleep();
     return 0;
 err:
 
@@ -278,6 +283,7 @@ int HAL_RFID_ReadCardID(        uint8_t *data, uint8_t len)
             DevBleModem->stt.bit.linked = 1;
             memcpy(DevBleModem->card_id, data, len);
             DevBleModem->card_len = len;
+//	            DevBleModem->drive->sleep();
             return len;
         }
         else

@@ -45,6 +45,7 @@ typedef struct{
     void (*off)(void);                  //关闭模块的过程
     int (*set_name)(uint8_t *, uint8_t);                //确定是否为该类型的函数
     int (*get_pagex)(uint8_t pagex, uint8_t *data, uint8_t * len);
+    int (*sleep)(void);
 }TRFIDModemDrive;
 
 

@@ -178,6 +178,9 @@
 #define MSG_ALRT_CLR            106      //清除所有记录
 
 #define MSG_SWITCH_CHANGE   110
+#define MSG_EVENT_CHANGE    111
+#define MSG_ENTER_SLEEP     112
+#define MSG_WAKE_UP         113  
 
 //	#define MSG_FTP_OPEN            110
 //	#define MSG_FTP_OPEN_SUCC       111

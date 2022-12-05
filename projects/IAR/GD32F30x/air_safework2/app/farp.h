@@ -67,6 +67,7 @@ typedef struct
     uint8_t login;                          //登录帧是否发送成功
 
     uint8_t paired;
+    uint8_t sleep;                          //休眠状态
 
     uint8 rdct;                             //重拨次数
     uint8 rtct;                             //重试次数
