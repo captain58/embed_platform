@@ -65,9 +65,6 @@ const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 const __root uint32 gul_UsrHardcVer = 0x19071701;
 const __root uint8_t gucs_HDVer[]="4G-LS-R(V0.";
 
-//	const __root uint32 gul_DebugMarkA@FLS_USRMARKA_ADDR = 0;
-//	const __root uint32 gul_DebugMarkB@FLS_USRMARKB_ADDR = 0;
-
 static char         g_MQ_buf_recv[BUFQUEUE_MSG_MAX+4];
 
 size_t       g_MQ_recv_size;
@@ -230,61 +227,6 @@ uint8_t HB_TaskLiveReq(int count)
     
     return SYS_ERR_OK;
 }
-#if 0
-uint8_t HB_TaskLiveReq(int count)
-{
-                                            //保活判断
-    extern const KTaskDeclare __TKDeclare[SYS_TK_NUM];
-    const KTaskDeclare* dec;
-    uint8 msg = MSG_LIVE;
-    if((count % 10) != 0)
-    {
-        for(uint32 ut_i = 0; ut_i < (SYS_TK_NUM); ut_i++) 
-        {
-            if(gucs_LiveCnt[ut_i] > 18)			//3分钟未回复保活消息
-            {
-                LOG_DEBUG("soft watch dog thread %d could be died,sys will reboot!!! \n", ut_i);
-                return SYS_ERR_FT;
-            }        
-        }
-        return SYS_ERR_OK;
-    }
-    for(uint32 ut_i = 0; ut_i < (SYS_TK_NUM); ut_i++)  //排除最高和最低进程,最高进程执行软件定时器喂狗
-    {
-        dec = __TKDeclare + ut_i;
-        if((dec->ktask == __NULL) || (dec->stklen == 0) 
-            || (dec->ktask->tbl == 0) || dec->ktask->msg == NULL)
-        {                                   //进程存在且支持消息机制
-            continue;
-        }
-        
-//	        if(ut_i == gs_TkTcbCur->tkid)       //当前进程排除在外
-//	        {
-//	            continue;
-//	        }
-        
-//	        gs_OS.Message_Send(MSG_LIVE, ut_i);
-        krhino_buf_queue_send(dec->ktask->msg, &msg, 1);
-        
-        CPSR_ALLOC();
-        RHINO_CPU_INTRPT_DISABLE();
-                              //多进程共享保护
-        gucs_LiveCnt[ut_i]++;
-        RHINO_CPU_INTRPT_ENABLE();
-        
-        if(gucs_LiveCnt[ut_i] > 18)			//3分钟未回复保活消息
-        {
-//	            SYS_Reset();
-            LOG_DEBUG("soft watch dog thread %d could be died,sys will reboot!!! \n", ut_i);
-            return SYS_ERR_FT;
-        }
-    }
-    
-    return SYS_ERR_OK;
-}
-#endif
-
-
 
 /*******************************************************************************
  * @function_name:  HB_RetLive
@@ -378,7 +320,6 @@ void SYS_MAIN_Init(void)
       //系统状态寄存器初始化
     
     gl_SysRunStt = 0;                      //运行状态初始为0
-    //gub_EthPara_SetFlag = false;          //清参数获取标志
     
     ClearBuffer((uint8*)&gs_ErrLog, sizeof(gs_ErrLog));
     
@@ -386,7 +327,6 @@ void SYS_MAIN_Init(void)
     {
        gucs_LiveCnt[ut_i] = 0;				//保活进程计数器清0
     }
-    //aos_msleep(1000);
 	
     
     gl_SysRunStt |= HRS_PARALD;
@@ -414,19 +354,9 @@ void SYS_MAIN_Init(void)
     GD_Para_RW(REGISTER_FLAG, &guc_RegisterStat, 1, false);
     GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, false);
 
-#ifndef MASTER_NODE
 
-//    if(NODE_STATUS_LOGIN == guc_RegisterStat)
-//    {
-//        SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
-//    }
-//    else
-//    {
-        SYS_Dev_OptBlinkSet(SYS_LED_RUN, 2, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
-//    }
-#else
-    SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
-#endif
+    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
+
     LoadSystemParam(PARA_TYPE_FARP);
 }
 
@@ -461,30 +391,15 @@ void KeyProc(uint8 key)
 	        LOG_DEBUG("key 1 failing!\n");
             gs_SysVar.terstt.bit.DI0linked = 1; 
             
-//	            gs_SysVar.AI0 = SYS_AD_GetValue(AD_ID_AI0)/100;
-//	            gs_SysVar.AI1 = SYS_AD_GetValue(AD_ID_AI1)/100;
-
-//	            LOG_DEBUG("AI0 = %d AI1 = %d !\n",gs_SysVar.AI0,gs_SysVar.AI1);
         }
         
         if(event & 2)               //KEY2
         {
-            //蓝牙断开建立
-//	            hal_gpio_output_low(&brd_gpio_table[GPO_BLE_UART_CTL]);
-
-          
-//            if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
-//                g_ucPutcharEn = 1;
             gs_SysVar.terstt.bit.blecheck = 0;
-//		        LOG_DEBUG("key 2 failing!\n");
         }
         
         if(event & 4)               //KEY3
         {
-//		        LOG_DEBUG("key 3 failing!\n");
-//	            gs_SysVar.terstt.bit.DI1linked = 1; 
-//	            msg = MSG_CARD_INSERT;
-//	            krhino_buf_queue_send(&gs_MainQueue, &msg, 1);
 #ifdef MASTER_NODE
             SYS_RF_Set_FallingEdge(GPI_DIO1);
 #else
@@ -496,7 +411,7 @@ void KeyProc(uint8 key)
         {
 	
             SYS_RF_Set_FallingEdge(GPI_DIO2);
-//	            LOG_DEBUG("key 4 failing!\n");
+            LOG_DEBUG("key 4 failing!\n");
         }
         
         if(event & 0x10)               //KEY5
@@ -504,17 +419,24 @@ void KeyProc(uint8 key)
             LOG_DEBUG("key 5 failing!\n");
             if(guc_SwitchOnOff != 0)
             {
-//	                extern kbuf_queue_t gs_RFMngQueue;
-//	                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-//                          SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
                 extern kbuf_queue_t gs_TKSlvQueue;
                 krhino_buf_queue_send(&gs_TKSlvQueue, &msgidA[MSG_EVENT_CHANGE], 1);
 
             }
             guc_SwitchOnOff = 0;
-            
-//	            guc_SwitchOnOff = 0;
         }
+        if(event & 0x20)               //KEY6
+        {
+            LOG_DEBUG("key 6 failing!\n");
+        }   
+        if(event & 0x40)               //KEY7
+        {
+            LOG_DEBUG("key 7 failing!\n");
+        }   
+        if(event & 0x80)               //KEY8
+        {
+            LOG_DEBUG("key 8 failing!\n");
+        }           
         
     }
     if(key == MSG_LILEVT)
@@ -524,7 +446,7 @@ void KeyProc(uint8 key)
         if(event & 1)               //KEY1
         {
 	        LOG_DEBUG("key 1 keep !\n");
-            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 10, 10, 0);
+            SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 1, 10, 10, 0);
             guc_AllowLogin = 1;
             bBroadMeterEnable = 1;
 #ifdef MASTER_NODE            
@@ -557,7 +479,19 @@ void KeyProc(uint8 key)
         if(event & 0x10)               //KEY5
         {
             LOG_DEBUG("key 5 keep!\n");
-        }        
+        }  
+        if(event & 0x20)               //KEY6
+        {
+            LOG_DEBUG("key 6 keep!\n");
+        }  
+        if(event & 0x40)               //KEY7
+        {
+            LOG_DEBUG("key 7 keep!\n");
+        }  
+        if(event & 0x80)               //KEY8
+        {
+            LOG_DEBUG("key 8 keep!\n");
+        }          
     }  
     if(key == MSG_LIREVT)
     {
@@ -566,18 +500,16 @@ void KeyProc(uint8 key)
         if(event & 1)               //KEY1
         {
 	        LOG_DEBUG("key 1 right!\n");
-//	            gs_SysVar.terstt.bit.DI0linked = 0; 
-//	            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
+
             guc_AllowLogin = 0;
-#ifndef MASTER_NODE
-            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 2, 100, 100, 0);
+
+            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0);
             if(NODE_STATUS_LOGIN == guc_netStat)
             {
                 SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
             }
-#else
-            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 
-#endif
+            SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 0, 100, 100, 0);
+
 
         }
         
@@ -611,18 +543,30 @@ void KeyProc(uint8 key)
         if(event & 0x10)               //KEY4
         {
             LOG_DEBUG("key 5 right!\n");
-            if(guc_SwitchOnOff != 1)
-            {
-//	                extern kbuf_queue_t gs_RFMngQueue;
-//	                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-//                          SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
-                extern kbuf_queue_t gs_TKSlvQueue;
-                krhino_buf_queue_send(&gs_TKSlvQueue, &msgidA[MSG_EVENT_CHANGE], 1);
-
-            }
-            guc_SwitchOnOff = 1;
+//	            if(guc_SwitchOnOff != 1)
+//	            {
+//	//	                extern kbuf_queue_t gs_RFMngQueue;
+//	//	                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//	//                          SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 0, 0, 0, 0); 
+//	                extern kbuf_queue_t gs_TKSlvQueue;
+//	                krhino_buf_queue_send(&gs_TKSlvQueue, &msgidA[MSG_EVENT_CHANGE], 1);
+//	
+//	            }
+//	            guc_SwitchOnOff = 1;
             
         }
+        if(event & 0x20)               //KEY4
+        {
+            LOG_DEBUG("key 6 right!\n");
+        }
+        if(event & 0x40)               //KEY4
+        {
+	        LOG_DEBUG("key 7 right!\n");
+        }
+        if(event & 0x80)               //KEY4
+        {
+	        LOG_DEBUG("key 8 right!\n");
+        }        
     }        
 }
 
@@ -911,33 +855,16 @@ void SYS_APP_Start()
 #include <aos/kernel.h>
 //#include <network/network.h>
 
-//	#pragma pack(1)
-//	typedef struct {
-//	uint32_t aa[8];
-//	uint8_t * bb;
-//	}test_struct, *ptest_struct;
-//extern IWDG_HandleTypeDef hiwdg;
 int application_start(int argc, char *argv[])
 {
     int count = 0;
-//    extern LPTIM_HandleTypeDef hlptim1;
-//    HAL_LPTIM_Counter_Start_IT(&hlptim1, 1000);  //开启lp定时器，lsi 1s间隔
-//
-//#ifndef DEBUG        
-//    HAL_IWDG_Refresh(&hiwdg); //喂狗
-//#endif
     SYS_APP_Init();
-//    
-//#ifndef DEBUG        
-//    HAL_IWDG_Refresh(&hiwdg); //喂狗
-//#endif
-//    
+
     printf("nano entry here!\r\n");
     SYS_TASKS_Init();
     
 
     while(1) {
-//	        printf("hello world!!! count %d \r\n", count++);
         if(SYS_ERR_OK == HB_TaskLiveReq(count++))
 #ifndef DEBUG        
             HAL_IWDG_Refresh(&hiwdg); //喂狗
@@ -948,7 +875,7 @@ int application_start(int argc, char *argv[])
         aos_msleep(CON_LIVE_SLEEP);
     };
 }
-//	uint8_t guc_CardID[16];
+
 extern uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];
 extern const uint8 sBroadAddrFE[8];
 
@@ -956,8 +883,6 @@ void SYS_MAIN_Task(void * arg)
 {
     TIME time;
                                             //链表消息
-    //uint8 nmsg;                             //数字消息
-    
     krhino_buf_queue_create(&gs_MainQueue, "main_queue",
                          gc_MQbuf, MSG_BUFF_LEN, BUFQUEUE_MSG_MAX);
 
@@ -973,39 +898,20 @@ void SYS_MAIN_Task(void * arg)
     memset(nParentMacAddrTemp, 0xff, 8);
 
     nDeviceMacAddr[0] = 1;
-    HAL_RFID_Init(&gs_MainQueue, ble_name, 14);
+//    HAL_RFID_Init(&gs_MainQueue, ble_name, 14);
     guc_SwitchOnOff = 0;
     guc_SwitchNorErr = 0;
     guc_BuzzerNorErr = 0;
 //	    SYS_GPO_Out(GPO_SWITCH_PWR,true);
     msleep(10);
-    if(SYS_GPI_GetLPort(GPI_Switch))
+    if(SYS_GPI_GetLPort(GPI_LOWLEVEL))
     {
         guc_SwitchOnOff = 1;
     }
-//	    SYS_GPO_Out(GPO_SWITCH_PWR,false);
 #else
     memset(nDeviceMacAddr, 0, 8);
 #endif    
-//    if(SYS_GPI_GetStt(0) & 0x02)
-//    {
-//        g_ucPutcharEn = 0;
-//    }
-//    else
-//    {
-//        if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
-//            g_ucPutcharEn = 1;
-//    }
-//	    char tmp = 0;
-//	char *ABC = &tmp;
-//	
-//	    //asm volatile("DCD ABC\n");
-//	    asm volatile("mov %0, #0\n" : "=r"(ABC));
-//	    asm volatile("add %0,%1, #1\n" : "=r"(ABC), "=r"(ABC));    
- //   asm ("mov ABC,#1");
- //       LDR     R1, =g_crash_steps
- //   LDR     R2, [R1]
-//    ADD     R3, R2, #1
+
     SYS_MAIN_Init();
                                             //申请获取时间消息
     SYS_MSG_Apply(TASK_MAIN_TKID, MSG_CLS_TM);//*初始化监控机制
@@ -1013,14 +919,11 @@ void SYS_MAIN_Task(void * arg)
     SYS_MSG_ApplyExt(TASK_MAIN_TKID, MSG_CLS_UART, UART_CHANNEL_DEBUG);
 //    printf("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
     LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
-//    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 //	    SYS_IFLS_Test();
     uint8_t tmp[10] = {88,1,4,0,0,0,0,0,0,0};
- //   GD_Para_RW(F251_PADDR, tmp, 10, true);
     memset(tmp,0,10);
     GD_Para_RW(F251_PADDR, tmp, 10, false);
-//	    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
 
     for(;;)
     {   
@@ -1029,9 +932,6 @@ void SYS_MAIN_Task(void * arg)
         switch(g_MQ_buf_recv[0])
         {
             case MSG_SEC:
-                //SYS_WDT_Feed(0xFF);          //*喂狗
-//	                MAIN_SecProc();
-//	                SYS_ReadDateTime(&time);
                 extern uint32_t g_timer_tick;
                 g_timer_tick++;
                 LOG_DEBUG("second ! %d\n", g_timer_tick);
@@ -1039,18 +939,11 @@ void SYS_MAIN_Task(void * arg)
                 break;
                 
             case MSG_MIN:
-//	                HB_TaskLiveReq();           //*监控其他进程
-//                gs_SysVar.mLPstt |= HLV_LPTASK_SMSG_MAIN;
 
                 LOG_DEBUG("%02d-%02d-%02d %02d:%02d:%02d %02d!\n",((TIME *)GetTime())->year, 
                     ((TIME *)GetTime())->month, ((TIME *)GetTime())->day, 
                     ((TIME *)GetTime())->hour, ((TIME *)GetTime())->min, 
                     ((TIME *)GetTime())->sec, ((TIME *)GetTime())->week);
-                
-//                HAL_BLE_Init_Delayed_Action(NULL);
-//                gs_SysVar.mLPstt &= ~HLV_LPTASK_SMSG_MAIN;
-                
-//	                MAIN_MinProc();
                 break;
                 
             case MSG_LIFEVT:                //按键下降沿
@@ -1092,25 +985,6 @@ void SYS_MAIN_Task(void * arg)
             case MSG_LIVE:                  //回复保活消息
                 HB_RetLive(TASK_MAIN_TKID);
                 break;
-            case MSG_MAIN_BLE_CHK:
-                
-//                ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
-//                g_ucPutcharEn = 0;
-//
-//                HAL_BLE_Init(&gs_MainQueue, ble_name, 14);
-//                if(SYS_GPI_GetStt(0) & 0x02)
-//                {
-//                    g_ucPutcharEn = 0;
-//                }
-//                else
-//                {
-//#ifndef DEBUG
-//                    if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
-//#endif
-//                        g_ucPutcharEn = 1;
-//                }
-            
-                break;
             case MSG_PST_VAR:
 //                PST_UpdateVar(); 
                 LOG_DEBUG("******MSG_PST_VAR******** !!!!\n");
@@ -1137,28 +1011,6 @@ const KTaskConst gs_TkMAIN =
     "main",
     &gs_MainQueue,
 };
-
-
-
-//	int main(void)
-//	{
-//	    //PIOR = 0x05U;
-//	    krhino_init();
-//		
-//	    bsp_init();
-//	    
-//	    extern void tick_init(uint32_t ticks_per_sec);
-//	    tick_init(RHINO_CONFIG_TICKS_PER_SECOND);
-//	    
-//		
-//	    
-//	    SYS_TASKS_Init();
-//	    
-//	    krhino_start();
-//	    
-//	    return 0;
-//	}
-
 
 
 #if (RHINO_CONFIG_USER_HOOK > 0)

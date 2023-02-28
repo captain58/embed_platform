@@ -989,72 +989,72 @@ void SYS_SLV_Task(void)
             {
                 stt = get_status();
 #ifndef MASTER_NODE    
-                if(stt > 0)
-                {
-                    if(guc_SwitchOnOff > 0)
-                    {
-                        if(!guc_SwitchNorErr)
-                        {
-                            for(g_i = 0; g_i < 1; g_i++)
-                            {
-                                int32_t CardLen = HAL_RFID_ReadCardID(nDeviceCardId, guc_CardLen);
-                                if(CardLen > 0 /*&& CardLen != guc_CardLen*/)
-                                {
-                                    guc_CardLen = CardLen;
-                                    extern kbuf_queue_t gs_RFMngQueue;
-                                    krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-                                    break;
-                                    
-                                }
-                                msleep(10);
-                            }
-                            HAL_RFID_Sleep();
-                            g_i = 0x11;
-
-                        }
-                    }
-                    if(guc_CardLen > 0 && guc_SwitchOnOff > 0)
-                    {
-                        if(guc_BuzzerNorErr != 1)
-                        {
-                            SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
-                            guc_BuzzerNorErr = 1;
-                        }
-                        if(!guc_SwitchNorErr)
-                        {
-                            extern kbuf_queue_t gs_RFMngQueue;
-                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-                        }                        
-                        guc_SwitchNorErr = 1;
-                        
-                        SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 2, 0, 0, 0); 
-                        
-                    }
-                    else
-                    {
-
-                        if(guc_SwitchNorErr)
-                        {
-                            extern kbuf_queue_t gs_RFMngQueue;
-                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-                        }                        
-                        if(/*guc_CardLen <= 0 && */guc_SwitchOnOff == 0)
-                        {
-                            if(guc_SwitchNorErr)
-                            {
-                                extern kbuf_queue_t gs_RFMngQueue;
-                                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-
-                                guc_CardLen = 0;
-                            }
-
-                        
-                            guc_BuzzerNorErr = 0;
-                            guc_SwitchNorErr = 0;
-                            SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 3, 0, 0, 0); 
-                        }
-                    }
-                }
+//                if(stt > 0)
+//                {
+//                    if(guc_SwitchOnOff > 0)
+//                    {
+//                        if(!guc_SwitchNorErr)
+//                        {
+//                            for(g_i = 0; g_i < 1; g_i++)
+//                            {
+//                                int32_t CardLen = HAL_RFID_ReadCardID(nDeviceCardId, guc_CardLen);
+//                                if(CardLen > 0 /*&& CardLen != guc_CardLen*/)
+//                                {
+//                                    guc_CardLen = CardLen;
+//                                    extern kbuf_queue_t gs_RFMngQueue;
+//                                    krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//                                    break;
+//                                    
+//                                }
+//                                msleep(10);
+//                            }
+//                            HAL_RFID_Sleep();
+//                            g_i = 0x11;
+//
+//                        }
+//                    }
+//                    if(guc_CardLen > 0 && guc_SwitchOnOff > 0)
+//                    {
+//                        if(guc_BuzzerNorErr != 1)
+//                        {
+//                            SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
+//                            guc_BuzzerNorErr = 1;
+//                        }
+//                        if(!guc_SwitchNorErr)
+//                        {
+//                            extern kbuf_queue_t gs_RFMngQueue;
+//                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//                        }                        
+//                        guc_SwitchNorErr = 1;
+//                        
+//                        SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 2, 0, 0, 0); 
+//                        
+//                    }
+//                    else
+//                    {
+//
+//                        if(guc_SwitchNorErr)
+//                        {
+//                            extern kbuf_queue_t gs_RFMngQueue;
+//                            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//                        }                        
+//                        if(/*guc_CardLen <= 0 && */guc_SwitchOnOff == 0)
+//                        {
+//                            if(guc_SwitchNorErr)
+//                            {
+//                                extern kbuf_queue_t gs_RFMngQueue;
+//                                krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+//
+//                                guc_CardLen = 0;
+//                            }
+//
+//                        
+//                            guc_BuzzerNorErr = 0;
+//                            guc_SwitchNorErr = 0;
+//                            SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 3, 0, 0, 0); 
+//                        }
+//                    }
+//                }
 #endif                  
                 break;
             }

@@ -30,14 +30,14 @@
 
 
 #ifdef EXT_LED                          //LED端口定义
-    const COMPORT gs_LedRun       = {GPIOB, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedRun       = {GPIOB, 2,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
-    const COMPORT gs_LedBat       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-    const COMPORT gs_LedCard       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-
-//	    const COMPORT gs_LedSwitch  = {GPIOB, 14,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-    const COMPORT gs_BuzCard       = {GPIOB, 13,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-    const COMPORT gs_LedNull       = {GPIOB, 4,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedMatch       = {GPIOB, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+//	    const COMPORT gs_LedCard       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+//	
+//	//	    const COMPORT gs_LedSwitch  = {GPIOB, 14,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+//	    const COMPORT gs_BuzCard       = {GPIOB, 13,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+	const COMPORT gs_LedNull       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
     
     
@@ -48,10 +48,10 @@
     {
         {(COMPORT*)&gs_LedRun,     0, 1, 1},     //true:低电平点亮
 //	        {(COMPORT*)&gs_LedSwitch,     1, 0, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedBat,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedCard,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_BuzCard,     0, 0, 0},
-        {(COMPORT*)&gs_LedNull,     0, 1, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedMatch,     0, 1, 1},     //true:低电平点亮
+//	        {(COMPORT*)&gs_LedCard,     0, 1, 1},     //true:低电平点亮
+//	        {(COMPORT*)&gs_BuzCard,     0, 0, 0},
+	        {(COMPORT*)&gs_LedNull,     0, 1, 1},     //true:低电平点亮
         
     };
 
@@ -68,10 +68,10 @@
 //	}LedNo;
 typedef enum {
     GPIO_LED_RUN,
-    GPIO_LED_BAT,
+    GPIO_LED_MATCH,
     
-    GPIO_LED_CARD,
-    GPIO_BUZ_CARD,
+//	    GPIO_LED_CARD,
+//	    GPIO_BUZ_CARD,
     GPIO_LED_NULL,
 //	GPIO_LED_SUB1_NORM,    
 //	GPIO_LED_SUB1_ERR,   	
@@ -82,6 +82,7 @@ typedef enum {
 } LedNo;
 
 #define SYS_LED_RUN GPIO_LED_RUN
+#define SYS_LED_MATCH GPIO_LED_MATCH
 
 /******************************************************************************
 **GPO输出端口枚举定义
@@ -107,7 +108,7 @@ typedef enum
 
 #ifdef EXT_GPO                      //GPO的端口定义
 
-    const COMPORT gs_GpoAdcCtl      = {GPIOB, 3,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_GpoAdcCtl      = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_SwitchVccCtl       = {GPIOB, 11,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
 //    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
@@ -148,7 +149,7 @@ typedef enum
 **慢速输入口配置
 ******************************************************************************/
 //#define LGPI_KEY_NUM    5               //数值小于 LGPI_PORT_NUM
-#define LGPI_KEY_NUM    5
+#define LGPI_KEY_NUM    8
 
 
 #define SYS_LGPI_GATE    2               //按键扫描门限
@@ -167,9 +168,10 @@ typedef enum
     GPI_KEY2,
     GPI_DIO1,
     GPI_DIO2,
-    GPI_Switch,
-    GPI_CARD_SDA,
-    GPI_ESAM_SDA,    
+    GPI_LOWLEVEL,
+    GPI_LOWMIDDLELEVEL,
+    GPI_HIGHMIDDLELEVEL,  
+    GPI_HIGHLEVEL,
 }GPIENUM;
 
 
@@ -185,7 +187,10 @@ typedef enum
     const COMPORT gs_GpiKey2      = {GPIOA, 0,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key2
     const COMPORT gs_GpiDIO1      = {GPIOB, 0,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
     const COMPORT gs_GpiDIO2      = {GPIOA, 6,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
-    const COMPORT gs_GpiSwitch      = {GPIOB, 14,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiLowLevel  = {GPIOA, 15,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiLowMiddleLevel  = {GPIOA, 11,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiHighMiddleLevel  = {GPIOB, 3,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiHighWaterLevel  = {GPIOB, 4,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
 
 //    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
 //    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
@@ -199,10 +204,10 @@ typedef enum
         {(COMPORT*)&gs_GpiKey2,       1, 0, 0},      //key2
         {(COMPORT*)&gs_GpiDIO1,    1, 0, 0},      //key3     
         {(COMPORT*)&gs_GpiDIO2,      1, 0, 0},      //key1
-        {(COMPORT*)&gs_GpiSwitch,      1, 0, 0},      //key1
-//        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
-//        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu卡sda脚
-//        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda脚
+        {(COMPORT*)&gs_GpiLowLevel,      1, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiLowMiddleLevel,      1, 0, 0},      //key2
+        {(COMPORT*)&gs_GpiHighMiddleLevel,    1, 0, 0},      //cpu卡sda脚
+        {(COMPORT*)&gs_GpiHighWaterLevel,    1, 0, 0},      //Esam sda脚
 //	        {0x3, 1,  1, (IOCON_FUNC0 ),    0},      //
     };
 
@@ -274,8 +279,8 @@ typedef enum
     const COMPORT gs_RFSpiMOSI = {GPIOA, 7,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    0};
     const COMPORT gs_RFSpiSCK  = {GPIOA, 5,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    0};
     const COMPORT gs_RFSpiCS   = {GPIOA, 4,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    0};
-    const COMPORT gs_RFSpiPWR  = {GPIOB, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    0};
-    const COMPORT gs_RFSpiWP   = {GPIOB, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    0};
+    const COMPORT gs_RFSpiPWR  = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    0};
+    const COMPORT gs_RFSpiWP   = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    0};
     
     const SPIIO_PORTS gs_RFSpiPort = 
     {

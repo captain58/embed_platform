@@ -94,40 +94,6 @@ void Farp_PreInit(void)
     memset((uint8*)&gs_FarpVar, 0, sizeof(FarpVar));
     memset((uint8_t *)&gs_FtpPara,0,sizeof(S_FTPPARA));
     
-//    LoadSystemParam(PARA_TYPE_FARP);
-
-//    gui_FarpWmRcSec = 10;                   //初始化完成10s后进行远程连接
-//    gui_FarpSerRcSec = 10;
-//    //gui_FarpEthRcSec = 10;
-//    
-//    guc_FarpWmHKUnRpyCnt = 0;               //心跳无回复次数计数器清零
-//    //guc_FarpEthHKUnRpyCnt = 0;
-//    
-//    gui_FarpWmSafeCnt = 0;
-//    gui_FarpSerSafeCnt = 0;
-//    //gui_FarpEthSafeCnt = 0;
-//    
-//    guc_FarpWmRcCnt = 0;                   //联网失败后重连次数清零
-//    guc_FarpSerRcCnt = 0;
-//    //guc_FarpEthRcCnt = 0;
-//    
-//    gui_FarpHdRstCnt = 0;                   //模块复位计数器清零
-//    guc_FarpNVHours = 0;                    //无IP数据时间清零
-//    guc_FarpPstTryCnt = 0;                   //被动激活模式重拨次数计数器清零
-//    
-//    gui_FarpBkTmCnt = 0;                    //被动激活无数据休眠计数器清零
-//    guc_FarpWmRcFailCnt = 0;
-//    guc_FarpWmRcFailNorFtpCnt = 0;
-//    //guc_FarpEthRcFailCnt = 0;
-//    
-//    gui_FarpServerNoDataCnt = 0;
-//    guc_FarpFromClnCloseCnt = 0;
-//    
-//    guc_FarpLoginConfirmErr = 0;
-//    gul_FarpLoginDeadTime = 0xFFFFFFFF;
-//    
-//    gs_FarpVar.wmsv = 0x88000000;
-    //gs_SysVar.mLPstt |= HLV_LPTASK_MDCK;
 
 }
 /************************************************************************

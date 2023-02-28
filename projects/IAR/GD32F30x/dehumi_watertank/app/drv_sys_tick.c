@@ -1888,16 +1888,16 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//∑¢ÀÕ÷ÿ∆Ùπ„≤•√¸
             stt |= 1<<CON_STT_SWITCH_OFFSET;
             pkt->head.apdu.data[m++] = guc_SwitchNorErr;//;guc_SwitchOnOff;//
             
-            TRFIDModemState strfstt = HAL_RFID_Status();
+            //TRFIDModemState strfstt = (TRFIDModemState)0;//HAL_RFID_Status();
             stt |= 1<<CON_STT_CARD_OFFSET;
-            pkt->head.apdu.data[m++] = strfstt.bit.linked;
+            pkt->head.apdu.data[m++] = 0;//strfstt.bit.linked;
 
-            if(strfstt.bit.linked)
-            {
-                stt |= 1<<CON_STT_CARD_ID_OFFSET;
-                pkt->head.apdu.data[m++] = strfstt.bit.linked;
-                m += HAL_RFID_GetCardID(pkt->head.apdu.data  + m);
-            }
+//            if(strfstt.bit.linked)
+//            {
+//                stt |= 1<<CON_STT_CARD_ID_OFFSET;
+//                pkt->head.apdu.data[m++] = strfstt.bit.linked;
+//                m += 0;//HAL_RFID_GetCardID(pkt->head.apdu.data  + m);
+//            }
             memcpy(pkt->head.apdu.data, &stt, 4);
             pkt->head.apdu.len = m;
 
