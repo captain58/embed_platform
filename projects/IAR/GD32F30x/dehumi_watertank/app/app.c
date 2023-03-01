@@ -355,7 +355,8 @@ void SYS_MAIN_Init(void)
     GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, false);
 
 
-    SYS_Dev_OptBlinkSet(GPIO_LED_RUN, 1, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
+    SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
+
 
     LoadSystemParam(PARA_TYPE_FARP);
 }
@@ -452,9 +453,9 @@ void KeyProc(uint8 key)
 #ifdef MASTER_NODE            
 //	            Cltor_init();
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
-            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
-//            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
-            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 3, 0, 0, 0);
+//            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
+////            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
+//            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 3, 0, 0, 0);
 #else
             guc_netStat = NODE_STATUS_OUT;
 #endif
@@ -502,14 +503,16 @@ void KeyProc(uint8 key)
 	        LOG_DEBUG("key 1 right!\n");
 
             guc_AllowLogin = 0;
-
+#ifdef MASTER_NODE
+            //SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
+#else
             SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0);
             if(NODE_STATUS_LOGIN == guc_netStat)
             {
                 SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
             }
             SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 0, 100, 100, 0);
-
+#endif
 
         }
         

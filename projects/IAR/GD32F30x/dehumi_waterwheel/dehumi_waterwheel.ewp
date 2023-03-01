@@ -202,6 +202,7 @@
           <state>_NOBOOT_</state>
           <state>DEBUG</state>
           <state>GD32F30X_HD</state>
+          <state>MASTER_NODE</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -665,7 +666,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>dehumi_watertank.bin</state>
+          <state>dehumi_waterwheel.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

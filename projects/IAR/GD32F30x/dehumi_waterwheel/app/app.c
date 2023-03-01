@@ -503,12 +503,12 @@ void KeyProc(uint8 key)
 
             guc_AllowLogin = 0;
 
-            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0);
-            if(NODE_STATUS_LOGIN == guc_netStat)
+            //SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0);
+            //if(NODE_STATUS_LOGIN == guc_netStat)
             {
                 SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //‘À––µ∆√Î…¡(overlay last configuration)
             }
-            SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 0, 100, 100, 0);
+            //SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 0, 100, 100, 0);
 
 
         }
