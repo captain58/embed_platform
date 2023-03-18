@@ -135,6 +135,8 @@ uint8 HAL_RFID_Reset(void)
 
 int HAL_RFID_Sleep(void)
 {
+    if(DevBleModem == NULL || DevBleModem->drive == NULL || DevBleModem->stt.bit.typeChecked != 1)
+        return SYS_ERR_FT;  
     DevBleModem->drive->sleep();
     return 0;
 }
