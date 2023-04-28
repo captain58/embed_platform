@@ -182,16 +182,11 @@
 #define MSG_EVENT_CHANGE    111
 #define MSG_ENTER_SLEEP     112
 #define MSG_WAKE_UP         113  
-//	#define MSG_FTP_OPEN            110
-//	#define MSG_FTP_OPEN_SUCC       111
-//	#define MSG_FTP_OPEN_FAILED     112
-//	#define MSG_FTP_GET             113
-//	#define MSG_FTP_GET_SUCC        114
-//	#define MSG_FTP_GET_FAILED      115
-//	#define MSG_FTP_GET_FNS         116
-//	#define MSG_FTP_REPORT_RESULT   117
-//	#define MSG_FTP_CLOSE           118
-//	#define MSG_FTP_PROJ_FAILED         119
+
+#define MSG_WT_LEVEL_CHANGE 115
+#define MSG_WT_SUB_LEVEL_CHANGE 116
+
+
 
 #ifndef EXT_MSGID
 #define EXT_MSGID extern 

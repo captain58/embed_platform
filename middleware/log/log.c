@@ -53,7 +53,7 @@ unsigned char guc_LogEn = 1;
 #endif
 
 #endif
-
+extern const uint32_t gul_UsrFuncVer;
 /*******************************************************************************
  * @function_name:  LogDumpHex
  * @function_file:  main.c
@@ -214,7 +214,11 @@ unsigned char LogPrintf(unsigned char ucLevel, const char *strFormat, ...)
     }
     
     sys_time_t ul_TkTick = krhino_sys_tick_get();
-	sprintf((char *)gucp_LogBuf, "%ld.%02ld: ", (unsigned long)ul_TkTick/RHINO_CONFIG_TICKS_PER_SECOND, (unsigned long)ul_TkTick%RHINO_CONFIG_TICKS_PER_SECOND);
+#ifdef MASTER_NODE    
+	sprintf((char *)gucp_LogBuf, "%ld.%02ld:[M%d] ", (unsigned long)ul_TkTick/RHINO_CONFIG_TICKS_PER_SECOND, (unsigned long)ul_TkTick%RHINO_CONFIG_TICKS_PER_SECOND, gul_UsrFuncVer%0x100);
+#else
+	sprintf((char *)gucp_LogBuf, "%ld.%02ld:[S%d] ", (unsigned long)ul_TkTick/RHINO_CONFIG_TICKS_PER_SECOND, (unsigned long)ul_TkTick%RHINO_CONFIG_TICKS_PER_SECOND, gul_UsrFuncVer%0x100);
+#endif
 #endif	
 	va_start(vlist, strFormat);
 	vsnprintf((char *)gucp_LogBuf + strlen((char const *)gucp_LogBuf), 

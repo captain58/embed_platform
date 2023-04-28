@@ -82,6 +82,8 @@ void SYS_GPO_Init(void)
         {
             HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, false);
         }
+//        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, true);
+//        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, false);
     }
 #ifndef __NO_SYS__
     aos_sem_new(&gs_GPORes, 1);

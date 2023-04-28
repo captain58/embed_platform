@@ -3145,7 +3145,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>GD32F303xC	GD GD32F303xC</state>
+          <state>GD32F303xB	GD GD32F303xB</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -3205,7 +3205,7 @@
         </option>
         <option>
           <name>GFPUDeviceSlave</name>
-          <state>GD32F303xC	GD GD32F303xC</state>
+          <state>GD32F303xB	GD GD32F303xB</state>
         </option>
         <option>
           <name>FPU2</name>
@@ -3717,11 +3717,11 @@
         </option>
         <option>
           <name>OCOutputOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>dehumi_watertank.bin</state>
+          <state>dehumi_waterwheel-04.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -3840,7 +3840,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$PROJ_DIR$\icf\GD32F303xC.icf</state>
+          <state>$PROJ_DIR$\icf\GD32F303xB.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -4549,14 +4549,6 @@
         <name>$PROJ_DIR$\..\..\..\..\kernel\rhino\k_workqueue.c</name>
       </file>
     </group>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx_cube\aos\aos.c</name>
-      <excluded>
-        <configuration>debug</configuration>
-        <configuration>debug_slave</configuration>
-        <configuration>debug_wheel</configuration>
-      </excluded>
-    </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\aos\aos.c</name>
     </file>

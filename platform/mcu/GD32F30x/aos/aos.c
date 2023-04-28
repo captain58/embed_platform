@@ -13,7 +13,7 @@
 #ifdef TINY_ENGINE
 #define AOS_START_STACK 1536 + 1024*14
 #else
-#define AOS_START_STACK 512
+#define AOS_START_STACK 128
 #endif
 
 static ktask_t demo_task_obj;

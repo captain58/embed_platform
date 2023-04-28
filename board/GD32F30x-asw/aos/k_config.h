@@ -34,7 +34,7 @@
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
-#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         1024
 #endif
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
@@ -65,7 +65,7 @@
 #define RHINO_CONFIG_WORKQUEUE               1
 #endif
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
-#define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    768
+#define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    192
 #endif
 
 /* kernel mm_region conf */
@@ -80,7 +80,7 @@
 
 /*must reserve enough stack size for timer cb will consume*/
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
-#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   600
+#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   512
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
@@ -96,7 +96,7 @@
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 #ifndef RHINO_CONFIG_K_DYN_TASK_STACK
-#define RHINO_CONFIG_K_DYN_TASK_STACK        256
+#define RHINO_CONFIG_K_DYN_TASK_STACK        128
 #endif
 #ifndef RHINO_CONFIG_K_DYN_MEM_TASK_PRI
 #define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      6

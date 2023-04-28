@@ -166,11 +166,22 @@
 //	
 //	#define F239_PADDR          184000       //电能表/交采配置 密码  132*24 = 3168
 
+#define CON_WATER_TANK_STT_ERR         0
+#define CON_WATER_TANK_STT_LOW         1
+#define CON_WATER_TANK_STT_LOW_MID     2
+#define CON_WATER_TANK_STT_HIGH_MID    3
+#define CON_WATER_TANK_STT_HIGH        4
+#define CON_WATER_TANK_STT_HIGH_MORE   5
 
 
+#define CON_STT_SWITCH_OFFSET 0
+#define CON_STT_CARD_OFFSET 1
+#define CON_STT_CARD_ID_OFFSET 2
+#define CON_STT_WATER_LEVEL 3
 
-
-
+#define CON_MOTOR_STT_IDEL      0
+#define CON_MOTOR_STT_PUMP      1
+#define CON_MOTOR_STT_DRAIN     2
 
 
 

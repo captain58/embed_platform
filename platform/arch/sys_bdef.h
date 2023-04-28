@@ -477,6 +477,26 @@ typedef union                            //32位共用体
 #define UN16    UNINT16
 #define UN32    UNINT32
 
+
+#define CON_KEY1_BIT BIT0
+#define CON_KEY2_BIT BIT1
+#define CON_KEY3_BIT BIT2
+#define CON_KEY4_BIT BIT3
+#define CON_KEY5_BIT BIT4
+#define CON_KEY6_BIT BIT5
+#define CON_KEY7_BIT BIT6
+#define CON_KEY8_BIT BIT7
+#define CON_KEY9_BIT BIT8
+#define CON_KEY10_BIT BIT9
+#define CON_KEY11_BIT BIT10
+#define CON_KEY12_BIT BIT11
+#define CON_KEY13_BIT BIT12
+#define CON_KEY14_BIT BIT13
+#define CON_KEY15_BIT BIT14
+#define CON_KEY16_BIT BIT15
+
+
+
 #endif
 
 

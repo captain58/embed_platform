@@ -30,7 +30,7 @@
 
 
 #ifdef EXT_LED                          //LED端口定义
-    const COMPORT gs_LedRun       = {GPIOB, 2,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_LedRun       = {GPIOA, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
     const COMPORT gs_LedMatch       = {GPIOB, 1,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 //	    const COMPORT gs_LedCard       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
@@ -55,7 +55,7 @@
         
     };
 
-    #define LED_NUM 5// (sizeof(gs_LedPort) / sizeof(GPO_PORTS))
+    #define LED_NUM 5//(sizeof(gs_LedPort) / sizeof(GPO_PORTS))
 
 #endif                                      //#ifdef EXT_DEV_LED
 
@@ -82,15 +82,15 @@ typedef enum {
 } LedNo;
 
 #define SYS_LED_RUN GPIO_LED_RUN
-#define SYS_LED_MATCH GPIO_LED_MATCH
+#define SYS_LED_MATCH GPIO_LED_RUN
 
 /******************************************************************************
 **GPO输出端口枚举定义
 ******************************************************************************/
 typedef enum
 {
-    GPO_ADC_ONOFF,
-    GPO_SWITCH_PWR,
+    GPO_PUMP_WATER,
+    GPO_DRAIN_WATER,
     GPO_MODEM_PWR,
     GPO_MODEM_ONOFF,
     GPO_VALVE_SLEEP,
@@ -108,8 +108,10 @@ typedef enum
 
 #ifdef EXT_GPO                      //GPO的端口定义
 
-    const COMPORT gs_GpoAdcCtl      = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-    const COMPORT gs_SwitchVccCtl       = {GPIOB, 11,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+//	    const COMPORT gs_GpoAdcCtl      = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+//	    const COMPORT gs_SwitchVccCtl       = {GPIOB, 11,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_GpoPumpWater      = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_GpoDrainWater     = {GPIOA, 9,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
 //    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
 //    const COMPORT gs_GpoModemOnOff  = {12,  5,  1, (IOCON_FUNC0 ),    1};
@@ -126,8 +128,8 @@ typedef enum
     ******************************************************************************/
     const GPO_PORTS gs_GpoPort[] = 
     {
-        {(COMPORT*)&gs_GpoAdcCtl,       false, false},      //adc采样开关
-        {(COMPORT*)&gs_SwitchVccCtl,       false, false}, 
+        {(COMPORT*)&gs_GpoPumpWater,       false, false},      //抽水
+        {(COMPORT*)&gs_GpoDrainWater,       false, false}, //排水
 //        {(COMPORT*)&gs_GpoModemPwr,     false, false},      //gprs电源脚
 //        {(COMPORT*)&gs_GpoModemOnOff,   false, false},      //gprs Power Key脚
 //        {(COMPORT*)&gs_GpoValveSleep,   false, false},      //阀门芯片休眠 低电平休眠
@@ -172,6 +174,12 @@ typedef enum
     GPI_LOWMIDDLELEVEL,
     GPI_HIGHMIDDLELEVEL,  
     GPI_HIGHLEVEL,
+    GPI_SET,
+    GPI_REDUCE,
+    GPI_ADD,
+    GPI_AUTO,
+    GPI_ONOFF,
+    
 }GPIENUM;
 
 
@@ -191,6 +199,11 @@ typedef enum
     const COMPORT gs_GpiLowMiddleLevel  = {GPIOA, 11,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
     const COMPORT gs_GpiHighMiddleLevel  = {GPIOB, 3,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
     const COMPORT gs_GpiHighWaterLevel  = {GPIOB, 4,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiSet         = {GPIOB, 5,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key1
+    const COMPORT gs_GpiReduce      = {GPIOB, 6,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key2
+    const COMPORT gs_GpiAdd         = {GPIOB, 7,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
+    const COMPORT gs_GpiDAuto       = {GPIOB, 8,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiOnOff       = {GPIOB, 9,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
 
 //    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
 //    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
@@ -208,6 +221,12 @@ typedef enum
         {(COMPORT*)&gs_GpiLowMiddleLevel,      1, 0, 0},      //key2
         {(COMPORT*)&gs_GpiHighMiddleLevel,    1, 0, 0},      //cpu卡sda脚
         {(COMPORT*)&gs_GpiHighWaterLevel,    1, 0, 0},      //Esam sda脚
+        {(COMPORT*)&gs_GpiSet,       1, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiReduce,       1, 0, 0},      //key2
+        {(COMPORT*)&gs_GpiAdd,    1, 0, 0},      //key3     
+        {(COMPORT*)&gs_GpiDAuto,      1, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiOnOff,      1, 0, 0},      //key1
+        
 //	        {0x3, 1,  1, (IOCON_FUNC0 ),    0},      //
     };
 

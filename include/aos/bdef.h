@@ -243,7 +243,86 @@ typedef union{
 ******************************************************************************/
 #define LBIT(X)      ((uint32)1 << X)
 
- 
+
+#ifndef		BIT0
+	#define BIT0	0x00000001
+#endif
+#ifndef		BIT1
+	#define BIT1	0x00000002
+#endif
+#ifndef		BIT2
+	#define BIT2	0x00000004
+#endif
+#ifndef		BIT3
+	#define BIT3	0x00000008
+#endif
+#ifndef		BIT4
+	#define BIT4	0x00000010
+#endif
+#ifndef		BIT5
+	#define BIT5	0x00000020
+#endif
+#ifndef		BIT6
+	#define BIT6	0x00000040
+#endif
+#ifndef		BIT7
+	#define BIT7	0x00000080
+#endif
+#ifndef		BIT8
+	#define BIT8	0x00000100
+#endif
+#ifndef		BIT9
+	#define BIT9	0x00000200
+#endif
+#ifndef		BIT10
+	#define BIT10	0x00000400
+#endif
+#define BIT11	0x00000800
+#define BIT12	0x00001000
+#define BIT13	0x00002000
+#define BIT14	0x00004000
+#define BIT15	0x00008000
+#define BIT16	0x00010000
+#define BIT17	0x00020000
+#define BIT18	0x00040000
+#define BIT19	0x00080000
+#define BIT20	0x00100000
+#define BIT21	0x00200000
+#define BIT22	0x00400000
+#define BIT23	0x00800000
+#define BIT24	0x01000000
+#define BIT25	0x02000000
+#define BIT26	0x04000000
+#define BIT27	0x08000000
+#define BIT28	0x10000000
+#define BIT29	0x20000000
+#define BIT30	0x40000000
+#define BIT31	0x80000000
+
+#define UN8     UNINT8
+#define UN16    UNINT16
+#define UN32    UNINT32
+
+
+#define CON_KEY1_BIT BIT0
+#define CON_KEY2_BIT BIT1
+#define CON_KEY3_BIT BIT2
+#define CON_KEY4_BIT BIT3
+#define CON_KEY5_BIT BIT4
+#define CON_KEY6_BIT BIT5
+#define CON_KEY7_BIT BIT6
+#define CON_KEY8_BIT BIT7
+#define CON_KEY9_BIT BIT8
+#define CON_KEY10_BIT BIT9
+#define CON_KEY11_BIT BIT10
+#define CON_KEY12_BIT BIT11
+#define CON_KEY13_BIT BIT12
+#define CON_KEY14_BIT BIT13
+#define CON_KEY15_BIT BIT14
+#define CON_KEY16_BIT BIT15 
+
+
+
 #ifdef __CC_ARM
 #define INLINE  __inline
 #else

@@ -51,13 +51,9 @@ tick_t krhino_ms_to_ticks(sys_time_t ms)
 sys_time_t krhino_ticks_to_ms(tick_t ticks)
 {
     uint32_t   padding;
-    sys_time_t time;
 
-    padding = RHINO_CONFIG_TICKS_PER_SECOND / 1000;
-    padding = (padding > 0) ? (padding - 1) : 0;
+    padding = 1000 / RHINO_CONFIG_TICKS_PER_SECOND;
 
-    time = ((ticks + padding) * 1000) / RHINO_CONFIG_TICKS_PER_SECOND;
-
-    return time;
+    return ticks * padding;
 }
 

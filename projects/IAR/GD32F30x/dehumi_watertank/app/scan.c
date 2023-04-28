@@ -942,7 +942,8 @@ uint8_t get_status(void)
     return ret;
 
 }
-    volatile int g_i=0;
+
+//	ST_WATER_STT gst_water_level;
 
 /*******************************************************************************
  * @function_name:  ES_SLV_Task

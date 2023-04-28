@@ -148,6 +148,26 @@ typedef struct
 
 EXT_MAIN SysVar gs_SysVar;
 
+#define CON_SENSOR_FILTER 3
+typedef struct _ST_WATER_SENSOR_
+{
+    uint8_t low;
+    uint8_t low_mid;
+    uint8_t high_mid;
+    uint8_t high;
+}ST_WATER_SENSOR;
+
+
+typedef struct _ST_WATER_STT_
+{
+    uint8_t motor_stt;
+    uint8_t cur_stt;
+    uint8_t last_stt;
+    uint8_t ready_stt[CON_SENSOR_FILTER];
+    uint16_t count;
+    uint32_t tick;
+    ST_WATER_SENSOR st_sensor;
+}ST_WATER_STT;
 
 
 
@@ -159,7 +179,6 @@ typedef struct
 {
     uint32 mins;
     uint8  YMDhms[6];
-    
 }S_SysTime;     //12×Ö½Ú
 
 
