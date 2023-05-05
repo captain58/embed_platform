@@ -4886,15 +4886,6 @@
         <name>$PROJ_DIR$\..\..\..\..\middleware\log\log.c</name>
       </file>
     </group>
-    <group>
-      <name>ulog</name>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\..\middleware\uagent\ulog\log.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\..\middleware\uagent\ulog\ulog_init.c</name>
-      </file>
-    </group>
   </group>
   <group>
     <name>sys</name>
@@ -4935,15 +4926,6 @@
       <name>kernel_init</name>
       <file>
         <name>$PROJ_DIR$\..\..\..\..\kernel\init\aos_init.c</name>
-      </file>
-    </group>
-    <group>
-      <name>osal_aos</name>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\..\osal\aos\kv.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\..\..\osal\aos\vfs.c</name>
       </file>
     </group>
     <group>

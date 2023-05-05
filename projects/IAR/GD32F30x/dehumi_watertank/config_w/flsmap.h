@@ -88,7 +88,7 @@ __root const S_FILEBLOCKS gss_FileBlocks[] =
     //起始文件号, 同类项, 最小数据块数
     
     {DB_CODE,         0, 54, TDB_MODE_RW},    //远程升级
-    {DB_UPDATE,         0, 48, TDB_MODE_RW},    //远程升级
+    //{DB_UPDATE,         0, 48, TDB_MODE_RW},    //远程升级
 //	    {DB_FACTORY,        0, 2, TDB_MODE_RW},     //出厂配置    
     
     {DB_PARA,           0, 2,  TDB_MODE_RW},    //参数
