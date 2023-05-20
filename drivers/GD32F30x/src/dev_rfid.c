@@ -61,7 +61,7 @@ static TRFIDModem       gs_stBleModem;
  **********************************************************/
 const TRFIDModemDrive gs_BleMODMDrvIntf[] =
 {
-#if Modem_ICM522_EN > 0
+//#if Modem_ICM522_EN > 0
     {
         icm522_modemcheck,
     
@@ -72,7 +72,7 @@ const TRFIDModemDrive gs_BleMODMDrvIntf[] =
         icm522_getpagex,
         icm522_sleep,
     },
-#endif 
+//#endif 
     
     
 
@@ -84,6 +84,7 @@ kbuf_queue_t * gst_bleQueue;
 TRFIDModemState HAL_RFID_Status(void)
 {
     return DevBleModem->stt;
+
 }
 /************************************************************************
  * @function: HAL_RFID_ShutDown
@@ -98,11 +99,13 @@ TRFIDModemState HAL_RFID_Status(void)
 
 uint8 HAL_RFID_ShutDown(void)
 {
+#if Modem_ICM522_EN > 0  
     if(DevBleModem == NULL || DevBleModem->drive == NULL || DevBleModem->stt.bit.chnrdy != 1)
         return SYS_ERR_FT;
 
     DevBleModem->drive->off();
     DevBleModem->stt.bit.chnrdy = 0;
+#endif    
     return SYS_ERR_OK;
 }
 /************************************************************************
@@ -117,7 +120,7 @@ uint8 HAL_RFID_ShutDown(void)
  ************************************************************************/
 uint8 HAL_RFID_Reset(void)
 {
-
+#if Modem_ICM522_EN > 0
     uint8_t sig = 99;
     if(DevBleModem == NULL || DevBleModem->drive == NULL || DevBleModem->stt.bit.typeChecked != 1)
         return SYS_ERR_FT;
@@ -129,15 +132,21 @@ uint8 HAL_RFID_Reset(void)
     {
         DevBleModem->stt.bit.chnrdy = 1;
     }
+#else
+    DevBleModem->stt.bit.typeChecked = 1;
+    DevBleModem->stt.bit.chnrdy = 1;
+#endif    
     return SYS_ERR_OK;
 }
 
 
 int HAL_RFID_Sleep(void)
 {
+#if Modem_ICM522_EN > 0
     if(DevBleModem == NULL || DevBleModem->drive == NULL || DevBleModem->stt.bit.typeChecked != 1)
         return SYS_ERR_FT;  
     DevBleModem->drive->sleep();
+#endif    
     return 0;
 }
 /************************************************************************
@@ -153,7 +162,7 @@ int HAL_RFID_Sleep(void)
 int HAL_RFID_Check(void)
 {
 	uint32 i = 0;                           //循环变量
-	
+#if Modem_ICM522_EN > 0
 	while(true)                             //循环检测模块
 	{
         aos_msleep(100);       //开机前延时
@@ -181,7 +190,10 @@ int HAL_RFID_Check(void)
         
 	} 
                                             //发送消息表示需要初始化
-
+#else
+    DevBleModem->drive = (TRFIDModemDrive*)&gs_BleMODMDrvIntf[i];
+    DevBleModem->stt.bit.typeChecked = 1;    
+#endif    
 
 	LOG_INFO("RFID Modem recognized! \nBegin to adv bluetooth\n");    
     return 0;
@@ -265,11 +277,16 @@ err:
 
 int HAL_RFID_Send(        uint8_t *data, uint32_t len, int32_t timeout)
 {
+#if Modem_ICM522_EN > 0
     return SER_SendData(UART_CHANNEL_CARD, data, len,timeout);
+#else
+    return 0;
+#endif    
 }
 
 int HAL_RFID_ReadCardID(        uint8_t *data, uint8_t len)
 {
+#if Modem_ICM522_EN > 0  
     SerialSets ss;
     ss.baudrate = 19200;
     ss.parit = Parit_N;
@@ -295,12 +312,19 @@ int HAL_RFID_ReadCardID(        uint8_t *data, uint8_t len)
         }
     }
     return -1;
+#else
+    return 12;
+#endif    
 }
 int HAL_RFID_GetCardID(uint8_t *data)
 {
+#if Modem_ICM522_EN > 0  
     memcpy(data, DevBleModem->card_id, DevBleModem->card_len);
 
     return DevBleModem->card_len;
+#else
+    return 12;
+#endif    
 }
 
 

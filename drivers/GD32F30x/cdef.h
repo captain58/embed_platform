@@ -345,6 +345,74 @@ typedef struct
 	uint16 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
     uint16 reserver:4;
 }GPI_PORTS;
+/******************************************************************************
+**AD口定义
+**成员举例:P1.31
+**0x1, 31,  (IOCON_FUNC3 | IOCON_MODE_INACT ), LPC_ADC, 
+******************************************************************************/
+//	typedef struct
+//	{
+//	//
+//	    uint32 pingrp:3;                    //Pin group             //来自PINMUX_GRP_T成员
+//	    uint32 pinnum:5;                    //Pin number            //来自PINMUX_GRP_T成员
+//	    //      uint32 modefunc:24;                 //Function and mode     //来自PINMUX_GRP_T成员
+//	    uint32_t type:8;                      //Function and mode     //来自PINMUX_GRP_T成员
+//	    uint32_t modefunc:16;                 //Function and mode     //来自PINMUX_GRP_T成员
+//	
+//	    //
+//	    //LPC_ADC_T* adc;                     //ADC寄存器
+//	
+//	    GPIOx_Type * gpio;                   //GPIO寄存器
+//	    uint32 vref;                        //参考电压
+//	    uint16_t  vnum;                        //分频数
+//	    uint8  chn;                         //通道号
+//	    uint8_t ctrlen;
+//	
+//	    uint8_t ctrlno;
+//	    uint8_t lptype;
+//	    uint8_t lpdir;
+//	    uint8_t lpval;
+//	
+//	    uint8_t delayen;//等待使能
+//	    uint8_t delayms;//等待延时
+//	}ADPORT;
+/******************************************************************************
+**AD口定义
+**成员举例:P1.31
+**0x1, 31,  (IOCON_FUNC3 | IOCON_MODE_INACT ), LPC_ADC, 
+******************************************************************************/
+typedef struct
+{
+    //
+//      uint32 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员
+//      uint32 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
+//      uint32 pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
+//      uint32 modefunc:18;                 //Function and mode     //来自PINMUX_GRP_T成员
+    //
+    COMPORT gpio;
+    //GPIO_TypeDef * gpio;
+    //ADC_TypeDef* adc;                     //ADC寄存器
+   // uint8_t adcChan;
+    uint32_t adcHandle;
+    uint32_t channel;
+    uint16_t vref;                        //参考电压
+    uint8_t  vnum;                        //分频数
+//      uint8_t  chn;                         //通道号
+
+//      uint8_t opt : 2;//0:一次采样//1:持续采样
+//      uint8_t resolution : 2;//0:8bit//1:10bit
+//      uint8_t VREFU : 2;//0:VDD//1:
+//      uint8_t VREFD : 2;//0:VSS//1: 
+    
+}ADItem;
+
+typedef struct
+{
+    //ADC_HandleTypeDef * adhandle;
+    uint8_t chnum;
+    uint8_t choffset;
+    ADItem * item;
+}ADPORT;
 
 	/*!
  * Radio driver structure defining the different function pointers

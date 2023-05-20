@@ -3392,10 +3392,10 @@
           <state>$PROJ_DIR$\..\..\..\..\include\network</state>
           <state>$PROJ_DIR$\..\..\..\..\platform\arch\arm\armv7m\common</state>
           <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\CMSIS</state>
-          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\aos</state>
-          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\hal</state>
-          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw</state>
+          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30xC-dehumi\aos</state>
+          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30xC-dehumi\hal</state>
+          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30xC-dehumi\Inc</state>
+          <state>$PROJ_DIR$\..\..\..\..\board\GD32F30xC-dehumi</state>
           <state>$PROJ_DIR$\..\..\..\..\kernel\rhino\include</state>
           <state>$PROJ_DIR$\..\..\..\..\kernel\debug\include</state>
           <state>$PROJ_DIR$\..\..\..\..\kernel\init\include</state>
@@ -4231,11 +4231,23 @@
       <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_gpo.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_ht1621.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_ht1621c.c</name>
+      <excluded>
+        <configuration>debug_wheel</configuration>
+      </excluded>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_icm522.c</name>
       <excluded>
         <configuration>debug</configuration>
         <configuration>debug_wheel</configuration>
       </excluded>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_lcd_dsbk2348a.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_led.c</name>

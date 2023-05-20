@@ -244,17 +244,17 @@ uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 pro
     {
     case CON_NODE_UPDATE_LOGIN:
     case CON_NODE_UPDATE_REGISTER:
-        if(protocol == PST_FRM_802_R_NO && routeNum == 0 && errCode == 0)
-        {
-            if(rssi > CON_RF_RSSI_LOGIN_LIMIT || rssiQ <= CON_RF_RSSI_Q_LOGIN_LIMIT)//信号不好
-            {
-                cltor[id].loginFailedTimes++;
-                if(cltor[id].loginFailedTimes < 10)//大于10次的话认为是孤点，允许入网
-                {
-                    return 0;
-                }
-            }
-        }
+//        if(protocol == PST_FRM_802_R_NO && routeNum == 0 && errCode == 0)
+//        {
+//            if(rssi > CON_RF_RSSI_LOGIN_LIMIT || rssiQ <= CON_RF_RSSI_Q_LOGIN_LIMIT)//信号不好
+//            {
+//                cltor[id].loginFailedTimes++;
+//                if(cltor[id].loginFailedTimes < 10)//大于10次的话认为是孤点，允许入网
+//                {
+//                    return 0;
+//                }
+//            }
+//        }
         cltor[id].loginFailedTimes = 0;
         cltor_shadow[id].nodestatus.ans_pkt_type=type;     //入网包标识位
         cltor_shadow[id].nodestatus.bNetAck= 0x1;         //表示该点需要回复

@@ -788,6 +788,7 @@ void SYS_RFMng_Task(void * arg)
                         SYS_Dev_OptBlinkSet(SYS_LED_RUN, 3, 1, 99, 0); 
 	
                     }
+                    gs_SysVar.mLPsysstt |= HLV_STT_NENG;   //(2)
                     break;
                 case MSG_WAKE_UP://»½ÐÑ
                     if(gs_FarpVar.sleep)
@@ -800,6 +801,7 @@ void SYS_RFMng_Task(void * arg)
                         SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 
 	
                     }
+                    gs_SysVar.mLPsysstt &= ~HLV_STT_NENG;   //(2)
                     break;
 #endif                    
                 default:

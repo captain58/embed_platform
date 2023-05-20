@@ -1061,7 +1061,10 @@ __no_init uint8 Update_I_SS_Source[MAX_PRO_STORE_SIZE_I_SS]; //64KIÐÍ²É¼¯Æ÷µ××ù³
 #endif
 
 //#endif // __INCLUDES_H
-
+#define CON_STT_SWITCH_OFFSET       0
+#define CON_STT_CARD_OFFSET         1
+#define CON_STT_CARD_ID_OFFSET      2
+#define CON_STT_VBAT_OFFSET         4    
 
 #define GET_TICK_COUNT( )                           ( TickCounter )
 

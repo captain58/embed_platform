@@ -99,6 +99,10 @@
 #endif
 
 
+#if (SYS_LCD_HT1621 > 0)
+#include "dev_ht1621.h"
+#include "dev_lcd_dsbk2348a.h"
+#endif
 #endif
 
 

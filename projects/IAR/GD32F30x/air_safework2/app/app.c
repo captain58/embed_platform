@@ -860,9 +860,9 @@ void SYS_APP_Init()
 #if SYS_GPI_EN > 0
     SYS_GPI_Init();
 #endif
-//#if (SYS_AD_EN > 0)    
-//    SYS_AD_Init();
-//#endif    
+#if (SYS_AD_EN > 0)    
+    SYS_AD_Init();
+#endif    
 ////	    OV_LcdInit();
     SYS_RTC_Init();
     SYS_MSG_Init();
@@ -1016,8 +1016,8 @@ void SYS_MAIN_Task(void * arg)
 //    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 //	    SYS_IFLS_Test();
-    uint8_t tmp[10] = {88,1,4,0,0,0,0,0,0,0};
- //   GD_Para_RW(F251_PADDR, tmp, 10, true);
+    uint8_t tmp[10] = {98,3,5,0,0,0,0,0,0,0};
+    //GD_Para_RW(F251_PADDR, tmp, 10, true);
     memset(tmp,0,10);
     GD_Para_RW(F251_PADDR, tmp, 10, false);
 //	    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
@@ -1162,8 +1162,8 @@ const KTaskConst gs_TkMAIN =
 
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
-#include "rtc.h"
-#include "hal_rtc_stm32l4.h"
+//#include "rtc.h"
+//#include "hal_rtc_stm32l4.h"
 
 extern void SystemClock_Config(void);
 extern int32_t MX_ADC1_DeInit(void);
@@ -1184,13 +1184,18 @@ extern int SystemClock_Stop(void);
 
 void hwEnterSleep()
 {
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+//    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
-    if(HAL_OK != SystemClock_Stop())
-    {
-        aos_reboot();
-    }
+//    if(HAL_OK != SystemClock_Stop())
+//    {
+//        aos_reboot();
+//    }
+    system_clock_8m_irc8m();
+    pmu_to_sleepmode(WFI_CMD);
+//        pmu_to_standbymode(WFE_CMD);
+//        pmu_to_deepsleepmode(PMU_LDO_NORMAL,WFE_CMD);
+    SystemInit();    
     RHINO_CPU_INTRPT_ENABLE();
 
 }
@@ -1214,12 +1219,12 @@ void hwEnterSleep()
 void SuspendSleep()
 {
 //	    at_uart_close();
-    SYS_MODM_Shutdown();
-    HAL_BLE_ShutDown();
+//    SYS_MODM_Shutdown();
+//    HAL_BLE_ShutDown();
     
 //	    gs_Uart.Close(PORT_UART_STD);      
-    gs_GPIO.GPO_Out(GPO_485_PWR,false);  
-    gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,false);
+//    gs_GPIO.GPO_Out(GPO_485_PWR,false);  
+//    gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,false);
     SYS_Dev_OptBlinkSetAll(3, 0, 0, 0); 
 //	    brd_gpio_suspend();
     //hal_rtc_finalize(&g_stRtcDev);

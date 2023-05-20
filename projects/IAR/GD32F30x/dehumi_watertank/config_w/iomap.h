@@ -91,11 +91,11 @@ typedef enum
 {
     GPO_PUMP_WATER,
     GPO_DRAIN_WATER,
-    GPO_MODEM_PWR,
-    GPO_MODEM_ONOFF,
-    GPO_VALVE_SLEEP,
-    GPO_VALVE_OPEN,
-    GPO_VALVE_CLOSE,    
+    GPO_LCD_PWR,
+    GPO_LCD_CS,
+    GPO_LCD_RD,
+    GPO_LCD_WR,
+    GPO_LCD_DATA,    
     GPO_ESAM_PWR,    
     GPO_CARD_PWR,
     GPO_CARD_RST,
@@ -112,6 +112,12 @@ typedef enum
 //	    const COMPORT gs_SwitchVccCtl       = {GPIOB, 11,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_GpoPumpWater      = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
     const COMPORT gs_GpoDrainWater     = {GPIOA, 9,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    
+    const COMPORT gs_GpoLCDPwr         = {GPIOA, 10, 1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_GpoLCDCs          = {GPIOB, 11, 1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_GpoLCDRd          = {GPIOB, 12, 1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_GpoLCDWr          = {GPIOB, 13, 1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_GpoLCDDat         = {GPIOB, 14, 1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
 //    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
 //    const COMPORT gs_GpoModemOnOff  = {12,  5,  1, (IOCON_FUNC0 ),    1};
@@ -130,6 +136,12 @@ typedef enum
     {
         {(COMPORT*)&gs_GpoPumpWater,       false, false},      //抽水
         {(COMPORT*)&gs_GpoDrainWater,       false, false}, //排水
+        {(COMPORT*)&gs_GpoLCDPwr,       false, false}, //排水
+        {(COMPORT*)&gs_GpoLCDCs,       false, false}, //排水
+        {(COMPORT*)&gs_GpoLCDRd,       false, false}, //排水
+        {(COMPORT*)&gs_GpoLCDWr,       false, false}, //排水
+        {(COMPORT*)&gs_GpoLCDDat,       false, false}, //排水
+        
 //        {(COMPORT*)&gs_GpoModemPwr,     false, false},      //gprs电源脚
 //        {(COMPORT*)&gs_GpoModemOnOff,   false, false},      //gprs Power Key脚
 //        {(COMPORT*)&gs_GpoValveSleep,   false, false},      //阀门芯片休眠 低电平休眠

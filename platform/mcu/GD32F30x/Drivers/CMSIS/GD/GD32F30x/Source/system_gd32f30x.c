@@ -170,14 +170,14 @@ static void system_clock_config(void)
 #endif /* __SYSTEM_CLOCK_IRC8M */
 }
 
-#ifdef __SYSTEM_CLOCK_IRC8M
+//#ifdef __SYSTEM_CLOCK_IRC8M
 /*!
     \brief      configure the system clock to 8M by IRC8M
     \param[in]  none
     \param[out] none
     \retval     none
 */
-static void system_clock_8m_irc8m(void)
+void system_clock_8m_irc8m(void)
 {
     uint32_t timeout = 0U;
     uint32_t stab_flag = 0U;
@@ -214,7 +214,7 @@ static void system_clock_8m_irc8m(void)
     }
 }
 
-#elif defined (__SYSTEM_CLOCK_48M_PLL_IRC8M)
+#if defined (__SYSTEM_CLOCK_48M_PLL_IRC8M)
 /*!
     \brief      configure the system clock to 48M by PLL which selects IRC8M as its clock source
     \param[in]  none

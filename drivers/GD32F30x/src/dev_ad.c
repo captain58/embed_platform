@@ -16,6 +16,7 @@
 ** 描　述: 原始版本
 ******************************************************************************/
 #define EXT_DEV_AD
+
 #ifdef __MODULE__
 #include "WOSsys.h"
 #endif
@@ -27,15 +28,15 @@
 
 #if (SYS_AD_EN > 0)
 
-
-
+const uint16 AD_PORT_NUM = (sizeof(gs_ADPort) / sizeof(ADPORT));
+ADC* gsp_AdStt;
 
 uint8_t ADC_Wait_Finish(void)
 {	
-	Do_DelayStart();	
-	{
-		if(SET == ANAC_ADCIF_ADC_IF_Chk()) return 0;		
-	}While_DelayMsEnd(8*clkmode);//等待8ms
+//		Do_DelayStart();	
+//		{
+//			if(SET == ANAC_ADCIF_ADC_IF_Chk()) return 0;		
+//		}While_DelayMsEnd(8*clkmode);//等待8ms
 	
 	return 1;//超时
 }
@@ -68,42 +69,88 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
     lp = (ADPORT*)(gs_ADPort + ch);
 	//使用简单函数配置
 
-    if(lp->ctrlen)
-    {
-//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum,1);
-        SYS_GPO_Out(lp->ctrlno,1);
-    }
+//	    if(lp->ctrlen)
+//	    {
+//	//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum,1);
+//	        SYS_GPO_Out(lp->ctrlno,1);
+//	    }
     
-    HAL_GPIO_PinConfig(&lp->gpio[lp->pingrp], lp->pinnum, lp->type, 1, 0);
+    HAL_GPIO_PinConfig(&lp->item->gpio);
     
-//	RCC_PERCLK_SetableEx(ANACCLK, ENABLE);		//模拟电路总线时钟使能
-	RCC_PERCLK_SetableEx(ADCCLK, ENABLE);		//ADC时钟使能
-	RCC_PERCLKCON2_ADCCKSEL_Set(RCC_PERCLKCON2_ADCCKSEL_RCHFDIV16);	//ADC工作时钟配置，不可高于1M
-	
-	ANAC_ADC_Channel_SetEx(lp->chn);				//ADC输入通道选择
-	ANAC_ADCCON_ADC_IE_Setable(DISABLE);		//中断禁止
-	ANAC_ADCCON_ADC_EN_Setable(DISABLE);		//ADC关闭
+    /* ADC mode config */
+    adc_mode_config(ADC_MODE_FREE);
+    /* ADC data alignment config */
+    adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
+    /* ADC channel length config */
+    adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
+    
+    /* ADC trigger config */
+    adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
+    /* ADC external trigger config */
+    adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
+    
+    /* enable ADC interface */
+    adc_enable(lp->item->adcHandle);
+    msleep(1U);
+    /* ADC calibration and reset calibration */
+    adc_calibration_enable(lp->item->adcHandle);/* ADC mode config */
+    adc_mode_config(ADC_MODE_FREE);
+    /* ADC data alignment config */
+    adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
+    /* ADC channel length config */
+    adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
+    
+    /* ADC trigger config */
+    adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
+    /* ADC external trigger config */
+    adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
+    
+    /* enable ADC interface */
+    adc_enable(lp->item->adcHandle);
+    msleep(1U);
+    /* ADC calibration and reset calibration */
+    adc_calibration_enable(lp->item->adcHandle);
 
-	ANAC_ADCCON_ADC_EN_Setable(ENABLE);		//ADC启动
-	
-	ADC_Wait_Finish();						//丢弃第一个转换结果
-	ANAC_ADCIF_ADC_IF_Clr();				//清除中断标志
-	
+
+    /* ADC regular channel config */
+    adc_regular_channel_config(lp->item->adcHandle, 0U, lp->item->channel, ADC_SAMPLETIME_7POINT5);
+    /* ADC software trigger enable */
+    adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_CHANNEL);
+
+    /* wait the end of conversion flag */
+    while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
+    /* clear the end of conversion flag */
+    adc_flag_clear(lp->item->adcHandle, ADC_FLAG_EOC);
+    /* return regular channel sample value */
+    adc_regular_data_read(lp->item->adcHandle);
+
+    
 	fTempADC = 0;
 	for(i=0; i<4; i++)
 	{
-		ANAC_ADCIF_ADC_IF_Clr();			//清除中断标志
+//			ANAC_ADCIF_ADC_IF_Clr();			//清除中断标志
+
+        /* ADC software trigger enable */
+        adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_CHANNEL);
+        
+        /* wait the end of conversion flag */
+        while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
+        /* clear the end of conversion flag */
+        adc_flag_clear(lp->item->adcHandle, ADC_FLAG_EOC);
+        /* return regular channel sample value */
+        ADCData[i] = adc_regular_data_read(lp->item->adcHandle);
+        fTempADC += ADCData[i];
 		
-		ADCData[i] = 0;
-		if(0 == ADC_Wait_Finish())			//等待转换完成
-		{
-			ADCData[i] = ANAC_ADCDATA_Read();	//读取AD值
-			fTempADC += ADCData[i];
-		}
-		else
-		{
-			break;
-		}
+//			ADCData[i] = 0;
+//			if(0 == ADC_Wait_Finish())			//等待转换完成
+//			{
+//				ADCData[i] = ANAC_ADCDATA_Read();	//读取AD值
+//				fTempADC += ADCData[i];
+//			}
+//			else
+//			{
+//				break;
+//			}
 	}
 	
 	if( i == 4 )
@@ -111,15 +158,15 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
 		fTempADC = fTempADC/4.0;
         ret = 0;
 	}
-	fVlotage = ANAC_ADC_VoltageCalc(fTempADC);//AD值转换为电压
+	fVlotage = fTempADC * lp->item->vref / 4096 ;//AD值转换为电压
 
-    *value = (uint32_t)(fVlotage * 1000 * lp->vnum)/1000;
+    *value = (uint32_t)(fVlotage * 1000 * lp->item->vnum )/1000;
     gsp_AdStt->value[ch] =  *value;
-    if(lp->ctrlen)
-    {
-//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum,0);
-        SYS_GPO_Out(GPO_ADC_VBAT,0);
-    }
+//	    if(lp->ctrlen)
+//	    {
+//	//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum,0);
+//	        SYS_GPO_Out(GPO_ADC_VBAT,0);
+//	    }
 //	
 //	    for(uc_i = 0; uc_i < AD_NUM; uc_i++)
 //	    {
@@ -195,19 +242,56 @@ void SYS_AD_Init(void)
 //	    RCC_PERCLK_SetableEx(ANACCLK, ENABLE);      //模拟电路总线时钟使能
 //	    RCC_PERCLK_SetableEx(ADCCLK, ENABLE);       //ADC时钟使能
 //	    RCC_PERCLKCON2_ADCCKSEL_Set(RCC_PERCLKCON2_ADCCKSEL_RCHFDIV16); //ADC工作时钟配置，不可高于1M
-
-                                            //申请缓存
+    rcu_periph_clock_enable(RCU_ADC0);
+    //申请缓存
     gsp_AdStt = &__AdStt;//(ADC*)m_malloc(sizeof(ADC));
-    memset_s((uint8*)gsp_AdStt, 0, sizeof(ADC));
+    memset((uint8*)gsp_AdStt, 0, sizeof(ADC));
     
 //	    lp = (ADPORT*)(gs_ADPort + uc_i);
     
     for(uc_i = 0; uc_i < AD_PORT_NUM; uc_i++)
     {
+            /* enable ADC clock */
         lp = (ADPORT*)(gs_ADPort + uc_i);
        
-        HAL_GPIO_PinConfig(&lp->gpio[lp->pingrp], lp->pinnum, lp->lptype, 0, lp->lpdir);
-        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum, lp->lpval);
+//	        HAL_GPIO_PinConfig(&lp->gpio[lp->pingrp], lp->pinnum, lp->lptype, 0, lp->lpdir);
+//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum, lp->lpval);
+        HAL_GPIO_PinConfig(&lp->item->gpio);
+
+        /* ADC mode config */
+        adc_mode_config(ADC_MODE_FREE);
+        /* ADC data alignment config */
+        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
+        /* ADC channel length config */
+        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
+        
+        /* ADC trigger config */
+        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
+        /* ADC external trigger config */
+        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
+
+        /* enable ADC interface */
+        adc_enable(lp->item->adcHandle);
+        msleep(1U);
+        /* ADC calibration and reset calibration */
+        adc_calibration_enable(lp->item->adcHandle);/* ADC mode config */
+        adc_mode_config(ADC_MODE_FREE);
+        /* ADC data alignment config */
+        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
+        /* ADC channel length config */
+        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
+        
+        /* ADC trigger config */
+        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
+        /* ADC external trigger config */
+        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
+
+        /* enable ADC interface */
+        adc_enable(lp->item->adcHandle);
+        msleep(1U);
+        /* ADC calibration and reset calibration */
+        adc_calibration_enable(lp->item->adcHandle);
+
 
 //	        Chip_ADC_Init(lp->adc, &adc_clock); // 12位模式和正常的电源设置ADC
 
@@ -233,15 +317,15 @@ void SYS_AD_Idel(void)
 {
     ADPORT* lp;
     uint8   uc_i = 0; 
-
-    for(uc_i = 0; uc_i < AD_PORT_NUM; uc_i++)
-    {
-        lp = (ADPORT*)(gs_ADPort + uc_i);
-       
-        HAL_GPIO_PinConfig(&lp->gpio[lp->pingrp], lp->pinnum, lp->lptype, 0, lp->lpdir);
-        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum, lp->lpval);
-
-    }
+//	
+//	    for(uc_i = 0; uc_i < AD_PORT_NUM; uc_i++)
+//	    {
+//	        lp = (ADPORT*)(gs_ADPort + uc_i);
+//	       
+//	        HAL_GPIO_PinConfig(&lp->gpio[lp->pingrp], lp->pinnum, lp->lptype, 0, lp->lpdir);
+//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum, lp->lpval);
+//	
+//	    }
 
 }
 

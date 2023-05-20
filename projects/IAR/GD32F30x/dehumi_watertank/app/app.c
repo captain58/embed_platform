@@ -1025,7 +1025,7 @@ void SYS_APP_Init()
 //
 //    Main_PreInit();
 //    SYS_RF_Init();
-
+    SYS_LCD_Init();
 }
 
 void SYS_APP_Start()
@@ -1134,6 +1134,9 @@ void SYS_MAIN_Task(void * arg)
         {
             case MSG_SEC:
                 g_timer_tick++;
+                SYS_LCD_Set_Stt(1);
+                //SYS_LCD_Set_Byte_Test(g_timer_tick);
+                SYS_LCD_Set_Time(*GetTime(), 0);
 //	                LOG_DEBUG("second ! %d\n", g_timer_tick);
 #ifdef MASTER_NODE  
 

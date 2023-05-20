@@ -859,6 +859,8 @@ typedef struct _STMETERPARARAM
     uint8 loginFailedTimes;
 	uint8 neighnum; // ÁÚ¾Ó¸öÊý
 	uint8 loginNo;
+    
+    uint32 vbat;
 }COLLECTOR;
 
 typedef struct _STMETERPARARAMSHADOW

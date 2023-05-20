@@ -1882,9 +1882,7 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
 //	            pkt->head.apdu.len = len;
 //	            memcpy(pkt->head.apdu.data, data, len);
 //	            pkt->head.apdu.broadCastFlg = 0x55;//地址广播
-#define CON_STT_SWITCH_OFFSET 0
-#define CON_STT_CARD_OFFSET 1
-#define CON_STT_CARD_ID_OFFSET 2
+        
             stt |= 1<<CON_STT_SWITCH_OFFSET;
             pkt->head.apdu.data[m++] = guc_SwitchNorErr;//;guc_SwitchOnOff;//
             
@@ -1898,6 +1896,10 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
                 pkt->head.apdu.data[m++] = strfstt.bit.linked;
                 m += HAL_RFID_GetCardID(pkt->head.apdu.data  + m);
             }
+            
+            stt |= 1<<CON_STT_VBAT_OFFSET;
+            memcpy(pkt->head.apdu.data + m, &gn_VBat, 4);
+            m+=4;
             memcpy(pkt->head.apdu.data, &stt, 4);
             pkt->head.apdu.len = m;
 

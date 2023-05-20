@@ -1230,8 +1230,13 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             if(cltor_shadow[id].nodestatus.cardstt)
             {
                 memcpy(cltor[id].card, frm->apdu.data + m, 16);
+                m+=16;
             }
-            
+            if((stt & (1 << CON_STT_VBAT_OFFSET)))
+            {
+                memcpy((uint8_t *)&cltor[id].vbat, frm->apdu.data + m, 4);
+                m+=4;
+            }
             STMETERPARAFLASH stMeter;
             
             GetCltorPara(id, &stMeter);

@@ -31,7 +31,7 @@ USER_VAR uint8 nParentMacAddrTemp[METER_ADDRESS_LENGTH_MAX];
 USER_VAR uint8 guc_SwitchOnOff;
 USER_VAR uint8 guc_SwitchNorErr;//¹´×Ó×´Ì¬
 USER_VAR uint8 guc_CardBeConfirm;//¹´×Ó×´Ì¬
-
+USER_VAR uint32 gn_VBat;
 USER_VAR uint8 guc_BuzzerNorErr;
 USER_VAR uint16 nDeviceShortAddr;
 USER_VAR uint8 nDeviceMacAddrLen;

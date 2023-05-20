@@ -24,6 +24,30 @@
 #define GPIO_ADPC_BITS     0x01//模拟输入或者端口的数字输入/ 输出的寄存器
 
 
+#ifdef EXT_DEV_AD  
+
+/******************************************************************************
+**ADGPI端口信息
+******************************************************************************/
+//	const COMPORT gs_GpiKey1      = {GPIOB, 15,  1, GPIO_MODE_IPU,  GPIO_OSPEED_50MHZ,    0};//key1
+
+const ADItem gs_ADItem[] = 
+{
+    {{GPIOA, 1,  1, GPIO_MODE_AIN,  GPIO_OSPEED_10MHZ,    0}, ADC0, ADC_CHANNEL_1,  3300, 2},
+//	{GPIO_PIN_1, GPIOB,  ADC0, ADC_CHANNEL_0,  3300, 2},//, 1, 0, 1, 0, 0},      //超级电容电压检测
+//	    {GPIO_PIN_3, GPIOC,  ADC1, ADC_CHANNEL_4,  3300, 1},//, 1, 0, 1, 0, 0},
+//	    {GPIO_PIN_2, GPIOC,  ADC1, ADC_CHANNEL_3,  3300, 1},//, 1, 0, 1, 0, 0},
+};
+//extern ADC_HandleTypeDef hadc1;
+ADPORT gs_ADPort[] =
+{
+    {1, 0, &gs_ADItem},
+};
+//
+//
+
+
+#endif
 /******************************************************************************
 **LED指示灯输出端口结构体信息
 ******************************************************************************/

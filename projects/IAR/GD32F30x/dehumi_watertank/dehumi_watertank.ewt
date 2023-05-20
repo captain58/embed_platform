@@ -4731,7 +4731,16 @@
       <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_gpo.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_ht1621.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_ht1621c.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_icm522.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_lcd_dsbk2348a.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_led.c</name>

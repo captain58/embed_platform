@@ -886,7 +886,7 @@ uint8_t airsafe_mng_init()
 uint8_t get_status(void)
 {
     
-    uint8_t ret = CON_WIRELESS_WORK_DELAY;
+    uint8_t ret = 0;
 #if (SYS_LOW_POWER > 0)
     static uint32_t ulcount = 0;
 
@@ -983,7 +983,7 @@ void SYS_SLV_Task(void)
         switch(g_TKSlvQ_buf_recv[0])        //根据消息分别处理
         {
             case MSG_SEC:                   //秒消息处理
-
+            //SYS_AD_Scan(0, &gn_VBat);
 
             case MSG_EVENT_CHANGE:
             {
@@ -1010,8 +1010,10 @@ void SYS_SLV_Task(void)
                             }
                             HAL_RFID_Sleep();
                             g_i = 0x11;
-
                         }
+
+                        SYS_AD_Scan(0, &gn_VBat);
+                        
                     }
                     if(guc_CardLen > 0 && guc_SwitchOnOff > 0)
                     {

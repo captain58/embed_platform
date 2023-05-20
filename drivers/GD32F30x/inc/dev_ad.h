@@ -18,14 +18,15 @@
 #ifndef _DEV_AD_H_
 #define _DEV_AD_H_
 
-#ifndef EXT_DEV_AD
-#define EXT_DEV_AD extern
-#endif 
+//#ifndef EXT_DEV_AD
+//#define EXT_DEV_AD extern
+//#endif 
 
 
 #if (SYS_AD_EN > 0)
 
-#if AD_NUM > 0
+#if 1
+
 
 /******************************************************************************
 **GPI输入端口扫描结构体信息
@@ -33,11 +34,11 @@
 typedef struct
 {
 
-    uint32 value[AD_NUM];          //最多8通道
+    uint32 value[1];          //最多8通道
 
 }ADC;
 
-EXT_DEV_AD  ADC* gsp_AdStt;
+
 
 
 #endif

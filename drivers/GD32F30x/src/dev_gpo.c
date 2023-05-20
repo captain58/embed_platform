@@ -116,7 +116,7 @@ void SYS_GPO_Out(uint32 gpo_name, bool oc)
     _IF_TRUE_RETURN_VOID(gpo == __NULL);
 #ifndef __NO_SYS__
 //    SYS_SEM_Wait(&gs_GPORes, 0);             //申请资源
-    krhino_sem_take(&gs_GPORes, RHINO_WAIT_FOREVER);
+    krhino_sem_take((ksem_t *)(gs_GPORes.hdl), RHINO_WAIT_FOREVER);
 #endif
 
     HAL_GPIO_PinConfig(gpo->port);
@@ -152,7 +152,7 @@ void SYS_GPO_Out(uint32 gpo_name, bool oc)
         }
     }
 #ifndef __NO_SYS__    
-    krhino_sem_give(&gs_GPORes);             //释放资源
+    krhino_sem_give((ksem_t *)gs_GPORes.hdl);             //释放资源
 #endif
 #endif
 }

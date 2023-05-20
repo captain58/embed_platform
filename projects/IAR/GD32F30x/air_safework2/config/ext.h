@@ -393,13 +393,15 @@
 
 #if SYS_RFIDMODEM_EN > 0
     //支持的模块
-    #define Modem_ICM522_EN   1
+    #define Modem_ICM522_EN   0
 #endif
 
 /*******************************************************************************
 **低功耗
 ********************************************************************************/ 
-#define SYS_LOW_POWER 0
+#define SYS_LOW_POWER 1
+
+#define SYS_AD_EN 1
 
 #endif
 
