@@ -211,34 +211,21 @@
 //    return ret;
 //}
 
-
-/************************************************************************
- * @Function: HAL_InitRTC
- * @Description: 初始化RTC模块
- * @Arguments: 
- * @Note: 这个函数不是进程安全的,确保同一时刻只在一个进程内使用
- *          初始化函数并不打开RTC中断,需要应用自行打开该中断
- * @Auther: yzy
- * Date: 2015/6/1
- *-----------------------------------------------------------------------
- * @History: 
- ************************************************************************/
-void HAL_InitRTC(void)
+/*!
+    \brief      configure the RTC
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void rtc_configuration(void)
 {
-#if SYS_RTC_EN > 0
-//    g_stRtcDev.port = 0;
-//    g_stRtcDev.config.format = HAL_RTC_FORMAT_BCD;
-//
-//    hal_rtc_init(&g_stRtcDev);
     /* enable PMU and BKPI clocks */
-    rcu_periph_clock_enable(RCU_BKPI);
-    rcu_periph_clock_enable(RCU_PMU);
     /* allow access to BKP domain */
     pmu_backup_write_enable();
 
     /* reset backup domain */
     bkp_deinit();
-    
+
     /* enable LXTAL */
     rcu_osci_on(RCU_LXTAL);
     /* wait till LXTAL is ready */
@@ -266,8 +253,148 @@ void HAL_InitRTC(void)
     rtc_prescaler_set(32767);
 
     /* wait until last write operation on RTC registers has finished */
-    rtc_lwoff_wait();  
+    rtc_lwoff_wait();
+}
+
+/*!
+    \brief      get numeric values from the hyperterminal
+    \param[in]  value: input value from the hyperterminal
+    \param[out] none
+    \retval     input value in BCD mode
+*/
+uint8_t usart_scanf(uint32_t value)
+{
+    uint32_t index = 0;
+    uint32_t tmp[2] = {0, 0};
+
+    while (index < 2){
+        /* loop until RBNE = 1 */
+        while (usart_flag_get(USART0, USART_FLAG_RBNE) == RESET);
+        tmp[index++] = (usart_data_receive(USART0));
+
+        if ((tmp[index - 1] < 0x30) || (tmp[index - 1] > 0x39)){
+//            printf("\n\rPlease enter valid number between 0 and 9\n");
+            index--;
+        }
+    }
+    /* calculate the Corresponding value */
+    index = (tmp[1] - 0x30) + ((tmp[0] - 0x30) * 10);
+    /* check */
+    if (index > value){
+//        printf("\n\rPlease enter valid number between 0 and %d\n", value);
+        return 0xFF;
+    }
+    return index;
+}
+
+/*!
+    \brief      return the time entered by user, using Hyperterminal
+    \param[in]  none
+    \param[out] none
+    \retval     current time of RTC counter value
+*/
+uint32_t time_regulate(void)
+{
+    uint32_t tmp_hh = 0xFF, tmp_mm = 0xFF, tmp_ss = 0xFF;
+
+//    printf("\r\n==============Time Settings=====================================");
+//    printf("\r\n  Please Set Hours");
+
+    while (tmp_hh == 0xFF){
+        tmp_hh = usart_scanf(23);
+    }
+//    printf(":  %d", tmp_hh);
+//    printf("\r\n  Please Set Minutes");
+    while (tmp_mm == 0xFF){
+        tmp_mm = usart_scanf(59);
+    }
+//    printf(":  %d", tmp_mm);
+//    printf("\r\n  Please Set Seconds");
+    while (tmp_ss == 0xFF){
+        tmp_ss = usart_scanf(59);
+    }
+//    printf(":  %d", tmp_ss);
+
+    /* return the value  store in RTC counter register */
+    return((tmp_hh*3600 + tmp_mm*60 + tmp_ss));
+}
+/*!
+    \brief      adjust time 
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void time_adjust(void)
+{
+    /* wait until last write operation on RTC registers has finished */
+    rtc_lwoff_wait();
+    /* change the current time */
+    rtc_counter_set(time_regulate());
+    /* wait until last write operation on RTC registers has finished */
+    rtc_lwoff_wait();
+}
+/************************************************************************
+ * @Function: HAL_InitRTC
+ * @Description: 初始化RTC模块
+ * @Arguments: 
+ * @Note: 这个函数不是进程安全的,确保同一时刻只在一个进程内使用
+ *          初始化函数并不打开RTC中断,需要应用自行打开该中断
+ * @Auther: yzy
+ * Date: 2015/6/1
+ *-----------------------------------------------------------------------
+ * @History: 
+ ************************************************************************/
+void HAL_InitRTC(void)
+{
+#if SYS_RTC_EN > 0
+//    g_stRtcDev.port = 0;
+//    g_stRtcDev.config.format = HAL_RTC_FORMAT_BCD;
+//
+//    hal_rtc_init(&g_stRtcDev);
+    /* enable PMU and BKPI clocks */
+    rcu_periph_clock_enable(RCU_BKPI);
+    rcu_periph_clock_enable(RCU_PMU);
+
   
+    if (bkp_read_data(BKP_DATA_0) != 0xA5A5){
+        /* backup data register value is not correct or not yet programmed
+        (when the first time the program is executed) */
+//        printf("\r\nThis is a RTC demo!\r\n");
+//        printf("\r\n\n RTC not yet configured....");
+
+        /* RTC configuration */
+        rtc_configuration();
+
+        //printf("\r\n RTC configured....");
+
+        /* adjust time by values entred by the user on the hyperterminal */
+        //time_adjust();
+
+        bkp_write_data(BKP_DATA_0, 0xA5A5);
+    }else{
+        /* check if the power on reset flag is set */
+        if (rcu_flag_get(RCU_FLAG_PORRST) != RESET){
+//            printf("\r\n\n Power On Reset occurred....");
+        }else if (rcu_flag_get(RCU_FLAG_SWRST) != RESET){
+            /* check if the pin reset flag is set */
+//            printf("\r\n\n External Reset occurred....");
+        }
+
+        /* allow access to BKP domain */
+        rcu_periph_clock_enable(RCU_PMU);
+        pmu_backup_write_enable();
+
+        printf("\r\n No need to configure RTC....");
+        /* wait for RTC registers synchronization */
+        rtc_register_sync_wait();
+
+        /* enable the RTC second */
+        rtc_interrupt_enable(RTC_INT_SECOND);
+
+        /* wait until last write operation on RTC registers has finished */
+        rtc_lwoff_wait();
+    }
+
 #endif
 
 }

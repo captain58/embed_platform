@@ -1236,6 +1236,8 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //	                memcpy(cltor[id].card, frm->apdu.data + m, 16);
 //	            }
 #ifdef MASTER_NODE
+            SYS_LCD_Set(CON_LCD_CONNECT_STT, 1);
+
             int i = 0;
             if((stt & (1 << CON_STT_WATER_LEVEL)) == (1 << CON_STT_WATER_LEVEL))
             {

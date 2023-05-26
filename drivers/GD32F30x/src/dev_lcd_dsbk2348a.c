@@ -4,6 +4,8 @@
 #include "sys.h"
 #include "hal.h"
 #include "bsp.h"
+#include "paradef.h"
+
 
 #define CON_LCD_MODAL_LEN 32
 Word32 gul_lcd_modal_bit;
@@ -16,6 +18,8 @@ typedef struct
     uint8_t mModal;
 }LED_MODAL_DEFINE;
 /*常用的LED字模定义,需要扩充的自己增加数组*/
+//段排布  DCBA EGF
+
 const LED_MODAL_DEFINE LED_MODAL[]={
     {'0',0xfa}  ,
     {'1',0x60}  ,
@@ -47,6 +51,19 @@ const LED_MODAL_DEFINE LED_MODAL[]={
     {'r',0x06}  ,
     {'j',0xf0}  ,
     {'P',0xce}  ,
+};
+//段排布  ABCD FGE
+const LED_MODAL_DEFINE LED_MODAL2[]={
+    {'0',0xf5}  ,
+    {'1',0x60}  ,
+    {'2',0xb6}  ,
+    {'3',0xf2}  ,
+    {'4',0x63}  ,
+    {'5',0xd3}  ,
+    {'6',0xd7}  ,
+    {'7',0x70}  ,
+    {'8',0xf7}  ,
+    {'9',0xf3}  ,
 };
 
 
@@ -122,6 +139,10 @@ void SYS_LCD_Init(void)
 #define CON_WHEEL_FLAG_BIT          0x20
 #define CON_WHEEL_FLAG_MASK          ~0x20
 
+#define CON_TANK_FLAG_BIT          0x40
+#define CON_TANK_FLAG_MASK          ~0x40
+
+
 #define CON_HEAD_FLAG_BIT          0x80
 #define CON_HEAD_FLAG_MASK          ~0x80
 
@@ -134,6 +155,220 @@ void SYS_LCD_Init(void)
 
 #define CON_BYTE_HIGH_MASK ~0xf0
 #define CON_BYTE_LOW_MASK ~0xe0
+#define CON_BYTE2_LOW_MASK ~0x70
+
+#define CON_LCD_MODAL_TYPE_BIT 0
+#define CON_LCD_MODAL_TYPE_BYTE 1
+
+typedef struct _ST_LCD_MODAL_
+{
+    uint16_t id;
+    uint8_t bit;
+    uint8_t mask;
+    uint8_t type;
+    uint8_t modal1;
+    uint8_t modal2;
+}ST_LCD_MODAL;
+
+//#define CON_LCD_WHEEL_WATER_BOX 0
+
+
+ST_LCD_MODAL gst_lcd_modal_map[] = 
+{
+    {CON_LCD_WHEEL_WATER_BOX,               0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 2,2   },
+    {CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE,    0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 0,0   },
+    {CON_LCD_WHEEL_WATER_LEVEL_LOW,         0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 0,0   },
+    {CON_LCD_WHEEL_WATER_LEVEL_MIDDLE,      0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 0,0   },
+    {CON_LCD_WHEEL_WATER_LEVEL_HIGH,        0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 1,1   },
+    {CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE,   0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 1,1   },
+    {CON_LCD_TANK_WATER_LEVEL_LOW_MORE,     0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 10, 10   },
+    {CON_LCD_TANK_WATER_LEVEL_LOW,          0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 10, 10   },
+    {CON_LCD_TANK_WATER_LEVEL_MIDDLE,       0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 10, 10   },
+    {CON_LCD_TANK_WATER_LEVEL_HIGH,         0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 11, 11   },
+    {CON_LCD_TANK_WATER_LEVEL_HIGH_MORE,    0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 11, 11   },    
+    {CON_LCD_CONNECT_STT,               0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 20,20   },    //11
+    {CON_LCD_RF_STT,                    0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 8,8   },    
+    {CON_LCD_PUMP_WATER_STT,            0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 10,10   },    
+    {CON_LCD_PUMP_MOTOR_STT,            0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 21,21   },    
+    {CON_LCD_PUMP_MOTOR_FAN1_STT,       0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 21,21   },    
+    {CON_LCD_PUMP_MOTOR_FAN2_STT,       0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 21,21   },    //16
+    {CON_LCD_PUMP_WATER_ARROWS1_STT,    0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 25,25   },    
+    {CON_LCD_PUMP_WATER_ARROWS2_STT,    0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 23,23   },    
+    {CON_LCD_PUMP_WATER_ARROWS3_STT,    0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 20,20   },    
+    {CON_LCD_PUMP_WATER_ARROWS4_STT,    0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 20,20   },    
+    {CON_LCD_PUMP_WATER_ARROWS5_STT,    0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 19,19   },    
+    {CON_LCD_PUMP_WATER_ARROWS6_STT,    0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 17,17   }, //22   
+    {CON_LCD_DEPUMP_MOTOR_STT,          0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 4,4   },    
+    {CON_LCD_DEPUMP_MOTOR_FAN1_STT,     0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 4,4   },    
+    {CON_LCD_DEPUMP_MOTOR_FAN2_STT,     0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 4,4   },    
+    {CON_LCD_DEPUMP_WATER_ARROWS1_STT,  0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 12,12   },    
+    {CON_LCD_DEPUMP_WATER_ARROWS2_STT,  0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 12,12   },    
+    {CON_LCD_DEPUMP_WATER_ARROWS3_STT,  0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 3,3   }, //28   
+    {CON_LCD_DEPUMP_WATER_ARROWS4_STT,  0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 3,3   },    
+    {CON_LCD_DEPUMP_WATER_ARROWS5_STT,  0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 3,3   },    
+    {CON_LCD_DEPUMP_WATER_ARROWS6_STT,  0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 3,3   },    
+    {CON_LCD_AUTO_STT,                  0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 4,4   },    
+    {CON_LCD_MANUAL_STT,                0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 12,12   },    
+    {CON_LCD_WHEEL_WATER_LOW_STT,       0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 1,1   },    
+    {CON_LCD_WHEEL_WATER_HIGH_MORE_STT, 0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 12,12   },  //35  
+    {CON_LCD_CHANGE_WATER_STT,          0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 5,5   },    
+    {CON_LCD_TANK_WATER_LOW_STT,        0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 10,10   },    
+    {CON_LCD_TANK_WATER_HIGH_MORE_STT,  0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 11,11   },  //38  
+
+    
+    {CON_LCD_TEST1,  0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 5,8   },    
+    {CON_LCD_TEST2,  0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 5,8   },    
+    {CON_LCD_TEST3,  0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 5,8   },    
+    {CON_LCD_TEST4,  0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 5,8   },    
+    {CON_LCD_TEST5,  0x10, ~0x10, CON_LCD_MODAL_TYPE_BIT, 6,9   },   
+    {CON_LCD_TEST6,  0x20, ~0x20, CON_LCD_MODAL_TYPE_BIT, 6,9   },    
+    {CON_LCD_TEST7,  0x40, ~0x40, CON_LCD_MODAL_TYPE_BIT, 6,9   },    
+    {CON_LCD_TEST8,  0x80, ~0x80, CON_LCD_MODAL_TYPE_BIT, 6,9   },  
+    
+ 
+    
+};
+
+
+
+
+const uint16 CON_LCD_MAP_NUM = (sizeof(gst_lcd_modal_map) / sizeof(ST_LCD_MODAL));
+
+uint8_t SYS_LCD_Set(uint8_t index, uint8_t data)
+{
+    if(index >= CON_LCD_MAP_NUM) return 1;
+
+    ST_LCD_MODAL * pModal = &gst_lcd_modal_map[index];
+
+    if(pModal->type == CON_LCD_MODAL_TYPE_BYTE)
+    {
+
+    }
+    else
+    {
+        guc_led_modal[pModal->modal1] &= pModal->mask;
+        
+        if(data)
+        {
+            guc_led_modal[pModal->modal1] |= pModal->bit;
+        }
+        else
+        {
+            guc_led_modal[pModal->modal1] &= ~pModal->bit;
+        }
+        
+
+        gul_lcd_modal_bit.lword |= 0x01 << pModal->modal1;
+    }
+    return 0;
+}
+
+uint8_t SYS_LCD_Set_Wheel_Water_Level(uint8_t flag)
+{
+    
+    switch(flag)
+    {
+    case CON_WATER_TANK_STT_LOW:
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
+        break;    
+    case CON_WATER_TANK_STT_LOW_MID:
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
+        break;
+    case CON_WATER_TANK_STT_HIGH_MID:
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
+        break;
+    case CON_WATER_TANK_STT_HIGH:
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
+        break;
+    case CON_WATER_TANK_STT_HIGH_MORE:
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 1);
+        break;
+    default:
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
+        
+        break;
+    }
+    return 0;
+
+}
+
+uint8_t SYS_LCD_Set_Tank_Water_Level(uint8_t flag)
+{
+    
+    switch(flag)
+    {
+    case CON_WATER_TANK_STT_LOW:
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
+        break;    
+    case CON_WATER_TANK_STT_LOW_MID:
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
+        break;
+    case CON_WATER_TANK_STT_HIGH_MID:
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
+        break;
+    case CON_WATER_TANK_STT_HIGH:
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
+        break;
+    case CON_WATER_TANK_STT_HIGH_MORE:
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW_MORE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 1);
+        break;
+    default:
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW_MORE, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
+        
+        break;
+    }
+    return 0;
+    
+}
+
 
 
 uint8_t SYS_LCD_Set_Stt(uint8_t flag)
@@ -160,11 +395,15 @@ uint8_t SYS_LCD_Set_Stt(uint8_t flag)
     //gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_31;    
 
     SYS_LCD_Set_Head(flag);
+    SYS_LCD_Set_Tank_Stt(flag);
 
 
     return 0;
 
 }
+
+
+
 uint8_t SYS_LCD_Set_Head(uint8_t flag)
 {
     
@@ -176,7 +415,7 @@ uint8_t SYS_LCD_Set_Head(uint8_t flag)
     }
     else
     {
-        guc_led_modal[CON_LCD_MODAL_1] &= ~CON_HEAD_FLAG_BIT;
+        guc_led_modal[CON_LCD_MODAL_21] &= ~CON_HEAD_FLAG_BIT;
 
     }
     
@@ -187,6 +426,31 @@ uint8_t SYS_LCD_Set_Head(uint8_t flag)
     return 0;
 
 }
+
+uint8_t SYS_LCD_Set_Tank_Stt(uint8_t flag)
+{
+    
+    guc_led_modal[CON_LCD_MODAL_11] &= CON_TANK_FLAG_MASK;
+    
+    if(flag)
+    {
+        guc_led_modal[CON_LCD_MODAL_11] |= CON_TANK_FLAG_BIT;
+    }
+    else
+    {
+        guc_led_modal[CON_LCD_MODAL_11] &= ~CON_TANK_FLAG_BIT;
+
+    }
+    
+
+    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_11;
+
+
+    return 0;
+
+}
+
+
 
 uint8_t SYS_LCD_Set_Byte_Test(uint8_t flag)
 {
@@ -199,8 +463,8 @@ uint8_t SYS_LCD_Set_Byte_Test(uint8_t flag)
     guc_led_modal[CON_LCD_MODAL_30] |= byte & 0xf0;
     guc_led_modal[CON_LCD_MODAL_31] |= (byte & 0x0f) << 4;
     
-    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_30;
-    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_31;    
+    gul_lcd_modal_bit.lword |= (uint32_t)0x01 << CON_LCD_MODAL_30;
+    gul_lcd_modal_bit.lword |= (uint32_t)0x01 << CON_LCD_MODAL_31;    
     return 0;
 
 }
@@ -217,6 +481,22 @@ uint8_t SYS_LCD_Set_Byte(uint8_t flag, uint8_t high, uint8_t low)
     gul_lcd_modal_bit.lword |= 0x01 << low;  
     return 0;
 }
+
+uint8_t SYS_LCD_Set_Byte2(uint8_t flag, uint8_t high, uint8_t low)
+{
+    guc_led_modal[high] &= CON_BYTE_HIGH_MASK;
+    guc_led_modal[low]&= CON_BYTE2_LOW_MASK;
+
+    uint8_t byte = LED_MODAL2[flag].mModal;
+    guc_led_modal[high] |= byte & 0xf0;
+    guc_led_modal[low] |= (byte & 0x0f) << 4;
+    
+    gul_lcd_modal_bit.lword |= 0x01 << high;
+    gul_lcd_modal_bit.lword |= 0x01 << low;  
+    return 0;
+}
+
+
 uint8_t SYS_LCD_Set_Mon_High(uint8_t flag)
 {
     
@@ -249,7 +529,7 @@ uint8_t SYS_LCD_Set_Year_High()
     guc_led_modal[CON_LCD_MODAL_31]&= CON_DATA_YEAR_HIGH_MASK;
     guc_led_modal[CON_LCD_MODAL_31] |= CON_DATA_YEAR_HIGH_BIT;
 
-    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_31;    
+    gul_lcd_modal_bit.lword |= (uint32_t)0x01 << CON_LCD_MODAL_31;    
 
 
     return 0;
@@ -397,7 +677,7 @@ uint8_t SYS_LCD_Set_Time(TIME tm, uint8_t bcd)
         index = tm.min % 10;
     }  
 
-    SYS_LCD_Set_Byte(0,CON_LCD_MODAL_7,CON_LCD_MODAL_8);
+    SYS_LCD_Set_Byte(index,CON_LCD_MODAL_9,CON_LCD_MODAL_8);
     SYS_LCD_Set_Time_dot();
 
 //	    guc_led_modal[CON_LCD_MODAL_30] &= CON_BYTE_HIGH_MASK;
@@ -415,5 +695,16 @@ uint8_t SYS_LCD_Set_Time(TIME tm, uint8_t bcd)
     return 0;
 }
 
+uint8_t SYS_LCD_Set_Change_Water_Date(uint8_t remaind_day)
+{
+    uint8_t index = 0;
+    index = (remaind_day % 100) / 10;
+    SYS_LCD_Set_Byte2(index,CON_LCD_MODAL_6,CON_LCD_MODAL_5);
+
+    index = remaind_day % 10;
+
+    SYS_LCD_Set_Byte2(index,CON_LCD_MODAL_13,CON_LCD_MODAL_7);
+
+}
 
 #endif

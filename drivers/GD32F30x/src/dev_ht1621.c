@@ -122,7 +122,7 @@ void HT1621_WriteOne(uint8_t addr, uint8_t dat) {
         HT1621_SetWrite();
         tmp <<= 1;
     }
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < 4; i++) {
         HT1621_SetBit(dat & 0x80);
         HT1621_SetWrite();
         dat <<= 1;
@@ -148,7 +148,7 @@ void HT1621_Write(uint8_t addr, uint8_t* dat, uint8_t len) {
     }
     for (j = 0; j < len; j++) {
         tmp = dat[j];
-        for (i = 0; i < 8; i++) {
+        for (i = 0; i < 4; i++) {
             HT1621_SetBit(tmp & 0x80);
             HT1621_SetWrite();
             tmp <<= 1;

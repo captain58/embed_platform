@@ -41,19 +41,21 @@
 ********************************************************************************/
 #define EXT_MAIN
 
-
+#include "ext.h"
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "sys.h"
+//#include "sys.h"
 #include "public.h"
+//#include "bsp.h"
+
 #include "app.h"
 #include "pst.h"
 //#include "hlv.h"
 //#include "farp.h"
 //#include "netp.h"
 #include "task.h"
-#include "bsp.h"
+
 #include "paradef.h"
 /*******************************************************************************
 **用户程序版本号
@@ -946,6 +948,9 @@ void MAIN_SecProc(void)
 #endif
         }
     }
+    SYS_LCD_Set_Wheel_Water_Level(gst_water_stt.cur_stt);
+    
+    SYS_LCD_Set_Tank_Water_Level(gst_sub_node_water_stt.cur_stt);
 #ifdef MASTER_NODE
     LOG_DEBUG("mod[%d] sub[%d] low[%d] mlow[%d] hmid[%d] high[%d]\n", gst_water_stt.motor_stt, gst_sub_node_water_stt.cur_stt, gst_water_stt.st_sensor.low, 
         gst_water_stt.st_sensor.low_mid, gst_water_stt.st_sensor.high_mid, gst_water_stt.st_sensor.high);
@@ -992,6 +997,7 @@ void SYS_TIMER_Init(void)
                         krhino_ms_to_ticks(1000), krhino_ms_to_ticks(1000), 0, 1);
     
 }
+//#include "dev_lcd_dsbk2348a.h"
 void SYS_APP_Init()
 {
     UART_Init();
@@ -1080,6 +1086,8 @@ extern uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];
 extern const uint8 sBroadAddrFE[8];
 extern uint32_t g_timer_tick;
 
+uint8_t guc_test = CON_LCD_TEST1;
+
 void SYS_MAIN_Task(void * arg)
 {
     TIME time;
@@ -1137,6 +1145,19 @@ void SYS_MAIN_Task(void * arg)
                 SYS_LCD_Set_Stt(1);
                 //SYS_LCD_Set_Byte_Test(g_timer_tick);
                 SYS_LCD_Set_Time(*GetTime(), 0);
+                SYS_LCD_Set(CON_LCD_WHEEL_WATER_BOX, 1);
+                SYS_LCD_Set(CON_LCD_RF_STT, 1);
+
+//                SYS_LCD_Set_Wheel_Water_Level(g_timer_tick % 6);
+//                SYS_LCD_Set_Tank_Water_Level(g_timer_tick % 6);
+
+//                for(int i = CON_LCD_TEST1; i < CON_LCD_TEST8+1; i++)
+//                {
+//                    SYS_LCD_Set(i, g_timer_tick % 2);
+//                }
+//	//	                SYS_LCD_Set(guc_test, g_timer_tick % 2);
+                SYS_LCD_Set_Change_Water_Date(g_timer_tick);
+
 //	                LOG_DEBUG("second ! %d\n", g_timer_tick);
 #ifdef MASTER_NODE  
 
