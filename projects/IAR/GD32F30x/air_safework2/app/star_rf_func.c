@@ -1221,8 +1221,16 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             m=0;
             memcpy(&stt, frm->apdu.data + m, 4);
             m+=4;
-            cltor_shadow[id].nodestatus.switchstt = frm->apdu.data[m++];
+            
+            uint8_t switchstt = frm->apdu.data[m++];
             cltor_shadow[id].nodestatus.cardstt = frm->apdu.data[m++];
+            
+            if(switchstt != cltor_shadow[id].nodestatus.switchstt)
+            {
+                SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100);
+            }
+            cltor_shadow[id].nodestatus.switchstt = switchstt;
+
             
             LOG_DEBUG( DBGFMT"------id[%d] switch[%d] card[%d]--------\n",DBGARG, id, 
                       cltor_shadow[id].nodestatus.switchstt,cltor_shadow[id].nodestatus.cardstt);

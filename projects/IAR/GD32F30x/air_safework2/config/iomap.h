@@ -92,7 +92,7 @@ ADPORT gs_ADPort[] =
 //	}LedNo;
 typedef enum {
     GPIO_LED_RUN,
-    GPIO_LED_BAT,
+    SYS_LED_BAT,
     
     GPIO_LED_CARD,
     GPIO_BUZ_CARD,
@@ -106,7 +106,7 @@ typedef enum {
 } LedNo;
 
 #define SYS_LED_RUN GPIO_LED_RUN
-
+#define SYS_LED_CARD GPIO_LED_RUN
 /******************************************************************************
 **GPO输出端口枚举定义
 ******************************************************************************/

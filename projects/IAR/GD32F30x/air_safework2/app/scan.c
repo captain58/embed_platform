@@ -865,7 +865,7 @@ ST_AIR_SAFE_MNG gst_asw_mng;
 
 #endif
 
-#define CON_WIRELESS_WORK_DELAY 60 //1分钟
+#define CON_WIRELESS_WORK_DELAY 180 //1分钟
 #define CON_WIRELESS_INIT_DELAY 30 //1分钟
 
 uint8_t airsafe_mng_init()
@@ -961,6 +961,7 @@ uint8_t get_status(void)
 void SYS_SLV_Task(void)
 {
     uint8_t stt;
+    uint16_t count = 0;
     //链表消息
     krhino_buf_queue_create(&gs_TKSlvQueue, "slv_queue",
                          gc_TKSlvQbuf, MSG_BUFF_LEN, BUFQUEUE_MSG_MAX);
@@ -983,6 +984,8 @@ void SYS_SLV_Task(void)
         switch(g_TKSlvQ_buf_recv[0])        //根据消息分别处理
         {
             case MSG_SEC:                   //秒消息处理
+            
+//            if(count % 60)
             //SYS_AD_Scan(0, &gn_VBat);
 
             case MSG_EVENT_CHANGE:
@@ -1013,6 +1016,14 @@ void SYS_SLV_Task(void)
                         }
 
                         SYS_AD_Scan(0, &gn_VBat);
+                        if(gn_VBat >= 3600)
+                        {
+                            SYS_Dev_OptBlinkSet(SYS_LED_BAT, 3, 0, 0, 0); 
+                        }
+                        else
+                        {
+                            SYS_Dev_OptBlinkSet(SYS_LED_BAT, 1, 100, 100, 0); 
+                        }                        
                         
                     }
                     if(guc_CardLen > 0 && guc_SwitchOnOff > 0)
@@ -1029,7 +1040,7 @@ void SYS_SLV_Task(void)
                         }                        
                         guc_SwitchNorErr = 1;
                         
-                        SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 2, 0, 0, 0); 
+                        SYS_Dev_OptBlinkSet(SYS_LED_CARD, 2, 0, 0, 0); 
                         
                     }
                     else
@@ -1039,6 +1050,7 @@ void SYS_SLV_Task(void)
                         {
                             extern kbuf_queue_t gs_RFMngQueue;
                             krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+                            SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
                         }                        
                         if(/*guc_CardLen <= 0 && */guc_SwitchOnOff == 0)
                         {
@@ -1053,14 +1065,27 @@ void SYS_SLV_Task(void)
                         
                             guc_BuzzerNorErr = 0;
                             guc_SwitchNorErr = 0;
-                            SYS_Dev_OptBlinkSet(GPIO_LED_CARD, 3, 0, 0, 0); 
+                            SYS_Dev_OptBlinkSet(SYS_LED_CARD, 3, 0, 0, 0); 
                         }
                     }
                 }
 #endif                  
                 break;
             }
-
+            case MSG_MIN: 
+//                count ++;
+//                SYS_AD_Scan(0, &gn_VBat);
+//
+//                if(gn_VBat >= 3600)
+//                {
+//                    SYS_Dev_OptBlinkSet(SYS_LED_BAT, 3, 0, 0, 0); 
+//                }
+//                else
+//                {
+//                    SYS_Dev_OptBlinkSet(SYS_LED_BAT, 1, 100, 100, 0); 
+//                }
+                
+                break;
             case MSG_LIVE:
 				HB_RetLive(TASK_SLV_TKID);
                 break;

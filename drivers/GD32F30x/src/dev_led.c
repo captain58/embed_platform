@@ -219,6 +219,8 @@ void SYS_BlinkDev_Init(void)
         {
             HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
         }
+//        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
+//        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
     }
                                             //…Í«Îª∫¥Ê
     gsp_LedLights = (LedLights*)m_malloc(sizeof(LedLights) * LED_NUM);
