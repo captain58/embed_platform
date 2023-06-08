@@ -80,7 +80,7 @@
 
 /*must reserve enough stack size for timer cb will consume*/
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
-#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   512
+#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   256
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
@@ -105,7 +105,7 @@
 
 /* kernel idle conf */
 #ifndef RHINO_CONFIG_IDLE_TASK_STACK_SIZE
-#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    300
+#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    256
 #endif
 
 /* kernel hook conf */

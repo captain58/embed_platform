@@ -522,7 +522,7 @@ uint8_t HAL_RTC_SetTimes(TIME* datetime)
 //    {
 //        return SYS_ERR_OK;
 //    }
-    uint32_t ulCount = CalcSecs(datetime, 0);
+    uint32_t ulCount = Calendar2Sec(datetime, 0);//CalcSecs(datetime, 0);
     rtc_counter_set(ulCount);
 
 #endif
@@ -557,7 +557,7 @@ uint8_t HAL_RTC_GetTimes(TIME* datetime)
     
 #if SYS_RTC_EN > 0
     uint32_t ulCount = rtc_counter_get();
-    CalcTimeFromSecs(datetime, ulCount);
+    Sec2Calendar(datetime, ulCount);
     
 //    rtc_time_t rtc_t;
 //    

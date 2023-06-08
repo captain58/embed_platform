@@ -158,19 +158,36 @@ typedef struct _ST_WATER_SENSOR_
 }ST_WATER_SENSOR;
 
 
+
 typedef struct _ST_WATER_STT_
 {
     uint8_t motor_stt;
     uint8_t cur_stt;
     uint8_t last_stt;
     uint8_t ready_stt[CON_SENSOR_FILTER];
+    uint8_t para_save_flag;
+    uint8_t remain_set_flag;
+    uint8_t time_set_flag;   
+    uint8_t time_set_site;   
+    uint16_t para_save_tick;
     uint16_t count;
     uint32_t tick;
     ST_WATER_SENSOR st_sensor;
 }ST_WATER_STT;
 
 
-
+typedef struct _ST_WATER_CTRL_
+{
+    uint8_t onoff;
+    uint8_t auto_manmual;
+    uint8_t remain_day;
+    uint8_t pump_stt;       //抽水泵状态
+    uint8_t depump_stt;     //加水泵状态
+//    uint8_t remain_set_flag;
+//    uint8_t time_set_flag;
+    uint8_t reserver[5];
+    uint16_t crc;
+}ST_WATER_CTRL;
 
 /************************************************************************
 **时间标签

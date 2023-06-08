@@ -136,7 +136,7 @@ extern const KTaskConst gs_TkHLV;
 #define TASK_DECLARE_2_HLV() {&gs_TkHLV, TASK_HLV_STKL}
 
 #define TASK_SLV_TKID          9
-#define TASK_SLV_STKL          192
+#define TASK_SLV_STKL          512
 extern const KTaskConst gs_TkSLV;
 #define TASK_DECLARE_9_SLV() {&gs_TkSLV, TASK_SLV_STKL}
 

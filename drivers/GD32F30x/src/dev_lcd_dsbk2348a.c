@@ -10,6 +10,7 @@
 #define CON_LCD_MODAL_LEN 32
 Word32 gul_lcd_modal_bit;
 uint8_t guc_led_modal[CON_LCD_MODAL_LEN];
+uint8_t guc_onoff;
 ktimer_t     gst_lcd_timer;
 /*LED ×ÖÄ£½á¹¹*/
 typedef struct
@@ -73,6 +74,12 @@ void Handle_Lcd()
 {
     uint8_t bit = 0;
     int i = 0;
+
+    if(guc_onoff == CON_WATER_CTRL_OFF || guc_onoff == CON_WATER_CTRL_IDEL)
+    {
+        return ;
+    }
+    
     if(gul_lcd_modal_bit.lword != 0)
     {
         for(i=0; i<4;)
@@ -97,7 +104,7 @@ void SYS_LCD_Init(void)
     HT1621_Init();
     
     memset(guc_led_modal,0,32);
-    
+    guc_onoff = CON_WATER_CTRL_ON;
 
     krhino_timer_create(&gst_lcd_timer, "lcd_timer", Handle_Lcd,
                         krhino_ms_to_ticks(2000), krhino_ms_to_ticks(100), 0, 1);    
@@ -233,6 +240,30 @@ ST_LCD_MODAL gst_lcd_modal_map[] =
 
 
 const uint16 CON_LCD_MAP_NUM = (sizeof(gst_lcd_modal_map) / sizeof(ST_LCD_MODAL));
+
+uint8_t SYS_LCD_Onoff(uint8_t onoff)
+{
+    if(CON_WATER_CTRL_ON == onoff)
+    {
+        gul_lcd_modal_bit.lword = 0xffffffff;
+        SYS_GPO_Out(GPO_LCD_PWR, TRUE);
+        
+    }
+    else
+    {
+//        guc_onoff = CON_WATER_CTRL_OFF;
+        HT1621_Cls();
+        SYS_GPO_Out(GPO_LCD_PWR, FALSE);
+
+    }
+    guc_onoff = onoff;
+
+}
+uint8_t SYS_LCD_Get_Onoff(void)
+{
+    return guc_onoff; 
+}
+
 
 uint8_t SYS_LCD_Set(uint8_t index, uint8_t data)
 {
@@ -542,6 +573,34 @@ uint8_t SYS_LCD_Set_Byte2(uint8_t flag, uint8_t high, uint8_t low)
     return 0;
 }
 
+uint8_t SYS_LCD_Clr_Byte(uint8_t high, uint8_t low)
+{
+    guc_led_modal[high] &= CON_BYTE_HIGH_MASK;
+    guc_led_modal[low]&= CON_BYTE_LOW_MASK;
+
+//	    uint8_t byte = LED_MODAL[flag].mModal;
+//	    guc_led_modal[high] |= byte & 0xf0;
+//	    guc_led_modal[low] |= (byte & 0x0f) << 4;
+    
+    gul_lcd_modal_bit.lword |= 0x01 << high;
+    gul_lcd_modal_bit.lword |= 0x01 << low;  
+    return 0;
+}
+
+uint8_t SYS_LCD_Clr_Byte2(uint8_t high, uint8_t low)
+{
+    guc_led_modal[high] &= CON_BYTE_HIGH_MASK;
+    guc_led_modal[low]&= CON_BYTE2_LOW_MASK;
+
+//	    uint8_t byte = LED_MODAL2[flag].mModal;
+//	    guc_led_modal[high] |= byte & 0xf0;
+//	    guc_led_modal[low] |= (byte & 0x0f) << 4;
+    
+    gul_lcd_modal_bit.lword |= 0x01 << high;
+    gul_lcd_modal_bit.lword |= 0x01 << low;  
+    return 0;
+}
+
 
 uint8_t SYS_LCD_Set_Mon_High(uint8_t flag)
 {
@@ -551,8 +610,8 @@ uint8_t SYS_LCD_Set_Mon_High(uint8_t flag)
     
     if(flag)
     {
-        guc_led_modal[CON_LCD_MODAL_29] |= CON_DATA_YEAR_HIGH_BIT;
-//	        guc_led_modal[CON_LCD_MODAL_27] |= CON_DATA_YEAR_HIGH_BIT;
+//	        guc_led_modal[CON_LCD_MODAL_29] |= CON_DATA_YEAR_HIGH_BIT;
+        guc_led_modal[CON_LCD_MODAL_27] |= CON_DATA_YEAR_HIGH_BIT;
     }
     else
     {
@@ -569,11 +628,49 @@ uint8_t SYS_LCD_Set_Mon_High(uint8_t flag)
     return 0;
 }
 
+uint8_t SYS_LCD_Clr_Mon_High()
+{
+    
+    guc_led_modal[CON_LCD_MODAL_29] &= CON_DATA_YEAR_HIGH_MASK;
+    guc_led_modal[CON_LCD_MODAL_27] &= CON_DATA_YEAR_HIGH_MASK;
+    
+//	    if(flag)
+//	    {
+//	        guc_led_modal[CON_LCD_MODAL_29] |= CON_DATA_YEAR_HIGH_BIT;
+//	//	        guc_led_modal[CON_LCD_MODAL_27] |= CON_DATA_YEAR_HIGH_BIT;
+//	    }
+//	    else
+//	    {
+//	        guc_led_modal[CON_LCD_MODAL_29] |= CON_DATA_YEAR_HIGH_BIT;
+//	        guc_led_modal[CON_LCD_MODAL_27] |= CON_DATA_YEAR_HIGH_BIT;
+//	
+//	    }
+    
+
+    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_29;
+    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_27;    
+
+
+    return 0;
+}
+
+
 uint8_t SYS_LCD_Set_Year_High()
 {
     
     guc_led_modal[CON_LCD_MODAL_31]&= CON_DATA_YEAR_HIGH_MASK;
     guc_led_modal[CON_LCD_MODAL_31] |= CON_DATA_YEAR_HIGH_BIT;
+
+    gul_lcd_modal_bit.lword |= (uint32_t)0x01 << CON_LCD_MODAL_31;    
+
+
+    return 0;
+
+}
+uint8_t SYS_LCD_Clr_Year_High()
+{
+    
+    guc_led_modal[CON_LCD_MODAL_31]&= CON_DATA_YEAR_HIGH_MASK;
 
     gul_lcd_modal_bit.lword |= (uint32_t)0x01 << CON_LCD_MODAL_31;    
 
@@ -741,6 +838,189 @@ uint8_t SYS_LCD_Set_Time(TIME tm, uint8_t bcd)
     return 0;
 }
 
+uint8_t SYS_LCD_Blink_Time_With_Pos(TIME tm, uint8_t bcd, uint32_t count, uint8_t pos)
+{
+    uint8_t index = 0;
+
+
+        SYS_LCD_Set_Year_High();
+
+        
+        if(bcd)
+        {
+            index = tm.year >> 4;
+        }
+        else
+        {
+            index = tm.year / 10;
+        }
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_30,CON_LCD_MODAL_31);
+        if(bcd)
+        {
+            index = tm.year & 0xf;
+        }
+        else
+        {
+            index = tm.year % 10;
+        }  
+        
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_28,CON_LCD_MODAL_29);
+    if(pos == CON_TIME_SET_SITE_YEAR)
+    {
+        
+        if(count % 2 == 0)
+        {
+            SYS_LCD_Clr_Year_High();
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_30,CON_LCD_MODAL_31);
+            
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_28,CON_LCD_MODAL_29);
+        }
+    }
+
+        if(bcd)
+        {
+            index = tm.month >> 4;
+        }
+        else
+        {
+            index = tm.month / 10;
+        }
+
+        if(index == 1)
+        {
+
+        }
+        SYS_LCD_Set_Mon_High(index);
+
+
+        if(bcd)
+        {
+            index = tm.month & 0xf;
+        }
+        else
+        {
+            index = tm.month % 10;
+        }  
+        
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_26,CON_LCD_MODAL_27);
+    if(pos == CON_TIME_SET_SITE_MON)
+    {
+        
+        if(count % 2 == 0)
+        {
+            SYS_LCD_Clr_Mon_High();
+            
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_26,CON_LCD_MODAL_27);
+        }
+        
+    }
+        if(bcd)
+        {
+            index = tm.day >> 4;
+        }
+        else
+        {
+            index = tm.day / 10;
+        }
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_24,CON_LCD_MODAL_25);
+        if(bcd)
+        {
+            index = tm.day & 0xf;
+        }
+        else
+        {
+            index = tm.day % 10;
+        }  
+
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_22,CON_LCD_MODAL_23);
+    if(pos == CON_TIME_SET_SITE_DAY)
+    {
+        
+        if(count % 2 == 0)
+        {
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_24,CON_LCD_MODAL_25);
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_22,CON_LCD_MODAL_23);
+        }
+        
+    }
+
+
+        if(bcd)
+        {
+            index = tm.hour >> 4;
+        }
+        else
+        {
+            index = tm.hour / 10;
+        }
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_18,CON_LCD_MODAL_19);
+        if(bcd)
+        {
+            index = tm.hour & 0xf;
+        }
+        else
+        {
+            index = tm.hour % 10;
+        }  
+
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_16,CON_LCD_MODAL_17);
+    if(pos == CON_TIME_SET_SITE_HOUR)
+    {        
+        if(count % 2 == 0)
+        {
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_18,CON_LCD_MODAL_19);
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_16,CON_LCD_MODAL_17);
+        }
+        
+    }
+
+
+        if(bcd)
+        {
+            index = tm.min >> 4;
+        }
+        else
+        {
+            index = tm.min / 10;
+        }
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_14,CON_LCD_MODAL_15);
+        if(bcd)
+        {
+            index = tm.min & 0xf;
+        }
+        else
+        {
+            index = tm.min % 10;
+        }  
+
+        SYS_LCD_Set_Byte(index,CON_LCD_MODAL_9,CON_LCD_MODAL_8);
+    if(pos == CON_TIME_SET_SITE_MIN)
+    {        
+        if(count % 2 == 0)
+        {
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_14,CON_LCD_MODAL_15);
+            SYS_LCD_Clr_Byte(CON_LCD_MODAL_9,CON_LCD_MODAL_8);
+        }
+        
+    }
+    SYS_LCD_Set_Time_dot();
+
+//	    guc_led_modal[CON_LCD_MODAL_30] &= CON_BYTE_HIGH_MASK;
+//	    guc_led_modal[CON_LCD_MODAL_31]&= CON_BYTE_LOW_MASK;
+//	
+//	    uint8_t byte = LED_MODAL[index].mModal;
+//	    guc_led_modal[CON_LCD_MODAL_30] |= byte & 0xf0;
+//	    guc_led_modal[CON_LCD_MODAL_31] |= (byte & 0x0f) << 4;
+//	    
+//	    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_30;
+//	    gul_lcd_modal_bit.lword |= 0x01 << CON_LCD_MODAL_31;   
+
+    
+
+    return 0;
+}
+
+
 uint8_t SYS_LCD_Set_Change_Water_Date(uint8_t remaind_day)
 {
     uint8_t index = 0;
@@ -750,7 +1030,7 @@ uint8_t SYS_LCD_Set_Change_Water_Date(uint8_t remaind_day)
     index = remaind_day % 10;
 
     SYS_LCD_Set_Byte2(index,CON_LCD_MODAL_13,CON_LCD_MODAL_7);
-
+    return 0;
 }
 
 #endif

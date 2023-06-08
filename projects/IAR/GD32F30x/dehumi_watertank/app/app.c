@@ -83,10 +83,12 @@ uint8_t guc_SwitchSeq = 0;
 uint8_t guc_AllowLogin = 0;
 
 //	ST_WATER_STT gst_water_level;
-ST_WATER_STT gst_water_stt;
+ST_WATER_STT        gst_water_stt;
+ST_WATER_CTRL       gst_water_ctrl;
 #ifdef MASTER_NODE
 ST_WATER_STT gst_sub_node_water_stt;
 #endif
+uint32_t gul_lcd_remaind_times;
 void WDT_IRQHandler(void)
 {
     CPSR_ALLOC();
@@ -287,17 +289,22 @@ void SYS_MAIN_Init(void)
 //	    gl_SysRunInit = 1;
     Get_Net_Parameter();
     User_Parameter_Init();
+
+
     
     GD_Para_RW(REGISTER_FLAG, &guc_RegisterStat, 1, false);
     GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, false);
 
-
+#if (SYS_LCD_HT1621 > 0)    
+    Water_Ctrl_Init();
+#endif
     SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0);    //运行灯秒闪(overlay last configuration)
 
 
     LoadSystemParam(PARA_TYPE_FARP);
 
     memset((uint8_t *)&gst_water_stt,0,sizeof(ST_WATER_STT));
+    
 #ifdef MASTER_NODE    
     memset((uint8_t *)&gst_sub_node_water_stt,0,sizeof(ST_WATER_STT));
 #endif
@@ -336,13 +343,15 @@ void SYS_MAIN_Init(void)
     }
 
     gst_water_stt.cur_stt = get_run_stt_by_sensor(&gst_water_stt.st_sensor);
-
+    gul_lcd_remaind_times = CON_LCD_REMAIND_TIME_MAX;
 }
 
 
 
 extern uint8_t g_ucPutcharEn;
-
+uint32_t gul_remain_set_tick = 0;
+uint32_t gul_time_set_tick = 0;
+#define CON_REMAIN_SET_ADD_INTERVAL 5
 /*******************************************************************************
  * @function_name:  KeyProc
  * @function_file:  main.c
@@ -396,13 +405,13 @@ void KeyProc(uint8 key)
         if(event & 0x10)               //KEY5
         {
             LOG_DEBUG("key 5 failing!\n");
-            if(guc_SwitchOnOff != 0)
-            {
-                extern kbuf_queue_t gs_TKSlvQueue;
-                krhino_buf_queue_send(&gs_TKSlvQueue, &msgidA[MSG_EVENT_CHANGE], 1);
-
-            }
-            guc_SwitchOnOff = 0;
+//            if(guc_SwitchOnOff != 0)
+//            {
+//                extern kbuf_queue_t gs_TKSlvQueue;
+//                krhino_buf_queue_send(&gs_TKSlvQueue, &msgidA[MSG_EVENT_CHANGE], 1);
+//
+//            }
+//            guc_SwitchOnOff = 0;
         }
         if(event & 0x20)               //KEY6
         {
@@ -419,23 +428,137 @@ void KeyProc(uint8 key)
         if(event & CON_KEY9_BIT)               //KEY9
         {
             LOG_DEBUG("key set failing!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(0))
+            {
+                if(gst_water_stt.time_set_flag)
+                {
+                    gst_water_stt.time_set_site ++;
+                    if(gst_water_stt.time_set_site > CON_TIME_SET_SITE_MIN)
+                    {
+                        gst_water_stt.time_set_site  = CON_TIME_SET_SITE_YEAR;
+                    }
+                }
+            }
+
+#endif            
         }   
         
         if(event & CON_KEY10_BIT)               //KEY10
         {
             LOG_DEBUG("key reduce failing!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(0))
+            {
+                if(gst_water_stt.time_set_flag)
+                {   
+//	                    if(gst_water_ctrl.remain_day > 0)
+//	                        gst_water_ctrl.remain_day--;
+//	
+//	                    Water_para_Need_Refresh();
+                    Timer_Redeuce(gst_water_stt.time_set_site);
+
+                }
+                else if(gst_water_stt.remain_set_flag)
+                {   
+                    if(gst_water_ctrl.remain_day > 0)
+                        gst_water_ctrl.remain_day--;
+
+                    Water_para_Need_Refresh();
+                }
+                else
+                {
+                    if(gst_water_ctrl.auto_manmual == CON_MOTOR_CTRL_MANUAL)
+                    {
+                        Water_Ctrl_Pump();
+                    }
+                }
+                
+                gul_remain_set_tick = g_tick_count;
+            }
+
+#endif            
         }   
         if(event & CON_KEY11_BIT)               //KEY11
         {
             LOG_DEBUG("key add failing!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(0))
+            {
+                if(gst_water_stt.time_set_flag)
+                {   
+//	                    if(gst_water_ctrl.remain_day > 0)
+//	                        gst_water_ctrl.remain_day--;
+//	
+//	                    Water_para_Need_Refresh();
+                    Timer_Add(gst_water_stt.time_set_site);
+
+                }
+                else if(gst_water_stt.remain_set_flag)
+                {
+                    if(gst_water_ctrl.remain_day < 99)
+                        gst_water_ctrl.remain_day++;
+                    
+                    Water_para_Need_Refresh();
+                }
+                else
+                {
+                    if(gst_water_ctrl.auto_manmual == CON_MOTOR_CTRL_MANUAL)
+                    {
+                	    Water_Ctrl_Drain();
+                    }
+                }
+                
+                gul_remain_set_tick = g_tick_count;
+            }
+
+#endif            
         }   
         if(event & CON_KEY12_BIT)               //KEY12
         {
             LOG_DEBUG("key auto failing!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(0))
+            {
+                Water_Ctrl_Set_Auto(!gst_water_ctrl.auto_manmual);
+            }
+#endif            
         }           
         if(event & CON_KEY13_BIT)               //KEY13
         {
             LOG_DEBUG("key onoff failing!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(1))
+            {
+                Water_Ctrl_Set_Onoff(0);
+
+            }else if(0 == Water_Ctrl_WakeUp(1))
+            {
+//                if(SYS_LCD_Get_Onoff())
+//                {
+//                    Water_Ctrl_Set_Onoff(0);
+//                }
+//                else
+                {
+                    Water_Ctrl_Set_Onoff(1);
+                }
+            }
+
+#endif
+        }   
+if(event & CON_KEY14_BIT)               //KEY13
+        {
+            LOG_DEBUG("key remaind failing!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(0))
+            {
+//	                gst_water_ctrl.remain_set_flag = !gst_water_ctrl.remain_set_flag;
+                gul_remain_set_tick = g_tick_count;
+
+                
+            }
+
+#endif
         }           
         
     }
@@ -495,6 +618,10 @@ void KeyProc(uint8 key)
         if(event & CON_KEY9_BIT)               //KEY9
         {
             LOG_DEBUG("key set keep!\n");
+            gst_water_stt.time_set_flag = !gst_water_stt.time_set_flag;
+            gst_water_stt.time_set_site = 0;
+            gul_remain_set_tick = g_tick_count;
+
         }
         
         if(event & CON_KEY10_BIT)               //KEY10
@@ -512,7 +639,15 @@ void KeyProc(uint8 key)
         if(event & CON_KEY13_BIT)               //KEY13
         {
             LOG_DEBUG("key onoff keep!\n");
-        }           
+        }    
+        if(event & CON_KEY14_BIT)               //KEY13
+        {
+            LOG_DEBUG("key remaind keep!\n");
+            
+            gst_water_stt.remain_set_flag = !gst_water_stt.remain_set_flag;
+            gul_remain_set_tick = g_tick_count;
+            
+        }         
     }  
     if(key == MSG_LIREVT)
     {
@@ -609,7 +744,11 @@ void KeyProc(uint8 key)
         if(event & CON_KEY13_BIT)               //KEY13
         {
 	        LOG_DEBUG("key onoff right!\n");
-        }          
+        }    
+        if(event & CON_KEY14_BIT)               //KEY13
+        {
+	        LOG_DEBUG("key remaind right!\n");
+        }        
     }        
 }
 
@@ -739,71 +878,134 @@ void MAIN_UpdataWaterPump(void)
 {
     LOG_DEBUG("before MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
     uint32_t clac_tick = 0;
-
-    if(gst_water_stt.motor_stt == CON_MOTOR_STT_IDEL)
+    if(CON_WATER_CTRL_OFF != gst_water_ctrl.onoff)
     {
-        if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_LOW /*&& gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_LOW_MID*/)
+        if(gst_water_ctrl.auto_manmual == CON_MOTOR_CTRL_AUTO)
         {
-            //打开加水泵
-            SYS_GPO_Out(GPO_DRAIN_WATER, true);
-            SYS_GPO_Out(GPO_PUMP_WATER, false);
-            gst_water_stt.motor_stt = CON_MOTOR_STT_DRAIN;
-            gst_water_stt.tick = g_tick_count;
-        }
 
-        else if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_HIGH_MORE)
-        {
-            //打开抽水泵
-            SYS_GPO_Out(GPO_PUMP_WATER, true);
-            SYS_GPO_Out(GPO_DRAIN_WATER, false);
-            gst_water_stt.motor_stt = CON_MOTOR_STT_PUMP;
-            gst_water_stt.tick = g_tick_count;
-        }
-    }
-    else if(gst_water_stt.motor_stt == CON_MOTOR_STT_DRAIN)
-    {
-        
-        if(gst_water_stt.tick > g_tick_count)
-        {
-            clac_tick = 0xffffffff - gst_water_stt.tick + g_tick_count;
+            if(gst_water_stt.motor_stt == CON_MOTOR_STT_IDEL)
+            {
+                if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_LOW /*&& gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_LOW_MID*/)
+                {
+                    //打开加水泵
+                    SYS_GPO_Out(GPO_DRAIN_WATER, true);
+                    SYS_GPO_Out(GPO_PUMP_WATER, false);
+                    gst_water_stt.motor_stt = CON_MOTOR_STT_DRAIN;
+                    gst_water_stt.tick = g_tick_count;
+                }
+
+                else if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_HIGH_MORE)
+                {
+                    //打开抽水泵
+                    SYS_GPO_Out(GPO_PUMP_WATER, true);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                    gst_water_stt.motor_stt = CON_MOTOR_STT_PUMP;
+                    gst_water_stt.tick = g_tick_count;
+                }
+            }
+            else if(gst_water_stt.motor_stt == CON_MOTOR_STT_DRAIN)
+            {
+                
+                if(gst_water_stt.tick > g_tick_count)
+                {
+                    clac_tick = 0xffffffff - gst_water_stt.tick + g_tick_count;
+                }
+                else
+                {
+                    clac_tick = g_tick_count - gst_water_stt.tick;
+                }
+                LOG_DEBUG("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
+                
+                if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
+                    gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH ||
+                    gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
+                    (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_LOW && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, false);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                    gst_water_stt.motor_stt = CON_MOTOR_STT_IDEL;
+                }
+            }
+            else if(gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP)
+            {
+                if(gst_water_stt.tick > g_tick_count)
+                {
+                    clac_tick = 0xffffffff - gst_water_stt.tick + g_tick_count;
+                }
+                else
+                {
+                    clac_tick = g_tick_count - gst_water_stt.tick;
+                }
+                LOG_DEBUG("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
+                
+                if(gst_sub_node_water_stt.cur_stt <= CON_WATER_TANK_STT_LOW_MID ||
+                    gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
+                    (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_HIGH_MORE && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, false);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                    gst_water_stt.motor_stt = CON_MOTOR_STT_IDEL;
+                }
+
+            }
         }
         else
-        {
-            clac_tick = g_tick_count - gst_water_stt.tick;
-        }
-        LOG_DEBUG("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
-        
-        if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
-            gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH ||
-            gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
-            (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_LOW && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
-        {
-            SYS_GPO_Out(GPO_PUMP_WATER, false);
-            SYS_GPO_Out(GPO_DRAIN_WATER, false);
-            gst_water_stt.motor_stt = CON_MOTOR_STT_IDEL;
-        }
-    }
-    else if(gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP)
-    {
-        if(gst_water_stt.tick > g_tick_count)
-        {
-            clac_tick = 0xffffffff - gst_water_stt.tick + g_tick_count;
-        }
-        else
-        {
-            clac_tick = g_tick_count - gst_water_stt.tick;
-        }
-        LOG_DEBUG("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
-        
-        if(gst_sub_node_water_stt.cur_stt <= CON_WATER_TANK_STT_LOW_MID ||
-            gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
-            (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_HIGH_MORE && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
-        {
-            SYS_GPO_Out(GPO_PUMP_WATER, false);
-            SYS_GPO_Out(GPO_DRAIN_WATER, false);
-            gst_water_stt.motor_stt = CON_MOTOR_STT_IDEL;
-        }
+        {//手动
+            if(gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP)
+            {
+                if(gst_water_stt.tick > g_tick_count)
+                {
+                    clac_tick = 0xffffffff - gst_water_stt.tick + g_tick_count;
+                }
+                else
+                {
+                    clac_tick = g_tick_count - gst_water_stt.tick;
+                }
+                LOG_DEBUG("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
+                
+                if(gst_sub_node_water_stt.cur_stt <= CON_WATER_TANK_STT_LOW_MID ||
+                    gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
+                    (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_HIGH_MORE && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, false);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                }
+                else
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, true);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                }
+                
+            }
+            else if(gst_water_stt.motor_stt == CON_MOTOR_STT_DRAIN)
+            {
+                
+                if(gst_water_stt.tick > g_tick_count)
+                {
+                    clac_tick = 0xffffffff - gst_water_stt.tick + g_tick_count;
+                }
+                else
+                {
+                    clac_tick = g_tick_count - gst_water_stt.tick;
+                }
+                LOG_DEBUG("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
+                
+                if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
+                    gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH ||
+                    gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
+                    (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_LOW && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, false);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                }
+                else
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, false);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, true);
+                }                
+            }
 
+        }
     }
     LOG_DEBUG("after MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
 
@@ -948,9 +1150,11 @@ void MAIN_SecProc(void)
 #endif
         }
     }
+#if (SYS_LCD_HT1621 > 0)
     SYS_LCD_Set_Wheel_Water_Level(gst_water_stt.cur_stt);
     
     SYS_LCD_Set_Tank_Water_Level(gst_sub_node_water_stt.cur_stt);
+#endif
 #ifdef MASTER_NODE
     LOG_DEBUG("mod[%d] sub[%d] low[%d] mlow[%d] hmid[%d] high[%d]\n", gst_water_stt.motor_stt, gst_sub_node_water_stt.cur_stt, gst_water_stt.st_sensor.low, 
         gst_water_stt.st_sensor.low_mid, gst_water_stt.st_sensor.high_mid, gst_water_stt.st_sensor.high);
@@ -959,7 +1163,40 @@ void MAIN_SecProc(void)
         gst_water_stt.st_sensor.low_mid, gst_water_stt.st_sensor.high_mid, gst_water_stt.st_sensor.high);
     
 #endif    
-    
+
+#if (SYS_LCD_HT1621 > 0)
+    if(gst_water_stt.motor_stt == CON_MOTOR_STT_DRAIN)
+    {
+        Water_Disp_Drain();
+    }
+    else if(gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP)
+    {
+        Water_Disp_Pump();
+    }
+    else
+    {
+        Water_Disp_Close();
+    }
+    uint32_t clac_tick = 0;
+    if(gst_water_stt.remain_set_flag)
+    {
+        if(gul_remain_set_tick > g_tick_count)
+        {
+            clac_tick = 0xffffffff - gul_remain_set_tick + g_tick_count;
+        }
+        else
+        {
+            clac_tick = g_tick_count - gul_remain_set_tick;
+        }
+        if(krhino_ticks_to_ms(clac_tick) > CON_SET_TIME_MAX * 1000)
+        {
+            gst_water_stt.remain_set_flag = 0;
+        }
+
+    }
+    Water_para_Cycle();
+#endif
+
 }
 
 static void timer_main(void *timer, void *arg)
@@ -1031,7 +1268,9 @@ void SYS_APP_Init()
 //
 //    Main_PreInit();
 //    SYS_RF_Init();
+#if (SYS_LCD_HT1621 > 0)    
     SYS_LCD_Init();
+#endif
 }
 
 void SYS_APP_Start()
@@ -1085,8 +1324,9 @@ int application_start(int argc, char *argv[])
 extern uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];
 extern const uint8 sBroadAddrFE[8];
 extern uint32_t g_timer_tick;
+uint32_t gul_lcd_remaind_times = 0;
 
-uint8_t guc_test = CON_LCD_TEST1;
+//uint8_t guc_test = CON_LCD_TEST1;
 
 void SYS_MAIN_Task(void * arg)
 {
@@ -1142,12 +1382,45 @@ void SYS_MAIN_Task(void * arg)
         {
             case MSG_SEC:
                 g_timer_tick++;
+#if (SYS_LCD_HT1621 > 0)                
+                if(gul_lcd_remaind_times > 0)
+                    gul_lcd_remaind_times--;
+
+                if(0 == gul_lcd_remaind_times)
+                {
+                    Water_Ctrl_Sleep();
+                }
+                
                 SYS_LCD_Set_Stt(1);
                 //SYS_LCD_Set_Byte_Test(g_timer_tick);
-                SYS_LCD_Set_Time(*GetTime(), 0);
+                if(gst_water_stt.time_set_flag)
+                {
+                    SYS_LCD_Blink_Time_With_Pos(*GetTime(), 0, g_timer_tick, gst_water_stt.time_set_site);
+                }
+                else
+                {
+                    
+                    SYS_LCD_Set_Time(*GetTime(), 0);
+                }
                 SYS_LCD_Set(CON_LCD_WHEEL_WATER_BOX, 1);
-                SYS_LCD_Set(CON_LCD_RF_STT, 1);
-
+//	                SYS_LCD_Set(CON_LCD_RF_STT, 1);
+                if(gst_water_stt.remain_set_flag)
+                {
+                    SYS_LCD_Set(CON_LCD_CHANGE_WATER_STT, g_timer_tick % 2);
+                }
+                else
+                {
+                    SYS_LCD_Set(CON_LCD_CHANGE_WATER_STT, 1);
+                }
+                
+//	                if(gst_water_stt.time_set_flag)
+//	                {
+//	                    SYS_LCD_Set(CON_LCD_RF_STT, g_timer_tick % 2);
+//	                }
+//	                else
+                {
+                    SYS_LCD_Set(CON_LCD_RF_STT, 1);
+                }                
 //                SYS_LCD_Set_Wheel_Water_Level(g_timer_tick % 6);
 //                SYS_LCD_Set_Tank_Water_Level(g_timer_tick % 6);
 
@@ -1156,8 +1429,8 @@ void SYS_MAIN_Task(void * arg)
 //                    SYS_LCD_Set(i, g_timer_tick % 2);
 //                }
 //	//	                SYS_LCD_Set(guc_test, g_timer_tick % 2);
-                SYS_LCD_Set_Change_Water_Date(g_timer_tick);
-
+                SYS_LCD_Set_Change_Water_Date(gst_water_ctrl.remain_day);
+#endif
 //	                LOG_DEBUG("second ! %d\n", g_timer_tick);
 #ifdef MASTER_NODE  
 
@@ -1181,7 +1454,16 @@ void SYS_MAIN_Task(void * arg)
                     ((TIME *)GetTime())->hour, ((TIME *)GetTime())->min, 
                     ((TIME *)GetTime())->sec, ((TIME *)GetTime())->week);
                 break;
-                
+            case MSG_DAY:
+#if (SYS_LCD_HT1621 > 0)              
+                if(!gst_water_stt.time_set_flag && gst_water_ctrl.remain_day > 0)
+                {
+                    gst_water_ctrl.remain_day--;
+
+                    Water_para_Need_Refresh();
+                }
+#endif                
+                break;
             case MSG_LIFEVT:                //按键下降沿
                 KeyProc(MSG_LIFEVT);
 //                time.day = 13;

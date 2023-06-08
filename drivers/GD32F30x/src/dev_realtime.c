@@ -263,8 +263,8 @@ uint8 SYS_MCU_ReadBCDDateTime(TIME* datetime)
         datetime->day = ByteHexToBcd(datetime->day);
         datetime->month = ByteHexToBcd(datetime->month);
         datetime->year = ByteHexToBcd(datetime->year);
-        datetime->dweek = datetime->dweek;
-        datetime->dyear = gp_calclib->IntHexToBcd(datetime->dyear);
+        datetime->week = datetime->week;
+        datetime->dyear = IntHexToBcd(datetime->dyear);
         return SYS_ERR_OK;
     }
     
@@ -318,7 +318,7 @@ uint8 SYS_MCU_WriteDateTime(TIME* datetime)
     {
         datetime->dyear++;
     }
-    datetime->dweek = CalcWeek((uint8*)&datetime->day);
+    datetime->week = CalcWeek((uint8*)&datetime->day,0);
     
 #if (SYS_RTC_EN == 0)
     _setVirtualTime(datetime);
@@ -353,8 +353,8 @@ uint8 SYS_MCU_WriteBCDDateTime(TIME* datetime)
     datetime->day = ByteBcdToHex(datetime->day);
     datetime->month = ByteBcdToHex(datetime->month);
     datetime->year = ByteBcdToHex(datetime->year);
-    datetime->dweek = datetime->dweek;
-    datetime->dyear = gp_calclib->IntBcdToHex(datetime->dyear);
+    datetime->week = datetime->week;
+    datetime->dyear = IntBcdToHex(datetime->dyear);
     return SYS_MCU_WriteDateTime(datetime);
 }
 

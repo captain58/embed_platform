@@ -191,7 +191,7 @@ typedef enum
     GPI_ADD,
     GPI_AUTO,
     GPI_ONOFF,
-    
+    GPI_SET_REMAIN,
 }GPIENUM;
 
 
@@ -208,14 +208,22 @@ typedef enum
     const COMPORT gs_GpiDIO1      = {GPIOB, 0,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
     const COMPORT gs_GpiDIO2      = {GPIOA, 6,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
     const COMPORT gs_GpiLowLevel  = {GPIOA, 15,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
-    const COMPORT gs_GpiLowMiddleLevel  = {GPIOA, 11,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
-    const COMPORT gs_GpiHighMiddleLevel  = {GPIOB, 3,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
-    const COMPORT gs_GpiHighWaterLevel  = {GPIOB, 4,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
-    const COMPORT gs_GpiSet         = {GPIOB, 5,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key1
-    const COMPORT gs_GpiReduce      = {GPIOB, 6,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key2
-    const COMPORT gs_GpiAdd         = {GPIOB, 7,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
-    const COMPORT gs_GpiDAuto       = {GPIOB, 8,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
-    const COMPORT gs_GpiOnOff       = {GPIOB, 9,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiLowMiddleLevel      = {GPIOA, 11,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiHighMiddleLevel     = {GPIOB, 3,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiHighWaterLevel      = {GPIOB, 4,  1, GPIO_MODE_IPU,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiSet         = {GPIOB, 5,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key2
+    const COMPORT gs_GpiSetRemain   = {GPIOB, 6,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key1
+    const COMPORT gs_GpiReduce      = {GPIOB, 7,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
+    const COMPORT gs_GpiAdd         = {GPIOB, 8,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiDAuto       = {GPIOB, 9,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+    const COMPORT gs_GpiOnOff       = {GPIOA, 1,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+
+//	const COMPORT gs_GpiReduce      = {GPIOB, 6,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,    0};//key2
+//	const COMPORT gs_GpiAdd         = {GPIOB, 7,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key1
+//	const COMPORT gs_GpiDAuto       = {GPIOB, 8,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+//	const COMPORT gs_GpiOnOff       = {GPIOB, 9,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+//	const COMPORT gs_GpiSetRemain   = {GPIOA, 1,  1, GPIO_MODE_IN_FLOATING,  GPIO_OSPEED_2MHZ,  0};//key2
+
 
 //    const COMPORT gs_GpiCardInt   = {0x3, 3,  1, (IOCON_FUNC0 ),    0};//key3
 //    const COMPORT gs_GpiHall1      = {5, 7,  1, (IOCON_FUNC0 ),    0};//Hall1
@@ -238,6 +246,7 @@ typedef enum
         {(COMPORT*)&gs_GpiAdd,    1, 0, 0},      //key3     
         {(COMPORT*)&gs_GpiDAuto,      1, 0, 0},      //key1
         {(COMPORT*)&gs_GpiOnOff,      1, 0, 0},      //key1
+        {(COMPORT*)&gs_GpiSetRemain,      1, 0, 0},      //key1
         
 //	        {0x3, 1,  1, (IOCON_FUNC0 ),    0},      //
     };

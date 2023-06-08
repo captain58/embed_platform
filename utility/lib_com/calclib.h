@@ -1368,8 +1368,8 @@ uint32 FloatToFixPoint(uint8* f, uint8 nf);
  * @ÐÞ¸ÄÈË: 
  ************************************************************************/
 uint16 CalcUartRecvTimeOut(uint32 baudrate);
-
-
+uint32_t Calendar2Sec(TIME *pstime, uint8 isbcd);
+void Sec2Calendar(TIME *pstime, uint32_t ulsec);
 #endif
 
 

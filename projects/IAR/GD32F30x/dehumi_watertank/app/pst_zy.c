@@ -912,75 +912,75 @@ uint8 ParamLoad_Test(void)
         GD_Para_RW(F251_PADDR, temp, 6, false);
     }
 
-    MoveBuffer(gs_PstPara.Addr, addrbak, 6);
-    MoveBuffer(temp, gs_PstPara.Addr, 6);
-    if(CmpBuffer(gs_PstPara.Addr, addrbak, 6) && (gl_SysRunStt & HRS_PARALD))
-    {
-//	       gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
-       
-//        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
-//	        gs_OS.Message_Send(&gs_MainQueue, &msgidA[MSG_MAIN_BLE_CHK], 1);
-
-    }
-    
-                                            //读取参数
-    GD_Para_RW(PARA_GPRS, buff, PARA_GPRS_PLEN, false);
-                                            //判断参数变化,决定是否重连
-    ip = RByteToLong(buff);
-    pt = RByteToInt(buff + 4);
-    len_apn = strlen((string)(buff + 6));
-    if(len_apn > 30)
-    {
-        len_apn = 30;
-    }
-                                           //不是初次刷新参数
-    if(gl_SysRunStt & HRS_PARALD)
-    {
-        if((gs_FarpVar.dcip != ip) || 
-           (gs_FarpVar.dcpt != pt) ||
-//	           (gs_FarpVar.dcib != ib) || 
-//	           (gs_FarpVar.dcpb != pb) ||
-           (len_apn != strlen((string)gs_FarpVar.gapn)) || 
-           (CmpBuffer(buff + 6, gs_FarpVar.gapn, len_apn) != 0))
-        {                                   //执行参数更改触发的重连
-//            gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);//(MSG_FARP_PARACHG, TASK_FARP_TKID);
-        }
-    }
-
-    gs_FarpVar.dcip = ip;                   //主站首选ip地址
-    gs_FarpVar.dcpt = pt;                   //主站首选端口号
-    gs_FarpVar.dcib = ip;                   //主站备用ip地址
-    gs_FarpVar.dcpb = pt;                   //主站备用端口号
-                                            //APN
-    if(len_apn == 0)
-    {                                       //初始化为cmnet
-        MoveBuffer("cmnet", gs_FarpVar.gapn, 6);
-    }
-    else
-    {                                       //判断是否有非法字符
-        for(uc_i = 0; uc_i < len_apn; uc_i++)
-        {
-            if(buff[6 + uc_i] > 127)
-            {
-                break;
-            }
-        }
-
-        if(uc_i != len_apn)                 //非法,初始化为cmnet
-        {
-            MoveBuffer("cmnet", gs_FarpVar.gapn, 6);
-        }
-        else
-        {
-            MoveBuffer(buff + 6, gs_FarpVar.gapn, 30);
-            gs_FarpVar.gapn[29] = 0;
-        }
-    }
-    GD_Para_RW(PARA_HB, (uint8_t *)&gs_FarpVar.hbcy, 2, false);
-    if(gs_FarpVar.hbcy > 900 || gs_FarpVar.hbcy < 60)
-    {
-        gs_FarpVar.hbcy = 300;
-    }
+//    MoveBuffer(gs_PstPara.Addr, addrbak, 6);
+//    MoveBuffer(temp, gs_PstPara.Addr, 6);
+//    if(CmpBuffer(gs_PstPara.Addr, addrbak, 6) && (gl_SysRunStt & HRS_PARALD))
+//    {
+////	       gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
+//       
+////        gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);
+////	        gs_OS.Message_Send(&gs_MainQueue, &msgidA[MSG_MAIN_BLE_CHK], 1);
+//
+//    }
+//    
+//                                            //读取参数
+//    GD_Para_RW(PARA_GPRS, buff, PARA_GPRS_PLEN, false);
+//                                            //判断参数变化,决定是否重连
+//    ip = RByteToLong(buff);
+//    pt = RByteToInt(buff + 4);
+//    len_apn = strlen((string)(buff + 6));
+//    if(len_apn > 30)
+//    {
+//        len_apn = 30;
+//    }
+//                                           //不是初次刷新参数
+//    if(gl_SysRunStt & HRS_PARALD)
+//    {
+//        if((gs_FarpVar.dcip != ip) || 
+//           (gs_FarpVar.dcpt != pt) ||
+////	           (gs_FarpVar.dcib != ib) || 
+////	           (gs_FarpVar.dcpb != pb) ||
+//           (len_apn != strlen((string)gs_FarpVar.gapn)) || 
+//           (CmpBuffer(buff + 6, gs_FarpVar.gapn, len_apn) != 0))
+//        {                                   //执行参数更改触发的重连
+////            gs_OS.Message_Send(&gs_TKFarpQueue, &msgidA[MSG_FARP_PARACHG], 1);//(MSG_FARP_PARACHG, TASK_FARP_TKID);
+//        }
+//    }
+//
+//    gs_FarpVar.dcip = ip;                   //主站首选ip地址
+//    gs_FarpVar.dcpt = pt;                   //主站首选端口号
+//    gs_FarpVar.dcib = ip;                   //主站备用ip地址
+//    gs_FarpVar.dcpb = pt;                   //主站备用端口号
+//                                            //APN
+//    if(len_apn == 0)
+//    {                                       //初始化为cmnet
+//        MoveBuffer("cmnet", gs_FarpVar.gapn, 6);
+//    }
+//    else
+//    {                                       //判断是否有非法字符
+//        for(uc_i = 0; uc_i < len_apn; uc_i++)
+//        {
+//            if(buff[6 + uc_i] > 127)
+//            {
+//                break;
+//            }
+//        }
+//
+//        if(uc_i != len_apn)                 //非法,初始化为cmnet
+//        {
+//            MoveBuffer("cmnet", gs_FarpVar.gapn, 6);
+//        }
+//        else
+//        {
+//            MoveBuffer(buff + 6, gs_FarpVar.gapn, 30);
+//            gs_FarpVar.gapn[29] = 0;
+//        }
+//    }
+//    GD_Para_RW(PARA_HB, (uint8_t *)&gs_FarpVar.hbcy, 2, false);
+//    if(gs_FarpVar.hbcy > 900 || gs_FarpVar.hbcy < 60)
+//    {
+//        gs_FarpVar.hbcy = 300;
+//    }
     
     SYS_OK();
 }
@@ -1937,7 +1937,7 @@ uint8 ZY_Test(const PST_TableStr* tbl, PST_Frame* frm)
 //            gs_OS.Message_Send(&gs_TKNetp4Queue, &msgidA[MSG_NETP_CHECK], 1);
 //        }
         
-        gs_OS.Message_Send(&gs_TKSlvQueue, &msgidA[MSG_FARP_CHECK], 1);
+//        gs_OS.Message_Send(&gs_TKSlvQueue, &msgidA[MSG_FARP_CHECK], 1);
         gs_SysVar.terstt.bit.blecheck = 1;
         gs_OS.Message_Send(&gs_MainQueue, &msgidA[MSG_MAIN_BLE_CHK], 1);
         
@@ -4475,71 +4475,71 @@ const PST_TableStr gss_PstZyTbl[] =
         __NULL,
         
     },    
-
-    {                                   //设置设备参数（预付费产品）
-        0x8044,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ParaPrepayInfo,
-        (void*)ParaPrepayInfo,
-        0x0000,
-        0x0000,
-        
-        0,
-        __NULL,
-        __NULL,
-        __NULL,
-        
-    },    
-    {                                   //充值
-        0x8045,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ParaRechargeInfo,
-        (void*)ParaRechargeInfo,
-        0x0000,
-        0x0000,
-        
-        0,
-        
-        __NULL,
-        __NULL,
-        __NULL,
-    },  
-    {                                   //调价
-        0x8319,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ParaPriceAdjustInfo,
-        (void*)ParaPriceAdjustInfo,
-        0x0000,
-        0x0000,
-        
-        0,
-        
-        __NULL,
-        __NULL,
-        __NULL,
-    },  
-    {                                   //RTU ftp参数
-        0x8353,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_Para_Ftp,      
-        (void*)ZY_Para_Ftp,
-        RUNPARA_FTP_PLEN,
-        RUNPARA_FTP,
-        
-        0,
-        
-        (void*)ParamLoad_Ftp,
-        DefParaFtp,
-        __NULL,
-    },  
+//
+//    {                                   //设置设备参数（预付费产品）
+//        0x8044,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ParaPrepayInfo,
+//        (void*)ParaPrepayInfo,
+//        0x0000,
+//        0x0000,
+//        
+//        0,
+//        __NULL,
+//        __NULL,
+//        __NULL,
+//        
+//    },    
+//    {                                   //充值
+//        0x8045,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ParaRechargeInfo,
+//        (void*)ParaRechargeInfo,
+//        0x0000,
+//        0x0000,
+//        
+//        0,
+//        
+//        __NULL,
+//        __NULL,
+//        __NULL,
+//    },  
+//    {                                   //调价
+//        0x8319,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ParaPriceAdjustInfo,
+//        (void*)ParaPriceAdjustInfo,
+//        0x0000,
+//        0x0000,
+//        
+//        0,
+//        
+//        __NULL,
+//        __NULL,
+//        __NULL,
+//    },  
+//    {                                   //RTU ftp参数
+//        0x8353,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_Para_Ftp,      
+//        (void*)ZY_Para_Ftp,
+//        RUNPARA_FTP_PLEN,
+//        RUNPARA_FTP,
+//        
+//        0,
+//        
+//        (void*)ParamLoad_Ftp,
+//        DefParaFtp,
+//        __NULL,
+//    },  
     {                                   //阀控
         0x8630,
         PST_TBL_SMLR1 | 3,
@@ -4556,53 +4556,53 @@ const PST_TableStr gss_PstZyTbl[] =
         __NULL,
         __NULL,
     },
-    {                                   //RTU上告时间
-        0x8641,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_Copy_Interval,      
-        (void*)ZY_Copy_Interval,
-        0x0002,
-        PARA_COPY_INTERVAL,
-        
-        PARA_TYPE_PST,
-        
-        (void*)ParamLoad_CP,
-        DefParaCP,
-        __NULL,
-    },  
-    {                                   //RTU GPRS参数
-        0x8642,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_Para_GPRS,      
-        (void*)ZY_Para_GPRS,
-        PARA_GPRS_PLEN,
-        PARA_GPRS,
-        
-        0,//PARA_TYPE_FARP,
-        
-        (void*)ParamLoad_Gprs,
-        DefParaGPRS,
-        __NULL,
-    },  
-    {                                   //读设备返回
-        0x8643,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ParaProcMeterInfo,
-        __NULL,
-        0x0000,
-        0x0000,
-        0,
-        __NULL,
-        __NULL,
-        __NULL,
-        
-    },
+//    {                                   //RTU上告时间
+//        0x8641,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_Copy_Interval,      
+//        (void*)ZY_Copy_Interval,
+//        0x0002,
+//        PARA_COPY_INTERVAL,
+//        
+//        PARA_TYPE_PST,
+//        
+//        (void*)ParamLoad_CP,
+//        DefParaCP,
+//        __NULL,
+//    },  
+//    {                                   //RTU GPRS参数
+//        0x8642,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_Para_GPRS,      
+//        (void*)ZY_Para_GPRS,
+//        PARA_GPRS_PLEN,
+//        PARA_GPRS,
+//        
+//        0,//PARA_TYPE_FARP,
+//        
+//        (void*)ParamLoad_Gprs,
+//        DefParaGPRS,
+//        __NULL,
+//    },  
+//    {                                   //读设备返回
+//        0x8643,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ParaProcMeterInfo,
+//        __NULL,
+//        0x0000,
+//        0x0000,
+//        0,
+//        __NULL,
+//        __NULL,
+//        __NULL,
+//        
+//    },
 
     {                                   //应用程序版本号
         0x8644,
@@ -4621,22 +4621,22 @@ const PST_TableStr gss_PstZyTbl[] =
         __NULL,        
     },
 
-    {                                   //流量计类型
-        0x8645,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_ReadSupportNetpFW,
-        __NULL,
-        0x0000,
-        0x0000,
-        
-        0,
-        
-        __NULL, 
-        __NULL,
-        __NULL,        
-    },
+//    {                                   //流量计类型
+//        0x8645,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_ReadSupportNetpFW,
+//        __NULL,
+//        0x0000,
+//        0x0000,
+//        
+//        0,
+//        
+//        __NULL, 
+//        __NULL,
+//        __NULL,        
+//    },
     {                                   //RTU心跳间隔
         0xA617,
         PST_TBL_SMLR1 | 3,
@@ -4654,82 +4654,82 @@ const PST_TableStr gss_PstZyTbl[] =
         __NULL,
     },  
 
-    {                                   //增加安装设备
-        0xA618,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        __NULL,        
-        (void*)ParaProcMeterInfo,
-        0x0000,
-        0x0000,
-        PARA_TYPE_INP,
-        (void*)ParamLoad_MeterInfo,
-        __NULL,
-        (void*)RstParaF10,
-    },
-    {                                   //安装包
-        0xA619,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_OpenPackage,        
-        (void*)ZY_OpenPackage,
-        0x0000,
-        0x0000,
-        0,
-        __NULL,
-        __NULL,
-        __NULL,
-        
-    },  
-    {                                   //删除已安装的设备
-        0xA620,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        __NULL,        
-        (void*)ParaProcMeterInfoDel,
-        0x0000,
-        0x0000,
-        0,
-        (void*)ParamLoad_MeterInfo,
-        __NULL,
-        __NULL,
-        
-        
-    },  
+//    {                                   //增加安装设备
+//        0xA618,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        __NULL,        
+//        (void*)ParaProcMeterInfo,
+//        0x0000,
+//        0x0000,
+//        PARA_TYPE_INP,
+//        (void*)ParamLoad_MeterInfo,
+//        __NULL,
+//        (void*)RstParaF10,
+//    },
+//    {                                   //安装包
+//        0xA619,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_OpenPackage,        
+//        (void*)ZY_OpenPackage,
+//        0x0000,
+//        0x0000,
+//        0,
+//        __NULL,
+//        __NULL,
+//        __NULL,
+//        
+//    },  
+//    {                                   //删除已安装的设备
+//        0xA620,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        __NULL,        
+//        (void*)ParaProcMeterInfoDel,
+//        0x0000,
+//        0x0000,
+//        0,
+//        (void*)ParamLoad_MeterInfo,
+//        __NULL,
+//        __NULL,
+//        
+//        
+//    },  
     
-    {                                   //流量上告包(后付费)
-        0xA621,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_CurrData,        
-        (void*)ZY_Report_Confirm,
-        0x0000,
-        0x0000,
-        0,
-        __NULL,
-        __NULL,
-        __NULL,
-        
-    },  
-    {                                   //流量上告包(预付费)
-        0xA622,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_CurrData,        
-        (void*)ZY_Report_Confirm,
-        0x0000,
-        0x0000,
-        0,
-        __NULL,
-        __NULL,
-        __NULL,
-        
-    },  
+//    {                                   //流量上告包(后付费)
+//        0xA621,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_CurrData,        
+//        (void*)ZY_Report_Confirm,
+//        0x0000,
+//        0x0000,
+//        0,
+//        __NULL,
+//        __NULL,
+//        __NULL,
+//        
+//    },  
+//    {                                   //流量上告包(预付费)
+//        0xA622,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_CurrData,        
+//        (void*)ZY_Report_Confirm,
+//        0x0000,
+//        0x0000,
+//        0,
+//        __NULL,
+//        __NULL,
+//        __NULL,
+//        
+//    },  
     {                                   //读设备返回
         0xA623,
         PST_TBL_SMLR1 | 3,
@@ -4747,23 +4747,23 @@ const PST_TableStr gss_PstZyTbl[] =
         
     },
     
-    {                                   //告警上告包返回帧
-        0xA624,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        (void*)ZY_WarningData,
-        (void*)ZY_Report_Confirm,
-        0x0000,
-        0x0000,
-        
-        0,
-        
-        __NULL,   
-        __NULL,
-        __NULL,
-        
-    },  
+//    {                                   //告警上告包返回帧
+//        0xA624,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        (void*)ZY_WarningData,
+//        (void*)ZY_Report_Confirm,
+//        0x0000,
+//        0x0000,
+//        
+//        0,
+//        
+//        __NULL,   
+//        __NULL,
+//        __NULL,
+//        
+//    },  
     {                       //RTU地址修改
         0xC618,
         PST_TBL_SMLR1 | 3,
@@ -4812,24 +4812,24 @@ const PST_TableStr gss_PstZyTbl[] =
         __NULL,
         
     },    
-    {                                   //透传
-        0xFAF1,
-        PST_TBL_SMLR1 | 3,
-        0x0000,
-        0x0000,
-        __NULL,        
-        (void*)ZY_Transparent,
-
-        0x0000,
-        0x0000,
-        
-        0,
-        
-        __NULL, 
-        __NULL,
-        __NULL,
-        
-    },
+//    {                                   //透传
+//        0xFAF1,
+//        PST_TBL_SMLR1 | 3,
+//        0x0000,
+//        0x0000,
+//        __NULL,        
+//        (void*)ZY_Transparent,
+//
+//        0x0000,
+//        0x0000,
+//        
+//        0,
+//        
+//        __NULL, 
+//        __NULL,
+//        __NULL,
+//        
+//    },
 
     
     {

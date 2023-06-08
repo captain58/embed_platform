@@ -2340,6 +2340,274 @@ void CalcTimeFromSecs(uint8* out, uint32 secs)
     
 }
 
+/*End of panyugang on 2011-10-8 10:8 1.0*/
+//==============================================================================
+//功能：将RAM中的数据进行倒序
+//输入参数：uint8 *S_p—被设置数据的首地址，uint16 Len—倒序数据的长度
+//输出参数：无
+//==============================================================================
+void memrvrs(void *pbuff,uint16_t ln)
+{
+    uint8_t ucdata;
+    uint8_t *pucdata = (uint8_t *)pbuff + ln - 1;
+    
+    ln >>= 1;
+    while(ln > 0)
+    {
+        ucdata = *pucdata;
+        *pucdata -- = *(uint8_t *)pbuff;
+        *(uint8_t *)pbuff = ucdata;
+        pbuff = (uint8_t *)pbuff + 1;
+        ln --;
+    }
+}
+
+const uint8_t g_ucSPblLeapMonthDay[]={0,31,29,31,30,31,30,31,31,30,31,30,31};
+const uint8_t g_ucSPblAverMonthDay[]={0,31,28,31,30,31,30,31,31,30,31,30,31};
+//==============================================================================
+//功能：按公历校验日期的函数
+//输入参数：uint8 * date—需要检查年月日的合法性；uint8 mode:0检查年,1不检查年,2检查年但年为0xff时不关注年
+//输出参数：返回: 0-有效，1-无效  
+//注意：
+//==============================================================================
+uint8_t DateCheck(uint8_t *pdate,uint8_t mode)
+{
+	uint8_t ucdata = *(pdate + 2);///取年
+	uint8_t * pucdata;
+	
+	if(mode == 1)
+	{							///不检查年时，日期按平年检查，只能为平年
+		pucdata = (uint8_t *)g_ucSPblAverMonthDay;///平年
+	}else if((ucdata == 0xff) && (mode == 2))
+	{							///是否要关注年，年为0xff时，不关注年，闰年也满足要求
+		pucdata = (uint8_t *)g_ucSPblLeapMonthDay;
+	}else
+	{
+		ucdata = (ucdata);
+		if(ucdata > 99)
+			return FALSE;			///大于99，说明BCD码无效
+		if((ucdata & 0x03) == 0)
+			pucdata = (uint8_t *)g_ucSPblLeapMonthDay;///闰年
+		else
+			pucdata = (uint8_t *)g_ucSPblAverMonthDay;///平年
+	}
+	ucdata = (*(pdate + 1));///取月
+	if((ucdata > 12) || (ucdata == 0))
+		return FALSE;					///输入月份无效
+	ucdata = *(pucdata + ucdata);	///取当月日的最大值
+	if((*pdate > ucdata) || /*((*pdate & 0x0f) > 9) ||*/ (*pdate == 0))
+		return FALSE;					///日无效
+	return TRUE;
+}
+//==============================================================================
+//功能：检验字符串是否为BCD码，是返回0，不是返回1
+//输入参数：uint8* pucdata——检验数据的头指针，uint8 len——被检验数据的长度
+//输出参数：0——数据全为BCD码，非0——不是全为BCD码
+//注意：大小端模式
+//==============================================================================
+uint8_t TestBcd(uint8_t* pucdata,uint8_t len)
+{
+	while(len > 0)
+	{
+		if((*pucdata > 0x99) || ((*pucdata & 0x0f) > 0x09))
+			return FALSE;
+		pucdata ++;
+		len --;
+	}
+	return TRUE;
+}
+
+//==============================================================================
+//功能：按公历校验时钟的函数，不检查星期是否正确
+//输入参数：S_PLT_RTC_DATA* time—需要检查时间；uint8 mode—0校验全部检验，1不检查日期和星期，2不检验星期
+//输出参数：返回: TRUE-有效，FALSE-无效  
+//注意：
+//==============================================================================
+uint8_t CalendarCheck(TIME* time,uint8_t mode)
+{
+	uint8_t *pucdata = (uint8_t *)time;
+    
+//    if(mode == 5)
+//    {
+//        
+//    }else
+    {
+//        if(TestBcd(pucdata,3) == FALSE)
+//            return FALSE;
+
+        if(*pucdata <= 59)
+        {									///判断秒的数据是否正确
+            pucdata ++;
+            if(*pucdata <= 59)
+            {								///判断分的数据是否正确
+                pucdata ++;
+                if(*pucdata<=23)
+                {							///判断小时的数据是否正确
+                    if(mode == 1)
+                        return TRUE;			///不检查日期和星期，直接返回有效
+                    pucdata ++;
+                    if(DateCheck(pucdata,0) == TRUE)
+                        return TRUE;			///年月日无效
+                }
+            }
+        }
+        return FALSE;
+    }
+}
+
+//==============================================================================
+//功能：根据所给的时间，输出相对于2000.01.01的秒数
+//输入参数：S_PLT_RTC_DATA *pstime—输入时钟
+//输出参数：秒数，相对于2000.01.01
+//注意：
+//==============================================================================
+const uint8_t g_ucSPblTimeMaxDec[]={60,60,24};//时钟累加，跨分、时、天、月、年的最大数，跨天特殊处理
+const uint16_t g_uiSPblLeapMonthDay[]={0, 31, 60, 91,121, 152, 182, 213, 244, 274, 305, 335};
+const uint16_t g_uiSPblAverMonthDay[]={0, 31, 59, 90,120, 151, 181, 212, 243, 273, 304, 334};
+///将日期转换成相对于2000年1月1日的天
+uint32_t Date2Day(uint8_t *pdate)
+{
+	uint16_t * pdata16;
+	uint8_t data8;
+	uint32_t data32;
+	
+    if(DateCheck(pdate,0) == FALSE)	///年月日无效	///检查时间，不检查星期
+    {
+        return 0xffffffff;
+    }
+	data8 = (*(pdate + 2));
+	if(data8 > 99)							// 跟秒转换成时钟一样，大于99年就返回错误
+	{
+		return 0xffffffff;
+	}
+	data32 = (uint32_t)data8*365;			//计算当前年的1月1日前的天数
+	if(data8 != 0)
+	{
+		data32 += ((data8-1) >> 2)+1;///计算前面闰年的天数
+	}
+	if((data8 & 0x03)==0)
+	{												//闰年
+		pdata16 = (uint16_t *)g_uiSPblLeapMonthDay;
+	}else
+	{
+		pdata16 = (uint16_t *)g_uiSPblAverMonthDay;
+	}
+	data8 = (uint8_t)(*(pdate + 1));
+	data32 += *(pdata16 -1 + data8%13);//加入月的天数
+	data32 += (uint8_t)(*pdate)-1;		//加入日
+    return data32;							    //返回结果
+}
+
+uint8_t Date2Week(uint8_t *pdate,uint8_t fbigmode)
+{
+    uint32_t data32;
+    uint8_t big[3];
+	if(fbigmode)
+    {
+        memcpy(big,pdate,3);
+        memrvrs(big,3);
+        data32 = Date2Day(big);
+    }else
+        data32 = Date2Day(pdate);
+    if(data32 == 0xffffffff)
+    {
+        return 0xff;
+    }
+    return (data32 + 6) % 7;
+}
+
+uint32_t Calendar2Sec(TIME *pstime, uint8 isbcd)
+{
+	uint8_t *p1data8,*p2data8;
+	uint32_t data32;
+	uint8_t i;
+	
+    uint8 hextime[6];
+    uint32 result;
+    
+    MoveBuffer(pstime, hextime, 6);
+    if(isbcd)
+    {
+        ByteArrayBcdToHex(hextime, hextime, 6);
+    } 
+    
+    if(CalendarCheck(hextime, 0) == FALSE)	///检查时间，不检查星期
+    {
+        return 0xffffffff;
+    }
+	data32 = Date2Day(&hextime[3]);
+    if(data32 == 0xffffffff)
+        return 0xffffffff;
+	p1data8 = &hextime[2];
+	p2data8 = (uint8_t *)g_ucSPblTimeMaxDec + 2;
+	for(i=0;i<3;i++)
+	{
+		data32 *= *p2data8;						//将天数转换成小时
+		data32 += (*p1data8);	//加上小时
+		p2data8 --;
+		p1data8 --;
+	}
+    return data32;							    //返回结果
+}
+
+//==============================================================================
+//功能：根据所给的相对于2000.01.01的秒数，计算年月日时分秒
+//输入参数：S_PLT_RTC_DATA *pstime—输出的时钟存放的地址；uint32 ulsec—输入的秒数
+//输出参数：年月日时分秒及星期
+//注意：
+//==============================================================================
+void Sec2Calendar(TIME *pstime, uint32_t ulsec)
+{
+	uint16_t * pdata16,ui1data,ui2data;
+	uint8_t ucdata;
+	
+	ui1data = ulsec / 86400;							///得到天数
+	ulsec = ulsec % 86400;								///得到小于1天的秒数
+	pstime->hour = (ulsec / 3600);		///计算小时
+	ui2data = ulsec % 3600;
+	pstime->min = (ui2data / 60);	///计算分
+	pstime->sec = (ui2data % 60);	///计算秒
+	
+	pstime->yearh = 0x20;								///年的高字节为0x20
+	pstime->week = ((ui1data + 6) % 7);	///计算星期几
+	ucdata = ui1data / 1461;							///获取当前天数对应多少个4年
+	ui1data %= 1461;									///4年内的天数：366+365+365+365=1461
+	ucdata <<= 2;										///小于4年的年数
+	if(ui1data >= 366)
+	{
+		if(ui1data >= 1096)
+		{
+			ui1data -= 1096;
+			ucdata += 3;									///年数加3年
+		}else if(ui1data >= 731)
+		{
+			ui1data -= 731;
+			ucdata += 2;									///年数加2年
+		}else
+		{
+			ui1data -= 366;
+			ucdata += 1;									///年数加1年
+		}
+		pdata16 = (uint16_t *)g_uiSPblAverMonthDay;			///指针指向平年月份总天数
+	}else
+	{													///剩下的天数为闰年
+		pdata16 = (uint16_t *)g_uiSPblLeapMonthDay;			///指针指向闰年月份总天数
+	}
+	pstime->year = (ucdata);			///计算年
+	ucdata = ui1data>>5;				///天数除以32，得到大约的月数
+	pdata16 += ucdata;
+	ucdata ++;
+	if(ucdata < 12)
+	{
+		if(ui1data >= *(pdata16 + 1))
+		{
+			ucdata ++;
+			pdata16 ++;
+		}
+	}
+	pstime->day = (ui1data + 1 - *pdata16);	///计算日
+	pstime->month = (ucdata);			///计算月
+}
 
 
 
