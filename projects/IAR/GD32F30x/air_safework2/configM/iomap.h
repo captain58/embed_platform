@@ -82,8 +82,8 @@ typedef enum {
 //    LED_NUM,
 } LedNo;
 #define SYS_LED_RUN GPIO_LED_SUB1_NORM
-
-
+#define GPIO_LEDWITH_SAL_GPRS GPIO_LED_RUN
+#define GPIO_LED_GPRS GPIO_LED_RUN
 /******************************************************************************
 **GPO输出端口枚举定义
 ******************************************************************************/

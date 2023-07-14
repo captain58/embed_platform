@@ -4,6 +4,9 @@
   <project>
     <path>$WS_DIR$\dehumi_watertank.ewp</path>
   </project>
+  <project>
+    <path>$WS_DIR$\..\dehumi_waterwheel\dehumi_waterwheel.ewp</path>
+  </project>
   <batchBuild/>
 </workspace>
 

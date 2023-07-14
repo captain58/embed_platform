@@ -148,7 +148,7 @@ typedef struct
 
 EXT_MAIN SysVar gs_SysVar;
 
-#define CON_SENSOR_FILTER 3
+#define CON_SENSOR_FILTER 2
 typedef struct _ST_WATER_SENSOR_
 {
     uint8_t low;

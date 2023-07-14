@@ -1,4 +1,4 @@
-#define EXT_FARP
+#define EXT_RF_LOCAL
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,41 +12,41 @@
 #include "farp.h"
 
 #include "A7139reg.h"
-uint16 gui_FarpWmSafeCnt;                   //数据通讯状态断线重连安全时间倒计时(秒)
-uint16 gui_FarpSerSafeCnt;                   //数据通讯状态断线重连安全时间倒计时(秒)
+uint16 gui_RFWmSafeCnt;                   //数据通讯状态断线重连安全时间倒计时(秒)
+uint16 gui_RFSerSafeCnt;                   //数据通讯状态断线重连安全时间倒计时(秒)
 
 
 
 /******************************************************************************
 **重连间隔倒计时
 ******************************************************************************/
-uint16 gui_FarpWmRcSec;                     //GPRS通路重连间隔计数器(秒倒计时)
-uint16 gui_FarpSerRcSec;                     //GPRS Tcp Server通路重连间隔计数器(秒倒计时)
+uint16 gui_RFWmRcSec;                     //GPRS通路重连间隔计数器(秒倒计时)
+uint16 gui_RFSerRcSec;                     //GPRS Tcp Server通路重连间隔计数器(秒倒计时)
 
 
 /******************************************************************************
 **连续重连失败次数
 ******************************************************************************/
-uint8 guc_FarpWmRcFailCnt;                  //GPRS连续重连失败次数
-uint8 guc_FarpSerRcFailCnt;                 //Tcp Server连续重连失败次数
-uint16 guc_FarpWmRcFailNorFtpCnt;                  //GPRS连续重连但是FTP在线
+uint8 guc_RFWmRcFailCnt;                  //GPRS连续重连失败次数
+uint8 guc_RFSerRcFailCnt;                 //Tcp Server连续重连失败次数
+uint16 guc_RFWmRcFailNorFtpCnt;                  //GPRS连续重连但是FTP在线
 
 
 /******************************************************************************
 **重连次数
 ******************************************************************************/
-uint8 guc_FarpWmRcCnt;                      //联网失败后的重连次数(yzy:可在发起联网前赋值)
-uint8 guc_FarpSerRcCnt;                     //联网失败后的重连次数(yzy:可在发起联网前赋值)
+uint8 guc_RFWmRcCnt;                      //联网失败后的重连次数(yzy:可在发起联网前赋值)
+uint8 guc_RFSerRcCnt;                     //联网失败后的重连次数(yzy:可在发起联网前赋值)
 
 
 
 /******************************************************************************
 **心跳周期计数器
 ******************************************************************************/
-uint16 gui_FarpWmHBCYCnt;                   //心跳周期计数器
+uint16 gui_RFWmHBCYCnt;                   //心跳周期计数器
 
 
-uint8 guc_FarpWmHKUnRpyCnt;                 //心跳无回复次数计数器
+uint8 guc_RFWmHKUnRpyCnt;                 //心跳无回复次数计数器
 
 
 
@@ -54,20 +54,20 @@ uint8 guc_FarpWmHKUnRpyCnt;                 //心跳无回复次数计数器
 /******************************************************************************
 **其它计数器
 ******************************************************************************/
-uint16 gui_FarpHdRstCnt;                    //无线猫初始化花费时间计数器(如未插卡时会出现初始化失败)
-uint8 guc_FarpPstTryCnt;                    //GPRS通路被动激活重拨次数计数器
-uint8 guc_FarpNVHours;                      //无数据通讯小时数
-uint8 guc_FastWmSttReqCnt;                  //MD 操作步骤延时
+uint16 gui_RFHdRstCnt;                    //无线猫初始化花费时间计数器(如未插卡时会出现初始化失败)
+uint8 guc_RFPstTryCnt;                    //GPRS通路被动激活重拨次数计数器
+uint8 guc_RFNVHours;                      //无数据通讯小时数
+uint8 guc_Fast2WmSttReqCnt;                  //MD 操作步骤延时
 
-uint16 gui_FarpServerNoDataCnt;             //TCP Server  在侦听的情况下，无数据计数
-uint16 gui_FarpFromClnNoDataCnt;             //TCP Server  与客户端1链接的情况下，无数据计数
-uint8  guc_FarpFromClnCloseCnt;             //TCP Server  与客户端1链接的情况下, 主动关闭客户端次数
+uint16 gui_RFServerNoDataCnt;             //TCP Server  在侦听的情况下，无数据计数
+uint16 gui_RFFromClnNoDataCnt;             //TCP Server  与客户端1链接的情况下，无数据计数
+uint8  guc_RFFromClnCloseCnt;             //TCP Server  与客户端1链接的情况下, 主动关闭客户端次数
 
-uint8  guc_FarpReActiveFlag;                //被动激活模式，采集器重启后，需要先与主站建立链接
+uint8  guc_RFReActiveFlag;                //被动激活模式，采集器重启后，需要先与主站建立链接
 
 
 
-uint16 gui_smseq;
+//uint16 gui_smseq;
 static char         g_RFMng_buf_recv[BUFQUEUE_MSG_MAX+4];
 
 size_t       g_RFMng_recv_size;
@@ -78,9 +78,9 @@ ktask_t      gs_RFMngHandle;
 kbuf_queue_t gs_RFMngQueue;
 char         gc_RFMngbuf[MSG_BUFF_LEN];
 
-void Farp_SendTestData(uint8 ch);
+void RF_SendTestData(uint8 ch);
 /************************************************************************
- * @function: Farp_PreInit
+ * @function: RF_PreInit
  * @描述: 远程参数初始化
  * @参数: 
  * @返回: 
@@ -89,49 +89,49 @@ void Farp_SendTestData(uint8 ch);
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void Farp_PreInit(void)
+void RF_PreInit(void)
 {                                           //参数载入
-    memset((uint8*)&gs_FarpVar, 0, sizeof(FarpVar));
+    memset((uint8*)&gs_RFVar, 0, sizeof(FarpVar));
     memset((uint8_t *)&gs_FtpPara,0,sizeof(S_FTPPARA));
     
 //    LoadSystemParam(PARA_TYPE_FARP);
 
-//    gui_FarpWmRcSec = 10;                   //初始化完成10s后进行远程连接
-//    gui_FarpSerRcSec = 10;
-//    //gui_FarpEthRcSec = 10;
+//    gui_RFWmRcSec = 10;                   //初始化完成10s后进行远程连接
+//    gui_RFSerRcSec = 10;
+//    //gui_RFEthRcSec = 10;
 //    
-//    guc_FarpWmHKUnRpyCnt = 0;               //心跳无回复次数计数器清零
-//    //guc_FarpEthHKUnRpyCnt = 0;
+//    guc_RFWmHKUnRpyCnt = 0;               //心跳无回复次数计数器清零
+//    //guc_RFEthHKUnRpyCnt = 0;
 //    
-//    gui_FarpWmSafeCnt = 0;
-//    gui_FarpSerSafeCnt = 0;
-//    //gui_FarpEthSafeCnt = 0;
+//    gui_RFWmSafeCnt = 0;
+//    gui_RFSerSafeCnt = 0;
+//    //gui_RFEthSafeCnt = 0;
 //    
-//    guc_FarpWmRcCnt = 0;                   //联网失败后重连次数清零
-//    guc_FarpSerRcCnt = 0;
-//    //guc_FarpEthRcCnt = 0;
+//    guc_RFWmRcCnt = 0;                   //联网失败后重连次数清零
+//    guc_RFSerRcCnt = 0;
+//    //guc_RFEthRcCnt = 0;
 //    
-//    gui_FarpHdRstCnt = 0;                   //模块复位计数器清零
-//    guc_FarpNVHours = 0;                    //无IP数据时间清零
-//    guc_FarpPstTryCnt = 0;                   //被动激活模式重拨次数计数器清零
+//    gui_RFHdRstCnt = 0;                   //模块复位计数器清零
+//    guc_RFNVHours = 0;                    //无IP数据时间清零
+//    guc_RFPstTryCnt = 0;                   //被动激活模式重拨次数计数器清零
 //    
-//    gui_FarpBkTmCnt = 0;                    //被动激活无数据休眠计数器清零
-//    guc_FarpWmRcFailCnt = 0;
-//    guc_FarpWmRcFailNorFtpCnt = 0;
-//    //guc_FarpEthRcFailCnt = 0;
+//    gui_RFBkTmCnt = 0;                    //被动激活无数据休眠计数器清零
+//    guc_RFWmRcFailCnt = 0;
+//    guc_RFWmRcFailNorFtpCnt = 0;
+//    //guc_RFEthRcFailCnt = 0;
 //    
-//    gui_FarpServerNoDataCnt = 0;
-//    guc_FarpFromClnCloseCnt = 0;
+//    gui_RFServerNoDataCnt = 0;
+//    guc_RFFromClnCloseCnt = 0;
 //    
-//    guc_FarpLoginConfirmErr = 0;
-//    gul_FarpLoginDeadTime = 0xFFFFFFFF;
+//    guc_RFLoginConfirmErr = 0;
+//    gul_RFLoginDeadTime = 0xFFFFFFFF;
 //    
-//    gs_FarpVar.wmsv = 0x88000000;
+//    gs_RFVar.wmsv = 0x88000000;
     //gs_SysVar.mLPstt |= HLV_LPTASK_MDCK;
 
 }
 /************************************************************************
- * @function: Farp_SendIpData
+ * @function: RF_SendIpData
  * @描述: 远程通道发送GPRS的IP数据
  * 
  * @参数: 
@@ -145,7 +145,7 @@ void Farp_PreInit(void)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-uint8 Farp_SendIpData(uint8* buffer, uint16 len)
+uint8 RF_SendIpData(uint8* buffer, uint16 len)
 {
                                             //IP数据在通道可用的情况下发送
 //    if(g_ulTcp_fd >=0 )
@@ -161,15 +161,15 @@ uint8 Farp_SendIpData(uint8* buffer, uint16 len)
 //        else
 //        {
 //            uint8 msg = MSG_FARP_DISGPRS;
-//            krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
+//            krhino_buf_queue_send(&gs_TKRFQueue, &msg, 1);
 //            
-//            gui_FarpWmRcSec = 10;
+//            gui_RFWmRcSec = 10;
 //        }
 //    }
     return SYS_ERR_FT;                      //IP数据发生失败
 }
 /************************************************************************
- * @function: Farp_SendTestData
+ * @function: RF_SendTestData
  * @描述: 远程通道发送心跳帧
  * 
  * @参数: 
@@ -180,33 +180,33 @@ uint8 Farp_SendIpData(uint8* buffer, uint16 len)
  *-----------------------------------------------------------------------
  * @修改人: 
  ************************************************************************/
-void Farp_SendTestData(uint8 ch)
+void RF_SendTestData(uint8 ch)
 {
-    if(gs_FarpVar.login)
+    if(gs_RFVar.login)
     {
-        gs_FarpVar.hklen = RF_BuildLinkFrm(0x09, 0, gs_FarpVar.hkd);
+        gs_RFVar.hklen = RF_BuildLinkFrm(0x09, 0, gs_RFVar.hkd);
     }
     else
     {
-        gs_FarpVar.hklen = RF_BuildLinkFrm(0x05, 0xA619, gs_FarpVar.hkd);
+        gs_RFVar.hklen = RF_BuildLinkFrm(0x05, 0xA619, gs_RFVar.hkd);
     }
-    if(gs_FarpVar.hklen > 0)
+    if(gs_RFVar.hklen > 0)
     {
         if(ch == 0)
         {
-//	            Farp_SendIpData((uint8 *)cmdUpBuf, sizeof(cmdUpBuf));
-            Farp_SendIpData((uint8 *)gs_FarpVar.hkd, gs_FarpVar.hklen);
+//	            RF_SendIpData((uint8 *)cmdUpBuf, sizeof(cmdUpBuf));
+            RF_SendIpData((uint8 *)gs_RFVar.hkd, gs_RFVar.hklen);
 
         }
         else
         {
-            //Farp_SendEthData(gs_FarpVar.hkd, gs_FarpVar.hklen);
+            //RF_SendEthData(gs_RFVar.hkd, gs_RFVar.hklen);
         }
     }
 }
 
 ///************************************************************************
-// * @function: Farp_WMSecondProc
+// * @function: RF_WMSecondProc
 // * @描述: 无线猫的秒处理
 // * @参数: 
 // * @返回: 
@@ -215,40 +215,40 @@ void Farp_SendTestData(uint8 ch)
 // *-----------------------------------------------------------------------
 // * @修改人: 
 // ************************************************************************/
-void Farp_WMSecondProc(void)
+void RF_WMSecondProc(void)
 {
     uint8 uc_closeclnflag = 0;
 //    uint8 uc_closeserflag = 0;
     /*
-    if(gs_FarpVar.wmst & WMS_ETH0STT)
+    if(gs_RFVar.wmst & WMS_ETH0STT)
     {
         return;
     }
     */
                                             //yzy 2014-04-09,国网检测要求以太网优先,只要检测到网线即禁用GPRS.
-//	    if(gs_FarpVar.wmst & WMS_EHSTT)
+//	    if(gs_RFVar.wmst & WMS_EHSTT)
 //	    {
-//	        if((gs_FarpVar.wmst & WMS_STT_CLN) || (gs_FarpVar.wmst & WMS_STT_SER))
+//	        if((gs_RFVar.wmst & WMS_STT_CLN) || (gs_RFVar.wmst & WMS_STT_SER))
 //	        {
 //	//	            SYS_Message_Send(MSG_FARP_DISPPP, TASK_FARP_TKID);
 //	            uint8 msg = MSG_FARP_DISPPP;
-//	            krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
+//	            krhino_buf_queue_send(&gs_TKRFQueue, &msg, 1);
 //	            
 //	        }
-//	        gs_FarpVar.wmst &= ~WMS_CHALLSTT;
+//	        gs_RFVar.wmst &= ~WMS_CHALLSTT;
 //	        return;
 //	    }                                       //yzy 2014-04-09
                                             //获取模块状态
     TRFModemState modemstt = SYS_RF_Status();//SYS_MODM_Status();
 	
-    if(gui_FarpWmSafeCnt > 0)               //数据通讯状态断线重连安全时间倒计时
+    if(gui_RFWmSafeCnt > 0)               //数据通讯状态断线重连安全时间倒计时
     {
-        gui_FarpWmSafeCnt--;
+        gui_RFWmSafeCnt--;
     }
     
-    if(gui_FarpSerSafeCnt > 0)              //TCP Server 无数据通讯状态断线重连安全时间倒计时
+    if(gui_RFSerSafeCnt > 0)              //TCP Server 无数据通讯状态断线重连安全时间倒计时
     {
-        gui_FarpSerSafeCnt--;
+        gui_RFSerSafeCnt--;
     }
     
 //    if(!(modemstt.bit.typeChecked))         //模块还未识别
@@ -258,12 +258,12 @@ void Farp_WMSecondProc(void)
     
     if(!(modemstt.bit.chnrdy))              //是否完成AT配置
     {
-        if(++guc_FastWmSttReqCnt >= 5)      //每5秒钟
+        if(++guc_Fast2WmSttReqCnt >= 5)      //每5秒钟
         {
-            guc_FastWmSttReqCnt = 0;
+            guc_Fast2WmSttReqCnt = 0;
             //SYS_MODM_Step(Modem_Init);
 //            SYS_MODM_Reinit();
-//	            HAL_WIFI_Init(TASK_FARP_TKID,"tw14",gs_FarpVar.ap , &g_ulTcp_fd, 4);
+//	            HAL_WIFI_Init(TASK_FARP_TKID,"tw14",gs_RFVar.ap , &g_ulTcp_fd, 4);
 //            gs_GPIO.LED_BlinkSet(GPIO_LED_GPRS, 0xFF, 0, 0);
         }
         return;
@@ -271,31 +271,31 @@ void Farp_WMSecondProc(void)
 	
     if(!(modemstt.bit.regtt))               //是否完成网络注册
     {
-        gs_FarpVar.wmst &= ~WMS_CHALLSTT;
-        gs_FarpVar.mcsq = 0;
+        gs_RFVar.wmst &= ~WMS_CHALLSTT;
+        gs_RFVar.mcsq = 0;
                                             //及时更新模块状态
-        if(++guc_FastWmSttReqCnt >= 15)     //每15秒钟
+        if(++guc_Fast2WmSttReqCnt >= 15)     //每15秒钟
         {
-            guc_FastWmSttReqCnt = 0;
+            guc_Fast2WmSttReqCnt = 0;
 //	            HAL_WIFI_BeginCheck();
         }
         return;
     }
 	
-    gs_FarpVar.wmst |= WMS_STT_GSM;
-    gs_FarpVar.mcsq = modemstt.bit.signl;
+    gs_RFVar.wmst |= WMS_STT_GSM;
+    gs_RFVar.mcsq = modemstt.bit.signl;
 //    SYS_LED_BlinkSet1(GPIO_LED_GPRS, 1, 10, 10, 0);  //注册GSM网络成功，1HZ闪烁
     
     if(!(modemstt.bit.pppoe))       //是否完成PPP链接
     {
-        gs_FarpVar.wmst &= ~WMS_STT_PPP;    //数据通道不可用
-        if(++guc_FastWmSttReqCnt >= 30)     //每10秒钟
+        gs_RFVar.wmst &= ~WMS_STT_PPP;    //数据通道不可用
+        if(++guc_Fast2WmSttReqCnt >= 30)     //每10秒钟
         {
 //	            SYS_Message_Send(MSG_FARP_CNTPPP, TASK_FARP_TKID);
             uint8 msg = MSG_FARP_CNTPPP;
             krhino_buf_queue_send(&gs_RFMngQueue, &msg, 1);
             
-            guc_FastWmSttReqCnt = 0;
+            guc_Fast2WmSttReqCnt = 0;
         }
 //	        
 //        if(guc_FastWmSttReqCnt % 5 == 0)     //每3秒钟
@@ -304,42 +304,42 @@ void Farp_WMSecondProc(void)
 //        }
         return;
     }
-    gs_FarpVar.wmst |= WMS_STT_PPP;
+    gs_RFVar.wmst |= WMS_STT_PPP;
     
     
     
 
 
-//	    if(gs_FarpVar.clnen == 1)           //客户端模式
+//	    if(gs_RFVar.clnen == 1)           //客户端模式
     {
-        if(gs_FarpVar.login == 0)    //TCP 不在线
+        if(gs_RFVar.login == 0)    //TCP 不在线
         {
-            gs_FarpVar.wmst &= ~WMS_STT_CLN;    //数据通道不可用
-            if(gs_FarpVar.wkmd == 0x00)         //实时在线模式
+            gs_RFVar.wmst &= ~WMS_STT_CLN;    //数据通道不可用
+            if(gs_RFVar.wkmd == 0x00)         //实时在线模式
             {
-                if(gui_FarpWmRcSec == 0)        //永久在线模式断线后即开始重试倒计时
+                if(gui_RFWmRcSec == 0)        //永久在线模式断线后即开始重试倒计时
                 {
-                    gui_FarpWmRcSec = gs_FarpVar.rttm;
+                    gui_RFWmRcSec = gs_RFVar.rttm;
                 }
                                                 //数据通讯状态下掉线马上重连
-                if(gui_FarpWmSafeCnt > 0)
+                if(gui_RFWmSafeCnt > 0)
                 {
-                    gui_FarpWmSafeCnt = 0;
+                    gui_RFWmSafeCnt = 0;
                     
-                    gui_FarpWmRcSec = 1;
-                    guc_FarpWmRcCnt = 3;       //通讯状态下断线重连3次
+                    gui_RFWmRcSec = 1;
+                    guc_RFWmRcCnt = 3;       //通讯状态下断线重连3次
                 }
-                if(gui_FarpWmRcSec > 0)
+                if(gui_RFWmRcSec > 0)
                 {
-                    gui_FarpWmRcSec--;         //计数器递减
-                    if(gui_FarpWmRcSec == 0)   //重试间隔已到,进行重连
+                    gui_RFWmRcSec--;         //计数器递减
+                    if(gui_RFWmRcSec == 0)   //重试间隔已到,进行重连
                     {
 //	                        SYS_Message_Send(MSG_FARP_CNTGPRS, TASK_FARP_TKID);
                         uint8 msg = MSG_FARP_CNTGPRS;
                         krhino_buf_queue_send(&gs_RFMngQueue, &msg, 1);
                         
                     }
-//	                    if(gui_FarpWmRcSec % 15 == 0)
+//	                    if(gui_RFWmRcSec % 15 == 0)
 //	                    {
 //	                        int fd = -1;
 //	                        fd = HAL_WIFI_TCP_Lnk_Chk();
@@ -352,51 +352,51 @@ void Farp_WMSecondProc(void)
 //	                            if(g_ulTcp_fd < 0)
 //	                            {
 //	                                g_ulTcp_fd = fd;
-//	                                guc_FarpLoginConfirmErr = 0;
-//	                                gul_FarpLoginDeadTime = gul_SysRunSecs + 10;
+//	                                guc_RFLoginConfirmErr = 0;
+//	                                gul_RFLoginDeadTime = gul_SysRunSecs + 10;
 //	                                                                //
-//	//                                gs_FarpVar.wmst |= WMS_STT_CLN;
-//	                                guc_FarpPstTryCnt = 0;          //被动模式重连次数清零
-//	                                Farp_SendLoginData(0);          //发送登录帧
-//	                                //Farp_SendHKData(0);             //发送心跳帧
+//	//                                gs_RFVar.wmst |= WMS_STT_CLN;
+//	                                guc_RFPstTryCnt = 0;          //被动模式重连次数清零
+//	                                RF_SendLoginData(0);          //发送登录帧
+//	                                //RF_SendHKData(0);             //发送心跳帧
 //	                                                                //初始化心跳周期
-//	                                gui_FarpWmHBCYCnt = 5;//gs_FarpVar.hbcy;
+//	                                gui_RFWmHBCYCnt = 5;//gs_RFVar.hbcy;
 //	                                                                //实时在线模式无有效数据计数器初始化
-//	                                gui_FarpWmSafeCnt = gs_FarpVar.hbcy;
-//	                                guc_FarpWmRcFailCnt = 0;        //重连失败次数清零
+//	                                gui_RFWmSafeCnt = gs_RFVar.hbcy;
+//	                                guc_RFWmRcFailCnt = 0;        //重连失败次数清零
 //	                            }
 //	                        }
 //	                    }
                 }
             }
-            else if(gs_FarpVar.wkmd == 0x01)    //被动激活模式
+            else if(gs_RFVar.wkmd == 0x01)    //被动激活模式
             {
                 //
             }
         }
         else
         {
-            gs_FarpVar.wmst |= WMS_STT_CLN;     //数据通道可用
+            gs_RFVar.wmst |= WMS_STT_CLN;     //数据通道可用
             
-            if(guc_FarpLoginConfirmErr)           //登录后n秒内未收到确认帧,执行重连操作
+            if(guc_RFLoginConfirmErr)           //登录后n秒内未收到确认帧,执行重连操作
             {
-                if(gul_SysRunSecs > gul_FarpLoginDeadTime)
+                if(gul_SysRunSecs > gul_RFLoginDeadTime)
                 {
 //	                    SYS_Message_Send(MSG_FARP_DISGPRS, TASK_FARP_TKID);
                     uint8 msg = MSG_FARP_DISGPRS;
                     krhino_buf_queue_send(&gs_RFMngQueue, &msg, 1);
                     
                     uc_closeclnflag = 1;
-                    gul_FarpLoginDeadTime = 0xFFFFFFFF;
+                    gul_RFLoginDeadTime = 0xFFFFFFFF;
                 }
             }
             
-            if(gui_FarpWmHBCYCnt > 0)
+            if(gui_RFWmHBCYCnt > 0)
             {
-                gui_FarpWmHBCYCnt--;
-                if(gui_FarpWmHBCYCnt == 0)      //心跳周期到发心跳帧
+                gui_RFWmHBCYCnt--;
+                if(gui_RFWmHBCYCnt == 0)      //心跳周期到发心跳帧
                 {
-                    if(guc_FarpWmHKUnRpyCnt >= 3) //心跳无回复次数超过3次
+                    if(guc_RFWmHKUnRpyCnt >= 3) //心跳无回复次数超过3次
                     {
 //	                        SYS_Message_Send(MSG_FARP_DISGPRS, TASK_FARP_TKID);
                         uint8 msg = MSG_FARP_DISGPRS;
@@ -404,14 +404,14 @@ void Farp_WMSecondProc(void)
                         
 
                         uc_closeclnflag = 1;
-                        guc_FarpWmHKUnRpyCnt = 0; //心跳无回复次数清零
+                        guc_RFWmHKUnRpyCnt = 0; //心跳无回复次数清零
                     }
                     else
                     {
-                        //Farp_SendHKData(0);      //发送心跳数据
-                        Farp_SendTestData(0);
-                        guc_FarpWmHKUnRpyCnt++;
-                        gui_FarpWmHBCYCnt = gs_FarpVar.hbcy;
+                        //RF_SendHKData(0);      //发送心跳数据
+                        RF_SendTestData(0);
+                        guc_RFWmHKUnRpyCnt++;
+                        gui_RFWmHBCYCnt = gs_RFVar.hbcy;
 //                        g_ulTcp_fd = HAL_WIFI_TCP_Lnk_Chk();
 //	                        int fd = -1;
 //	                        fd = HAL_WIFI_TCP_Lnk_Chk();
@@ -424,18 +424,18 @@ void Farp_WMSecondProc(void)
 //	                            if(g_ulTcp_fd < 0)
 //	                            {
 //	                                g_ulTcp_fd = fd;
-//	                                guc_FarpLoginConfirmErr = 0;
-//	                                gul_FarpLoginDeadTime = gul_SysRunSecs + 10;
+//	                                guc_RFLoginConfirmErr = 0;
+//	                                gul_RFLoginDeadTime = gul_SysRunSecs + 10;
 //	                                                                //
-//	//                                gs_FarpVar.wmst |= WMS_STT_CLN;
-//	                                guc_FarpPstTryCnt = 0;          //被动模式重连次数清零
-//	//                                Farp_SendLoginData(0);          //发送登录帧
-//	                                //Farp_SendHKData(0);             //发送心跳帧
+//	//                                gs_RFVar.wmst |= WMS_STT_CLN;
+//	                                guc_RFPstTryCnt = 0;          //被动模式重连次数清零
+//	//                                RF_SendLoginData(0);          //发送登录帧
+//	                                //RF_SendHKData(0);             //发送心跳帧
 //	                                                                //初始化心跳周期
-//	                                gui_FarpWmHBCYCnt = 5;//gs_FarpVar.hbcy;
+//	                                gui_RFWmHBCYCnt = 5;//gs_RFVar.hbcy;
 //	                                                                //实时在线模式无有效数据计数器初始化
-//	                                gui_FarpWmSafeCnt = gs_FarpVar.hbcy;
-//	                                guc_FarpWmRcFailCnt = 0;        //重连失败次数清零
+//	                                gui_RFWmSafeCnt = gs_RFVar.hbcy;
+//	                                guc_RFWmRcFailCnt = 0;        //重连失败次数清零
 //	                            }
 //	                        }                    
                     }
@@ -443,23 +443,23 @@ void Farp_WMSecondProc(void)
             }
             else
             {
-                gui_FarpWmHBCYCnt = gs_FarpVar.hbcy;
+                gui_RFWmHBCYCnt = gs_RFVar.hbcy;
             }
-            gui_FarpWmRcSec = 0;                //重试次数清零
+            gui_RFWmRcSec = 0;                //重试次数清零
                                                 // 
-//	            if(gs_FarpVar.wkmd == 0)            //实时在线模式
+//	            if(gs_RFVar.wkmd == 0)            //实时在线模式
 //	            {
 //	                //....
 //	            }
-//	            else if(gs_FarpVar.wkmd == 1)       //被动激活模式
+//	            else if(gs_RFVar.wkmd == 1)       //被动激活模式
 //	            {
-//	                gui_FarpBkTmCnt++;              //无数据休眠计数器累加
+//	                gui_RFBkTmCnt++;              //无数据休眠计数器累加
 //	                                                //无数据通讯时间超过定值或需要断开连接
-//	                if(gui_FarpBkTmCnt >= gs_FarpVar.slep)
+//	                if(gui_RFBkTmCnt >= gs_RFVar.slep)
 //	                {                               //置断开连接消息
 //	                    SYS_Message_Send(MSG_FARP_DISGPRS, TASK_FARP_TKID);
 //	//	                    uint8 msg = MSG_FARP_DISGPRS;
-//	//	                    krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
+//	//	                    krhino_buf_queue_send(&gs_TKRFQueue, &msg, 1);
 //	                    
 //	                    uc_closeclnflag = 1;
 //	                }
@@ -469,14 +469,14 @@ void Farp_WMSecondProc(void)
 //	                SYS_Message_Send(MSG_FARP_DISGPRS, TASK_FARP_TKID);
 //	                
 //	//	                uint8 msg = MSG_FARP_DISGPRS;
-//	//	                krhino_buf_queue_send(&gs_TKFarpQueue, &msg, 1);
+//	//	                krhino_buf_queue_send(&gs_TKRFQueue, &msg, 1);
 //	                uc_closeclnflag = 1;
 //	            }
         }
     }
     
 
-    if((uc_closeclnflag == 1) && (gs_FarpVar.wkmd == 0))
+    if((uc_closeclnflag == 1) && (gs_RFVar.wkmd == 0))
     {
 //	        SYS_Message_Send(MSG_FARP_CNTGPRS, TASK_FARP_TKID);
         uint8 msg = MSG_FARP_CNTGPRS;
@@ -707,7 +707,7 @@ void SYS_RFMng_Task(void * arg)
                          gc_RFMngbuf, MSG_BUFF_LEN, BUFQUEUE_MSG_MAX);
     localid = 1; 
 
-    Farp_PreInit();
+    RF_PreInit();
     Radio = RadioDriverInit( );
     SYS_RF_Init(0,0,0);
     Radio->Tick((uint32 *)&uwTick);
@@ -741,7 +741,7 @@ void SYS_RFMng_Task(void * arg)
             switch(g_RFMng_buf_recv[0])
             {
                 case MSG_SEC:
-                    Farp_WMSecondProc();
+                    RF_WMSecondProc();
                     break;
 
 
@@ -777,10 +777,10 @@ void SYS_RFMng_Task(void * arg)
                     break; 
 #if (SYS_LOW_POWER > 0)                
                 case MSG_ENTER_SLEEP://进入休眠
-                    if(!gs_FarpVar.sleep)
+                    if(!gs_RFVar.sleep)
                     {
                         Radio->enter_sleep();
-                        gs_FarpVar.sleep = 1;
+                        gs_RFVar.sleep = 1;
                         
                         msleep(500);
                         
@@ -791,13 +791,13 @@ void SYS_RFMng_Task(void * arg)
                     gs_SysVar.mLPsysstt |= HLV_STT_NENG;   //(2)
                     break;
                 case MSG_WAKE_UP://唤醒
-                    if(gs_FarpVar.sleep)
+                    if(gs_RFVar.sleep)
                     {
                         krhino_timer_start(&g_rf_tick_timer);
                         msleep(1);
                         SYS_RF_Init(0,0,0);
 //                        Radio->wake_up();
-                        gs_FarpVar.sleep = 0;
+                        gs_RFVar.sleep = 0;
                         SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 
 	
                     }

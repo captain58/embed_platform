@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033004;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033006;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -306,6 +306,8 @@ void SYS_MAIN_Init(void)
     memset((uint8_t *)&gst_water_stt,0,sizeof(ST_WATER_STT));
     
 #ifdef MASTER_NODE    
+    SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 0, 0, 0, 0);
+
     memset((uint8_t *)&gst_sub_node_water_stt,0,sizeof(ST_WATER_STT));
 #endif
 
@@ -570,6 +572,8 @@ if(event & CON_KEY14_BIT)               //KEY13
         {
 	        LOG_DEBUG("key 1 keep !\n");
             SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 1, 10, 10, 0);
+            
+            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 10, 10, 0);
             guc_AllowLogin = 1;
             bBroadMeterEnable = 1;
 #ifdef MASTER_NODE            
@@ -1178,7 +1182,7 @@ void MAIN_SecProc(void)
         Water_Disp_Close();
     }
     uint32_t clac_tick = 0;
-    if(gst_water_stt.remain_set_flag)
+    if(gst_water_stt.remain_set_flag || gst_water_stt.time_set_flag)
     {
         if(gul_remain_set_tick > g_tick_count)
         {
@@ -1191,6 +1195,7 @@ void MAIN_SecProc(void)
         if(krhino_ticks_to_ms(clac_tick) > CON_SET_TIME_MAX * 1000)
         {
             gst_water_stt.remain_set_flag = 0;
+            gst_water_stt.time_set_flag = 0;
         }
 
     }

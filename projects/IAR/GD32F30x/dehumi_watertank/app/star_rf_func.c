@@ -1242,7 +1242,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             if((stt & (1 << CON_STT_WATER_LEVEL)) == (1 << CON_STT_WATER_LEVEL))
             {
                 memcpy((uint8_t *)&gst_sub_node_water_stt.st_sensor, frm->apdu.data + m, 4);
-
+#ifdef SENSOR_FILTER
             //×´Ì¬È¥¶¶
                 for(i = CON_SENSOR_FILTER - 1; i > 0; i --)
                 {
@@ -1259,6 +1259,9 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                         break;
                 }
                 if(i >= CON_SENSOR_FILTER)
+#else 
+                uint8_t stt = get_run_stt_by_sensor(&gst_sub_node_water_stt.st_sensor);
+#endif
                 {
                     if(stt != gst_sub_node_water_stt.cur_stt)//×´Ì¬ÐèÒªÇÐ»»
                     {

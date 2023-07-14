@@ -943,7 +943,7 @@ uint8_t get_status(void)
 
 }
     volatile int g_i=0;
-
+extern uint8_t guc_AllowLogin;
 /*******************************************************************************
  * @function_name:  ES_SLV_Task
  * @function_file:  
@@ -1039,7 +1039,7 @@ void SYS_SLV_Task(void)
                             krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
                         }                        
                         guc_SwitchNorErr = 1;
-                        
+                        if(0 == guc_AllowLogin)
                         SYS_Dev_OptBlinkSet(SYS_LED_CARD, 2, 0, 0, 0); 
                         
                     }
@@ -1065,7 +1065,8 @@ void SYS_SLV_Task(void)
                         
                             guc_BuzzerNorErr = 0;
                             guc_SwitchNorErr = 0;
-                            SYS_Dev_OptBlinkSet(SYS_LED_CARD, 3, 0, 0, 0); 
+                            if(0 == guc_AllowLogin)
+                                SYS_Dev_OptBlinkSet(SYS_LED_CARD, 3, 0, 0, 0); 
                         }
                     }
                 }

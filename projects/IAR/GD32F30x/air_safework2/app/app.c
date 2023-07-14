@@ -58,7 +58,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x19090603;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23061305;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 
@@ -527,6 +527,7 @@ void KeyProc(uint8 key)
             SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 10, 10, 0);
             guc_AllowLogin = 1;
             bBroadMeterEnable = 1;
+            gs_SysVar.mLPstt |= HLV_LPTASK_MDCK;
 #ifdef MASTER_NODE            
 //	            Cltor_init();
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
@@ -569,6 +570,7 @@ void KeyProc(uint8 key)
 //	            gs_SysVar.terstt.bit.DI0linked = 0; 
 //	            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
             guc_AllowLogin = 0;
+            gs_SysVar.mLPstt &= ~HLV_LPTASK_MDCK;
 #ifndef MASTER_NODE
             SYS_Dev_OptBlinkSet(SYS_LED_RUN, 2, 100, 100, 0);
             if(NODE_STATUS_LOGIN == guc_netStat)

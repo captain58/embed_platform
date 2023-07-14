@@ -249,7 +249,7 @@ void SystemClock_Config(void)
     }
 
     /* enable USB APB1 clock */
-    rcu_periph_clock_enable(RCU_USBD);
+//    rcu_periph_clock_enable(RCU_USBD);
   
 }
 

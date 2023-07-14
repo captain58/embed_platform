@@ -3721,7 +3721,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>dehumi_waterwheel-04.bin</state>
+          <state>dehumi_waterwheel-06.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -4259,7 +4259,7 @@
         </option>
         <option>
           <name>CCDefines</name>
-          <state>VECT_TAB_OFFSET=0x6000</state>
+          <state>VECT_TAB_OFFSET=0</state>
           <state>USE_HAL_DRIVER</state>
           <state>SYSINFO_OS_VERSION="APP-1.0.0"</state>
           <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_STM32L476RGTx"</state>
@@ -4738,7 +4738,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>dehumi_waterwheel-04.bin</state>
+          <state>dehumi_watertankl-05.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

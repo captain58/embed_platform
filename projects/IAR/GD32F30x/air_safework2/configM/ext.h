@@ -112,7 +112,7 @@
 
 #if SYS_SER_EN > 0
 #define SYS_UART0_EN     1               //UART0串口使能
-#define SYS_UART1_EN     0               //UART1串口使能
+#define SYS_UART1_EN     1               //UART1串口使能
 #define SYS_UART2_EN     0               //UART2串口使能
 #define SYS_UART3_EN     0               //UART3串口使能
 #define SYS_UART4_EN     0               //UART4串口使能
@@ -149,7 +149,7 @@
 //	#define  UART_CHANNEL_IRDA		1//SYS_UART1_IDX    //红外串口
 //	#define  UART_CHANNEL_GPRS		2//SYS_UART2_IDX    //gprs串口
 //	#define  UART_CHANNEL_DEBUG		3//SYS_UART3_IDX    //debug串口
-#define  UART_CHANNEL_GPRS		SYS_UART1_IDX//SYS_UART0_IDX    //gprs串口
+#define  UART_CHANNEL_GPRS		PORT_UART_AT//SYS_UART0_IDX    //gprs串口
 #define  UART_CHANNEL_DEBUG		PORT_UART_STD//SYS_UART2_IDX    //debug串口
 #define  UART_CHANNEL_ESAM      SYS_UART0_IDX
 #define  UART_CHANNEL_CARD      SYS_UART3_IDX
@@ -287,7 +287,8 @@
 
     //支持的模块
     #define Modem_M72X_EN   0
-    #define Modem_EC20_EN   1
+    #define Modem_EC20_EN   0
+    #define Modem_ELFIN_EG41A_EN   1
     //开关机宏(注意:该版本硬件关机时需要切断txd的管脚,否则G610的电源无法彻底关断)
 //	    #define _ATMODEM_VIN()  
 //	    #define _ATMODEM_PWRON()        {SYS_GPO_Out(GPO_MODEM_PWR, true);}

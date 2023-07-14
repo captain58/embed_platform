@@ -88,7 +88,7 @@ uint8  guc_FarpReActiveFlag;                //被动激活模式，采集器重启后，需要先
 
 
 
-uint16 gui_smseq;
+//uint16 gui_smseq;
 
 cpu_stack_t  gs_TKFarpStack[TASK_FARP_STKL];
 ktask_t      gs_TKFarpHandle;
@@ -475,7 +475,7 @@ void Farp_WMSecondProc(void)
             //SYS_MODM_Step(Modem_Init);
             SYS_MODM_Reinit();
             
-            gs_GPIO.BlinkSet(GPIO_LED_GPRS, 0xFF, 0, 0);
+            gs_GPIO.BlinkSet(GPIO_LEDWITH_SAL_GPRS, 0xFF, 0, 0);
         }
         return;
     }

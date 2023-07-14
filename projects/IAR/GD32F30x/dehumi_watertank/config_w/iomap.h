@@ -36,7 +36,7 @@
 //	    const COMPORT gs_LedCard       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 //	
 //	//	    const COMPORT gs_LedSwitch  = {GPIOB, 14,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-//	    const COMPORT gs_BuzCard       = {GPIOB, 13,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_BuzCard       = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 	const COMPORT gs_LedNull       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
     
@@ -50,12 +50,12 @@
 //	        {(COMPORT*)&gs_LedSwitch,     1, 0, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedMatch,     0, 1, 1},     //true:低电平点亮
 //	        {(COMPORT*)&gs_LedCard,     0, 1, 1},     //true:低电平点亮
-//	        {(COMPORT*)&gs_BuzCard,     0, 0, 0},
+        {(COMPORT*)&gs_BuzCard,     0, 0, 0},
 	        {(COMPORT*)&gs_LedNull,     0, 1, 1},     //true:低电平点亮
         
     };
 
-    #define LED_NUM 5//(sizeof(gs_LedPort) / sizeof(GPO_PORTS))
+    #define LED_NUM 4//(sizeof(gs_LedPort) / sizeof(GPO_PORTS))
 
 #endif                                      //#ifdef EXT_DEV_LED
 
@@ -71,7 +71,7 @@ typedef enum {
     GPIO_LED_MATCH,
     
 //	    GPIO_LED_CARD,
-//	    GPIO_BUZ_CARD,
+    GPIO_BUZ_CARD,
     GPIO_LED_NULL,
 //	GPIO_LED_SUB1_NORM,    
 //	GPIO_LED_SUB1_ERR,   	
@@ -83,6 +83,7 @@ typedef enum {
 
 #define SYS_LED_RUN GPIO_LED_RUN
 #define SYS_LED_MATCH GPIO_LED_RUN
+#define SYS_LED_BUZZ GPIO_BUZ_CARD
 
 /******************************************************************************
 **GPO输出端口枚举定义

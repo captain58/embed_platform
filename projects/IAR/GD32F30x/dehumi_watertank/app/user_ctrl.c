@@ -17,6 +17,7 @@ uint8_t Water_Ctrl_Init()
     {
         memcpy((uint8_t *)&gst_water_ctrl, &sater_ctrl, sizeof(ST_WATER_CTRL));
     }
+    gst_water_ctrl.onoff = CON_WATER_CTRL_ON;
     Water_Ctrl_Set_Onoff(gst_water_ctrl.onoff);
     Water_Ctrl_Set_Auto(gst_water_ctrl.auto_manmual);
     return 0;
@@ -66,6 +67,8 @@ uint8_t Water_Ctrl_Set_Onoff(uint8_t flag)
 uint8_t Water_Ctrl_WakeUp(uint8_t force)
 {
     int ret = 0;
+    
+    SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 0, 0, 0, 0);
     if(gst_water_ctrl.onoff != CON_WATER_CTRL_OFF)
     {
         SYS_LCD_Onoff(CON_WATER_CTRL_ON);

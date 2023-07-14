@@ -24,7 +24,9 @@
 #define EXT_FARP extern
 #endif
 
-
+#ifndef EXT_RF_LOCAL
+#define EXT_RF_LOCAL extern
+#endif
 /******************************************************************************
 **以太网联网参数
 ******************************************************************************/
@@ -103,7 +105,7 @@ typedef struct
 }FarpVar;
 
 EXT_FARP FarpVar gs_FarpVar;                //远程端口的参数
-
+EXT_RF_LOCAL FarpVar gs_RFVar;                //远程端口的参数
 
 
 /******************************************************************************
@@ -119,8 +121,8 @@ EXT_FARP uint8 guc_RecvSmgNo[17];
 ******************************************************************************/
 EXT_FARP uint8 guc_FarpLoginConfirmErr;     //b0:主用ip异常,b1:备用ip异常
 EXT_FARP uint32 gul_FarpLoginDeadTime;      //等待确认截止时间,单位为全局秒
-
-
+EXT_RF_LOCAL uint8 guc_RFLoginConfirmErr;     //b0:主用ip异常,b1:备用ip异常
+EXT_RF_LOCAL uint32 gul_RFLoginDeadTime;      //等待确认截止时间,单位为全局秒
 /******************************************************************************
 **被动激活模式无数据休眠计数器
 ******************************************************************************/

@@ -110,7 +110,29 @@ const TModemDrive gs_MODMDrvIntf[] =
         MODM_TYPE_M72X,
     },
 #endif 
+#if Modem_ELFIN_EG41A_EN > 0
+    {
+        elfin_eg41a_modemcheck,
     
+        elfin_eg41a_uart_init,
+        elfin_eg41a_modemon,
+        elfin_eg41a_modemoff,
+        elfin_eg41a_forcesoff,
+
+        elfin_eg41a_gprs_status_check,
+        elfin_eg41a_gprs_ip_init,
+        elfin_eg41a_gprs_got_ip,
+        
+        elfin_eg41a_domaintoip,//(char *domain, char ip[16])
+        elfin_eg41a_start,//(sal_conn_t *conn)
+        elfin_eg41a_close,//(int fd, int32_t remote_port)
+        elfin_eg41a_send,//(int fd,
+        elfin_eg41a_ftp_status_check,
+        elfin_eg41a_ftp_start,
+        elfin_eg41a_ftp_get,
+        elfin_eg41a_ftp_close,
+    },
+#endif 
 
 };
 kbuf_queue_t * gst_FarpQueue;

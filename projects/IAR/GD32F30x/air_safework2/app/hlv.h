@@ -48,17 +48,7 @@
 #define HLV_STT_LENG    0x20               //停电工作状态-低压
 
 
-#define HLV_LPTASK_MDCK     0x01               //4G模块识别
-#define HLV_LPTASK_CP       0x02               //抄表任务
-#define HLV_LPTASK_RP       0x04               //上告任务
-#define HLV_LPTASK_CLSCK    0x08               //关闭socket
-#define HLV_LPTASK_TST      0x10               //自检
-#define HLV_LPTASK_SMSG_HLV      0x20               //hlv秒消息
-#define HLV_LPTASK_SMSG_MAIN      0x40               //main秒消息
-#define HLV_LPTASK_SMSG_NETP      0x80               //netp秒消息
-#define HLV_LPTASK_SMSG_FARP      0x100               //farp秒消息
-#define HLV_LPTASK_SMSG_SLV      0x200               //slv秒消息
-#define HLV_LPTASK_LOSTVOL      0x400               //掉电告警上告消息
+
 
 
 
