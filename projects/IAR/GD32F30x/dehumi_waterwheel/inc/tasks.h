@@ -58,7 +58,7 @@ EXT_TASKS  ktask_t* gs_TkHandles[SYS_TK_NUM];     //所有进程的TCB指针
 **main进程
 ******************************************************************************/
 #define TASK_MAIN_TKID           1
-#define TASK_MAIN_STKL           512//
+#define TASK_MAIN_STKL           384//
 const extern KTaskConst gs_TkMAIN;
 
 #define TASK_DECLARE_1_MAIN() {&gs_TkMAIN, TASK_MAIN_STKL}
@@ -67,7 +67,7 @@ const extern KTaskConst gs_TkMAIN;
 **main进程
 ******************************************************************************/
 #define TASK_RFMNG_TKID           10
-#define TASK_RFMNG_STKL           512//
+#define TASK_RFMNG_STKL           384//
 const extern KTaskConst gs_TkLP2PCmm;
 
 #define TASK_DECLARE_10_RFMNG() {&gs_TkLP2PCmm, TASK_RFMNG_STKL}
@@ -136,7 +136,7 @@ extern const KTaskConst gs_TkHLV;
 #define TASK_DECLARE_2_HLV() {&gs_TkHLV, TASK_HLV_STKL}
 
 #define TASK_SLV_TKID          9
-#define TASK_SLV_STKL          192
+#define TASK_SLV_STKL          512
 extern const KTaskConst gs_TkSLV;
 #define TASK_DECLARE_9_SLV() {&gs_TkSLV, TASK_SLV_STKL}
 

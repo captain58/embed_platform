@@ -112,7 +112,8 @@
 #define VER_HEXING            70       //采集内测软件版本号
 #define NETP_CHECK            90       //协议匹配初始化标记
 #define REGISTER_FLAG         94
-#define PARENT_ADDR         100
+#define PARENT_ADDR                 100
+#define WATER_CTRL_PARA_ADDR        120
 
 //********************************************************************
 //空余
@@ -166,16 +167,42 @@
 //	
 //	#define F239_PADDR          184000       //电能表/交采配置 密码  132*24 = 3168
 
+#define CON_WATER_TANK_STT_ERR         0
+#define CON_WATER_TANK_STT_LOW         1
+#define CON_WATER_TANK_STT_LOW_MID     2
+#define CON_WATER_TANK_STT_HIGH_MID    3
+#define CON_WATER_TANK_STT_HIGH        4
+#define CON_WATER_TANK_STT_HIGH_MORE   5
 
 
+#define CON_STT_SWITCH_OFFSET 0
+#define CON_STT_CARD_OFFSET 1
+#define CON_STT_CARD_ID_OFFSET 2
+#define CON_STT_WATER_LEVEL 3
+
+#define CON_MOTOR_STT_IDEL      0
+#define CON_MOTOR_STT_PUMP      1
+#define CON_MOTOR_STT_DRAIN     2
+
+#define CON_MOTOR_CTRL_AUTO      0
+#define CON_MOTOR_CTRL_MANUAL      1
 
 
+#define CON_LCD_REMAIND_TIME_MAX    60 //5分钟
+#define CON_SET_TIME_MAX    30
 
+#define CON_REMAIN_SET_OFF      0
+#define CON_REMAIN_SET_ON       1    
 
+#define CON_TIME_SET_OFF      0
+#define CON_TIME_SET_ON       1    
 
-
-
-
+#define CON_TIME_SET_SITE_YEAR  0
+#define CON_TIME_SET_SITE_MON   1
+#define CON_TIME_SET_SITE_DAY   2
+#define CON_TIME_SET_SITE_HOUR  3
+#define CON_TIME_SET_SITE_MIN   4
+#define CON_TIME_SET_SITE_SEC   5
 
 #endif
 

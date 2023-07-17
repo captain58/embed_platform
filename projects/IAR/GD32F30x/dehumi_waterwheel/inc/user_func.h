@@ -1255,6 +1255,20 @@ void Hash_Transfer(void);
 void Init_Hash_Table(void);
 uint8  I2cRead(uint8 Addr, uint8 *Data, uint16 inside_addr, uint16 NByte);
 
+uint8_t Water_Ctrl_Init();
+uint8_t Water_Ctrl_Set_Auto(uint8_t flag);
+uint8_t Water_Ctrl_Set_Onoff(uint8_t flag);
+uint8_t Water_Ctrl_WakeUp(uint8_t);
+uint8_t Water_Ctrl_Sleep(void);
+uint8_t Water_Disp_Pump(void);
+uint8_t Water_Disp_DePump(void);
+uint8_t Water_Disp_Close(void);
+uint8_t Water_Ctrl_Pump(void);
+uint8_t Water_Ctrl_DePump(void);
+uint8_t Water_Ctrl_Close(void);
+uint8_t Water_para_Cycle();
+uint8_t Water_para_Need_Refresh();
+
 
 #endif  /* __USER_FUNC_H */
 

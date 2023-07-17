@@ -1183,6 +1183,13 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
             }
             LOG_DEBUG( DBGFMT" HHU read data\n",DBGARG);
         }
+#ifndef MASTER_NODE
+        else if(0 == memcmp(srcAddr, nParentMacAddr,CON_DEV_ADDR_LEN_6))
+        {
+        
+        }
+#endif        
+        
         else
         {
             LOG_DEBUG( DBGFMT" addr does not at my white space %02x%02x%02x%02x%02x%02x\n",DBGARG, 

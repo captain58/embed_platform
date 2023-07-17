@@ -8,6 +8,7 @@
 #include "user_func.h"
 #include "A7139reg.h"
 #include "wirelessSendCache.h"
+#include "paradef.h"
 //extern uint32 curslottime; //ƒø«∞µƒ◊‹ ±œ∂∏ˆ ˝
 
 
@@ -145,7 +146,7 @@ void Switch_Channel(unsigned char channel)
 #define CON_LOGIN_TIME_OUT 400
 #define CON_LOGIN_INTERVAL 160
 uint32 sysSlotTimeCycle = 50;
-//uint32_t gn_loginTO = 0;
+uint32_t gn_loginTO = 0;
 void Slot_Time_IRQ(void * arg)
 {
 	//uint16 slot;
@@ -1717,6 +1718,7 @@ uint8 EZMacPRO_Transmit_Reset(void)//∑¢ÀÕ÷ÿ∆Ùπ„≤•√¸¡Ó
 	return MAC_OK;		
 }
 static uint8 sOffNetworkMeterMngBit = 0;
+extern ST_WATER_STT gst_water_stt;
 uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//∑¢ÀÕ÷ÿ∆Ùπ„≤•√¸¡Ó
 {   
     uint16 k = 0;
@@ -1882,15 +1884,15 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//∑¢ÀÕ÷ÿ∆Ùπ„≤•√¸
 //	            pkt->head.apdu.len = len;
 //	            memcpy(pkt->head.apdu.data, data, len);
 //	            pkt->head.apdu.broadCastFlg = 0x55;//µÿ÷∑π„≤•
-#define CON_STT_SWITCH_OFFSET 0
-#define CON_STT_CARD_OFFSET 1
-#define CON_STT_CARD_ID_OFFSET 2
-            stt |= 1<<CON_STT_SWITCH_OFFSET;
-            pkt->head.apdu.data[m++] = guc_SwitchNorErr;//;guc_SwitchOnOff;//
-            
+
+
+            stt |= 1<<CON_STT_WATER_LEVEL;
+            //pkt->head.apdu.data[m++] = guc_SwitchNorErr;//;guc_SwitchOnOff;//
+            memcpy(pkt->head.apdu.data+m, (uint8_t *)&gst_water_stt.st_sensor, 4);
+            m+=4;
             //TRFIDModemState strfstt = (TRFIDModemState)0;//HAL_RFID_Status();
-            stt |= 1<<CON_STT_CARD_OFFSET;
-            pkt->head.apdu.data[m++] = 0;//strfstt.bit.linked;
+//	            stt |= 1<<CON_STT_CARD_OFFSET;
+//	            pkt->head.apdu.data[m++] = 0;//strfstt.bit.linked;
 
 //            if(strfstt.bit.linked)
 //            {
@@ -2284,13 +2286,14 @@ BEHAVIOR Get_Current_Behave(uint32_t slot, uint32_t timeframe) //ªÒ»°“™≤Ÿ◊˜µƒ––Œ
         //printf("Get_Current_Behave timeframe = %d temp16 = %d temp32 = %d index = %d freq = %d\n", timeframe, temp16, temp32, index, ret.freq);
 #endif           
     }
-//#ifndef MASTER_NODE     
-////    gn_loginTO ++;
-//    if(gn_loginTO > 2*CON_LOGIN_TIME_OUT)
-//    {
-//        guc_netStat = NODE_STATUS_OUT;
-//    }
-//#endif    
+#ifndef MASTER_NODE     
+    gn_loginTO ++;
+    if(gn_loginTO > 3*CON_LOGIN_TIME_OUT)
+    {
+        guc_netStat = NODE_STATUS_OUT;
+        gn_loginTO = 0;
+    }
+#endif    
     return ret;
 }
 

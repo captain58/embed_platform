@@ -4543,3 +4543,4 @@ uint8  I2cRead(uint8 Addr, uint8 *Data, uint16 inside_addr, uint16 NByte)
 
 
 
+

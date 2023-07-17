@@ -181,11 +181,10 @@
 #define MSG_SWITCH_CHANGE   110
 #define MSG_EVENT_CHANGE    111
 #define MSG_ENTER_SLEEP     112
-#define MSG_WAKE_UP         113  
+#define MSG_WAKE_UP         113
 
 #define MSG_WT_LEVEL_CHANGE 115
 #define MSG_WT_SUB_LEVEL_CHANGE 116
-
 
 
 #ifndef EXT_MSGID
