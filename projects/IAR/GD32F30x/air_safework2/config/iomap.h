@@ -107,6 +107,10 @@ typedef enum {
 
 #define SYS_LED_RUN GPIO_LED_RUN
 #define SYS_LED_CARD GPIO_LED_RUN
+
+#define GPIO_LEDWITH_SAL_GPRS GPIO_LED_NULL
+#define GPIO_LED_GPRS GPIO_LED_NULL
+
 /******************************************************************************
 **GPO输出端口枚举定义
 ******************************************************************************/

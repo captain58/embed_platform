@@ -70,6 +70,7 @@ unsigned char LogInit(unsigned char level, unsigned short bufflen, log_fun_ptr *
 //	#define SYS_UART_LOG_MUX 0  //打印串口是否独立 0复用 1独立
 
 #if defined ( _PLATFORM_ALIOS )
+#include <k_api.h>
 EXT_LOG ksem_t  gs_logRes;  
 #endif
 

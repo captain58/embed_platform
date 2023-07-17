@@ -6,11 +6,11 @@
 #include <string.h>
 #include <stdint.h>
 #include "aos/kernel.h"
-#include "ulog/ulog.h"
+#include "log.h"  //"ulog/ulog.h"
 
 
 #include "aos/hal/uart.h"
-
+#include "sal_import.h"
 #include "atparser.h"
 
 #include "atparser_internal.h"
@@ -25,8 +25,8 @@
 
 #define TAG            "atparser"
 
-#define atpsr_debug(format, ...)  LOGD(TAG, format, ##__VA_ARGS__)
-#define atpsr_err(format, ...)    LOGE(TAG, format, ##__VA_ARGS__)
+#define atpsr_debug LOG_DEBUG//(format, ...)  //LOGD(TAG, format, ##__VA_ARGS__)
+#define atpsr_err   LOG_ERROR
 
 static uint8_t    inited = 0;
 static uart_dev_t at_uart;
@@ -52,6 +52,17 @@ static void at_uart_configure(uart_dev_t *u)
     u->config.flow_control = AT_UART_FLOW_CONTROL;
     u->config.mode         = AT_UART_MODE;
 }
+int32_t hal_uart_init(uart_dev_t *uart)
+{
+    SerialSets ss;
+    ss.baudrate = 115200;
+    ss.parit = Parit_N;
+    ss.databits = DataBits_8bits;
+    ss.stopbits = StopBits_1;
+
+    SYS_SER_Init(UART_CHANNEL_GPRS, (void *)&ss);    //³õÊ¼»¯´®¿Ú  
+    return 0;
+}
 
 static int at_init_uart()
 {
@@ -76,10 +87,13 @@ int at_reset_uart()
 {
     at_uart_configure(&at_uart);
 
-    if (hal_uart_reset(&at_uart, NULL) != 0) {
+//    if (hal_uart_reset(&at_uart, NULL) != 0) {
+//        return -1;
+//    }
+
+    if (hal_uart_init(&at_uart) != 0) {
         return -1;
     }
-
     return 0;
 }
 
@@ -242,13 +256,29 @@ static int at_sendto_lower(uart_dev_t *uart, void *data, uint32_t size,
                          size, timeout, ackreq);
 #else
     (void) ackreq;
-    ret = hal_uart_send(uart, data, size, timeout);
+//    ret = hal_uart_send(uart, data, size, timeout);
+    ret = SYS_SER_Write(UART_CHANNEL_GPRS, data, size, timeout);
     LOG_DEBUG("%s\n",data);
 #endif
 
     return ret;
 }
-
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
+                         uint32_t *recv_size, uint32_t timeout)
+{
+    
+    int retlen = SYS_SER_Read(UART_CHANNEL_GPRS, data, expect_size, timeout);
+    *recv_size = retlen;
+    if(retlen == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        return 0;
+    }
+    
+}
 static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
                              uint32_t *recv_size, uint32_t timeout)
 {
@@ -259,6 +289,7 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
                          recv_size, timeout);
 #else
     ret = hal_uart_recv_II(uart, data, expect_size, recv_size, timeout);
+    
 #endif
 
     return ret;

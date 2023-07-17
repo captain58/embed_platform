@@ -103,8 +103,14 @@ extern kbuf_queue_t gs_TKSlvQueue;
 extern intptr_t HAL_TCP_Establish(const char *host, uint16_t port);
 extern int32_t HAL_TCP_Destroy(intptr_t fd);
 extern int32_t HAL_TCP_Read(intptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+#ifdef WITH_SAL
 extern int32_t HAL_TCP_Write(intptr_t fd, const char *buf, uint32_t len,uint32_t timeout_ms);
-    
+#else
+int32_t HAL_TCP_Write(intptr_t fd, const char *buf, uint32_t len,uint32_t timeout_ms)
+{
+    return 0;
+}
+#endif
 /************************************************************************
  * @function: Farp_SendIpData
  * @描述: 远程通道发送GPRS的IP数据
@@ -685,15 +691,15 @@ void Farp_SecondProc(void)
                                             //点灯服务
     if(gs_FarpVar.wmst & (WMS_STT_CLN | WMS_ETH0STT))
     {
-         SYS_LED_BlinkSet(GPIO_LED_GPRS, 1, 2, 0);//亮灯
+         SYS_Dev_HalfBlinkSet(GPIO_LED_GPRS, 1, 2, 0);//亮灯
     }
     else if(gs_FarpVar.wmst & WMS_STT_GSM)      //GSM 在线，闪烁
     {
-         SYS_LED_BlinkSet(GPIO_LED_GPRS, 1, 10, 0);    //亮灯
+         SYS_Dev_HalfBlinkSet(GPIO_LED_GPRS, 1, 10, 0);    //亮灯
     }  
     else
     {
-         SYS_LED_BlinkSet(GPIO_LED_GPRS, 0xFF, 0, 0);
+         SYS_Dev_HalfBlinkSet(GPIO_LED_GPRS, 0xFF, 0, 0);
     }
                                             //初始化异常纠正机制
     if((!SYS_MODM_Status().bit.regtt) || (!SYS_MODM_Status().bit.chnrdy))

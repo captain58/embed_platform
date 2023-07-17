@@ -108,8 +108,8 @@ typedef enum
 #ifdef EXT_GPO                      //GPO的端口定义
 
     const COMPORT gs_GpoAdcCtl      = {0x2, 1,  1, 0,    1};
-//    const COMPORT gs_GpoModemPwr    = {12,  7,  1, (IOCON_FUNC0 ),    1};
-//    const COMPORT gs_GpoModemOnOff  = {12,  5,  1, (IOCON_FUNC0 ),    1};
+    const COMPORT gs_GpoModemPwr    = {0x2, 1,  1, 0,    1};
+    const COMPORT gs_GpoModemOnOff  = {0x2, 1,  1, 0,    1};
 //    const COMPORT gs_GpoValveSleep  = {0x0, 7,  0, (IOCON_FUNC0 ),    1};
 //    const COMPORT gs_GpoValveOpen   = {0x0, 6,  1, (IOCON_FUNC0 ),    1};
 //    const COMPORT gs_GpoValveClose  = {0x0, 5,  1, (IOCON_FUNC0 ),    1};    
@@ -124,8 +124,8 @@ typedef enum
     const GPO_PORTS gs_GpoPort[] = 
     {
         {(COMPORT*)&gs_GpoAdcCtl,       false, false},      //adc采样开关
-//        {(COMPORT*)&gs_GpoModemPwr,     false, false},      //gprs电源脚
-//        {(COMPORT*)&gs_GpoModemOnOff,   false, false},      //gprs Power Key脚
+        {(COMPORT*)&gs_GpoModemPwr,     false, false},      //gprs电源脚
+        {(COMPORT*)&gs_GpoModemOnOff,   false, false},      //gprs Power Key脚
 //        {(COMPORT*)&gs_GpoValveSleep,   false, false},      //阀门芯片休眠 低电平休眠
 //        {(COMPORT*)&gs_GpoValveOpen,    false, false},      //阀门芯片IN1
 //        {(COMPORT*)&gs_GpoValveClose,   false, false},      //阀门芯片IN2
@@ -140,6 +140,8 @@ typedef enum
 
 #endif
 
+#define GPIO_MODEM_ONOFF GPO_MODEM_ONOFF
+#define GPIO_MODEM_PWR GPO_MODEM_PWR
 
 /******************************************************************************
 **慢速输入口配置

@@ -44,7 +44,7 @@ Example: <CR><LF>+CSQ: 99,99<CR><LF>
 #include <sal_import.h>
 #include "atmodem.h"
 #include <stdio.h>
-#include "gprs/ec20/atcmd_config_module_ec20.h"
+#include "atcmd_config_module.h"
 #include "atparser.h"
 
 #if SYS_MODEM_EN == 0
@@ -194,7 +194,7 @@ uint8 SYS_MODM_Reset(uint8 way)
 //	        }
 //	    }
     uint8_t sig = 99;
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+//    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
     //aos_msleep(2000);
     if (!inited) {
         return SYS_ERR_FT;

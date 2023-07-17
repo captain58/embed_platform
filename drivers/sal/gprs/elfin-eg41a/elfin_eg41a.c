@@ -9,15 +9,17 @@
 #include <stdlib.h>
 #include "k_api.h"
 #include "aos/kernel.h"
-#include "ulog/ulog.h"
+#include "log.h"
 #include "aos/yloop.h"
 
-#include <atparser.h>
 #include <sal_import.h>
+#include <atparser.h>
+
 #include "gpio.h"
 #include "board.h"
 #include "modemlib.h"
 #include "msgid.h"
+#include "iomap.h"
 #define TAG "elfin_eg41a_gprs_module"
 
 #define ELFIN_EG41A_AT_CMD_SUCCESS_RSP "OK"
@@ -1102,15 +1104,16 @@ void elfin_eg41a_modemon(void)
 //	    _ATMODEM_VIN();
   
   //初始值
-    hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_0();
+    
+    SYS_GPO_Out(GPIO_MODEM_ONOFF, false);//hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_0();
                                             //复位(或重新上电)
-    hal_gpio_output_high(&brd_gpio_table[GPIO_MODEM_PWR]);//_ATMODEM_PWRON();
+    SYS_GPO_Out(GPIO_MODEM_PWR, true);//hal_gpio_output_high(&brd_gpio_table[GPIO_MODEM_PWR]);//_ATMODEM_PWRON();
     //_ATMODEM_PORTOPEN();
                                             //开机时序
     aos_msleep(1000);
-    hal_gpio_output_high(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_1();
+    SYS_GPO_Out(GPIO_MODEM_ONOFF, true);//hal_gpio_output_high(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_1();
     aos_msleep(200);
-    hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_0();
+    SYS_GPO_Out(GPIO_MODEM_ONOFF, false);//hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_0();
     aos_msleep(12000);
 
 }
@@ -1148,14 +1151,14 @@ void elfin_eg41a_modemoff(void)
 //	    aos_msleep(30000);
 
     
-    hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_PWR]);
+    SYS_GPO_Out(GPIO_MODEM_PWR, false);//hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_PWR]);
 
     aos_msleep(1000);
 }
 
 void elfin_eg41a_forcesoff(void)
 {
-    hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_PWR]);
+    SYS_GPO_Out(GPIO_MODEM_PWR, false);//hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_PWR]);
 //	    aos_msleep(1);
 }
 /************************************************************************
@@ -1177,7 +1180,7 @@ int elfin_eg41a_modemcheck(void)
     //at_reset_uart();
     ret = elfin_eg41a_uart_selfadaption(AT_CMD_ELFIN_EG41A_TEST, AT_CMD_ELFIN_EG41A_TEST_RESULT, strlen(AT_CMD_TEST_RESULT));
     if (ret) {
-        LOGE(TAG, "elfin_eg41a_uart_selfadaption fail \r\n");
+        LOG_ERROR("elfin_eg41a_uart_selfadaption fail \r\n");
         return ret;
     }
     

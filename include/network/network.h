@@ -35,13 +35,17 @@ extern "C" {
 #include <sal_ipaddr.h>
 #include <sal_sockets.h>
 #elif !defined(CONFIG_NO_TCPIP)
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/eventfd.h>
+//#include <netdb.h>
+//#include <sys/types.h>
+//#include <sys/socket.h>
+//#include <sys/ioctl.h>
+//#include <netinet/in.h>
+//#include <arpa/inet.h>
+//#include <sys/eventfd.h>
+  #include <sal_arch.h>
+#include <sal_def.h>
+#include <sal_ipaddr.h>
+#include <sal_sockets.h>
 #endif /* WITH_LWIP */
 
 #ifdef __cplusplus

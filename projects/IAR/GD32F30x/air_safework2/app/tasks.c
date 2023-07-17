@@ -53,7 +53,11 @@ const KTaskDeclare __TKDeclare[SYS_TK_NUM] =
     {__NULL, 0},                        //系统进程启动时已经初始化,不需要声明(gs_TkSystemc,栈gt_TkSystemStk[SYS_SYS_STK_LEN])
     TASK_DECLARE_1_MAIN(),              //meter控制进程
     {__NULL, 0},//TASK_DECLARE_2_HLV(),//{__NULL, 0},
-    {__NULL, 0},//TASK_DECLARE_3_FARP(),               //远程通道管理进程
+#ifdef WITH_SAL    
+    TASK_DECLARE_3_FARP(),               //远程通道管理进程
+#else
+    {__NULL, 0},//
+#endif    
     {__NULL, 0},//TASK_DECLARE_4_NETP(),//{__NULL, 0},
     {__NULL, 0},//TASK_DECLARE_5_NETP(),//{__NULL, 0},
     {__NULL, 0},//TASK_DECLARE_6_NETP(),//{__NULL, 0},

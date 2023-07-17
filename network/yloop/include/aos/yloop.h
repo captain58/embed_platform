@@ -26,7 +26,7 @@ struct pollfd {
 
 #else
 
-#include <poll.h>
+//#include <poll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif /* defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL) */

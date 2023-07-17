@@ -25,8 +25,8 @@
 
 // Delimiter
 #define AT_RECV_PREFIX "\r\n"
-#define AT_RECV_SUCCESS_POSTFIX "OK"
-#define AT_RECV_FAIL_POSTFIX "ERROR\r\n"
+#define AT_RECV_SUCCESS_POSTFIX "+ok"
+#define AT_RECV_FAIL_POSTFIX "+ERR\r\n"
 #define AT_SEND_DELIMITER "\r"
 
 // send delay
@@ -46,29 +46,29 @@
 
 
 
-void ec20_modemon(void);
-void ec20_modemoff(void);
-void ec20_forcesoff(void);
+void elfin_eg41a_modemon(void);
+void elfin_eg41a_modemoff(void);
+void elfin_eg41a_forcesoff(void);
 
-int ec20_modemcheck(void);
-int ec20_uart_init(void);
-int ec20_gprs_ip_init(void);
-int ec20_gprs_got_ip(uint8_t * ip);
-int ec20_gprs_status_check(uint8_t * sig, uint32_t bit);
-int ec20_domaintoip(char *domain, char ip[16]);
-int ec20_start(sal_conn_t *conn);
-int ec20_close(int fd, int32_t remote_port);
-int ec20_send(int fd,
+int elfin_eg41a_modemcheck(void);
+int elfin_eg41a_uart_init(void);
+int elfin_eg41a_gprs_ip_init(void);
+int elfin_eg41a_gprs_got_ip(uint8_t * ip);
+int elfin_eg41a_gprs_status_check(uint8_t * sig, uint32_t bit);
+int elfin_eg41a_domaintoip(char *domain, char ip[16]);
+int elfin_eg41a_start(sal_conn_t *conn);
+int elfin_eg41a_close(int fd, int32_t remote_port);
+int elfin_eg41a_send(int fd,
                  uint8_t *data,
                  uint32_t len,
                  char remote_ip[16],
                  int32_t remote_port,
                  int32_t timeout);
 
-int ec20_ftp_status_check(uint8_t * usr, uint8_t * pwd);
-int ec20_ftp_start(uint8_t * domain, uint16_t port, uint8_t * fold);
-int ec20_ftp_get(uint8_t * file, uint8_t * outbuf, uint32_t offset, uint16_t * len);
-int ec20_ftp_close(void);
+int elfin_eg41a_ftp_status_check(uint8_t * usr, uint8_t * pwd);
+int elfin_eg41a_ftp_start(uint8_t * domain, uint16_t port, uint8_t * fold);
+int elfin_eg41a_ftp_get(uint8_t * file, uint8_t * outbuf, uint32_t offset, uint16_t * len);
+int elfin_eg41a_ftp_close(void);
 
 
 #endif
