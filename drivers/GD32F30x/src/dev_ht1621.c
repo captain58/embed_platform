@@ -6,15 +6,15 @@
 #include "bsp.h"
 
 #define BIAS 0x52 //0b1000 0101 0010 1/3duty 4com
-#define SYSDIS 0X00 //0b1000 0000 0000 关振系统荡器和LCD偏压发生器
-#define SYSEN 0X02 //0b1000 0000 0010 打开系统振荡器
+#define SYSDIS 0X00 //0b1000 0000 0000 关振系统荡器和LCD偏压发生�?
+#define SYSEN 0X02 //0b1000 0000 0010 打开系统振荡�?
 #define LCDOFF 0X04 //0b1000 0000 0100 关LCD偏压
 #define LCDON 0X06 //0b1000 0000 0110 打开LCD偏压
-#define XTAL 0x28 //0b1000 0010 1000 外部接时钟
+#define XTAL 0x28 //0b1000 0010 1000 外部接时�?
 #define RC256 0X30 //0b1000 0011 0000 内部时钟
 #define TONEON 0X12 //0b1000 0001 0010 打开声音输出
 #define TONEOFF 0X10 //0b1000 0001 0000 关闭声音输出
-#define WDTDIS 0X0A //0b1000 0000 1010 禁止看门狗
+#define WDTDIS 0X0A //0b1000 0000 1010 禁止看门�?
 
 
 extern void Delay_us(uint16 us);
@@ -52,9 +52,9 @@ void HT1621_Init() {
     HT1621_Cmd(0x02);//打开系统振荡�?
     HT1621_Cmd(0x06);//打开LCD输出
     
-    HT1621_Set_All();
-    msleep(3000);
-    HT1621_Cls();
+//    HT1621_Set_All();
+//    msleep(2000);
+//    HT1621_Cls();
 }
 
 void HT1621_Cls() {

@@ -573,7 +573,7 @@ void wireless_mng(void)//状态机处理
     {
         PKT *pkt;
         uint8 tail;
-        SYS_Dev_OptBlinkSet(LED_FAR_RX, 0, 0, 0, 0);
+        SYS_Dev_OptBlinkSet(LED_FAR_RX, 0, 0, 0, 1);
         
         if(g_ucUpgradeFlgForPush != 0xAA)
         {
@@ -615,7 +615,7 @@ void wireless_mng(void)//状态机处理
     }
                 
     case RF_TX_DONE:
-        SYS_Dev_OptBlinkSet(LED_FAR_TX, 0, 0, 0, 0);
+        SYS_Dev_OptBlinkSet(LED_FAR_TX, 0, 0, 0, 1);
 
         Radio->StartRx( );
         if(NULL != g_stSendCacheIndex.ezPkt)

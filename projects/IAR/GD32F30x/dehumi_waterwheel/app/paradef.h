@@ -183,13 +183,14 @@
 #define CON_MOTOR_STT_IDEL      0
 #define CON_MOTOR_STT_PUMP      1
 #define CON_MOTOR_STT_DRAIN     2
+#define CON_MOTOR_STT_PAUSE     3
 
 #define CON_MOTOR_CTRL_AUTO      0
 #define CON_MOTOR_CTRL_MANUAL      1
 
 
-#define CON_LCD_REMAIND_TIME_MAX    60 //5∑÷÷”
-#define CON_SET_TIME_MAX    30
+#define CON_LCD_REMAIND_TIME_MAX    180 //5∑÷÷”
+#define CON_SET_TIME_MAX    15
 
 #define CON_REMAIN_SET_OFF      0
 #define CON_REMAIN_SET_ON       1    
@@ -197,12 +198,23 @@
 #define CON_TIME_SET_OFF      0
 #define CON_TIME_SET_ON       1    
 
-#define CON_TIME_SET_SITE_YEAR  0
-#define CON_TIME_SET_SITE_MON   1
-#define CON_TIME_SET_SITE_DAY   2
-#define CON_TIME_SET_SITE_HOUR  3
-#define CON_TIME_SET_SITE_MIN   4
-#define CON_TIME_SET_SITE_SEC   5
+#define CON_TIME_SET_SITE_YEAR      0
+#define CON_TIME_SET_SITE_YEARL     1
+
+#define CON_TIME_SET_SITE_MON       2
+#define CON_TIME_SET_SITE_MONL      3
+
+#define CON_TIME_SET_SITE_DAY       4
+#define CON_TIME_SET_SITE_DAYL      5
+
+#define CON_TIME_SET_SITE_HOUR      6
+#define CON_TIME_SET_SITE_HOURL     7
+
+#define CON_TIME_SET_SITE_MIN       8
+#define CON_TIME_SET_SITE_MINL      9
+
+#define CON_TIME_SET_SITE_SEC       10
+#define CON_TIME_SET_SITE_SECL      11
 
 #endif
 

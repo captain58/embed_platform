@@ -72,10 +72,11 @@ uint8_t SYS_LCD_Set_Time(TIME tm, uint8_t bcd);
 uint8_t SYS_LCD_Set_Head(uint8_t flag);
 uint8_t SYS_LCD_Set_Tank_Stt(uint8_t flag);
 uint8_t SYS_LCD_Set(uint8_t index, uint8_t data);
-uint8_t SYS_LCD_Set_Wheel_Water_Level(uint8_t flag);
-uint8_t SYS_LCD_Set_Tank_Water_Level(uint8_t flag);
+uint8_t SYS_LCD_Set_Wheel_Water_Level(uint8_t flag, uint8_t count);
+uint8_t SYS_LCD_Set_Tank_Water_Level(uint8_t flag, uint8_t count);
 uint8_t SYS_LCD_Onoff(uint8_t onoff);
 uint8_t SYS_LCD_Get_Onoff(void);
 uint8_t SYS_LCD_Clr_Year_High();
+void SYS_LCD_Handld(void);
 
 #endif

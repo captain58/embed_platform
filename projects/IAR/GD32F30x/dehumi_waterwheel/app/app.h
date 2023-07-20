@@ -167,11 +167,14 @@ typedef struct _ST_WATER_STT_
     uint8_t ready_stt[CON_SENSOR_FILTER];
     uint8_t para_save_flag;
     uint8_t remain_set_flag;
+    
+    uint8_t remain_set_site;   
     uint8_t time_set_flag;   
     uint8_t time_set_site;   
     uint16_t para_save_tick;
     uint16_t count;
     uint32_t tick;
+    TIME time;
     ST_WATER_SENSOR st_sensor;
 }ST_WATER_STT;
 

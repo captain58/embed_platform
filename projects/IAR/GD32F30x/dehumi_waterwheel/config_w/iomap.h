@@ -36,7 +36,9 @@
 //	    const COMPORT gs_LedCard       = {GPIOA, 8,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 //	
 //	//	    const COMPORT gs_LedSwitch  = {GPIOB, 14,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
-    const COMPORT gs_BuzCard       = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_BuzPositive       = {GPIOB, 10,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+    const COMPORT gs_BuzNegative       = {GPIOB, 2,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
+
 	const COMPORT gs_LedNull       = {GPIOB, 12,  1, GPIO_MODE_OUT_PP,GPIO_OSPEED_2MHZ,    1};
 
     
@@ -50,12 +52,13 @@
 //	        {(COMPORT*)&gs_LedSwitch,     1, 0, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedMatch,     0, 1, 1},     //true:低电平点亮
 //	        {(COMPORT*)&gs_LedCard,     0, 1, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_BuzCard,     0, 0, 0},
+        {(COMPORT*)&gs_BuzPositive,     0, 0, 0},
+        {(COMPORT*)&gs_BuzNegative,     0, 0, 0},
 	        {(COMPORT*)&gs_LedNull,     0, 1, 1},     //true:低电平点亮
         
     };
 
-    #define LED_NUM 4//(sizeof(gs_LedPort) / sizeof(GPO_PORTS))
+    #define LED_NUM 5//(sizeof(gs_LedPort) / sizeof(GPO_PORTS))
 
 #endif                                      //#ifdef EXT_DEV_LED
 
@@ -72,6 +75,7 @@ typedef enum {
     
 //	    GPIO_LED_CARD,
     GPIO_BUZ_CARD,
+    GPIO_BUZ_GND,
     GPIO_LED_NULL,
 //	GPIO_LED_SUB1_NORM,    
 //	GPIO_LED_SUB1_ERR,   	
@@ -81,9 +85,10 @@ typedef enum {
 //    LED_NUM,
 } LedNo;
 
-#define SYS_LED_RUN GPIO_LED_RUN
-#define SYS_LED_MATCH GPIO_LED_RUN
-#define SYS_LED_BUZZ GPIO_BUZ_CARD
+#define SYS_LED_RUN     GPIO_LED_RUN
+#define SYS_LED_MATCH   GPIO_LED_RUN
+#define SYS_LED_BUZZ    GPIO_BUZ_CARD
+#define SYS_LED_GND     GPIO_BUZ_GND
 
 /******************************************************************************
 **GPO输出端口枚举定义
@@ -137,7 +142,7 @@ typedef enum
     {
         {(COMPORT*)&gs_GpoPumpWater,       false, false},      //抽水
         {(COMPORT*)&gs_GpoDrainWater,       false, false}, //排水
-        {(COMPORT*)&gs_GpoLCDPwr,       false, false}, //排水
+        {(COMPORT*)&gs_GpoLCDPwr,       false, true}, //排水
         {(COMPORT*)&gs_GpoLCDCs,       false, false}, //排水
         {(COMPORT*)&gs_GpoLCDRd,       false, false}, //排水
         {(COMPORT*)&gs_GpoLCDWr,       false, false}, //排水

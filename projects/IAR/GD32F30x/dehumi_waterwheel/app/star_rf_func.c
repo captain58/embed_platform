@@ -56,7 +56,9 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             extern uint8_t guc_netStat;
             if(NODE_STATUS_LOGIN == guc_netStat)
             {
+#ifndef  MASTER_NODE           
                 SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
+#endif                
             }
             if(frm->bNeedReAllocate)
             {
@@ -1218,7 +1220,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 id = 0;                 //当没有分配到有效ID时，分配到0，用于回复SS 
                 errCode = 6;
                 
-                SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0); 
+//	                SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0); 
             }
                 
             uint32 stt = 0;
@@ -1296,7 +1298,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 
             if(0 == errCode)
             {
-                SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 
+                SYS_Dev_OptBlinkSet(SYS_LED_RUN, 2, 50, 50, 0); 
             }
         }
         break;              

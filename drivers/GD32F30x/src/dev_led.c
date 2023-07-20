@@ -144,7 +144,8 @@ bool LED_Server(void* pdata)
 		if(ll->type == 0)               //只亮一下的
 		{
 			SYS_BlinkDev_OnOff(i, true);
-			ll->type = 0xFF;            //下一次进来就不亮了
+            if(ll->time == 0)
+			    ll->type = 0xFF;            //下一次进来就不亮了
 		}
 		else if(ll->type == 1)          //闪烁
 		{
@@ -513,6 +514,46 @@ void SYS_LED_TIMEROC(bool oc)
         krhino_timer_stop(&gst_LedTimer);
     }
 #endif
+}
+
+
+
+
+void SYS_BUZZ_Passive_Blink(uint8_t type)
+{
+    SYS_Dev_OptBlinkSet(SYS_LED_GND, 0, 0, 0, 100);
+
+    switch(type)
+    {
+        case CON_PASSIVE_BUZZ_SOUND_0:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 9, 1, 10);
+            break;
+        case CON_PASSIVE_BUZZ_SOUND_1:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 8, 2, 10);
+            break;
+        case CON_PASSIVE_BUZZ_SOUND_2:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 7, 3, 10);
+            break;
+        case CON_PASSIVE_BUZZ_SOUND_3:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 6, 4, 10);
+            break;
+        case CON_PASSIVE_BUZZ_SOUND_4:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 5, 5, 10);
+            break;
+        case CON_PASSIVE_BUZZ_SOUND_5:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 4, 6, 10);
+            break;        
+        default:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 2, 5, 5, 10);
+            break;
+    }
+
+//	    if(type == CON_PASSIVE_BUZZ_SOUND_0)
+//	
+//	        SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 9, 1, 2);
+//	    else
+//	        SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 2, 5, 5, 100);
+    
 }
 
 
