@@ -517,7 +517,7 @@ void SYS_LED_TIMEROC(bool oc)
 }
 
 
-
+#if (defined SYS_LED_BUZZ && defined SYS_LED_GND)
 
 void SYS_BUZZ_Passive_Blink(uint8_t type)
 {
@@ -555,5 +555,5 @@ void SYS_BUZZ_Passive_Blink(uint8_t type)
 //	        SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 2, 5, 5, 100);
     
 }
-
+#endif
 

@@ -280,7 +280,7 @@ void Update_Node()//更新入网的节点
                 cltor_shadow[i].FrameDeadTime = 0;
             }
 
-            LOG_DEBUG( DBGFMT"node[%d] addr[%02x%02x%02x%02x%02x%02x] heartBeat = %d Update_Node  curslottime = %d, father_update = %d \n",DBGARG, i,
+            LOG_INFO( DBGFMT"node[%d] addr[%02x%02x%02x%02x%02x%02x] heartBeat = %d Update_Node  curslottime = %d, father_update = %d \n",DBGARG, i,
                 cltor[i].devAddr[5], cltor[i].devAddr[4],cltor[i].devAddr[3],cltor[i].devAddr[2],cltor[i].devAddr[1],cltor[i].devAddr[0],
                 cltparm.routeuptime, curslottime, cltor_shadow[i].father_update);
 
@@ -495,7 +495,7 @@ uint8 CheckConflict(void)
     uint8 ret = 0;
     double rssi = -130;//SX1276ReadRssi();
     static double x = 90.0;
-    LOG_DEBUG( DBGFMT"rssi[%4.1f]\n",DBGARG, rssi);
+    LOG_INFO( DBGFMT"rssi[%4.1f]\n",DBGARG, rssi);
     g_rfLR_rssi_lmit = -rfpara.rf_limit;
     if((g_rfLR_rssi_lmit) < RFLR_RSSI_VALUE_LIMT_MIN)
     {
@@ -508,7 +508,7 @@ uint8 CheckConflict(void)
     double baseRssi = (double)((x * g_rfLR_rssi_lmit) / 100);
     if(rssi > baseRssi)
     {
-        LOG_DEBUG( DBGFMT"Type[%d] rssi[%4.1f] baseRssi[%4.1f] rssi_lmit[%4.1f] \n",DBGARG, 
+        LOG_INFO( DBGFMT"Type[%d] rssi[%4.1f] baseRssi[%4.1f] rssi_lmit[%4.1f] \n",DBGARG, 
             g_stSendCacheIndex.level, rssi, baseRssi, rfpara.rf_limit);
 
         ret = 1;
@@ -588,7 +588,7 @@ void wireless_mng(void)//状态机处理
             uint8 protocal;   
             if(gs_FRM.Channel(channel, pkt->data, pkt->len, &protocal) != PST_ERR_OK)
             {
-                LOG_DEBUG( DBGFMT"rssi[%4.1f] crc check err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
+                LOG_INFO( DBGFMT"rssi[%4.1f] crc check err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
                     pkt->data[18], pkt->data[17],pkt->data[16],pkt->data[15],pkt->data[14],pkt->data[13]);     
 
                 LOG_DUMPHEX(LOG_LEVEL_DEBUG, "err data : \n", pkt->data, pkt->len);

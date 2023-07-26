@@ -1156,7 +1156,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //                }
                 id = Sn_Search_Id(SN);
 
-                LOG_DEBUG( DBGFMT" search id = %d\n",DBGARG, id);
+                LOG_INFO( DBGFMT" search id = %d\n",DBGARG, id);
 				
 				errCode = 0;
 
@@ -1723,6 +1723,8 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //	                    memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
                     SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
                     guc_AllowLogin = 0;
+                    extern kbuf_queue_t gs_RFMngQueue;
+                    krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
 //                }
             }
 

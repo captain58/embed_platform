@@ -124,7 +124,7 @@ void JudgeTaskFlag(uint8_t port)
 
     gss_TaskATimer.flag |= 1 << port;
 
-    LOG_DEBUG("485 port[%d] set TaskFlag ********[ %02x ]******!!!!\n",port, gss_TaskATimer.flag);
+    LOG_INFO("485 port[%d] set TaskFlag ********[ %02x ]******!!!!\n",port, gss_TaskATimer.flag);
 
     if((gss_TaskATimer.flag & gss_TaskATimer.runflag) == gss_TaskATimer.runflag)
     {
@@ -143,7 +143,7 @@ void JudgeTaskFlag(uint8_t port)
         kstat_t t =  gs_OS.Message_Send(&gs_TKSlvQueue, msg,2);
 
         
-        LOG_DEBUG("port CP Finish note slv to Report \n");
+        LOG_INFO("port CP Finish note slv to Report \n");
 
     }
 

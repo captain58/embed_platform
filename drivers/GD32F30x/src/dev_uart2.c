@@ -1181,7 +1181,7 @@ void SYS_UART_Init(void)
 
     SerialSets ss;
 //    UART_InitTypeDef us;
-    ss.baudrate = 9600;
+    ss.baudrate = 115200;
     ss.databits = DataBits_8bits;
     ss.parit = Parit_N;
     ss.stopbits = StopBits_1;

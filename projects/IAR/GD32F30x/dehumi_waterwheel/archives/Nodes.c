@@ -31,7 +31,7 @@ uint8 SyncCltorPara(uint16 id, COLLECTOR * pCltor, STMETERPARAFLASH *pstMeter)
         {
             return 1;
         }
-        LOG_DEBUG( DBGFMT"pstMeter is NULL para sync id = %d\n",DBGARG, id);
+        LOG_INFO( DBGFMT"pstMeter is NULL para sync id = %d\n",DBGARG, id);
         LOG_DUMPHEX(LOG_LEVEL_DEBUG, "stMeterParaF : \n", (uint8 *)&stMeterParaF, PARA_SYNC_LEN);
         LOG_DUMPHEX(LOG_LEVEL_DEBUG, "pCltor : \n", (uint8 *)pCltor, PARA_SYNC_LEN);
         
@@ -50,7 +50,7 @@ uint8 SyncCltorPara(uint16 id, COLLECTOR * pCltor, STMETERPARAFLASH *pstMeter)
         {
             return 1;
         }
-        LOG_DEBUG( DBGFMT" para sync id = %d\n",DBGARG, id);
+        LOG_INFO( DBGFMT" para sync id = %d\n",DBGARG, id);
         LOG_DUMPHEX(LOG_LEVEL_DEBUG, "stMeterParaF : \n", (uint8 *)&stMeterParaF, PARA_SYNC_LEN);
         LOG_DUMPHEX(LOG_LEVEL_DEBUG, "pCltor : \n", (uint8 *)pCltor, PARA_SYNC_LEN);
         

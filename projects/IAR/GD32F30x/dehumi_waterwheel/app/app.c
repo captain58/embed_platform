@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033007;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033009;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -923,7 +923,7 @@ if(event & CON_KEY14_BIT)               //KEY13
 #define CON_MOTOR_WORK_AWAY_MAX_TIME      (5000)//30s 10分钟
 void MAIN_UpdataWaterPump(void)
 {
-    LOG_DEBUG("before MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
+    LOG_INFO("before MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
     uint32_t clac_tick = 0;
     if(CON_WATER_CTRL_OFF != gst_water_ctrl.onoff)
     {
@@ -961,7 +961,7 @@ void MAIN_UpdataWaterPump(void)
                 {
                     clac_tick = g_tick_count - gst_water_stt.tick;
                 }
-                LOG_DEBUG("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
+                LOG_INFO("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
                 
                 if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
                     gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH ||
@@ -984,7 +984,7 @@ void MAIN_UpdataWaterPump(void)
                 {
                     clac_tick = g_tick_count - gst_water_stt.tick;
                 }
-                LOG_DEBUG("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
+                LOG_INFO("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
                 
                 if(gst_sub_node_water_stt.cur_stt <= CON_WATER_TANK_STT_LOW_MID ||
                     gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
@@ -1010,7 +1010,7 @@ void MAIN_UpdataWaterPump(void)
                 {
                     clac_tick = g_tick_count - gst_water_stt.tick;
                 }
-                LOG_DEBUG("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
+                LOG_INFO("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
                 
                 if((gst_sub_node_water_stt.cur_stt < CON_WATER_TANK_STT_LOW_MID && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) ||
                     gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
@@ -1043,7 +1043,7 @@ void MAIN_UpdataWaterPump(void)
                 {
                     clac_tick = g_tick_count - gst_water_stt.tick;
                 }
-                LOG_DEBUG("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
+                LOG_INFO("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
                 
                 if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
                     (gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) ||
@@ -1064,7 +1064,7 @@ void MAIN_UpdataWaterPump(void)
 
         }
     }
-    LOG_DEBUG("after MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
+    LOG_INFO("after MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
 
 }
 #endif
@@ -1213,10 +1213,10 @@ void MAIN_SecProc(void)
     SYS_LCD_Set_Tank_Water_Level(gst_sub_node_water_stt.cur_stt, g_timer_tick);
 #endif
 #ifdef MASTER_NODE
-    LOG_DEBUG("mod[%d] sub[%d] low[%d] mlow[%d] hmid[%d] high[%d]\n", gst_water_stt.motor_stt, gst_sub_node_water_stt.cur_stt, gst_water_stt.st_sensor.low, 
+    LOG_INFO("mod[%d] sub[%d] low[%d] mlow[%d] hmid[%d] high[%d]\n", gst_water_stt.motor_stt, gst_sub_node_water_stt.cur_stt, gst_water_stt.st_sensor.low, 
         gst_water_stt.st_sensor.low_mid, gst_water_stt.st_sensor.high_mid, gst_water_stt.st_sensor.high);
 #else
-    LOG_DEBUG("low[%d] mid low[%d] high mid[%d] high[%d]\n", gst_water_stt.st_sensor.low, 
+    LOG_INFO("low[%d] mid low[%d] high mid[%d] high[%d]\n", gst_water_stt.st_sensor.low, 
         gst_water_stt.st_sensor.low_mid, gst_water_stt.st_sensor.high_mid, gst_water_stt.st_sensor.high);
     
 #endif    

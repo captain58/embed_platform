@@ -3700,7 +3700,7 @@ void Send_Broad()
         if((msr & EZMAC_PRO_IDLE) == EZMAC_PRO_IDLE)
         {
             g_nModuleResetTime = GET_TICK_COUNT( );
-            LOG_DEBUG( DBGFMT"+++++++ SX1276ReInit +++++++\n",DBGARG);
+            LOG_INFO( DBGFMT"+++++++ SX1276ReInit +++++++\n",DBGARG);
             uint8 tmp[4];
             I2cRead(0xA0, &tmp[0], FM_FREQ_DEFINE+8, 4); //存设置频点定义参数***
             int32 order = tmp[0]*0x1000000 + tmp[1]*0x10000 + tmp[2]*0x100 + tmp[3];

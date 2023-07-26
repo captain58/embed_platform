@@ -1001,7 +1001,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
     if(frm->apdu.stInfo.stUp.bit2.channelFlg != (rfpara.rf_channel & 0x0F) ||
         frm->apdu.stInfo.stUp.bit1.routeNum != frm->apdu.stInfo.stUp.bit4.relayNum)
     {
-        LOG_DEBUG( DBGFMT"rssi[%4.1f] CH[%d] myCh[%d] route[%d] relay[%d] dest channel err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
+        LOG_INFO( DBGFMT"rssi[%4.1f] CH[%d] myCh[%d] route[%d] relay[%d] dest channel err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
             frm->apdu.stInfo.stUp.bit2.channelFlg, rfpara.rf_channel, frm->apdu.stInfo.stUp.bit1.routeNum, frm->apdu.stInfo.stUp.bit4.relayNum, 
             receive[m+5], receive[m+4],receive[m+3],receive[m+2],receive[m+1],receive[m]);                        
     
@@ -1084,7 +1084,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
                 {
                     SYS_ERR();
                 }
-                LOG_DEBUG( DBGFMT"rssi[%4.1f]HHU comm\n",DBGARG, SX1276LoRaGetPacketRssi());
+                LOG_INFO( DBGFMT"rssi[%4.1f]HHU comm\n",DBGARG, SX1276LoRaGetPacketRssi());
             }
             else if(memcmp(destAddr, sBroadAddr99, addrLen) == 0 || 
                     memcmp(destAddr, sBroadAddrFF, addrLen) == 0)
@@ -1104,7 +1104,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
             }
             else
             {
-                LOG_DEBUG( DBGFMT"rssi[%4.1f]down data src %02x%02x%02x%02x%02x%02x dest %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
+                LOG_INFO( DBGFMT"rssi[%4.1f]down data src %02x%02x%02x%02x%02x%02x dest %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
                 frm->apdu.addr[5], frm->apdu.addr[4],frm->apdu.addr[3],frm->apdu.addr[2],frm->apdu.addr[1],frm->apdu.addr[0],
                 destAddr[5], destAddr[4],destAddr[3],destAddr[2],destAddr[1],destAddr[0]);                        
                 SYS_ERR();
@@ -1118,7 +1118,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
                     memcmp(destAddr, sBroadAddrAA, addrLen) != 0 &&
                       memcmp(destAddr, sBroadAddrFE, addrLen) != 0)
                 {
-                    LOG_DEBUG( DBGFMT"rssi[%4.1f]dest addr err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
+                    LOG_INFO( DBGFMT"rssi[%4.1f]dest addr err %02x%02x%02x%02x%02x%02x\n",DBGARG, SX1276LoRaGetPacketRssi(),
                         destAddr[5], destAddr[4],destAddr[3],destAddr[2],destAddr[1],destAddr[0]);                        
 
                     SYS_ERR();
@@ -1146,14 +1146,14 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
 //    frm->rssi = (int)calculateRssi(frm->apdu.snr, frm->apdu.rssi);
 
     
-    LOG_DEBUG( DBGFMT"CH[%d] rf recv ftd[%d] fn[%d] rssi[%4.1f] %02x%02x%02x%02x%02x%02x\n",DBGARG, 
+    LOG_INFO( DBGFMT"CH[%d] rf recv ftd[%d] fn[%d] rssi[%4.1f] %02x%02x%02x%02x%02x%02x\n",DBGARG, 
         rfpara.rf_channel, frm->apdu.ctrl.ftd, frm->apdu.fn, frm->rssi, 
         frm->apdu.addr[5], frm->apdu.addr[4],frm->apdu.addr[3],frm->apdu.addr[2],frm->apdu.addr[1],frm->apdu.addr[0]);
     LOG_DUMPHEX(LOG_LEVEL_DEBUG, "HD : \n", receive, frameLen);
 
     if(frameLen < 18)
     {
-        LOG_DEBUG( DBGFMT"frame addr %02x%02x%02x%02x%02x%02x wrang data\n",DBGARG, 
+        LOG_INFO( DBGFMT"frame addr %02x%02x%02x%02x%02x%02x wrang data\n",DBGARG, 
             frm->apdu.addr[5], frm->apdu.addr[4],frm->apdu.addr[3],frm->apdu.addr[2],frm->apdu.addr[1],frm->apdu.addr[0]);
         SYS_ERR();
     }
@@ -1181,7 +1181,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
             {
                 frm->bDebugFlg = TRUE;
             }
-            LOG_DEBUG( DBGFMT" HHU read data\n",DBGARG);
+            LOG_INFO( DBGFMT" HHU read data\n",DBGARG);
         }
 #ifndef MASTER_NODE
         else if(0 == memcmp(srcAddr, nParentMacAddr,CON_DEV_ADDR_LEN_6))
@@ -1192,7 +1192,7 @@ uint8 PST_SRF_Decode(uint8* receive, uint8* send, uint16 sbuflen, PST_Frame* fra
         
         else
         {
-            LOG_DEBUG( DBGFMT" addr does not at my white space %02x%02x%02x%02x%02x%02x\n",DBGARG, 
+            LOG_INFO( DBGFMT" addr does not at my white space %02x%02x%02x%02x%02x%02x\n",DBGARG, 
                 frm->apdu.addr[5], frm->apdu.addr[4],frm->apdu.addr[3],frm->apdu.addr[2],frm->apdu.addr[1],frm->apdu.addr[0]);
         }
     }
@@ -1554,7 +1554,7 @@ uint8 RfFrmProc(uint8_t channel, uint8 protocol, uint8* rbuffer, uint16 length, 
     }
     else
     {
-        LOG_DEBUG( DBGFMT"Decode Failed proto[%x] \n",DBGARG, protocol);                        
+        LOG_INFO( DBGFMT"Decode Failed proto[%x] \n",DBGARG, protocol);                        
 
         LOG_DUMPHEX(LOG_LEVEL_DEBUG, "data: \n", rbuffer, length);
     }

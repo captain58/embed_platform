@@ -1184,7 +1184,7 @@ uint8 EZMacPRO_Transmit(void)/*STAPDU * stPdu*/
         {
             pktRssi = -cltor_shadow[pEzTxPkt->TxPkt.index].rRssi;
         }
-        LOG_DEBUG( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d \n",DBGARG, 
+        LOG_INFO( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d \n",DBGARG, 
                 rfpara.rf_channel, pEzTxPkt->TxPkt.index, pEzTxPkt->TxPkt.head.apdu.ctrl.ftd, pEzTxPkt->TxPkt.head.apdu.fn, pEzTxPkt->TxPkt.head.apdu.seq);
     }
 //    else if(pEzTxPkt->TxPkt.protocol == PST_FRM_802_R_NO)
@@ -1279,7 +1279,7 @@ uint8 EZMacPRO_Transmit(void)/*STAPDU * stPdu*/
             m++;
             if(pEzTxPkt->TxPkt.head.apdu.addr != NULL)
             {
-                LOG_DEBUG( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d dest addr %02x%02x%02x%02x%02x%02x \n",DBGARG, 
+                LOG_INFO( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d dest addr %02x%02x%02x%02x%02x%02x \n",DBGARG, 
                     rfpara.rf_channel, pEzTxPkt->TxPkt.index, pEzTxPkt->TxPkt.head.apdu.ctrl.ftd, pEzTxPkt->TxPkt.head.apdu.fn, pEzTxPkt->TxPkt.head.apdu.seq, 
                     pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 1], pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 2],
                     pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 3], pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 4],
@@ -1322,7 +1322,7 @@ uint8 EZMacPRO_Transmit(void)/*STAPDU * stPdu*/
 
     Radio->SetTxPacket( pEzTxPkt->TxPkt.data, pEzTxPkt->TxPkt.len );
     //MSR = TX_STATE_BIT | TX_STATE_LBT_LISTEN;//设状态机   
-    LOG_DEBUG( DBGFMT" rf send type =%d timeout = %d\n",DBGARG, g_stSendCacheIndex.level, timeout);
+    LOG_INFO( DBGFMT" rf send type =%d timeout = %d\n",DBGARG, g_stSendCacheIndex.level, timeout);
     LOG_DUMPHEX(LOG_LEVEL_DEBUG, "HD : \n", pEzTxPkt->TxPkt.data, pEzTxPkt->TxPkt.len);
     
     return MAC_OK;
@@ -1348,7 +1348,7 @@ uint8 EZMacPRO_Transmit_WithPKT(EZ_TX_PKT* pEzTxPkt)/*STAPDU * stPdu*/
 //	    }
 //	
 //	#else
-    LOG_DEBUG( DBGFMT"EZMacPRO_Transmit_WithPKT protocol = %d \n",DBGARG, pEzTxPkt->TxPkt.protocol);
+    LOG_INFO( DBGFMT"EZMacPRO_Transmit_WithPKT protocol = %d \n",DBGARG, pEzTxPkt->TxPkt.protocol);
 
     if(pEzTxPkt->TxPkt.protocol == PST_FRM_NO)
     {
@@ -1359,7 +1359,7 @@ uint8 EZMacPRO_Transmit_WithPKT(EZ_TX_PKT* pEzTxPkt)/*STAPDU * stPdu*/
         {
             pktRssi = -cltor_shadow[pEzTxPkt->TxPkt.index].rRssi;
         }
-        LOG_DEBUG( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d \n",DBGARG, 
+        LOG_INFO( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d \n",DBGARG, 
                 rfpara.rf_channel, pEzTxPkt->TxPkt.index, pEzTxPkt->TxPkt.head.apdu.ctrl.ftd, pEzTxPkt->TxPkt.head.apdu.fn, pEzTxPkt->TxPkt.head.apdu.seq);
     }
 //    else if(pEzTxPkt->TxPkt.protocol == PST_FRM_802_R_NO)
@@ -1440,7 +1440,7 @@ uint8 EZMacPRO_Transmit_WithPKT(EZ_TX_PKT* pEzTxPkt)/*STAPDU * stPdu*/
             m++;
             if(pEzTxPkt->TxPkt.head.apdu.addr != NULL)
             {
-                LOG_DEBUG( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d dest addr %02x%02x%02x%02x%02x%02x \n",DBGARG, 
+                LOG_INFO( DBGFMT"CH[%d] ID[%d] rf send ftd = %d, fn = %d seq = %d dest addr %02x%02x%02x%02x%02x%02x \n",DBGARG, 
                     rfpara.rf_channel, pEzTxPkt->TxPkt.index, pEzTxPkt->TxPkt.head.apdu.ctrl.ftd, pEzTxPkt->TxPkt.head.apdu.fn, pEzTxPkt->TxPkt.head.apdu.seq, 
                     pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 1], pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 2],
                     pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 3], pEzTxPkt->TxPkt.head.apdu.addr[pEzTxPkt->TxPkt.head.apdu.addrlen - 4],
@@ -1484,7 +1484,7 @@ uint8 EZMacPRO_Transmit_WithPKT(EZ_TX_PKT* pEzTxPkt)/*STAPDU * stPdu*/
 
     Radio->SetTxPacket( pEzTxPkt->TxPkt.data, pEzTxPkt->TxPkt.len );
     //MSR = TX_STATE_BIT | TX_STATE_LBT_LISTEN;//设状态机   
-    LOG_DEBUG( DBGFMT" rf send type =%d timeout = %d\n",DBGARG, g_stSendCacheIndex.level, timeout);
+    LOG_INFO( DBGFMT" rf send type =%d timeout = %d\n",DBGARG, g_stSendCacheIndex.level, timeout);
     LOG_DUMPHEX(LOG_LEVEL_DEBUG, "HD : \n", pEzTxPkt->TxPkt.data, pEzTxPkt->TxPkt.len);
 //	    g_stSendCacheIndex.level = CON_SEND_PRIORITY_LOW;
 //	    g_stSendCacheIndex.ezPkt = pEzTxPkt;
