@@ -1304,13 +1304,13 @@ uint8 Star_Rf_Pack(ST_STAR_RF_PACK * pack, STFUNCPARA * stAddr, STFUNCPARA * stD
     {
         return rc;
     }
+//    etpkt->nBackOffSlot = 20;
 
     pkt = &(etpkt->TxPkt);
 
         //uint8* pTxData =  pkt->data;
 
     pkt->ttl = 0xff;  //生存周期by ben 29
-
     memset((uint8 *)&pkt->head.apdu, 0, sizeof(STAPDU));
     //传递数据
 
@@ -1423,7 +1423,7 @@ uint8 Star_Rf_Pack(ST_STAR_RF_PACK * pack, STFUNCPARA * stAddr, STFUNCPARA * stD
     pkt->protocol = PST_FRM_NO;
     pkt->index = pack->id;
     etpkt->bValid = 1;//业务缓存有效
-    etpkt->nBackOffSlot = 0;
+    etpkt->nBackOffSlot = 30;
     rc = SYS_ERR_OK;
 
 	return rc;	

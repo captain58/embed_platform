@@ -189,7 +189,7 @@
 #define CON_MOTOR_CTRL_MANUAL      1
 
 
-#define CON_LCD_REMAIND_TIME_MAX    180 //5∑÷÷”
+#define CON_LCD_REMAIND_TIME_MAX    300 //5∑÷÷”
 #define CON_SET_TIME_MAX    15
 
 #define CON_REMAIN_SET_OFF      0

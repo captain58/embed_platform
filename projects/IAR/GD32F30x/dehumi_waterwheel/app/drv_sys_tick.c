@@ -2232,7 +2232,7 @@ uint8 EZMacPRO_Receive(void)
 //	    MSR = RX_STATE_BIT | RX_STATE_WAIT_FOR_SYNC;
 //	    ENABLE_MAC_EXT_INTERRUPT(); // Ê¹ÄÜRFÖÐ¶Ï
     
-    Radio->StartRx( );
+    Radio->StartRx(0 );
     return MAC_OK;
 }
 
@@ -2267,7 +2267,7 @@ BEHAVIOR Get_Current_Behave(uint32_t slot, uint32_t timeframe) //»ñÈ¡Òª²Ù×÷µÄÐÐÎ
     else
 #else
     extern uint8 guc_AllowLogin;
-    if (guc_AllowLogin && (slot % 100) == (localid - 1))    //±¾µØ·¢¹ã²¥
+    if (guc_AllowLogin && (slot % 320) == (localid - 1))    //±¾µØ·¢¹ã²¥
     {
         ret.behave = BEHAVIOR_BROADALLOWLOGIN;
         ret.freq = broad_fhc;

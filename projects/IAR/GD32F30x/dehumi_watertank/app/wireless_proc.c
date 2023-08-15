@@ -493,9 +493,9 @@ void SendTickToSSProc()
 uint8 CheckConflict(void)
 {
     uint8 ret = 0;
-    double rssi = -130;//SX1276ReadRssi();
+    double rssi = SYS_RF_Rssi_Get();
     static double x = 90.0;
-    LOG_DEBUG( DBGFMT"rssi[%4.1f]\n",DBGARG, rssi);
+    LOG_DEBUG( DBGFMT"==============rssi[%4.1f]=====================\n",DBGARG, rssi);
     g_rfLR_rssi_lmit = -rfpara.rf_limit;
     if((g_rfLR_rssi_lmit) < RFLR_RSSI_VALUE_LIMT_MIN)
     {
@@ -505,14 +505,14 @@ uint8 CheckConflict(void)
     {
         g_rfLR_rssi_lmit = RFLR_RSSI_VALUE_LIMT;
     }
-    double baseRssi = (double)((x * g_rfLR_rssi_lmit) / 100);
-    if(rssi > baseRssi)
-    {
-        LOG_DEBUG( DBGFMT"Type[%d] rssi[%4.1f] baseRssi[%4.1f] rssi_lmit[%4.1f] \n",DBGARG, 
-            g_stSendCacheIndex.level, rssi, baseRssi, rfpara.rf_limit);
-
-        ret = 1;
-    }
+//	    double baseRssi = (double)((x * g_rfLR_rssi_lmit) / 100);
+//	    if(rssi > baseRssi)
+//	    {
+//	        LOG_DEBUG( DBGFMT"Type[%d] rssi[%4.1f] baseRssi[%4.1f] rssi_lmit[%4.1f] \n",DBGARG, 
+//	            g_stSendCacheIndex.level, rssi, baseRssi, rfpara.rf_limit);
+//	
+//	        ret = 1;
+//	    }
     return ret;
 }
 
@@ -574,7 +574,8 @@ void wireless_mng(void)//状态机处理
         PKT *pkt;
         uint8 tail;
         SYS_Dev_OptBlinkSet(LED_FAR_RX, 0, 0, 0, 0);
-        
+        LOG_DEBUG( "======RF_RX_DONE [%d]=====\n",g_ucUpgradeFlgForPush);    
+
         if(g_ucUpgradeFlgForPush != 0xAA)
         {
             //uint16 frameLen = 0;
@@ -611,13 +612,15 @@ void wireless_mng(void)//状态机处理
             krhino_buf_queue_send(&gs_RFMngQueue, &msg, 1);
         }
                 //MSR = RX_STATE_BIT | RX_STATE_WAIT_FOR_SEND_ACK;
+        Radio->StartRx( 1);
         break;
     }
                 
     case RF_TX_DONE:
         SYS_Dev_OptBlinkSet(LED_FAR_TX, 0, 0, 0, 0);
+        LOG_DEBUG( "===========RF_TX_DONE [%d]==========\n",g_ucUpgradeFlgForPush);    
 
-        Radio->StartRx( );
+        Radio->StartRx( 1);
         if(NULL != g_stSendCacheIndex.ezPkt)
         {
             uint16 temp8 = 0;
@@ -710,7 +713,7 @@ void wireless_mng(void)//状态机处理
         //Radio->StartRx( );
         break;
     case RF_IDLE:
-        Radio->StartRx( );
+        Radio->StartRx( 0);
         break;
     case RF_RX_CRCERR:
         SYS_Dev_OptBlinkSet(LED_FAR_RX, 1, 5, 2, 0);

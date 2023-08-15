@@ -48,7 +48,7 @@
     {
         {(COMPORT*)&gs_LedRun,     0, 1, 1},     //true:低电平点亮
 //	        {(COMPORT*)&gs_LedSwitch,     1, 0, 1},     //true:低电平点亮
-        {(COMPORT*)&gs_LedMatch,     0, 1, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedMatch,     0, 1, 0},     //true:低电平点亮
 //	        {(COMPORT*)&gs_LedCard,     0, 1, 1},     //true:低电平点亮
 //	        {(COMPORT*)&gs_BuzCard,     0, 0, 0},
 	        {(COMPORT*)&gs_LedNull,     0, 1, 1},     //true:低电平点亮

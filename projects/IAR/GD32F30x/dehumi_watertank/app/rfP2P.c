@@ -662,6 +662,7 @@ extern __IO uint32_t uwTick;
 extern uint8_t guc_netStat;
 ktimer_t     g_rf_tick_timer;
 ktimer_t     g_rf_mainloop_timer;
+extern uint32 sysSlotTime;
 void SYS_RFMng_Task(void * arg)
 {
     TIME time;
@@ -691,7 +692,7 @@ void SYS_RFMng_Task(void * arg)
 //    LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
     //Flash_Test();
     krhino_timer_create(&g_rf_tick_timer, "rf_tick_timer", Slot_Time_IRQ,
-                        krhino_ms_to_ticks(1000), krhino_ms_to_ticks(SYS_TIMER_COUNT_MS), 0, 1);
+                        krhino_ms_to_ticks(3000), krhino_ms_to_ticks(SYS_TIMER_COUNT_MS), 0, 1);
 #ifdef MASTER_NODE
     extern void Handle_Proc();
     krhino_timer_create(&g_rf_mainloop_timer, "rf_mainloop_timer", Handle_Proc,
@@ -718,6 +719,15 @@ void SYS_RFMng_Task(void * arg)
                         EZMacPRO_Transmit_Adv(3, NULL, 0);
                     }
                     break;
+                case MSG_SWITCH_CHANGE_FIRST:
+                    if(guc_netStat == NODE_STATUS_LOGIN)
+                    {
+//                          EZMacPRO_Transmit_Adv(3, NULL, 0);  
+//	                        EZMacPRO_Transmit_Adv(3, NULL, 0);
+                        sysSlotTime = 200;
+                    }
+                    break;
+                    
                 case MSG_FARP_RECVDATA:
                 {
                     PKT *pkt;

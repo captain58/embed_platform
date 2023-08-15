@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033006;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033014;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -390,18 +390,20 @@ void KeyProc(uint8 key)
         
         if(event & 4)               //KEY3
         {
-#ifdef MASTER_NODE
+//	#ifdef MASTER_NODE
             SYS_RF_Set_FallingEdge(GPI_DIO1);
-#else
+            LOG_DEBUG("~~~~~~~~GPI_DIO1 failing!~~~~~~~~~~~~~~~\n");
+
+//	#else
 //	            guc_SwitchOnOff = 0;
-#endif
+//	#endif
         }
         
         if(event & 8)               //KEY4
         {
 	
             SYS_RF_Set_FallingEdge(GPI_DIO2);
-            LOG_DEBUG("key 4 failing!\n");
+            LOG_DEBUG("~~~~~~~~GPI_DIO2 failing!~~~~~~~~~~~~~~~\n");
         }
         
         if(event & 0x10)               //KEY5
@@ -584,6 +586,8 @@ if(event & CON_KEY14_BIT)               //KEY13
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_ERR, 3, 0, 0, 0);
 #else
             guc_netStat = NODE_STATUS_OUT;
+            guc_RegisterStat = NODE_STATUS_OUT;
+
 #endif
         }
         
@@ -670,7 +674,7 @@ if(event & CON_KEY14_BIT)               //KEY13
             {
                 SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);    //运行灯秒闪(overlay last configuration)
             }
-            SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 0, 100, 100, 0);
+            SYS_Dev_OptBlinkSet(SYS_LED_MATCH, 3, 100, 100, 0);
 #endif
 
         }
@@ -687,20 +691,26 @@ if(event & CON_KEY14_BIT)               //KEY13
         
         if(event & 4)               //KEY3
         {
-//	            LOG_DEBUG("key 3 right!\n");
-//		        gs_SysVar.terstt.bit.DI0linked = 0; 
+//              LOG_DEBUG("key 3 right!\n");
+//              gs_SysVar.terstt.bit.DI0linked = 0; 
+            LOG_DEBUG("~~~~~~~~GPI_DIO1 right!~~~~~~~~~~~~~~~\n");
+            SYS_RF_Set_RightEdge(GPI_DIO1);
 
 #ifdef MASTER_NODE
-//	            SYS_RF_Set_FallingEdge(GPI_DIO1);
+//              SYS_RF_Set_FallingEdge(GPI_DIO1);
 #else
-//	            guc_SwitchOnOff = 1;
+//              guc_SwitchOnOff = 1;
 #endif
         }
         
         if(event & 8)               //KEY4
         {
-//	            LOG_DEBUG("key 4 right!\n");
+//              LOG_DEBUG("key 4 right!\n");
+            LOG_DEBUG("~~~~~~~~GPI_DIO2 right!~~~~~~~~~~~~~~~\n");
+            SYS_RF_Set_RightEdge(GPI_DIO2);
+
         }
+
         
         if(event & 0x10)               //KEY4
         {

@@ -207,7 +207,7 @@ void WOR_enable_by_sync(void);
 void WOR_enable_by_carrier(void);
 void WOT_enable(void);
 void TWOR_enable(void);
-void RSSI_measurement(void);
+
 void FIFO_extension_TX(void);
 void FIFO_extension_RX(void);
 void FIFO_extension_Infinite_TX(void);
@@ -232,6 +232,9 @@ static unsigned int TxTimeoutTimer = 0;
 
 static uint8_t guc_GPIO1Falling = 0;
 static uint8_t guc_GPIO2Falling = 0;
+static uint8_t guc_GPIO1Right = 0;
+static uint8_t guc_GPIO2Right = 0;
+
 extern volatile uint32 MSR;       
 // Default settings
 tLoRaSettings LoRaSettings =
@@ -247,8 +250,8 @@ tLoRaSettings LoRaSettings =
     0,                // RxSingleOn [0: Continuous, 1 Single]
     0,                // FreqHopOn [0: OFF, 1: ON]
     4,                // HopPeriod Hops every frequency hopping period symbols
-    200,              // TxPacketTimeout
-    2000,              // RxPacketTimeout
+    300,              // TxPacketTimeout
+    800,              // RxPacketTimeout
     128,              // PayloadLength (used for implicit header mode)
     1,
     30,             //preamble
@@ -411,6 +414,8 @@ uint8_t SYS_A7139_Send(uint8_t * data, uint16_t len)
 
     //TX FIFO address pointer reset
     SPI_Write((SPIIO*)&gs_RFCmdTfr, &gs_RFSpiPort);//TX FIFO address pointer reset
+
+
     
     SPIIO * rfSPI = &gst_RFCommon;
     rfSPI->command[0] = CMD_FIFO_W;  
@@ -1397,9 +1402,9 @@ void TWOR_enable(void)
 }
 
 /*********************************************************************
-** RSSI_measurement-----RSSI测量
+** SYS_RF_Rssi_Get-----RSSI测量
 *********************************************************************/
-void RSSI_measurement(void)
+uint16_t SYS_RF_Rssi_Get(void)
 {
     uint16_t tmp;
 
@@ -1415,11 +1420,12 @@ void RSSI_measurement(void)
 
 //	    delay10us(1);
     msleep(1);
-    while(!SYS_GPI_GetLPort(GPI_DIO1))//while(GIO1==0)      //Stay in RX mode until receiving ID code(ID detect ok)
-    {
-        tmp = (A7139_ReadReg(ADC_REG) & 0x00FF);    //read RSSI value(environment RSSI)
-    }
+//    while(!SYS_GPI_GetLPort(GPI_DIO1))//while(GIO1==0)      //Stay in RX mode until receiving ID code(ID detect ok)
+//    {
+//        tmp = (A7139_ReadReg(ADC_REG) & 0x00FF);    //read RSSI value(environment RSSI)
+//    }
     tmp = (A7139_ReadReg(ADC_REG) & 0x00FF);        //read RSSI value(wanted signal RSSI)
+    return tmp;
 }
 
 /*********************************************************************
@@ -1939,11 +1945,11 @@ void SYS_RF_Reset(void)
 {
 
 }
-void SYS_RF_StartRX(void)
+void SYS_RF_StartRX(uint8_t flag)
 {
 //	    SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);
     unsigned char RFLRState = MSR & 0x0F;
-    if(RFLRState != RFLR_STATE_RX_RUNNING)
+    if(RFLRState != RFLR_STATE_RX_RUNNING )
     {
         MSR = EZMAC_PRO_IDLE | RFLR_STATE_RX_INIT;//设状态机  
     }
@@ -1965,8 +1971,23 @@ void SYS_RF_Set_FallingEdge(uint8_t gpio)
     }
 
 }
+void SYS_RF_Set_RightEdge(uint8_t gpio)
+{
 
+    switch(gpio)
+    {
+        case GPI_DIO1:
+            guc_GPIO1Right = 1;
+            break;
+        case GPI_DIO2:
+            guc_GPIO2Right = 1;
+            break;
 
+    }
+
+}
+
+#include "log.h"
 /*!
  * \brief Process the LoRa modem Rx and Tx state machines depending on the
  *        SX1276 operating mode.
@@ -1998,6 +2019,7 @@ unsigned int SX7319Process( void )
         //RFLRState = ;
         guc_GPIO2Falling = 0;
         MSR = EZMAC_PRO_IDLE | RFLR_STATE_RX_RUNNING;//设状态机   
+        LOG_DEBUG( "======STATE_RX_INIT=====\n"); 
         break;
     case RFLR_STATE_RX_RUNNING:
         
@@ -2021,7 +2043,8 @@ unsigned int SX7319Process( void )
             RFLRState = RFLR_STATE_RX_INIT;
 
             MSR = EZMAC_PRO_IDLE | RFLRState;//设状态机  
-
+            //SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+            //SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);
             result = RF_RX_DONE;
         }
 //	        if(LoRaSettings.FreqHopOn == true && DIO2 == 1 ) // FHSS Changed Channel
@@ -2121,14 +2144,28 @@ unsigned int SX7319Process( void )
 //	        SX1276WriteBuffer( REG_LR_DIOMAPPING1, &SX1276LR->RegDioMapping1, 2 );
 //		
 //	        SX1276LoRaSetOpMode( RFLR_OPMODE_TRANSMITTER );
-        SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
-	    SYS_A7139_Send(RFBuffer,TxPacketSize);
-        PacketTimeout = LoRaSettings.TxPacketTimeout;
-        TxTimeoutTimer = SX1276_TICK_COUNT( );
-        RFLRState = RFLR_STATE_TX_RUNNING;
-        
-        guc_GPIO2Falling = 0;
-        MSR = TX_STATE_BIT | RFLRState;//设状态机   
+//        if(SYS_GPI_GetLPort(GPI_DIO2))
+        {
+			SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+    	    SYS_A7139_Send(RFBuffer,TxPacketSize);
+    //	    WOR_enable_by_sync();
+            PacketTimeout = LoRaSettings.TxPacketTimeout;
+            TxTimeoutTimer = SX1276_TICK_COUNT( );
+            RFLRState = RFLR_STATE_TX_RUNNING;
+            
+            guc_GPIO2Falling = 0;
+            MSR = TX_STATE_BIT | RFLRState;//设状态机   
+        }
+//        else
+//        {
+//            PacketTimeout = 50;
+//            if( ( SX1276_TICK_COUNT( ) - TxTimeoutTimer ) > PacketTimeout )
+//            {
+//                TxTimeoutTimer = SX1276_TICK_COUNT( );
+//                SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+//                SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);
+//            }
+//        }
         break;
     case RFLR_STATE_TX_RUNNING:
         if( guc_GPIO2Falling ) // TxDone
@@ -2137,7 +2174,7 @@ unsigned int SX7319Process( void )
 //	            SX1276Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_TXDONE  );
             RFLRState = RFLR_STATE_TX_DONE; 
             //LED_TX2_ON();
-            
+            SPI_Write((SPIIO*)&gs_RFCmdTx, &gs_RFSpiPort);
             TxTimeoutTimer = SX1276_TICK_COUNT( );
             MSR = TX_STATE_BIT | RFLRState;//设状态机   
         }

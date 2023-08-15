@@ -1177,7 +1177,7 @@ uint8 EZMacPRO_Transmit(void)/*STAPDU * stPdu*/
 
     if(pEzTxPkt->TxPkt.protocol == PST_FRM_NO)
     {
-        pEzTxPkt->TxPkt.protocol = 0;
+        //pEzTxPkt->TxPkt.protocol = 0;
         if(pEzTxPkt->TxPkt.head.apdu.ctrl.prm == 0 && 
             pEzTxPkt->TxPkt.index >= SUP_SS_INDEX_START && 
             pEzTxPkt->TxPkt.index <= MAX_SUP_SS_NUM)
@@ -1734,7 +1734,7 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
 	pkt = &(ezPkt->TxPkt);
     pkt->ttl = MAX_TIME_LIVE;   //生存周期by ben 29
     pkt->index = k;
-    
+    pkt->protocol = 0;
     memset((uint8 *)&pkt->head.apdu, 0, sizeof(STAPDU));
 
     switch(type)
@@ -2232,7 +2232,7 @@ uint8 EZMacPRO_Receive(void)
 //	    MSR = RX_STATE_BIT | RX_STATE_WAIT_FOR_SYNC;
 //	    ENABLE_MAC_EXT_INTERRUPT(); // 使能RF中断
     
-    Radio->StartRx( );
+    Radio->StartRx( 0);
     return MAC_OK;
 }
 

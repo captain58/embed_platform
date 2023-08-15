@@ -106,6 +106,18 @@ const uint8_t *CREG_SUCC_STR[] =
     "0,1",
     "0,5",
 };
+
+const uint8_t * COMMAND_CHANGE_STR[] =
+{
+    "a",
+    "+++",
+    "+ERR=-1",
+};
+
+#define AT_CMD_2COMMAND     "+++"
+#define AT_CMD_2COMMAND_RSP "a"
+
+
 #define ELFIN_EG41A_DEFAULT_CMD_LEN    64
 #define ELFIN_EG41A_DEFAULT_RSP_LEN    64
 //0~11
@@ -1110,11 +1122,11 @@ void elfin_eg41a_modemon(void)
     SYS_GPO_Out(GPIO_MODEM_PWR, true);//hal_gpio_output_high(&brd_gpio_table[GPIO_MODEM_PWR]);//_ATMODEM_PWRON();
     //_ATMODEM_PORTOPEN();
                                             //开机时序
-    aos_msleep(1000);
+    //aos_msleep(1000);
     SYS_GPO_Out(GPIO_MODEM_ONOFF, true);//hal_gpio_output_high(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_1();
-    aos_msleep(200);
+    //aos_msleep(200);
     SYS_GPO_Out(GPIO_MODEM_ONOFF, false);//hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_ONOFF]);//_ATMODEM_ONOFF_0();
-    aos_msleep(12000);
+    //aos_msleep(12000);
 
 }
 /************************************************************************
@@ -1161,6 +1173,36 @@ void elfin_eg41a_forcesoff(void)
     SYS_GPO_Out(GPIO_MODEM_PWR, false);//hal_gpio_output_low(&brd_gpio_table[GPIO_MODEM_PWR]);
 //	    aos_msleep(1);
 }
+
+int elfin_eg41a_2command(void)
+{
+    char cmd[ELFIN_EG41A_DEFAULT_RSP_LEN] = {0};
+    char rsp[ELFIN_EG41A_DEFAULT_RSP_LEN] = {0};
+    int i =0;
+    for(i = 0; i < CON_CSQ_CREG_RETRY_TIMES; i++)
+    {
+        
+        
+        if (elfin_eg41a_send_with_retry2(AT_CMD_2COMMAND, strlen(AT_CMD_2COMMAND), true,
+            NULL, 0, rsp, ELFIN_EG41A_DEFAULT_RSP_LEN, COMMAND_CHANGE_STR, 3, 0) < 0) {
+            aos_msleep(5000);
+            continue;
+        }
+        else
+            {break;}
+    }
+
+
+
+}
+
+int elfin_eg41a_2trans(void)
+{
+
+}
+
+
+
 /************************************************************************
  * @function: SYS_M72X_Check
  * @描述: 查询模块标识是否匹配
@@ -1178,7 +1220,7 @@ int elfin_eg41a_modemcheck(void)
     int ret = 0;
     /* uart baudrate self adaption*/
     //at_reset_uart();
-    ret = elfin_eg41a_uart_selfadaption(AT_CMD_ELFIN_EG41A_TEST, AT_CMD_ELFIN_EG41A_TEST_RESULT, strlen(AT_CMD_TEST_RESULT));
+    ret = elfin_eg41a_uart_selfadaption(AT_CMD_ELFIN_EG41A_TEST, AT_CMD_ELFIN_EG41A_TEST_RESULT, strlen(AT_CMD_ELFIN_EG41A_TEST_RESULT));
     if (ret) {
         LOG_ERROR("elfin_eg41a_uart_selfadaption fail \r\n");
         return ret;

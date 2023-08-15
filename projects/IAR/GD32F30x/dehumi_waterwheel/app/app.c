@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033009;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033015;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -399,18 +399,20 @@ void KeyProc(uint8 key)
         
         if(event & 4)               //KEY3
         {
-#ifdef MASTER_NODE
+//#ifdef MASTER_NODE
             SYS_RF_Set_FallingEdge(GPI_DIO1);
-#else
-//	            guc_SwitchOnOff = 0;
-#endif
+//#else
+////	            guc_SwitchOnOff = 0;
+//#endif
+            LOG_DEBUG("~~~~~~~~GPI_DIO1 failing!~~~~~~~~~~~~~~~\n");
         }
         
         if(event & 8)               //KEY4
         {
 	
             SYS_RF_Set_FallingEdge(GPI_DIO2);
-            LOG_DEBUG("key 4 failing!\n");
+            //LOG_DEBUG("key 4 failing!\n");
+            LOG_DEBUG("~~~~~~~~GPI_DIO2 failing!~~~~~~~~~~~~~~~\n");
         }
         
         if(event & 0x10)               //KEY5
@@ -610,6 +612,7 @@ if(event & CON_KEY14_BIT)               //KEY13
             SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 10, 10, 0);
             guc_AllowLogin = 1;
             bBroadMeterEnable = 1;
+            sysSlotTime=0;
 #ifdef MASTER_NODE            
 //	            Cltor_init();
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
@@ -732,6 +735,8 @@ if(event & CON_KEY14_BIT)               //KEY13
         {
 //	            LOG_DEBUG("key 3 right!\n");
 //		        gs_SysVar.terstt.bit.DI0linked = 0; 
+            LOG_DEBUG("~~~~~~~~GPI_DIO1 right!~~~~~~~~~~~~~~~\n");
+            SYS_RF_Set_RightEdge(GPI_DIO1);
 
 #ifdef MASTER_NODE
 //	            SYS_RF_Set_FallingEdge(GPI_DIO1);
@@ -743,6 +748,9 @@ if(event & CON_KEY14_BIT)               //KEY13
         if(event & 8)               //KEY4
         {
 //	            LOG_DEBUG("key 4 right!\n");
+            LOG_DEBUG("~~~~~~~~GPI_DIO2 right!~~~~~~~~~~~~~~~\n");
+            SYS_RF_Set_RightEdge(GPI_DIO2);
+
         }
         
         if(event & 0x10)               //KEY4
@@ -920,10 +928,26 @@ if(event & CON_KEY14_BIT)               //KEY13
 #ifdef MASTER_NODE
 
 
-#define CON_MOTOR_WORK_AWAY_MAX_TIME      (5000)//30s 10分钟
+#define CON_MOTOR_WORK_AWAY_MAX_TIME      (60000)//30s 10分钟
+
+const uint8_t *auto_str[] =
+{
+    "auto",
+    "manul",
+};
+const uint8_t *motor_str[] =
+{
+    "idel",
+    "pump",
+    "drain",
+    "pause"
+};
+
 void MAIN_UpdataWaterPump(void)
 {
-    LOG_INFO("before MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
+    LOG_INFO("before run[%s] motor[%s] master[%d] sub[%d]!!!\n", 
+        auto_str[gst_water_ctrl.auto_manmual%2],motor_str[gst_water_stt.motor_stt%4], 
+        gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
     uint32_t clac_tick = 0;
     if(CON_WATER_CTRL_OFF != gst_water_ctrl.onoff)
     {
@@ -935,19 +959,25 @@ void MAIN_UpdataWaterPump(void)
                 if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_LOW /*&& gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_LOW_MID*/)
                 {
                     //打开加水泵
-                    SYS_GPO_Out(GPO_DRAIN_WATER, true);
-                    SYS_GPO_Out(GPO_PUMP_WATER, false);
-                    gst_water_stt.motor_stt = CON_MOTOR_STT_DRAIN;
-                    gst_water_stt.tick = g_tick_count;
+                    if(gst_water_stt.cur_stt > CON_WATER_TANK_STT_LOW)
+                    {
+                        SYS_GPO_Out(GPO_DRAIN_WATER, true);
+                        SYS_GPO_Out(GPO_PUMP_WATER, false);
+                        gst_water_stt.motor_stt = CON_MOTOR_STT_DRAIN;
+                        gst_water_stt.tick = g_tick_count;
+                    }
                 }
 
                 else if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_HIGH_MORE)
                 {
                     //打开抽水泵
-                    SYS_GPO_Out(GPO_PUMP_WATER, true);
-                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
-                    gst_water_stt.motor_stt = CON_MOTOR_STT_PUMP;
-                    gst_water_stt.tick = g_tick_count;
+                    if(gst_water_stt.cur_stt < CON_WATER_TANK_STT_HIGH_MORE)
+                    {
+                        SYS_GPO_Out(GPO_PUMP_WATER, true);
+                        SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                        gst_water_stt.motor_stt = CON_MOTOR_STT_PUMP;
+                        gst_water_stt.tick = g_tick_count;
+                    }
                 }
             }
             else if(gst_water_stt.motor_stt == CON_MOTOR_STT_DRAIN)
@@ -1046,7 +1076,7 @@ void MAIN_UpdataWaterPump(void)
                 LOG_INFO("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
                 
                 if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
-                    (gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) ||
+                    (gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH) ||
                     gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
                     (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_LOW && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
                 {
@@ -1064,7 +1094,7 @@ void MAIN_UpdataWaterPump(void)
 
         }
     }
-    LOG_INFO("after MAIN_UpdataWaterPump [%d] master[%d] sub[%d]!!!\n", gst_water_stt.motor_stt, gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
+    LOG_INFO("after Updata Water Pump [%s] master[%d] sub[%d]!!!\n", motor_str[gst_water_stt.motor_stt%4], gst_water_stt.cur_stt, gst_sub_node_water_stt.cur_stt);
 
 }
 #endif
@@ -1449,7 +1479,7 @@ void Handle_Lcd()
     SYS_LCD_Handld();
 }
 ktimer_t     gst_lcd_timer;
-
+uint32_t gul_master_conn_to=0; 
 void SYS_MAIN_Task(void * arg)
 {
     TIME time;
@@ -1459,7 +1489,7 @@ void SYS_MAIN_Task(void * arg)
 
     static uint8_t ble_name[14] = {'V','S'};
     ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
-    
+    gul_master_conn_to=0;
     g_ucPutcharEn = 1;
 
 #ifndef MASTER_NODE    
@@ -1517,8 +1547,20 @@ void SYS_MAIN_Task(void * arg)
                 {
                     Water_Ctrl_Sleep();
                 }
+                if(gul_master_conn_to > 0)
+                {
+                    gul_master_conn_to--;
                 
-
+                    if(0 == gul_master_conn_to)
+                    {
+                        LOG_ERROR("water tank lost connection,will close motor!\n");
+                        SYS_LCD_Set(CON_LCD_CONNECT_STT, 0);
+                        if( gst_water_stt.motor_stt > 0)
+                        {
+                            Water_Ctrl_Close();
+                        }
+                    }
+                }
 #endif
 //	                LOG_DEBUG("second ! %d\n", g_timer_tick);
 #ifdef MASTER_NODE  

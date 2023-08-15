@@ -290,9 +290,6 @@ int aos_components_init(kinit_t *kinit)
     kv_init();
 #endif
 
-#ifdef WITH_SAL
-    sal_device_init();
-#endif
 
 #ifdef AOS_LOOP
     vfs_device_init();

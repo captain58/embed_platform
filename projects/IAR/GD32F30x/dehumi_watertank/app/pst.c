@@ -283,7 +283,7 @@ uint8 PST_CHN5_Send(uint8* buffer, uint16 length)
 void PST_Init(void)
 {
     SerialSets ss;
-    ss.baudrate = 9600;
+    ss.baudrate = 115200;
     ss.parit = Parit_N;
     ss.databits = DataBits_8bits;
     ss.stopbits = StopBits_1;

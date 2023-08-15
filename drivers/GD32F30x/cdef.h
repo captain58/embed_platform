@@ -421,7 +421,7 @@ typedef struct sRadioDriver
 {
     unsigned char ( *Init )(int freqCode, unsigned char ch, unsigned char pwr );
     void ( *Reset )( void );
-    void ( *StartRx )( void );
+    void ( *StartRx )( uint8_t flag );
     uint16_t ( *GetRxPacket )( void *buffer);//, unsigned short *size );
     uint8_t ( *SetTxPacket )( const void *buffer, unsigned short size );
     unsigned int ( *Process )( void );

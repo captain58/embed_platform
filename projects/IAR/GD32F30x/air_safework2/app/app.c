@@ -883,6 +883,9 @@ void SYS_APP_Init()
 //
 //    Main_PreInit();
 //    SYS_RF_Init();
+#ifdef WITH_SAL
+    sal_device_init();
+#endif
 
 }
 

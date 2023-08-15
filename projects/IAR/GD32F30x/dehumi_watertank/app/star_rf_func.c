@@ -80,6 +80,7 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             }
 #ifndef MASTER_NODE            
             gn_loginTO = 0;
+            LOG_DEBUG("-----------------------nod login success---------------------------\n");            
 #endif              
             break;
         case MSG_TYPE_FN_02:
@@ -1722,7 +1723,9 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
                     guc_AllowLogin = 0;
                     extern kbuf_queue_t gs_RFMngQueue;
-                    krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);                    
+                    krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE_FIRST], 1);     
+                    gn_loginTO = 0;
+                    LOG_DEBUG("-----------------------nod login success---------------------------\n");                      
 //                }
             }
 

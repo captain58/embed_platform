@@ -22,7 +22,7 @@
 
 
 extern uint32_t gn_loginTO;
-
+#define CON_MASTER_LOGIN_TO_MAX 120
 /************************************************************************
  * @function: fGRFFTD00
  * @√Ë ˆ: »∑»œ/∑Ò»œ
@@ -1062,6 +1062,8 @@ uint8 fSRFFTD02(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 }
 #ifdef MASTER_NODE
 extern ST_WATER_STT gst_sub_node_water_stt;
+extern uint32_t gul_master_conn_to;
+
 #endif
 /************************************************************************
  * @function: fSRFFTD03
@@ -1239,6 +1241,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //	            }
 #ifdef MASTER_NODE
             SYS_LCD_Set(CON_LCD_CONNECT_STT, 1);
+            gul_master_conn_to = CON_MASTER_LOGIN_TO_MAX;
 
             int i = 0;
             if((stt & (1 << CON_STT_WATER_LEVEL)) == (1 << CON_STT_WATER_LEVEL))
@@ -1699,6 +1702,8 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                         break;
                 }
             }
+            gul_master_conn_to = CON_MASTER_LOGIN_TO_MAX;
+            SYS_LCD_Set(CON_LCD_CONNECT_STT, 1);
             GetCltorPara(id, &stMeter);
             memcpy(stMeter.GIS, frm->apdu.data+2, 8);
             memcpy((uint8 *)&stMeter.softver, frm->apdu.data+11, 2);

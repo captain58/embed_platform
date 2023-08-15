@@ -333,7 +333,7 @@ uint8_t SYS_LCD_Set_Wheel_Water_Level(uint8_t flag, uint8_t count)
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW_MORE, 1);
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 1);
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 1);
-        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 1);
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
 
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LOW_STT, 0);
@@ -345,7 +345,7 @@ uint8_t SYS_LCD_Set_Wheel_Water_Level(uint8_t flag, uint8_t count)
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_LOW, 1);
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_MIDDLE, 1);
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 1);
-        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 1);
 
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LOW_STT, 0);
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_HIGH_MORE_STT, count%3);
@@ -358,8 +358,8 @@ uint8_t SYS_LCD_Set_Wheel_Water_Level(uint8_t flag, uint8_t count)
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH, 0);
         SYS_LCD_Set(CON_LCD_WHEEL_WATER_LEVEL_HIGH_MORE, 0);
         
-        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LOW_STT, 1);
-        SYS_LCD_Set(CON_LCD_WHEEL_WATER_HIGH_MORE_STT, 1);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_LOW_STT, 0);
+        SYS_LCD_Set(CON_LCD_WHEEL_WATER_HIGH_MORE_STT, 0);
         
         break;
     }
@@ -409,7 +409,7 @@ uint8_t SYS_LCD_Set_Tank_Water_Level(uint8_t flag, uint8_t count)
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW_MORE, 1);
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 1);
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 1);
-        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 1);
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
         
         SYS_LCD_Set(CON_LCD_TANK_WATER_LOW_STT, 0);
@@ -421,7 +421,7 @@ uint8_t SYS_LCD_Set_Tank_Water_Level(uint8_t flag, uint8_t count)
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_LOW, 1);
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_MIDDLE, 1);
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 1);
-        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 1);
 
         SYS_LCD_Set(CON_LCD_TANK_WATER_LOW_STT, 0);
         SYS_LCD_Set(CON_LCD_TANK_WATER_HIGH_MORE_STT, count%3);
@@ -434,8 +434,8 @@ uint8_t SYS_LCD_Set_Tank_Water_Level(uint8_t flag, uint8_t count)
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH, 0);
         SYS_LCD_Set(CON_LCD_TANK_WATER_LEVEL_HIGH_MORE, 0);
         
-        SYS_LCD_Set(CON_LCD_TANK_WATER_LOW_STT, 1);
-        SYS_LCD_Set(CON_LCD_TANK_WATER_HIGH_MORE_STT, 1);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_LOW_STT, 0);
+        SYS_LCD_Set(CON_LCD_TANK_WATER_HIGH_MORE_STT, 0);
         
         
         break;

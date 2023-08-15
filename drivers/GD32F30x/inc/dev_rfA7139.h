@@ -147,5 +147,6 @@ double SX1276LoRaGetPacketRssi( void );
 
 void SYS_RF_Set_FallingEdge(uint8_t gpio);
 tRadioDriver* RadioDriverInit( void );
+uint16_t SYS_RF_Rssi_Get(void);
 
 #endif

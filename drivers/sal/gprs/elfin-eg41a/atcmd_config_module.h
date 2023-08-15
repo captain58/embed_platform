@@ -27,7 +27,7 @@
 #define AT_RECV_PREFIX "\r\n"
 #define AT_RECV_SUCCESS_POSTFIX "+ok"
 #define AT_RECV_FAIL_POSTFIX "+ERR\r\n"
-#define AT_SEND_DELIMITER "\r"
+#define AT_SEND_DELIMITER "\r\n"
 
 // send delay
 #define AT_SEND_DATA_DELAY_MS 50
