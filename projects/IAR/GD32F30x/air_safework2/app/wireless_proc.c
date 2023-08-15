@@ -610,6 +610,7 @@ void wireless_mng(void)//状态机处理
             extern kbuf_queue_t gs_RFMngQueue;
             krhino_buf_queue_send(&gs_RFMngQueue, &msg, 1);
         }
+        Radio->StartRx( 0);
                 //MSR = RX_STATE_BIT | RX_STATE_WAIT_FOR_SEND_ACK;
         break;
     }
@@ -617,7 +618,7 @@ void wireless_mng(void)//状态机处理
     case RF_TX_DONE:
         SYS_Dev_OptBlinkSet(LED_FAR_TX, 0, 0, 0, 0);
 
-        Radio->StartRx( );
+        Radio->StartRx( 0);
         if(NULL != g_stSendCacheIndex.ezPkt)
         {
             uint16 temp8 = 0;
@@ -710,7 +711,7 @@ void wireless_mng(void)//状态机处理
         //Radio->StartRx( );
         break;
     case RF_IDLE:
-        Radio->StartRx( );
+        Radio->StartRx( 0);
         break;
     case RF_RX_CRCERR:
         SYS_Dev_OptBlinkSet(LED_FAR_RX, 1, 5, 2, 0);

@@ -3706,7 +3706,7 @@ void Send_Broad()
             int32 order = tmp[0]*0x1000000 + tmp[1]*0x10000 + tmp[2]*0x100 + tmp[3];
             
             Radio->Init(order, rfpara.rf_channel, rfpara.rf_power);
-            Radio->StartRx( );
+            Radio->StartRx( 0);
             //SX1276ReInit();
             //打印串口初始化一下
             Delay_ms(300);

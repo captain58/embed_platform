@@ -18805,6 +18805,8 @@
       <file>$PROJ_DIR$\debug_wheel\Obj\gd32f30x_sdio.pbi</file>
       <file>$PROJ_DIR$\debug_wheel\Obj\user_ctrl.pbi</file>
       <file>$PROJ_DIR$\debug_wheel\Obj\k_time.__cstat.et</file>
+      <file>$PROJ_DIR$\..\dehumi_watertank\app\drv_sys_tick.c</file>
+      <file>$PROJ_DIR$\..\dehumi_watertank\config\ext.h</file>
       <file>$PROJ_DIR$\debug_wheel\Exe\dehumi_waterwheel-20.bin</file>
       <file>$PROJ_DIR$\debug_wheel\Exe\dehumi_waterwheel-21.bin</file>
       <file>$PROJ_DIR$\..\dehumi_watertank\app\wireless_proc.c</file>
@@ -21635,7 +21637,7 @@
       <outputs>
         <tool>
           <name>OBJCOPY</name>
-          <file> 640</file>
+          <file> 642</file>
         </tool>
         <tool>
           <name>ILINK</name>

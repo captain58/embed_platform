@@ -2232,7 +2232,7 @@ uint8 EZMacPRO_Receive(void)
 //	    MSR = RX_STATE_BIT | RX_STATE_WAIT_FOR_SYNC;
 //	    ENABLE_MAC_EXT_INTERRUPT(); // Ê¹ÄÜRFÖÐ¶Ï
     
-    Radio->StartRx( );
+    Radio->StartRx( 0);
     return MAC_OK;
 }
 
