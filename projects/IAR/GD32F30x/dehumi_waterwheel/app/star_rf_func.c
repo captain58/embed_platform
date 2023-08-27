@@ -1063,7 +1063,7 @@ uint8 fSRFFTD02(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 #ifdef MASTER_NODE
 extern ST_WATER_STT gst_sub_node_water_stt;
 extern uint32_t gul_master_conn_to;
-
+extern ST_WATER_STT gst_water_stt;
 #endif
 /************************************************************************
  * @function: fSRFFTD03
@@ -1274,7 +1274,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                         //从节点
                         gst_sub_node_water_stt.last_stt = gst_sub_node_water_stt.cur_stt;
                         gst_sub_node_water_stt.cur_stt = stt;
-
+                        gst_water_stt.tick = g_tick_count;
 #else
 //	                        //从节点
 //	                        extern kbuf_queue_t gs_RFMngQueue;

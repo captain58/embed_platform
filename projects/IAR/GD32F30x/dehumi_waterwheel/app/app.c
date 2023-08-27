@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033015;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033018;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -562,6 +562,8 @@ void KeyProc(uint8 key)
 
             }else if(0 == Water_Ctrl_WakeUp(1))
             {
+                
+                SYS_BUZZ_Passive_Blink(CON_PASSIVE_BUZZ_SOUND_1);
 //                if(SYS_LCD_Get_Onoff())
 //                {
 //                    Water_Ctrl_Set_Onoff(0);
@@ -928,7 +930,8 @@ if(event & CON_KEY14_BIT)               //KEY13
 #ifdef MASTER_NODE
 
 
-#define CON_MOTOR_WORK_AWAY_MAX_TIME      (60000)//30s 10分钟
+#define CON_MOTOR_WORK_AWAY_MAX_TIME      (90000)//30s 10分钟
+
 
 const uint8_t *auto_str[] =
 {
@@ -994,7 +997,7 @@ void MAIN_UpdataWaterPump(void)
                 LOG_INFO("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
                 
                 if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
-                    gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH ||
+                    (gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) ||
                     gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
                     (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_LOW && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
                 {
@@ -1016,7 +1019,7 @@ void MAIN_UpdataWaterPump(void)
                 }
                 LOG_INFO("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
                 
-                if(gst_sub_node_water_stt.cur_stt <= CON_WATER_TANK_STT_LOW_MID ||
+                if((gst_sub_node_water_stt.cur_stt <= CON_WATER_TANK_STT_LOW_MID && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME)  ||
                     gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
                     (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_HIGH_MORE && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
                 {
@@ -1042,7 +1045,7 @@ void MAIN_UpdataWaterPump(void)
                 }
                 LOG_INFO("CON_MOTOR_STT_PUMP[%d]!!!\n", clac_tick);
                 
-                if((gst_sub_node_water_stt.cur_stt < CON_WATER_TANK_STT_LOW_MID && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) ||
+                if((gst_sub_node_water_stt.cur_stt <= CON_WATER_TANK_STT_LOW_MID && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) ||
                     gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
                     (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_HIGH_MORE && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
                 {
@@ -1050,9 +1053,6 @@ void MAIN_UpdataWaterPump(void)
                     SYS_GPO_Out(GPO_DRAIN_WATER, false);
                     gst_water_stt.motor_stt = CON_MOTOR_STT_IDEL;
                     Water_Disp_Close();
-
-
-
                 }
                 else
                 {
@@ -1076,7 +1076,7 @@ void MAIN_UpdataWaterPump(void)
                 LOG_INFO("CON_MOTOR_STT_DRAIN[%d]!!!\n", clac_tick);
                 
                 if(gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_ERR || 
-                    (gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH) ||
+                    (gst_sub_node_water_stt.cur_stt >= CON_WATER_TANK_STT_HIGH && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) ||
                     gst_water_stt.cur_stt  == CON_WATER_TANK_STT_ERR || 
                     (gst_water_stt.cur_stt  == CON_WATER_TANK_STT_LOW && krhino_ticks_to_ms(clac_tick) > CON_MOTOR_WORK_AWAY_MAX_TIME) )
                 {
@@ -1228,7 +1228,8 @@ void MAIN_SecProc(void)
         {
             //主节点
             gst_water_stt.last_stt = gst_water_stt.cur_stt;
-            gst_water_stt.cur_stt = stt;           
+            gst_water_stt.cur_stt = stt;  
+            gst_water_stt.tick = g_tick_count;
 #ifndef MASTER_NODE
             //从节点
                        

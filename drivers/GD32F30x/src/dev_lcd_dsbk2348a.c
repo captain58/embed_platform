@@ -82,19 +82,21 @@ void SYS_LCD_Handld(void)
     
     if(gul_lcd_modal_bit.lword != 0)
     {
-        for(i=0; i<4;)
-        {
-            if(gul_lcd_modal_bit.byte[i] != 0)
-            {
-                bit = Bit_Maps[gul_lcd_modal_bit.byte[i]];
-                HT1621_WriteOne(i*8 + bit, guc_led_modal[i*8 + bit]);
-                gul_lcd_modal_bit.byte[i] &= ~((uint8_t)1 << bit);
-            }
-            else
-            {
-                i++;
-            }
-        }
+//	        for(i=0; i<4;)
+//	        {
+//	            if(gul_lcd_modal_bit.byte[i] != 0)
+//	            {
+//	                bit = Bit_Maps[gul_lcd_modal_bit.byte[i]];
+//	                HT1621_WriteOne(i*8 + bit, guc_led_modal[i*8 + bit]);
+//	                gul_lcd_modal_bit.byte[i] &= ~((uint8_t)1 << bit);
+//	            }
+//	            else
+//	            {
+//	                i++;
+//	            }
+//	        }
+        HT1621_Write(0, guc_led_modal, 32);
+        gul_lcd_modal_bit.lword = 0;
     }
 }
 

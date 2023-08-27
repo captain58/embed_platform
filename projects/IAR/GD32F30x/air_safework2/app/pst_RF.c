@@ -1416,7 +1416,7 @@ uint8 Star_Rf_Pack(ST_STAR_RF_PACK * pack, STFUNCPARA * stAddr, STFUNCPARA * stD
     pkt->protocol = PST_FRM_NO;
     pkt->index = pack->id;
     etpkt->bValid = 1;//业务缓存有效
-    etpkt->nBackOffSlot = 0;
+    etpkt->nBackOffSlot = FUNC_DELAY_MS(100);;
     rc = SYS_ERR_OK;
 
 	return rc;	

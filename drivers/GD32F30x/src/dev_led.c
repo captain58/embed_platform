@@ -220,8 +220,8 @@ void SYS_BlinkDev_Init(void)
         {
             HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
         }
-//        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
-//        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
+        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 0);
+        HAL_GPIO_SetPinState(gpo->port, gpo->port->pinnum, 1);
     }
                                             //…Í«Îª∫¥Ê
     gsp_LedLights = (LedLights*)m_malloc(sizeof(LedLights) * LED_NUM);
@@ -521,32 +521,35 @@ void SYS_LED_TIMEROC(bool oc)
 
 void SYS_BUZZ_Passive_Blink(uint8_t type)
 {
-    SYS_Dev_OptBlinkSet(SYS_LED_GND, 0, 0, 0, 100);
+//	    SYS_Dev_OptBlinkSet(SYS_LED_GND, 0, 0, 0, 100);
+//	
+//	    switch(type)
+//	    {
+//	        case CON_PASSIVE_BUZZ_SOUND_0:
+//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 9, 1, 10);
+//	            break;
+//	        case CON_PASSIVE_BUZZ_SOUND_1:
+//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 8, 2, 10);
+//	            break;
+//	        case CON_PASSIVE_BUZZ_SOUND_2:
+//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 7, 3, 10);
+//	            break;
+//	        case CON_PASSIVE_BUZZ_SOUND_3:
+//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 6, 4, 10);
+//	            break;
+//	        case CON_PASSIVE_BUZZ_SOUND_4:
+//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 5, 5, 10);
+//	            break;
+//	        case CON_PASSIVE_BUZZ_SOUND_5:
+//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 4, 6, 10);
+//	            break;        
+//	        default:
+//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 2, 5, 5, 10);
+//	            break;
+//	    }
 
-    switch(type)
-    {
-        case CON_PASSIVE_BUZZ_SOUND_0:
-            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 9, 1, 10);
-            break;
-        case CON_PASSIVE_BUZZ_SOUND_1:
-            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 8, 2, 10);
-            break;
-        case CON_PASSIVE_BUZZ_SOUND_2:
-            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 7, 3, 10);
-            break;
-        case CON_PASSIVE_BUZZ_SOUND_3:
-            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 6, 4, 10);
-            break;
-        case CON_PASSIVE_BUZZ_SOUND_4:
-            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 5, 5, 10);
-            break;
-        case CON_PASSIVE_BUZZ_SOUND_5:
-            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 4, 6, 10);
-            break;        
-        default:
-            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 2, 5, 5, 10);
-            break;
-    }
+    SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 2, 2, 20);
+
 
 //	    if(type == CON_PASSIVE_BUZZ_SOUND_0)
 //	

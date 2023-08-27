@@ -2439,7 +2439,7 @@ void Create_JRep(uint16 k, EZ_TX_PKT * ezPkt)//组入网应答包
 		//cltor[k].sendseq++;
 	
 		ezPkt->bValid = 1;//业务缓存有效
-		ezPkt->nBackOffSlot = 0;
+		ezPkt->nBackOffSlot = FUNC_DELAY_MS(200);
         
 //	        LOG_DEBUG( DBGFMT"[%d] wireless send net data ftd = %d, fn = %d seq = %d dest addr %02x%02x%02x%02x%02x%02x\n",DBGARG, 
 //	            k, pkt->apdu.ctrl.ftd, pkt->apdu.fn, pkt->apdu.seq, pkt->apdu.addr[11], pkt->apdu.addr[10],pkt->apdu.addr[9],pkt->apdu.addr[8],pkt->apdu.addr[7],pkt->apdu.addr[6]);
@@ -2598,7 +2598,7 @@ void Create_Affirm(uint16 k, EZ_TX_PKT * ezPkt)//推送数据应答包
 		//cltor[k].sendseq++;
 	
 		ezPkt->bValid = 1;//业务缓存有效
-		ezPkt->nBackOffSlot = 0;
+		ezPkt->nBackOffSlot = FUNC_DELAY_MS(200);
 	}
 	else
 	{

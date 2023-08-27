@@ -327,25 +327,7 @@ void SYS_GPI_Init(void)
 //	        }
 
     }
-    for(uc_i = 0; uc_i < LGPI_PORT_NUM; uc_i++)
-    {
-        gpi = (GPI_PORTS*)gs_LGPIPort + uc_i;
-        _IF_TRUE_DO(gpi == __NULL, continue);
-                                            //配置端口功能,并设为输入模式
-//          HAL_GPIO_PinConfig(gpi->cp->port, gpi->cp->pin, gpi->cp->mode);
-//          HAL_GPIO_SetPinDIR(gpi->cp->port, gpi->cp->pin, false);
-//	        HAL_GPIO_PinConfig(&gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->type, gpi->analog, gpi->dir);
-//        if(gpi->handleen)
-//        {
-//#ifdef __NO_SYS__    
-//            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_GPI_GoScan, NULL);
-//#else
-//            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_LGPI_Scan, NULL);
-//#endif
-//	            interuptSwitch = 1;
-//        }
 
-    }
 //	    if(interuptSwitch) NVIC_EnableIRQ(GPIO_IRQn);
 #ifndef __NO_SYS__        
                                             //创建慢速端口扫描定时器(100ms)
