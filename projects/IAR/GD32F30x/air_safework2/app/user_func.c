@@ -4432,6 +4432,20 @@ void Updata_Hash_Table(uint16 hash, HASHT *elem) //¸üÐÂ¹þÏ£±í
 //			}
     }
 }
+void Reset_Hash_Table(void)
+{
+    TDataBlock db;
+
+    SYS_FILE_DB_Open(DB_HASH1, &db, TDB_MODE_RW);
+    SYS_IFILE_DB_Erase(&db,0,1);
+
+    SYS_FILE_DB_Close(&db);
+
+    SYS_FILE_DB_Open(DB_HASH2, &db, TDB_MODE_RW);
+    SYS_IFILE_DB_Erase(&db,0,1);
+    SYS_FILE_DB_Close(&db);
+
+}
 
 
 /*************************************************************************
@@ -4536,8 +4550,8 @@ void Hash_Table_Init(void)
 void Hash_Transfer(void)
 {
 }
-void Init_Hash_Table(void)
-{}
+void Init_Hash_Table(void){}
+
 uint8  I2cRead(uint8 Addr, uint8 *Data, uint16 inside_addr, uint16 NByte)
 {return 0;}
 

@@ -340,8 +340,17 @@ typedef struct
     COMPORT* port;                      //端口配置
     uint8_t     filter:1; //是否需要去抖
     uint8  pullup;                         //是否存在漏电保护
+
     
+
+    uint8_t handleen;
+    uint8_t IRQn;
+    uint8_t exit_port;
+    uint8_t exit_pin;
+    uint32_t exit_line;
+    uint8_t exit_edge;
 	uint16 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员
+    
 	uint16 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
     uint16 reserver:4;
 }GPI_PORTS;

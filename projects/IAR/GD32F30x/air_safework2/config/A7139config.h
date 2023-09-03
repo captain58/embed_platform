@@ -11,10 +11,10 @@
 #ifndef _A7139CONFIG_h_
 #define _A7139CONFIG_h_
 
-//	#define DR_10Kbps_50KIFBW       //433MHz, 10kbps (IFBW = 50KHz, Fdev = 18.75KHz), Crystal=12.8MHz
+#define DR_10Kbps_50KIFBW       //433MHz, 10kbps (IFBW = 50KHz, Fdev = 18.75KHz), Crystal=12.8MHz
 //#define DR_10Kbps_100KIFBW      //433MHz, 10kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
 //#define DR_50Kbps_50KIFBW       //433MHz, 50kbps (IFBW = 50KHz, Fdev = 18.75KHz), Crystal=12.8MHz
-#define DR_100Kbps_100KIFBW     //433MHz, 100kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
+//#define DR_100Kbps_100KIFBW     //433MHz, 100kbps (IFBW = 100KHz, Fdev = 37.5KHz), Crystal=12.8MHz
 //#define DR_150Kbps_150KIFBW     //433MHz, 150kbps (IFBW = 150KHz, Fdev = 56.25KHz), Crystal=19.2MHz
 //#define DR_250Kbps_250KIFBW     //433MHz, 250kbps (IFBW = 250KHz, Fdev = 93.75KHz), Crystal=16MHz
 

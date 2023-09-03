@@ -321,10 +321,20 @@ void SYS_GPI_Init(void)
 //	        HAL_GPIO_PinConfig(gpi->cp->port, gpi->cp->pin, gpi->cp->mode);
 //	        HAL_GPIO_SetPinDIR(gpi->cp->port, gpi->cp->pin, false);
         HAL_GPIO_PinConfig(gpi->port);
-//	        if(gpi->handleen)
-//	        {
+        if(gpi->handleen)
+        {
 //	            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_LGPI_Scan, NULL);
-//	        }
+            /* enable and set key EXTI interrupt to the lowest priority */
+            nvic_irq_enable(gpi->IRQn, 2U, 0U);
+        
+            /* connect key EXTI line to key GPIO pin */
+            gpio_exti_source_select(gpi->exit_port, gpi->exit_pin);
+        
+            /* configure key EXTI line */
+            exti_init(gpi->exit_line, EXTI_INTERRUPT, gpi->exit_edge);
+            exti_interrupt_flag_clear(gpi->exit_line);
+
+        }
 
     }
 
@@ -641,3 +651,8 @@ void SYS_GPI_Event_Clear(void)
     gsp_GpioStt->keyrevt = 0;
     gsp_GpioStt->keyfevt = 0;
 }
+
+
+
+
+

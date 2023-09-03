@@ -326,7 +326,7 @@ void decTTL(uint8 msr)
 			}
 			else
 			{
-				if((msr & EZMAC_STATE_BIT) == EZMAC_PRO_IDLE)
+//				if((msr & EZMAC_STATE_BIT) == EZMAC_PRO_IDLE)
 				{
 					TxPktN[i].bValid = 0;
 					TxPktN[i].nBackOffSlot = 0;

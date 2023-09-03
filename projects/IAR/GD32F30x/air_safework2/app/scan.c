@@ -865,7 +865,7 @@ ST_AIR_SAFE_MNG gst_asw_mng;
 
 #endif
 
-#define CON_WIRELESS_WORK_DELAY 180 //1∑÷÷”
+#define CON_WIRELESS_WORK_DELAY 30 //1∑÷÷”
 #define CON_WIRELESS_INIT_DELAY 30 //1∑÷÷”
 
 uint8_t airsafe_mng_init()

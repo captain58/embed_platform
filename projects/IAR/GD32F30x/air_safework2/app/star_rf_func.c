@@ -1194,7 +1194,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
         case MSG_TYPE_FN_20:
         {
 
-            
+            uint8_t update_type = 0;
             len = frm->len - m - 1 - 2;//pkt->data[m++];
             stinfo.stUp.bit1.moduleFlg = 1;
             stinfo.stUp.bit3.meterFlg = 0x05;
@@ -1212,11 +1212,32 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 {
                     break;
                 }
-
-                id = 0;                 //当没有分配到有效ID时，分配到0，用于回复SS 
-                errCode = 6;
+                if(frm->bNeedReAllocate)
+                {
+                    id = getOrAllocateIdByAddr(1, SN, 6);
+                    
+                    errCode = 0;
+                    
+                    if ((id > MAX_SUP_SS_NUM) ||( id < SUP_SS_INDEX_START) || (id > rfpara.rf_slotnum)/* || (id >= MAX_REAL_SUP_SS_NUM)*/)
+                    {               
+                        id = 0;                 //当没有分配到有效ID时，分配到0，用于回复SS 
+                        errCode = 6;
+                    }
+                    
+                    update_type = CON_NODE_UPDATE_LOGIN;
+                }
+                else
+                {
+                    id = 0;                 //当没有分配到有效ID时，分配到0，用于回复SS 
+                    errCode = 6;
+                  
+                    update_type = CON_NODE_UPDATE_PUSHUP;
+                }
             }
-                
+            else
+            {
+                update_type = CON_NODE_UPDATE_PUSHUP;
+            }
             uint32 stt = 0;
             m=0;
             memcpy(&stt, frm->apdu.data + m, 4);
@@ -1225,7 +1246,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             uint8_t switchstt = frm->apdu.data[m++];
             cltor_shadow[id].nodestatus.cardstt = frm->apdu.data[m++];
             
-            if(switchstt != cltor_shadow[id].nodestatus.switchstt)
+            if(switchstt != cltor_shadow[id].nodestatus.switchstt && frm->bNeedReAllocate)
             {
                 SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100);
             }
@@ -1253,7 +1274,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 
             UpdataRouteInfo2(id, cltor[id].nodestatus.protocol, frm->apdu.stInfo.stUp.bit1.addrFlg, frm->apdu.addr + addrLenPer,frm->apdu.stInfo.stUp.bit1.routeNum);//joinreq->route.rdepth);
 
-            updataNodeCache(id, CON_NODE_UPDATE_PUSHUP, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
+            updataNodeCache(id, update_type, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
                             (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
         }
         break;              
@@ -1678,6 +1699,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //	                    memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
                     SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
                     guc_AllowLogin = 0;
+                    LOG_DEBUG("-----------------------nod login success---------------------------\n");  
 //                }
             }
 

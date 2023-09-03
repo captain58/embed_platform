@@ -269,6 +269,7 @@ uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 pro
             cltor[id].loginNo = (++guc_SwitchSeq)%3;
             if(cltor[id].loginNo == 0) cltor[id].loginNo = 1;
         }
+        cltor[id].login_count = MAX_MASTER_NODE_TO_LED_CLOSE_COUNT;
         break;
     case CON_NODE_UPDATE_HEARTBEAT:
         cltor_shadow[id].nodestatus.bNetAck= 0x1;         //表示该点需要回复
@@ -284,6 +285,8 @@ uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 pro
         cltor_shadow[id].nodestatus.bDataAck = 1;      //推送数据
         cltor_shadow[id].nodestatus.errCode = errCode;
         cltor_shadow[id].nodeRssi = rssiQ;
+        
+        cltor[id].login_count = MAX_MASTER_NODE_TO_LED_CLOSE_COUNT;
         break;
     default:
         break;

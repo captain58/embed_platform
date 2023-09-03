@@ -58,7 +58,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23061305;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23090206;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 
@@ -525,11 +525,13 @@ void KeyProc(uint8 key)
         {
 	        LOG_DEBUG("key 1 keep !\n");
             SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 10, 10, 0);
+            
             guc_AllowLogin = 1;
             bBroadMeterEnable = 1;
             gs_SysVar.mLPstt |= HLV_LPTASK_MDCK;
 #ifdef MASTER_NODE            
-//	            Cltor_init();
+            Cltor_init();
+            Reset_Hash_Table();
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
             SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);
@@ -953,6 +955,22 @@ int application_start(int argc, char *argv[])
         aos_msleep(CON_LIVE_SLEEP);
     };
 }
+
+/*!
+    \brief      this function handles external lines 10 to 15 interrupt request
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+void EXTI10_15_IRQHandler(void)
+{
+    if (RESET != exti_interrupt_flag_get(EXTI_14)) {
+        exti_interrupt_flag_clear(EXTI_14);
+        gs_SysVar.mLPstt |= HLV_LPTASK_SWITCH;
+        gs_SysVar.mDGcnt = 2;
+    }
+}
+
 //	uint8_t guc_CardID[16];
 extern uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];
 extern const uint8 sBroadAddrFE[8];
@@ -1026,7 +1044,7 @@ void SYS_MAIN_Task(void * arg)
     memset(tmp,0,10);
     GD_Para_RW(F251_PADDR, tmp, 10, false);
 //	    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
-
+    //Reset_Hash_Table();
     for(;;)
     {   
         krhino_buf_queue_recv(&gs_MainQueue, RHINO_WAIT_FOREVER, g_MQ_buf_recv,
@@ -1040,7 +1058,16 @@ void SYS_MAIN_Task(void * arg)
                 extern uint32_t g_timer_tick;
                 g_timer_tick++;
                 LOG_DEBUG("second ! %d\n", g_timer_tick);
-                
+#ifndef   MASTER_NODE
+                if(gs_SysVar.mDGcnt > 0)
+                {
+                    gs_SysVar.mDGcnt --;
+                    if(0 == gs_SysVar.mDGcnt)
+                    {
+                        gs_SysVar.mLPstt &= ~HLV_LPTASK_SWITCH;
+                    }
+                }
+#endif
                 break;
                 
             case MSG_MIN:

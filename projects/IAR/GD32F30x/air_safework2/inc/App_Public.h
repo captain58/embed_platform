@@ -125,7 +125,7 @@ enum  //收
 #define MAX_I_SS_UPDATA_BLOCK_NUM  0xFFFF
 #define MAX_SS_DEAD_TIME  60000
 
-
+#define MAX_MASTER_NODE_TO_LED_CLOSE_COUNT  600 //100毫秒周期
 //#define FRQ_BRODCAST_CHAN 0x02// for Net3
 
 //#define FRQ_BRODCAST_CHAN 0x0
@@ -781,6 +781,7 @@ typedef struct  __ST_NOD_STAS{
     uint8 reserve:3;
 }__packed ST_NOD_STAS;
 
+#define HLV_LPTASK_SWITCH   0x01               //勾子动作s
 #define HLV_LPTASK_MDCK     0x01               //4G模块识别
 #define HLV_LPTASK_CP       0x02               //抄表任务
 #define HLV_LPTASK_RP       0x04               //上告任务
@@ -870,7 +871,8 @@ typedef struct _STMETERPARARAM
 	uint8 neighnum; // 邻居个数
 	uint8 loginNo;
     
-    uint32 vbat;
+    uint32_t vbat;
+    uint32_t login_count;
 }COLLECTOR;
 
 typedef struct _STMETERPARARAMSHADOW

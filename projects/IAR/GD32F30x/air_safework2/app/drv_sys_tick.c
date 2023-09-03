@@ -143,7 +143,7 @@ void Switch_Channel(unsigned char channel)
 //        return (cksum);
 //}
 #define CON_LOGIN_TIME_OUT 400
-#define CON_LOGIN_INTERVAL 160
+#define CON_LOGIN_INTERVAL 300
 uint32 sysSlotTimeCycle = 50;
 //uint32_t gn_loginTO = 0;
 void Slot_Time_IRQ(void * arg)
@@ -1176,7 +1176,7 @@ uint8 EZMacPRO_Transmit(void)/*STAPDU * stPdu*/
 
     if(pEzTxPkt->TxPkt.protocol == PST_FRM_NO)
     {
-        pEzTxPkt->TxPkt.protocol = 0;
+        //pEzTxPkt->TxPkt.protocol = 0;
         if(pEzTxPkt->TxPkt.head.apdu.ctrl.prm == 0 && 
             pEzTxPkt->TxPkt.index >= SUP_SS_INDEX_START && 
             pEzTxPkt->TxPkt.index <= MAX_SUP_SS_NUM)
@@ -1732,9 +1732,9 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
 	pkt = &(ezPkt->TxPkt);
     pkt->ttl = MAX_TIME_LIVE;   //生存周期by ben 29
     pkt->index = k;
-    
+    pkt->protocol = 0;
     memset((uint8 *)&pkt->head.apdu, 0, sizeof(STAPDU));
-
+    LOG_DEBUG("EZMacPRO_Transmit_Adv=%d\n", type);  
     switch(type)
     {
         case 0://广播离网
@@ -1955,6 +1955,7 @@ uint8 EZMacPRO_Transmit_Adv(uint8 type, uint8 * data, uint8 len)//发送重启广播命
             cltor_shadow[k].sendseq++;
             ezPkt->bValid = 1;//业务缓存有效
             ezPkt->nBackOffSlot = FUNC_DELAY_MS(500);
+            pkt->ttl = FUNC_DELAY_MS(500)+1;
             break;
         }
 #else        
