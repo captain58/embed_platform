@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033018;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033019;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -613,10 +613,11 @@ if(event & CON_KEY14_BIT)               //KEY13
             
             SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 10, 10, 0);
             guc_AllowLogin = 1;
-            bBroadMeterEnable = 1;
+            //bBroadMeterEnable = 1;
             sysSlotTime=0;
 #ifdef MASTER_NODE            
-//	            Cltor_init();
+            Cltor_init();
+            Reset_Hash_Table();
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_NORM, 3, 0, 0, 0);
 //            SYS_Dev_OptBlinkSet(GPIO_LED_SUB1_ERR, 3, 0, 0, 0);
 ////            SYS_Dev_OptBlinkSet(GPIO_LED_SUB2_NORM, 3, 0, 0, 0);

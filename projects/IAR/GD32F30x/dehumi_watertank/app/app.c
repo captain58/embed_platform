@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033015;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033016;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -1385,7 +1385,8 @@ void SYS_MAIN_Task(void * arg)
     LOG_DEBUG("\nVS Project %s  Softver[%x] Hardver[%x]!!!\n", gucs_PrjCode, gul_UsrFuncVer, gul_UsrHardcVer);
     //Flash_Test();
 //	    SYS_IFLS_Test();
-    uint8_t tmp[10] = {88,1,4,0,0,0,0,0,0,0};
+    uint8_t tmp[10] = {88,1,4,0,0,33,0,0,0,0};
+    //GD_Para_RW(F251_PADDR, tmp, 10, true);
     memset(tmp,0,10);
     GD_Para_RW(F251_PADDR, tmp, 10, false);
 

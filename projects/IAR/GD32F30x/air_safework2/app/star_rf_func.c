@@ -77,10 +77,12 @@ uint8 fSRFFTD00(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //    			        Delete_SS_Node(id);
                     }
                 }
+                
             }
-//#ifndef MASTER_NODE            
-////            gn_loginTO = 0;
-//#endif              
+#ifndef MASTER_NODE 
+            extern uint32_t gn_loginTO;
+            gn_loginTO = 0;
+#endif              
             break;
         case MSG_TYPE_FN_02:
 #ifndef MASTER_NODE

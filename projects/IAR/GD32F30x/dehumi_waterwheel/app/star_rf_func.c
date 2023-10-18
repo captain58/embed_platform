@@ -1224,70 +1224,71 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 
 //	                SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 100, 100, 0); 
             }
-                
-            uint32 stt = 0;
-            m=0;
-            memcpy(&stt, frm->apdu.data + m, 4);
-            m+=4;
-//	            cltor_shadow[id].nodestatus.switchstt = frm->apdu.data[m++];
-//	            cltor_shadow[id].nodestatus.cardstt = frm->apdu.data[m++];
-//	            
-//	            LOG_DEBUG( DBGFMT"------id[%d] switch[%d] card[%d]--------\n",DBGARG, id, 
-//	                      cltor_shadow[id].nodestatus.switchstt,cltor_shadow[id].nodestatus.cardstt);
-//	
-//	            if(cltor_shadow[id].nodestatus.cardstt)
-//	            {
-//	                memcpy(cltor[id].card, frm->apdu.data + m, 16);
-//	            }
-#ifdef MASTER_NODE
-            SYS_LCD_Set(CON_LCD_CONNECT_STT, 1);
-            gul_master_conn_to = CON_MASTER_LOGIN_TO_MAX;
-
-            int i = 0;
-            if((stt & (1 << CON_STT_WATER_LEVEL)) == (1 << CON_STT_WATER_LEVEL))
+            else
             {
-                memcpy((uint8_t *)&gst_sub_node_water_stt.st_sensor, frm->apdu.data + m, 4);
-#ifdef SENSOR_FILTER
-            //状态去抖
-                for(i = CON_SENSOR_FILTER - 1; i > 0; i --)
-                {
-                    gst_sub_node_water_stt.ready_stt[i] = gst_sub_node_water_stt.ready_stt[i - 1];
-                }
-
-                gst_sub_node_water_stt.ready_stt[0] = get_run_stt_by_sensor(&gst_sub_node_water_stt.st_sensor);
-
-                uint8_t stt = gst_sub_node_water_stt.ready_stt[0];
-            //临时状态缓存
-                for(i = 1; i < CON_SENSOR_FILTER; i ++)
-                {
-                    if(stt != gst_sub_node_water_stt.ready_stt[i])
-                        break;
-                }
-                if(i >= CON_SENSOR_FILTER)
-#else 
-                uint8_t stt = get_run_stt_by_sensor(&gst_sub_node_water_stt.st_sensor);
-#endif
-                {
-                    if(stt != gst_sub_node_water_stt.cur_stt)//状态需要切换
-                    {
+                uint32 stt = 0;
+                m=0;
+                memcpy(&stt, frm->apdu.data + m, 4);
+                m+=4;
+    //	            cltor_shadow[id].nodestatus.switchstt = frm->apdu.data[m++];
+    //	            cltor_shadow[id].nodestatus.cardstt = frm->apdu.data[m++];
+    //	            
+    //	            LOG_DEBUG( DBGFMT"------id[%d] switch[%d] card[%d]--------\n",DBGARG, id, 
+    //	                      cltor_shadow[id].nodestatus.switchstt,cltor_shadow[id].nodestatus.cardstt);
+    //	
+    //	            if(cltor_shadow[id].nodestatus.cardstt)
+    //	            {
+    //	                memcpy(cltor[id].card, frm->apdu.data + m, 16);
+    //	            }
 #ifdef MASTER_NODE
-                        //从节点
-                        gst_sub_node_water_stt.last_stt = gst_sub_node_water_stt.cur_stt;
-                        gst_sub_node_water_stt.cur_stt = stt;
-                        gst_water_stt.tick = g_tick_count;
-#else
-//	                        //从节点
-//	                        extern kbuf_queue_t gs_RFMngQueue;
-//	                        krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
-#endif
+                SYS_LCD_Set(CON_LCD_CONNECT_STT, 1);
+                gul_master_conn_to = CON_MASTER_LOGIN_TO_MAX;
+
+                int i = 0;
+                if((stt & (1 << CON_STT_WATER_LEVEL)) == (1 << CON_STT_WATER_LEVEL))
+                {
+                    memcpy((uint8_t *)&gst_sub_node_water_stt.st_sensor, frm->apdu.data + m, 4);
+#ifdef SENSOR_FILTER
+                //状态去抖
+                    for(i = CON_SENSOR_FILTER - 1; i > 0; i --)
+                    {
+                        gst_sub_node_water_stt.ready_stt[i] = gst_sub_node_water_stt.ready_stt[i - 1];
                     }
-                    extern kbuf_queue_t gs_MainQueue;
-                    krhino_buf_queue_send(&gs_MainQueue, &msgidA[MSG_WT_SUB_LEVEL_CHANGE], 1);                        
 
-                }                
-            }
+                    gst_sub_node_water_stt.ready_stt[0] = get_run_stt_by_sensor(&gst_sub_node_water_stt.st_sensor);
+
+                    uint8_t stt = gst_sub_node_water_stt.ready_stt[0];
+                //临时状态缓存
+                    for(i = 1; i < CON_SENSOR_FILTER; i ++)
+                    {
+                        if(stt != gst_sub_node_water_stt.ready_stt[i])
+                            break;
+                    }
+                    if(i >= CON_SENSOR_FILTER)
+#else 
+                    uint8_t stt = get_run_stt_by_sensor(&gst_sub_node_water_stt.st_sensor);
 #endif
+                    {
+                        if(stt != gst_sub_node_water_stt.cur_stt)//状态需要切换
+                        {
+#ifdef MASTER_NODE
+                            //从节点
+                            gst_sub_node_water_stt.last_stt = gst_sub_node_water_stt.cur_stt;
+                            gst_sub_node_water_stt.cur_stt = stt;
+                            gst_water_stt.tick = g_tick_count;
+#else
+    //	                        //从节点
+    //	                        extern kbuf_queue_t gs_RFMngQueue;
+    //	                        krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_SWITCH_CHANGE], 1);
+#endif
+                        }
+                        extern kbuf_queue_t gs_MainQueue;
+                        krhino_buf_queue_send(&gs_MainQueue, &msgidA[MSG_WT_SUB_LEVEL_CHANGE], 1);                        
 
+                    }                
+                }
+#endif
+            }
             STMETERPARAFLASH stMeter;
             
             GetCltorPara(id, &stMeter);
@@ -1642,15 +1643,28 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 #ifdef MASTER_NODE
             if(frm->bNeedReAllocate)
             {
-                id = getOrAllocateIdByAddr(1, SN, 6);
+                id = Sn_Search_Id(SN);//getOrAllocateIdByAddr(1, SN, 6);
 
                 errCode = 0;
                 
 				if ((id > MAX_SUP_SS_NUM) ||( id < SUP_SS_INDEX_START) || (id > rfpara.rf_slotnum)/* || (id >= MAX_REAL_SUP_SS_NUM)*/)
-				{				
-                    id = 0;					//当没有分配到有效ID时，分配到0，用于回复SS	
-                    errCode = 3;
-                    break;//不回复
+				{			
+                    if(Meter_Check(SN))
+                    {
+                        id = getOrAllocateIdByAddr(1, SN, 6);
+                        if ((id > MAX_SUP_SS_NUM) ||( id < SUP_SS_INDEX_START) || (id > rfpara.rf_slotnum)/* || (id >= MAX_REAL_SUP_SS_NUM)*/)
+                        {
+                            id = 0;					//当没有分配到有效ID时，分配到0，用于回复SS	
+                            errCode = 3;
+                            break;//不回复                        
+                        }
+                    }
+                    else
+                    {
+                        id = 0;					//当没有分配到有效ID时，分配到0，用于回复SS	
+                        errCode = 3;
+                        break;//不回复
+                    }
 				}
                 //cltor_shadow[id].neighnum = 2;//joinreq->neignum;  //邻居个数                         
                 uint8 heartBeat = frm->apdu.data[10];
@@ -1703,7 +1717,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 }
             }
             gul_master_conn_to = CON_MASTER_LOGIN_TO_MAX;
-            SYS_LCD_Set(CON_LCD_CONNECT_STT, 1);
+            //SYS_LCD_Set(CON_LCD_CONNECT_STT, 1);
             GetCltorPara(id, &stMeter);
             memcpy(stMeter.GIS, frm->apdu.data+2, 8);
             memcpy((uint8 *)&stMeter.softver, frm->apdu.data+11, 2);

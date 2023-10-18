@@ -830,6 +830,23 @@ uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr )
     return 0;
 }
 
+uint8_t SYS_RF_Reset(void)
+{
+    if(A7139_Config())      //config A7139 chip
+        return 1;
+
+    msleep(1);          //delay 800us for crystal stabilized
+
+    if(A7139_WriteID())     //write ID code
+        return 1;
+
+//	    if(A7139_Cal())         //IF and VCO Calibration
+//	        return 1;
+
+    return 0;
+
+}
+
 /*********************************************************************
 ** A7139_Config
 *********************************************************************/
@@ -1941,10 +1958,7 @@ double SX1276LoRaGetPacketRssi( void )
 {
     return -130;
 }
-void SYS_RF_Reset(void)
-{
 
-}
 void SYS_RF_StartRX(uint8_t flag)
 {
 //	    SPI_Write((SPIIO*)&gs_RFCmdRx, &gs_RFSpiPort);

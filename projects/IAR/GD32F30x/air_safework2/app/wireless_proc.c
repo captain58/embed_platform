@@ -526,7 +526,7 @@ void wireless_send()
 		// 在靠近广播时隙的地方，不能够发送业务数据
 		//if(slot < ((rfpara.rf_slotnum * 2) - 3))
 		{
-			if(checkSendCache() )
+			if(checkSendCache() && BackOffSlot == 0)
 			{	
 
                 if(CheckConflict())
@@ -611,6 +611,7 @@ void wireless_mng(void)//状态机处理
             krhino_buf_queue_send(&gs_RFMngQueue, &msg, 1);
         }
         Radio->StartRx( 0);
+        BackOffSlot = FUNC_DELAY_MS(600);
                 //MSR = RX_STATE_BIT | RX_STATE_WAIT_FOR_SEND_ACK;
         break;
     }
@@ -739,6 +740,12 @@ void Handle_Led()
             if(cltor[i].login_count > 0)
             {
                 cltor[i].login_count--;
+
+                if(0 == cltor[i].login_count)
+                {
+                    LOG_DEBUG( DBGFMT"cltor [%x] lost connection addr[%02x%02x] \n",DBGARG, i, cltor[i].devAddr[4], cltor[i].devAddr[5]); 
+                }
+                
                 if((flag & (1 << cltor[i].loginNo)) == 0)
                 {
                     flag |= 1 << cltor[i].loginNo;
@@ -776,6 +783,7 @@ void Handle_Led()
             }
             else
             {
+            
                 switch(cltor[i].loginNo)    
                 {
                     case 1:

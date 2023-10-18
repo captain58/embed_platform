@@ -145,7 +145,7 @@ void Switch_Channel(unsigned char channel)
 #define CON_LOGIN_TIME_OUT 400
 #define CON_LOGIN_INTERVAL 300
 uint32 sysSlotTimeCycle = 50;
-//uint32_t gn_loginTO = 0;
+uint32_t gn_loginTO = 0;
 void Slot_Time_IRQ(void * arg)
 {
 	//uint16 slot;
@@ -221,6 +221,10 @@ void Slot_Time_IRQ(void * arg)
 
             break;
         }
+        case BEHAVIOR_RESET:
+            Radio->Reset();
+            setMSR(0);
+            break;
         default:
         {
             //do nothing
@@ -2287,13 +2291,15 @@ BEHAVIOR Get_Current_Behave(uint32_t slot, uint32_t timeframe) //»ñÈ¡Òª²Ù×÷µÄÐÐÎ
         //printf("Get_Current_Behave timeframe = %d temp16 = %d temp32 = %d index = %d freq = %d\n", timeframe, temp16, temp32, index, ret.freq);
 #endif           
     }
-//#ifndef MASTER_NODE     
-////    gn_loginTO ++;
-//    if(gn_loginTO > 2*CON_LOGIN_TIME_OUT)
-//    {
+#ifndef MASTER_NODE     
+    gn_loginTO ++;
+    if(gn_loginTO > 3*CON_LOGIN_TIME_OUT)
+    {
 //        guc_netStat = NODE_STATUS_OUT;
-//    }
-//#endif    
+        ret.behave = BEHAVIOR_RESET;
+        gn_loginTO = 0;
+    }
+#endif    
     return ret;
 }
 

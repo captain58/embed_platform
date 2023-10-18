@@ -306,10 +306,10 @@ typedef enum
 
 #define RS_RESET_TIME ((30 * 60 * 1000) / 25)
 
-#define UPCOMM_FRAME_MAX_LEN 512
+#define UPCOMM_FRAME_MAX_LEN 256
 #define UART_DEBUG UART0_CHANNEL
 #define CON_MUCHFRAME_SECTOR_NUM	2	/*多帧数据存储空间占用dataflash的扇区数(每扇区4k字节)*/
-#define CON_MUCHFRAME_NUM			4
+#define CON_MUCHFRAME_NUM			1
 
 #define DOWN_UPGRADE_DIVISION_LEN   96
 #define DOWN_UPGRADE_BITMAP_SIZE     96
