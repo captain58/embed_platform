@@ -1266,7 +1266,7 @@ uint8_t Water_Disp_Pump(uint32_t tick);
 uint8_t Water_Disp_Drain(uint32_t tick);
 uint8_t Water_Disp_DePump(void);
 uint8_t Water_Disp_Close(void);
-uint8_t Water_Ctrl_Pump(void);
+uint8_t Water_Ctrl_Pump(uint8_t type);
 uint8_t Water_Ctrl_DePump(void);
 uint8_t Water_Ctrl_Close(void);
 uint8_t Water_para_Cycle();

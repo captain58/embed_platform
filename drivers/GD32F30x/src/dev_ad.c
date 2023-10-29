@@ -55,6 +55,137 @@ uint8_t ADC_Wait_Finish(void)
  * @修改人: 
  * @修改说明: 
  ******************************************************************************/
+//	int SYS_AD_Scan(uint8_t ch, uint32_t * value)
+//	{
+//	    int ret = -1;
+//	//    uint8   uc_i = 0, uc_j = 0, uc_k;
+//	//    uint16 ui_value;
+//	//    uint32 ul_toalvalue;
+//	    ADPORT* lp;
+//		uint16 ADCData[8];
+//	    
+//		uint16 VrefData[8];
+//		uint8_t i;
+//		volatile float fVlotage = 0,fTempVref = 0;
+//		float fTempADC = 0;
+//	    lp = (ADPORT*)(gs_ADPort + ch);
+//		//使用简单函数配置
+//	
+//	//	    if(lp->ctrlen)
+//	//	    {
+//	//	//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum,1);
+//	//	        SYS_GPO_Out(lp->ctrlno,1);
+//	//	    }
+//	    
+//	    HAL_GPIO_PinConfig(&lp->item->gpio);
+//	    
+//	    /* ADC SCAN function enable */
+//	    adc_special_function_config(lp->item->adcHandle, ADC_SCAN_MODE, ENABLE);
+//	    adc_special_function_config(lp->item->adcHandle, ADC_CONTINUOUS_MODE, DISABLE); 
+//	    /* ADC trigger config */
+//	    adc_external_trigger_source_config(lp->item->adcHandle, ADC_INSERTED_CHANNEL, ADC0_1_2_EXTTRIG_INSERTED_NONE);
+//	    /* ADC mode config */
+//	    adc_mode_config(ADC_MODE_FREE);
+//	    /* ADC data alignment config */
+//	    adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);  
+//	    /* ADC channel length config */
+//	    adc_channel_length_config(lp->item->adcHandle, ADC_INSERTED_CHANNEL, 2);
+//	
+//	  
+//	    /* ADC temperature sensor channel config */
+//	    adc_inserted_channel_config(lp->item->adcHandle, 0, lp->item->channel, ADC_SAMPLETIME_239POINT5);
+//	    /* ADC internal reference voltage channel config */
+//	    adc_inserted_channel_config(lp->item->adcHandle, 1, ADC_CHANNEL_17, ADC_SAMPLETIME_239POINT5);
+//	
+//	    adc_external_trigger_config(lp->item->adcHandle, ADC_INSERTED_CHANNEL, ENABLE);
+//	  
+//	    /* ADC temperature and Vrefint enable */
+//	    adc_tempsensor_vrefint_enable();
+//	 
+//	    
+//	    /* enable ADC interface */
+//	    adc_enable(lp->item->adcHandle);
+//	    msleep(1);
+//	    /* ADC calibration and reset calibration */
+//	    adc_calibration_enable(lp->item->adcHandle);
+//	
+//	
+//	//	    /* ADC regular channel config */
+//	//	    adc_regular_channel_config(lp->item->adcHandle, 0U, lp->item->channel, ADC_SAMPLETIME_7POINT5);
+//	//	    adc_regular_channel_config(lp->item->adcHandle, 1, ADC_CHANNEL_17, ADC_SAMPLETIME_239POINT5);
+//	//	    /* ADC software trigger enable */
+//	//	    adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_CHANNEL);
+//	//	
+//	//	    /* wait the end of conversion flag */
+//	//	    while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
+//	//	    /* clear the end of conversion flag */
+//	//	    adc_flag_clear(lp->item->adcHandle, ADC_FLAG_EOC);
+//	//	    /* return regular channel sample value */
+//	//	    adc_regular_data_read(lp->item->adcHandle);
+//	
+//	    
+//		fTempADC = 0;
+//	    fTempVref = 0;
+//		for(i=0; i<4; i++)
+//		{
+//	//			ANAC_ADCIF_ADC_IF_Clr();			//清除中断标志
+//	
+//	        /* ADC software trigger enable */
+//	        adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_INSERTED_CHANNEL);
+//	        
+//	        /* wait the end of conversion flag */
+//	        while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
+//	        /* clear the end of conversion flag */
+//	        adc_flag_clear(lp->item->adcHandle, ADC_FLAG_EOC);
+//	        /* return regular channel sample value */
+//	        ADCData[i] = adc_inserted_data_read(lp->item->adcHandle,0);
+//	        VrefData[i] = adc_inserted_data_read(lp->item->adcHandle,1);
+//	        fTempADC += ADCData[i];
+//	        fTempVref += VrefData[i];
+//	        
+//			
+//	//			ADCData[i] = 0;
+//	//			if(0 == ADC_Wait_Finish())			//等待转换完成
+//	//			{
+//	//				ADCData[i] = ANAC_ADCDATA_Read();	//读取AD值
+//	//				fTempADC += ADCData[i];
+//	//			}
+//	//			else
+//	//			{
+//	//				break;
+//	//			}
+//		}
+//		
+//		if( i == 4 )
+//		{
+//			fTempADC = fTempADC/4.0;
+//	        fTempVref = fTempVref/4;
+//	        ret = 0;
+//		}
+//	    fTempVref = fTempVref * 3300 / 4096;
+//	//		fVlotage = fTempADC * lp->item->vref / 4096 ;//AD值转换为电压
+//		fVlotage = fTempADC * lp->item->vref / 4096 ;//AD值转换为电压
+//	
+//	    *value = (uint32_t)(fVlotage * 1000 * lp->item->vnum )/1000;
+//	    gsp_AdStt->value[ch] =  *value;
+//		return ret;
+//	}
+
+
+/*******************************************************************************
+ * @function_name:  SYS_AD_Scan
+ * @function_file:  dev_ad.c
+ * @描述: AD采用函数
+ * 
+ * @参数: 
+ * 
+ * @返回: 
+ * @return:  Boolean   
+ * @作者: yzy (2015-01-19)
+ *-----------------------------------------------------------------------------
+ * @修改人: 
+ * @修改说明: 
+ ******************************************************************************/
 int SYS_AD_Scan(uint8_t ch, uint32_t * value)
 {
     int ret = -1;
@@ -62,12 +193,12 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
 //    uint16 ui_value;
 //    uint32 ul_toalvalue;
     ADPORT* lp;
-	uint16 ADCData[8];
-	uint8_t i;
-	volatile float fVlotage = 0;
-	float fTempADC = 0;
+    uint16 ADCData[8];
+    uint8_t i;
+    volatile float fVlotage = 0;
+    float fTempADC = 0;
     lp = (ADPORT*)(gs_ADPort + ch);
-	//使用简单函数配置
+//使用简单函数配置
 
 //	    if(lp->ctrlen)
 //	    {
@@ -125,13 +256,13 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
     adc_regular_data_read(lp->item->adcHandle);
 
     
-	fTempADC = 0;
-	for(i=0; i<4; i++)
-	{
-//			ANAC_ADCIF_ADC_IF_Clr();			//清除中断标志
+    fTempADC = 0;
+    for(i=0; i<4; i++)
+    {
+    //			ANAC_ADCIF_ADC_IF_Clr();			//清除中断标志
 
         /* ADC software trigger enable */
-        adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_CHANNEL);
+        adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_INSERTED_CHANNEL);
         
         /* wait the end of conversion flag */
         while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
@@ -140,67 +271,33 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
         /* return regular channel sample value */
         ADCData[i] = adc_regular_data_read(lp->item->adcHandle);
         fTempADC += ADCData[i];
-		
-//			ADCData[i] = 0;
-//			if(0 == ADC_Wait_Finish())			//等待转换完成
-//			{
-//				ADCData[i] = ANAC_ADCDATA_Read();	//读取AD值
-//				fTempADC += ADCData[i];
-//			}
-//			else
-//			{
-//				break;
-//			}
-	}
-	
-	if( i == 4 )
-	{
-		fTempADC = fTempADC/4.0;
-        ret = 0;
-	}
+        
+
+    //			ADCData[i] = 0;
+    //			if(0 == ADC_Wait_Finish())			//等待转换完成
+    //			{
+    //				ADCData[i] = ANAC_ADCDATA_Read();	//读取AD值
+    //				fTempADC += ADCData[i];
+    //			}
+    //			else
+    //			{
+    //				break;
+    //			}
+    }
+
+    if( i == 4 )
+    {
+    	fTempADC = fTempADC/4.0;
+    ret = 0;
+    }
 	fVlotage = fTempADC * lp->item->vref / 4096 ;//AD值转换为电压
 
     *value = (uint32_t)(fVlotage * 1000 * lp->item->vnum )/1000;
     gsp_AdStt->value[ch] =  *value;
-//	    if(lp->ctrlen)
-//	    {
-//	//	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum,0);
-//	        SYS_GPO_Out(GPO_ADC_VBAT,0);
-//	    }
-//	
-//	    for(uc_i = 0; uc_i < AD_NUM; uc_i++)
-//	    {
-//	        lp = (ADPORT*)(gs_ADPort + uc_i);
-//	      
-//	        ul_toalvalue = 0;
-//	        uc_k = 0;
-//	        for(uc_j = 0; uc_j < 8; uc_j++)
-//	        {
-//	            ui_value = 0;
-//	            Chip_ADC_SetStartMode(lp->adc, lp->seq);
-//	            while(Chip_ADC_ReadStatus(lp->adc, lp->chn) == RESET);
-//	            
-//	            if(Chip_ADC_ReadValue(lp->adc, lp->chn, &ui_value) == true)//
-//	            {
-//	                ul_toalvalue += (uint32)ui_value * lp->vref / 4096 * lp->vnum;
-//	                uc_k++;
-//	            }
-//	        }
-//	        if(uc_k > 0)
-//	        {
-//	            gsp_AdStt->value[uc_i] =  ul_toalvalue / uc_k;
-//	        }
-//	        
-//	    }
 
-    
-//		RCC_PERCLK_SetableEx(ANACCLK, DISABLE);		//模拟电路总线时钟使能
-//		RCC_PERCLK_SetableEx(ADCCLK, DISABLE);		//ADC时钟使能
 
-	return ret;
+return ret;
 }
-
-
 /*******************************************************************************
  * @function_name:  SYS_AD_GetValue
  * @function_file:  dev_ad.c

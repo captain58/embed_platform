@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033019;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23010211C;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -482,9 +482,9 @@ void KeyProc(uint8 key)
                 {
                     if(gst_water_ctrl.auto_manmual == CON_MOTOR_CTRL_MANUAL)
                     {
-                        if(gst_water_stt.motor_stt != CON_MOTOR_STT_PUMP)
+                        if(gst_water_stt.motor_stt == CON_MOTOR_STT_IDEL)
                         {
-                            Water_Ctrl_Pump();
+                            Water_Ctrl_Pump(1);
                         }
                         else
                         {
@@ -555,26 +555,7 @@ void KeyProc(uint8 key)
         if(event & CON_KEY13_BIT)               //KEY13
         {
             LOG_DEBUG("key onoff failing!\n");
-#if (SYS_LCD_HT1621 > 0)
-            if(2 == Water_Ctrl_WakeUp(1))
-            {
-                Water_Ctrl_Set_Onoff(0);
 
-            }else if(0 == Water_Ctrl_WakeUp(1))
-            {
-                
-                SYS_BUZZ_Passive_Blink(CON_PASSIVE_BUZZ_SOUND_1);
-//                if(SYS_LCD_Get_Onoff())
-//                {
-//                    Water_Ctrl_Set_Onoff(0);
-//                }
-//                else
-                {
-                    Water_Ctrl_Set_Onoff(1);
-                }
-            }
-
-#endif
         }   
 if(event & CON_KEY14_BIT)               //KEY13
         {
@@ -646,6 +627,7 @@ if(event & CON_KEY14_BIT)               //KEY13
         if(event & 0x10)               //KEY5
         {
             LOG_DEBUG("key 5 keep!\n");
+            
         }  
         if(event & 0x20)               //KEY6
         {
@@ -678,7 +660,37 @@ if(event & CON_KEY14_BIT)               //KEY13
         
         if(event & CON_KEY10_BIT)               //KEY10
         {
-            LOG_DEBUG("key reduce keep!\n");
+//	            LOG_DEBUG("key reduce keep!\n");
+            LOG_DEBUG("key pump keep!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(0))
+            {
+                if(gst_water_stt.time_set_flag)
+                {   
+                }
+                else if(gst_water_stt.remain_set_flag)
+                {   
+
+                }
+                else
+                {
+                    if(gst_water_ctrl.auto_manmual == CON_MOTOR_CTRL_MANUAL)
+                    {
+                        if(gst_water_stt.motor_stt != CON_MOTOR_STT_PUMP_FORCE)
+                        {
+                            Water_Ctrl_Pump(0);
+                        }
+                        else
+                        {
+                            Water_Ctrl_Close();
+                        }
+                    }
+                }
+                
+                gul_remain_set_tick = g_tick_count;
+            }
+
+#endif                        
         }  
         if(event & CON_KEY11_BIT)               //KEY11
         {
@@ -691,6 +703,26 @@ if(event & CON_KEY14_BIT)               //KEY13
         if(event & CON_KEY13_BIT)               //KEY13
         {
             LOG_DEBUG("key onoff keep!\n");
+#if (SYS_LCD_HT1621 > 0)
+            if(2 == Water_Ctrl_WakeUp(1))
+            {
+                Water_Ctrl_Set_Onoff(0);
+
+            }else if(0 == Water_Ctrl_WakeUp(1))
+            {
+                
+                SYS_BUZZ_Passive_Blink(CON_PASSIVE_BUZZ_SOUND_1);
+//                if(SYS_LCD_Get_Onoff())
+//                {
+//                    Water_Ctrl_Set_Onoff(0);
+//                }
+//                else
+                {
+                    Water_Ctrl_Set_Onoff(1);
+                }
+            }
+
+#endif            
         }    
         if(event & CON_KEY14_BIT)               //KEY13
         {
@@ -931,8 +963,9 @@ if(event & CON_KEY14_BIT)               //KEY13
 #ifdef MASTER_NODE
 
 
-#define CON_MOTOR_WORK_AWAY_MAX_TIME      (90000)//30s 10分钟
+#define CON_MOTOR_WORK_AWAY_MAX_TIME      (3000)//30s 10分钟
 
+#define CON_MOTOR_MANUAL_WORK_AWAY_MAX_TIME      (600000)//30s 10分钟
 
 const uint8_t *auto_str[] =
 {
@@ -1063,6 +1096,33 @@ void MAIN_UpdataWaterPump(void)
                 }
                 
             }
+            if(gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP_FORCE)
+            {
+                if(gst_water_stt.tick > g_tick_count)
+                {
+                    clac_tick = 0xffffffff - gst_water_stt.tick + g_tick_count;
+                }
+                else
+                {
+                    clac_tick = g_tick_count - gst_water_stt.tick;
+                }
+                LOG_INFO("CON_MOTOR_STT_PUMP_FORCE[%d]!!!\n", clac_tick);
+                
+                if( krhino_ticks_to_ms(clac_tick) > CON_MOTOR_MANUAL_WORK_AWAY_MAX_TIME)
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, false);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                    gst_water_stt.motor_stt = CON_MOTOR_STT_IDEL;
+                    Water_Disp_Close();
+                }
+                else
+                {
+                    SYS_GPO_Out(GPO_PUMP_WATER, true);
+                    SYS_GPO_Out(GPO_DRAIN_WATER, false);
+                    
+                }
+                
+            }            
             else if(gst_water_stt.motor_stt == CON_MOTOR_STT_DRAIN)
             {
                 
@@ -1243,6 +1303,15 @@ void MAIN_SecProc(void)
     SYS_LCD_Set_Wheel_Water_Level(gst_water_stt.cur_stt, g_timer_tick);
     
     SYS_LCD_Set_Tank_Water_Level(gst_sub_node_water_stt.cur_stt, g_timer_tick);
+    if(gst_water_stt.cur_stt == CON_WATER_TANK_STT_LOW || gst_water_stt.cur_stt == CON_WATER_TANK_STT_HIGH_MORE || 
+        gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_LOW || gst_sub_node_water_stt.cur_stt == CON_WATER_TANK_STT_HIGH_MORE )
+    {
+        SYS_BUZZ_Passive_Blink(CON_PASSIVE_BUZZ_SOUND_0);
+    }
+    else
+    {
+        SYS_BUZZ_Passive_Blink(0xff);
+    }
 #endif
 #ifdef MASTER_NODE
     LOG_INFO("mod[%d] sub[%d] low[%d] mlow[%d] hmid[%d] high[%d]\n", gst_water_stt.motor_stt, gst_sub_node_water_stt.cur_stt, gst_water_stt.st_sensor.low, 
@@ -1469,7 +1538,7 @@ void Handle_Lcd()
     {
         Water_Disp_Drain(tick_count);
     }
-    else if(gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP)
+    else if(gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP || gst_water_stt.motor_stt == CON_MOTOR_STT_PUMP_FORCE)
     {
         Water_Disp_Pump(tick_count);
     }

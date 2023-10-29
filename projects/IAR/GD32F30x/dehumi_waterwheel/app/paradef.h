@@ -183,7 +183,8 @@
 #define CON_MOTOR_STT_IDEL      0
 #define CON_MOTOR_STT_PUMP      1
 #define CON_MOTOR_STT_DRAIN     2
-#define CON_MOTOR_STT_PAUSE     3
+#define CON_MOTOR_STT_PUMP_FORCE 3
+#define CON_MOTOR_STT_PAUSE     4
 
 #define CON_MOTOR_CTRL_AUTO      0
 #define CON_MOTOR_CTRL_MANUAL      1

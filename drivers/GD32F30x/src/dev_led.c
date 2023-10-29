@@ -523,14 +523,14 @@ void SYS_BUZZ_Passive_Blink(uint8_t type)
 {
 //	    SYS_Dev_OptBlinkSet(SYS_LED_GND, 0, 0, 0, 100);
 //	
-//	    switch(type)
-//	    {
-//	        case CON_PASSIVE_BUZZ_SOUND_0:
-//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 9, 1, 10);
-//	            break;
-//	        case CON_PASSIVE_BUZZ_SOUND_1:
-//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 8, 2, 10);
-//	            break;
+    switch(type)
+    {
+        case CON_PASSIVE_BUZZ_SOUND_0:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 50, 50, 0);
+            break;
+        case CON_PASSIVE_BUZZ_SOUND_1:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 2, 2, 20);
+            break;
 //	        case CON_PASSIVE_BUZZ_SOUND_2:
 //	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 7, 3, 10);
 //	            break;
@@ -543,12 +543,12 @@ void SYS_BUZZ_Passive_Blink(uint8_t type)
 //	        case CON_PASSIVE_BUZZ_SOUND_5:
 //	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 4, 6, 10);
 //	            break;        
-//	        default:
-//	            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 2, 5, 5, 10);
-//	            break;
-//	    }
+        default:
+            SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 3, 5, 5, 10);
+            break;
+    }
 
-    SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 2, 2, 20);
+//	    SYS_Dev_OptBlinkSet(SYS_LED_BUZZ, 1, 2, 2, 20);
 
 
 //	    if(type == CON_PASSIVE_BUZZ_SOUND_0)
