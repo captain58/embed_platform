@@ -58,7 +58,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23090209;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23090210;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 
@@ -539,6 +539,7 @@ void KeyProc(uint8 key)
 #else
             guc_netStat = NODE_STATUS_OUT;
 #endif
+            SYS_RF_Write(NULL);
         }
         
         if(event & 2)               //KEY2
@@ -571,6 +572,14 @@ void KeyProc(uint8 key)
 	        LOG_DEBUG("key 1 right!\n");
 //	            gs_SysVar.terstt.bit.DI0linked = 0; 
 //	            SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
+            if(guc_AllowLogin)
+            {
+#ifdef MASTER_NODE               
+                SYS_RF_Write(nDeviceMacAddr+2);
+#else
+                SYS_RF_Write(nParentMacAddr+2);
+#endif                
+            }
             guc_AllowLogin = 0;
             gs_SysVar.mLPstt &= ~HLV_LPTASK_MDCK;
 #ifndef MASTER_NODE
@@ -996,7 +1005,7 @@ void SYS_MAIN_Task(void * arg)
     memset(nParentMacAddrTemp, 0xff, 8);
 
     nDeviceMacAddr[0] = 1;
-    HAL_RFID_Init(&gs_MainQueue, ble_name, 14);
+    //HAL_RFID_Init(&gs_MainQueue, ble_name, 14);
     guc_SwitchOnOff = 0;
     guc_SwitchNorErr = 0;
     guc_BuzzerNorErr = 0;

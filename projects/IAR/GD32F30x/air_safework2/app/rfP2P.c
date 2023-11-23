@@ -77,6 +77,7 @@ cpu_stack_t  gs_RFMngStack[TASK_RFMNG_STKL];
 ktask_t      gs_RFMngHandle;
 kbuf_queue_t gs_RFMngQueue;
 char         gc_RFMngbuf[MSG_BUFF_LEN];
+Word32   gwd_RF_Freq[2];//主备
 
 void RF_SendTestData(uint8 ch);
 /************************************************************************
@@ -204,7 +205,7 @@ void RF_SendTestData(uint8 ch)
         }
     }
 }
-
+extern uint8_t guc_AllowLogin;
 ///************************************************************************
 // * @function: RF_WMSecondProc
 // * @描述: 无线猫的秒处理
@@ -218,6 +219,10 @@ void RF_SendTestData(uint8 ch)
 void RF_WMSecondProc(void)
 {
     uint8 uc_closeclnflag = 0;
+
+    uint8_t id_tmp[4];
+    uint16_t freq_tmp[2];   
+
 //    uint8 uc_closeserflag = 0;
     /*
     if(gs_RFVar.wmst & WMS_ETH0STT)
@@ -696,6 +701,7 @@ extern __IO uint32_t uwTick;
 extern uint8_t guc_netStat;
 ktimer_t     g_rf_tick_timer;
 ktimer_t     g_rf_mainloop_timer;
+uint32_t gul_netid;
 void SYS_RFMng_Task(void * arg)
 {
     TIME time;
@@ -709,7 +715,15 @@ void SYS_RFMng_Task(void * arg)
 
     RF_PreInit();
     Radio = RadioDriverInit( );
-    SYS_RF_Init(0,0,0);
+    msleep(200);
+#ifdef MASTER_NODE      
+    SYS_RF_Init(0,0,0, nDeviceMacAddr+2);
+#else
+    SYS_RF_Init(0,0,0, nParentMacAddr+2);
+#endif    
+
+    SYS_RF_Read((uint8_t *)&gul_netid, (uint16_t *)&gwd_RF_Freq[0].word[0]);    
+//	    gwd_RF_Freq[1].lword = gwd_RF_Freq[0].lword;
     Radio->Tick((uint32 *)&uwTick);
 //    static uint8_t ble_name[14] = {'V','S'};
 //    ByteArrayBcdToHexString(gs_PstPara.Addr, ble_name+2, 6, 0);
@@ -795,7 +809,7 @@ void SYS_RFMng_Task(void * arg)
                     {
                         krhino_timer_start(&g_rf_tick_timer);
                         msleep(1);
-                        SYS_RF_Init(0,0,0);
+                        SYS_RF_Init(0,0,0,nParentMacAddr+2);
 //                        Radio->wake_up();
                         gs_RFVar.sleep = 0;
                         SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 

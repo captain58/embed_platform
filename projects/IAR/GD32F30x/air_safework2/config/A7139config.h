@@ -19,6 +19,25 @@
 //#define DR_250Kbps_250KIFBW     //433MHz, 250kbps (IFBW = 250KHz, Fdev = 93.75KHz), Crystal=16MHz
 
 
+
+typedef enum {
+	SYMBOL_RATE_100K = 0,
+	SYMBOL_RATE_50K = 1,
+	SYMBOL_RATE_25K = 2,
+	SYMBOL_RATE_10K = 3,
+	SYMBOL_RATE_2K = 4,
+} symbol_rate_t;
+
+typedef enum {
+	SYMBOL_POWER_MAX = 0,
+	SYMBOL_POWER_15DBM = 1,
+	SYMBOL_POWER_10DBM = 2,
+	SYMBOL_POWER_5DBM = 3,
+	SYMBOL_POWER_0DBM= 4,
+} symbol_power_t;
+
+#define  CON_CHANNEL_NUM 15
+
 #ifdef DR_10Kbps_50KIFBW
 
 const uint16_t A7139Config[]=        //433MHz, 10kbps (IFBW = 50KHz, Fdev = 18.75KHz), Crystal=12.8MHz
@@ -75,6 +94,25 @@ const uint16_t Freq_Cal_Tab[]=
     0x0A24, 0xB805, //470.001MHz
     0x0A26, 0x4805, //490.001MHz
     0x0A27, 0xD805  //510.001MHz
+};
+
+const float A7139_Channel[CON_CHANNEL_NUM]=
+{
+    433.101,//广播信道
+    433.401,//
+    433.501,//
+    433.601,//
+    433.701,//  
+    433.801,//
+    433.901,//
+    434.001,//
+    434.101,//
+    434.201,//
+    434.301,// 
+    434.401,//
+    434.501,//
+    434.601,//
+    434.701,//      
 };
 
 #endif

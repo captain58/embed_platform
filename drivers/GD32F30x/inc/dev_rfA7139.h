@@ -120,9 +120,10 @@ typedef struct sLoRaSettings
 void  INIT_MCU_RF_MAP(void);
 
 void SYS_A7139_Proc(uint8_t mod);
-uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr );
+uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr, uint8_t * pid);
 uint8_t SYS_A7139_Send(uint8_t * data, uint16_t len);
 uint16_t SYS_A7139_Recv(uint8_t * data);
+uint8_t SYS_RF_Read(uint8_t * pID, uint16_t * freq);
 
 
 ///*!
@@ -148,5 +149,7 @@ double SX1276LoRaGetPacketRssi( void );
 void SYS_RF_Set_FallingEdge(uint8_t gpio);
 tRadioDriver* RadioDriverInit( void );
 uint16_t SYS_RF_Rssi_Get(void);
+uint8_t SYS_RF_Write(uint8_t * pID);
+uint8_t SYS_RF_Check(uint8_t * pID, uint16_t * freq);
 
 #endif

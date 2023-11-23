@@ -3705,7 +3705,11 @@ void Send_Broad()
             I2cRead(0xA0, &tmp[0], FM_FREQ_DEFINE+8, 4); //存设置频点定义参数***
             int32 order = tmp[0]*0x1000000 + tmp[1]*0x10000 + tmp[2]*0x100 + tmp[3];
             
-            Radio->Init(order, rfpara.rf_channel, rfpara.rf_power);
+#ifdef MASTER_NODE              
+            Radio->Init(order, rfpara.rf_channel, rfpara.rf_power, nDeviceMacAddr+2);
+#else
+            Radio->Init(order, rfpara.rf_channel, rfpara.rf_power, nParentMacAddr+2);
+#endif
             Radio->StartRx( 0);
             //SX1276ReInit();
             //打印串口初始化一下

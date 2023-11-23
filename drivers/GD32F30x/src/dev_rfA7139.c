@@ -63,6 +63,7 @@ unsigned int * g_pSysTick = NULL;
                     while( ( SX1276_TICK_COUNT( ) - g_startTickTmp ) < TICK_RATE_MS( m ) ); 
 
 static TRFModem       gs_stRfModem;
+uint16_t A7139_Frequency_Set(float frequency);
 void SX7139SysTick(unsigned int * tick)
 {
     g_pSysTick = tick;
@@ -185,7 +186,7 @@ const uint8_t PN9_Tab[]=
 void A7139_POR(void);
 //	uint8_t InitRF(void);
 uint8_t A7139_Config(void);
-uint8_t A7139_WriteID(void);
+uint8_t A7139_WriteID(uint8_t * pid);
 uint8_t A7139_Cal(void);
 //	void StrobeCMD(uint8_t);
 void ByteSend(uint8_t);
@@ -443,7 +444,7 @@ void SYS_A7139_Proc(uint8_t mod)
     Init_SPI(&gs_RFSpiPort);
 
     	//power on only
-    SYS_RF_Init(0,0,0);
+    SYS_RF_Init(0,0,0,NULL);
 
 //    master_slave=0;
     if(mod == 1)   // master
@@ -767,13 +768,13 @@ void A7139_POR(void)
     
 //	    StrobeCMD(CMD_RF_RST);  	//reset A7139 chip
     SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
-
-    while(A7139_WriteID())		//check SPI
-    {
-//			StrobeCMD(CMD_RF_RST);  //reset A7139 chip    
-		
-        SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
-    }
+//	
+//	    while(A7139_WriteID(NULL))		//check SPI
+//	    {
+//	//			StrobeCMD(CMD_RF_RST);  //reset A7139 chip    
+//			
+//	        SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
+//	    }
     A7139_WritePageA(PM_PAGEA, A7139Config_PageA[PM_PAGEA] | 0x1000);   //STS=1
     msleep(1);
      
@@ -783,11 +784,11 @@ void A7139_POR(void)
     
 //	    StrobeCMD(CMD_RF_RST);  	//reset A7139 chip
     SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
-    while(A7139_WriteID())		//check SPI
-    {
-//			StrobeCMD(CMD_RF_RST);  //reset A7139 chip
-		SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
-    }
+//	    while(A7139_WriteID(NULL))		//check SPI
+//	    {
+//	//			StrobeCMD(CMD_RF_RST);  //reset A7139 chip
+//			SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
+//	    }
     A7139_WritePageA(PM_PAGEA, A7139Config_PageA[PM_PAGEA] | 0x1000);   //STS=1
     msleep(1);
 }
@@ -798,7 +799,7 @@ void A7139_POR(void)
 /*********************************************************************
 ** InitRF
 *********************************************************************/
-uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr )
+uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr, uint8_t * pid)
 {
 //    //initial pin
 //    SCS_1;
@@ -808,6 +809,10 @@ uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr )
 //    GIO1=1;
 //    GIO2=1;
     Init_SPI(&gs_RFSpiPort);
+    
+    if(A7139_WriteID(pid))     //write ID code
+        return 1;
+
     
     A7139_POR();
     
@@ -821,28 +826,51 @@ uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr )
 
     msleep(1);          //delay 800us for crystal stabilized
 
-    if(A7139_WriteID())     //write ID code
-        return 1;
 
     if(A7139_Cal())         //IF and VCO Calibration
         return 1;
 
+    if(A7139_WriteID(pid))     //write ID code
+        return 1;
+
+    
+    uint32_t code = pid[0] * 0x1000000 + pid[1] * 0x10000 + pid[2] * 0x100 + pid[3];
+
+    A7139_Frequency_Set(A7139_Channel[1 + code%(CON_CHANNEL_NUM - 1)]);
+
     return 0;
 }
 
-uint8_t SYS_RF_Reset(void)
+uint8_t SYS_RF_Reset(uint8_t * pid)
 {
+    Init_SPI(&gs_RFSpiPort);
+    
+    if(A7139_WriteID(pid))     //write ID code
+        return 1;
+
+    
+    A7139_POR();
+    
+    msleep(1);            //delay 1ms for regulator stabilized
+//	    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
+    SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
+    msleep(1);  
     if(A7139_Config())      //config A7139 chip
         return 1;
 
     msleep(1);          //delay 800us for crystal stabilized
 
-    if(A7139_WriteID())     //write ID code
+    if(A7139_Cal())         //IF and VCO Calibration
+        return 1;
+
+    if(A7139_WriteID(pid))     //write ID code
         return 1;
 
 //	    if(A7139_Cal())         //IF and VCO Calibration
 //	        return 1;
+    uint32_t code = pid[0] * 0x1000000 + pid[1] * 0x10000 + pid[2] * 0x100 + pid[3];
 
+    A7139_Frequency_Set(A7139_Channel[1 + code%(CON_CHANNEL_NUM - 1)]);
     return 0;
 
 }
@@ -939,7 +967,7 @@ uint8_t A7139_Config(void)
 **  WriteID
 ************************************************************************/
 uint8_t d1, d2, d3, d4;
-uint8_t A7139_WriteID(void)
+uint8_t A7139_WriteID(uint8_t * pid)
 {
     uint8_t i;
     uint8_t di[4];
@@ -952,10 +980,14 @@ uint8_t A7139_WriteID(void)
 //	        ByteSend(ID_Tab[i]);
 //	    SCS_1;
     rfSPI->command[0] = CMD_ID_W;  
-    rfSPI->command[1] = ID_Tab[0];
-    rfSPI->command[2] = ID_Tab[1];
-    rfSPI->command[3] = ID_Tab[2];
-    rfSPI->command[4] = ID_Tab[3];
+    if(NULL == pid)
+    {
+        pid = &ID_Tab[0];
+    }
+    rfSPI->command[1] = pid[0];
+    rfSPI->command[2] = pid[1];
+    rfSPI->command[3] = pid[2];
+    rfSPI->command[4] = pid[3];
     
     rfSPI->dev = 0;
     rfSPI->data = __NULL;
@@ -984,11 +1016,27 @@ uint8_t A7139_WriteID(void)
     SPI_Read((SPIIO*)rfSPI, &gs_RFSpiPort);
 
 
-    if((di[0]!=ID_Tab[0]) || (di[1]!=ID_Tab[1]) || (di[2]!=ID_Tab[2]) || (di[3]!=ID_Tab[3]))
+    if((di[0]!=pid[0]) || (di[1]!=pid[1]) || (di[2]!=pid[2]) || (di[3]!=pid[3]))
     {
         return 1;
     }
     
+    return 0;
+}
+uint8_t A7139_ReaDID(uint8_t * pid)
+{
+    uint8_t i;
+    uint8_t di[4];
+    SPIIO * rfSPI = &gst_RFCommon;
+
+    rfSPI->command[0] = CMD_ID_R | CMD_Reg_R;  
+    
+    rfSPI->dev = 0;
+    rfSPI->data = pid;
+    rfSPI->cmdnum = 1;
+    rfSPI->length = 4;
+    SPI_Read((SPIIO*)rfSPI, &gs_RFSpiPort);
+
     return 0;
 }
 
@@ -1970,6 +2018,51 @@ void SYS_RF_StartRX(uint8_t flag)
 
 }
 
+uint8_t SYS_RF_Write(uint8_t * pID)
+{
+    uint32_t code;
+
+    if(NULL == pID)
+    {
+
+        A7139_Frequency_Set(A7139_Channel[0]);
+
+    }
+    else
+    {
+        code = pID[0] * 0x1000000 + pID[1] * 0x10000 + pID[2] * 0x100 + pID[3];
+
+        A7139_Frequency_Set(A7139_Channel[1 + code%(CON_CHANNEL_NUM - 1)]);
+
+    }
+    if(A7139_WriteID(pID))     //write ID code
+        return 1;
+    else
+        return 0;
+}
+
+uint8_t SYS_RF_Read(uint8_t * pID, uint16_t * freq)
+{
+    A7139_ReaDID(pID);
+//	    freq[0] = A7139_ReadReg(PLL1_REG);
+//	    freq[1] = A7139_ReadReg(PLL2_REG); 
+
+    return 0;
+}
+uint8_t SYS_RF_Check(uint8_t * pID, uint16_t * freq)
+{
+    uint8_t id_tmp[4];
+    A7139_ReaDID(id_tmp);
+//	    freq[0] = A7139_ReadReg(PLL1_REG);
+//	    freq[1] = A7139_ReadReg(PLL2_REG); 
+    if(0 == memcmp(pID, id_tmp, 4))
+        return 0;
+    else
+        return 1;
+    
+}
+
+
 void SYS_RF_Set_FallingEdge(uint8_t gpio)
 {
 
@@ -2258,7 +2351,57 @@ unsigned int SX7319Process( void )
 //    msleep(2);            //delay 2ms for VDD_D stabilized
 //    //InitRF();
 //}
+#include <math.h>  
+/***********************************************************
+工作频点设置433MHZ模块建议设置范围为：433.301MHz~434.201MHz
+相邻工作频点最小间隔建议在200K以上
+************************************************************/
+uint16_t A7139_Frequency_Set(float frequency)
+{
+  float temp;
+  uint16_t integer;
+  float fraction;
+//  integer = A7139_ReadReg(PLL1_REG);
+//  integer = A7139_ReadReg(PLL2_REG);
+  
+  temp=frequency/12.8;
+  integer=(uint16_t)temp;
+  fraction = pow(2,16);
+  fraction *=(temp-integer);//*(pow(2,16));
+  SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+  A7139_WriteReg(PLL1_REG, 0x0A00|integer);
+  A7139_WriteReg(PLL2_REG, (uint16_t)fraction); 
+  
+//  integer = A7139_ReadReg(PLL1_REG);
+//  integer = A7139_ReadReg(PLL2_REG);
+  return integer;
+}
 
+void A7139_Data_Rate(symbol_rate_t data_rate)
+{
+ switch(data_rate)
+ {
+   case SYMBOL_RATE_100K:A7139_WritePageA(TX1_PAGEA,0xF708); A7139_WriteReg(SYSTEMCLOCK_REG,0x0021);break;
+   case SYMBOL_RATE_50K:A7139_WriteReg(SYSTEMCLOCK_REG, 0x0221);break;
+   case SYMBOL_RATE_25K:A7139_WriteReg(SYSTEMCLOCK_REG, 0x0621);break;
+   case SYMBOL_RATE_10K:A7139_WriteReg(SYSTEMCLOCK_REG, 0x1221);break;
+   case SYMBOL_RATE_2K: A7139_WriteReg(SYSTEMCLOCK_REG, 0x6221);break;
+   default :break;
+ }
+}
+
+void A7139_Power_Set(symbol_power_t power)
+{
+ switch(power)
+ {
+   case SYMBOL_POWER_MAX:A7139_WritePageB(TX2_PAGEB, 0x035f);break;   //TX power = 18.3dBm
+   case SYMBOL_POWER_15DBM:A7139_WritePageB(TX2_PAGEB, 0x0326);break;
+   case SYMBOL_POWER_10DBM:A7139_WritePageB(TX2_PAGEB, 0x030C);break;
+   case SYMBOL_POWER_5DBM:A7139_WritePageB(TX2_PAGEB, 0x0303);break;
+   case SYMBOL_POWER_0DBM:A7139_WritePageB(TX2_PAGEB, 0x0302);break;
+   default :break;
+ }
+}
 
 tRadioDriver RadioDriver;
 

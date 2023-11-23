@@ -589,6 +589,7 @@ if(event & CON_KEY14_BIT)               //KEY13
             guc_RegisterStat = NODE_STATUS_OUT;
 
 #endif
+            SYS_RF_Write(NULL);
         }
         
         if(event & 2)               //KEY2
@@ -664,7 +665,14 @@ if(event & CON_KEY14_BIT)               //KEY13
         if(event & 1)               //KEY1
         {
 	        LOG_DEBUG("key 1 right!\n");
-
+            if(guc_AllowLogin)
+            {
+#ifdef MASTER_NODE               
+                SYS_RF_Write(nDeviceMacAddr+2);
+#else
+                SYS_RF_Write(nParentMacAddr+2);
+#endif                
+            }
             guc_AllowLogin = 0;
 #ifdef MASTER_NODE
             SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);

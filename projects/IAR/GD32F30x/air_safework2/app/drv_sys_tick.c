@@ -222,9 +222,23 @@ void Slot_Time_IRQ(void * arg)
             break;
         }
         case BEHAVIOR_RESET:
-            Radio->Reset();
+        {
+
+            uint8_t id_tmp[4];
+        
+            SYS_RF_Read(id_tmp,NULL);
+            
+            LOG_DEBUG("net id = 0x%02x%02x%02x%02x \n", id_tmp[0], id_tmp[1], id_tmp[2], id_tmp[3]);
+
+          
+#ifdef MASTER_NODE               
+            Radio->Reset(nDeviceMacAddr+2);
+#else
+            Radio->Reset(nParentMacAddr+2);
+#endif              
             setMSR(0);
             break;
+        }
         default:
         {
             //do nothing
@@ -2291,7 +2305,7 @@ BEHAVIOR Get_Current_Behave(uint32_t slot, uint32_t timeframe) //»ñÈ¡Òª²Ù×÷µÄÐÐÎ
         //printf("Get_Current_Behave timeframe = %d temp16 = %d temp32 = %d index = %d freq = %d\n", timeframe, temp16, temp32, index, ret.freq);
 #endif           
     }
-#ifndef MASTER_NODE     
+//#ifndef MASTER_NODE     
     gn_loginTO ++;
     if(gn_loginTO > 3*CON_LOGIN_TIME_OUT)
     {
@@ -2299,7 +2313,7 @@ BEHAVIOR Get_Current_Behave(uint32_t slot, uint32_t timeframe) //»ñÈ¡Òª²Ù×÷µÄÐÐÎ
         ret.behave = BEHAVIOR_RESET;
         gn_loginTO = 0;
     }
-#endif    
+//#endif    
     return ret;
 }
 

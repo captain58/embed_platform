@@ -873,6 +873,7 @@ uint8 ParamLoad_F251(void)
 //	    }
     MoveBuffer(nDeviceMacAddr, addrbak, 6);
     MoveBuffer(temp, nDeviceMacAddr, 6);
+    GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, false);
     if(CmpBuffer(nDeviceMacAddr, addrbak, 6) && (gl_SysRunStt & HRS_PARALD))
     {
 //         gs_OS.Message_Send(MSG_FARP_PARACHG, TASK_FARP_TKID);
