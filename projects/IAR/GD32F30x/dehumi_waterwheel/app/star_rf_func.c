@@ -1675,8 +1675,8 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     I2cWrite(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, 1); //写入路由参数         
                 }
 
-                updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
-                    (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
+//                updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
+//                    (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
                 
                 //更新中继节点
                 

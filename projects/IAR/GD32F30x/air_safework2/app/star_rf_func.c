@@ -1214,7 +1214,8 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                 {
                     break;
                 }
-                if(frm->bNeedReAllocate)
+#ifdef MASTER_NODE                
+                if(frm->bNeedReAllocate && TRUE == Meter_Check(SN))
                 {
                     id = getOrAllocateIdByAddr(1, SN, 6);
                     
@@ -1229,6 +1230,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     update_type = CON_NODE_UPDATE_LOGIN;
                 }
                 else
+#endif                  
                 {
                     id = 0;                 //当没有分配到有效ID时，分配到0，用于回复SS 
                     errCode = 6;
@@ -1635,9 +1637,10 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     
                     I2cWrite(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, 1); //写入路由参数         
                 }
+                SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100);
 
-                updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
-                    (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
+//                updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
+//                    (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
                 
                 //更新中继节点
                 
@@ -1648,26 +1651,26 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
 //                {
 //                    break;
 //                }
-                if((uint8)(0 - frm->rssi) > rfpara.rf_limit)
-                {
-                    break;
-                }
-                type = frm->apdu.data[1] >> 4;
-                
-                if(bBroadMeterEnable || (type == 0x02))//开启注册或者中继器
-                {
-                    id = getOrAllocateIdByAddr(1, SN, 6);
-
-
-					if ((id > MAX_SUP_SS_NUM) ||( id < SUP_SS_INDEX_START) || (id > rfpara.rf_slotnum))
-                    {
-                        //分配出错或者满了则不回复
-                        break;
-                    }               
-                
-                    errCode = 4;
-                }
-                else
+//                if((uint8)(0 - frm->rssi) > rfpara.rf_limit)
+//                {
+//                    break;
+//                }
+//                type = frm->apdu.data[1] >> 4;
+//                
+//                if(bBroadMeterEnable || (type == 0x02))//开启注册或者中继器
+//                {
+//                    id = getOrAllocateIdByAddr(1, SN, 6);
+//
+//
+//					if ((id > MAX_SUP_SS_NUM) ||( id < SUP_SS_INDEX_START) || (id > rfpara.rf_slotnum))
+//                    {
+//                        //分配出错或者满了则不回复
+//                        break;
+//                    }               
+//                
+//                    errCode = 4;
+//                }
+//                else
                 {
             
                     id = 0;
@@ -1700,6 +1703,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     guc_netStat = NODE_STATUS_LOGIN;
 //	                    memcpy(nParentMacAddr, frm->apdu.addr, frm->apdu.addrlen);
                     SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
+                    //SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
                     guc_AllowLogin = 0;
                     LOG_DEBUG("-----------------------nod login success---------------------------\n");  
 //                }
@@ -1868,6 +1872,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     
                     GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, true);
                     SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
+                    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
                     guc_AllowLogin = 0;
                 }
             }

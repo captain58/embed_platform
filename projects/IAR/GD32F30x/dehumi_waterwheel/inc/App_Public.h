@@ -176,6 +176,7 @@ enum  //收
 #define BEHAVIOR_RECV_ADV       6
 #define BEHAVIOR_COMPETITION    7
 #define BEHAVIOR_BROADALLOWLOGIN      8
+#define BEHAVIOR_RESET      9
 
 #define MAX_ROUTE_DEPTH  0xf 
 #define FULLTIME 1600   // 40S 广播消息

@@ -1657,8 +1657,8 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     I2cWrite(0xA0, (uint8*) &cltparm, FM_CLTP_ADDR, 1); //写入路由参数         
                 }
 
-                updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
-                    (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
+//                updataNodeCache(id, CON_NODE_UPDATE_LOGIN, errCode, frm->apdu.seq, PST_FRM_WL_1_NO, 
+//                    (uint8)(0 - frm->rssi), SN, CON_DEV_ADDR_LEN_6, &stMeter);
                 
                 //更新中继节点
                 
@@ -1892,6 +1892,7 @@ uint8 fSRFFTD07(const CMD_TABLE_t* tbl, SRF_Frame* frm)
                     
                     GD_Para_RW(PARENT_ADDR, nParentMacAddr, METER_ADDRESS_LENGTH_MAX, true);
                     SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0);
+//                    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100); 
                     guc_AllowLogin = 0;
                 }
             }

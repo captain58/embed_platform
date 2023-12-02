@@ -58,7 +58,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23090210;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23090211;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 
@@ -540,6 +540,7 @@ void KeyProc(uint8 key)
             guc_netStat = NODE_STATUS_OUT;
 #endif
             SYS_RF_Write(NULL);
+            guc_SwitchSeq=0;
         }
         
         if(event & 2)               //KEY2

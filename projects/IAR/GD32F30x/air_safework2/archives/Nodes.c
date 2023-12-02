@@ -219,6 +219,7 @@ uint8 getSnLoginedNum(void)//
 
 #define CON_RF_RSSI_LOGIN_LIMIT     95
 #define CON_RF_RSSI_Q_LOGIN_LIMIT   9//信号质量  相当于96  越小信号值越差
+extern uint8_t guc_SwitchSeq;
 uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 protocol, 
                         uint8 rssi, uint8 * addr, uint8 len, STMETERPARAFLASH *pstMeter)
 {
@@ -263,11 +264,12 @@ uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 pro
         cltor[id].realPos = pstMeter->realPos;
         cltor[id].panid = pstMeter->panid;
         cltor_shadow[id].nodeRssi = rssiQ;  
-        extern uint8_t guc_SwitchSeq;
-        if(cltor[id].loginNo == 0)
+        
+        if(id > 1 && cltor[id].loginNo == 0)
         {
             cltor[id].loginNo = (++guc_SwitchSeq)%3;
             if(cltor[id].loginNo == 0) cltor[id].loginNo = 1;
+            SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100);
         }
         cltor[id].login_count = MAX_MASTER_NODE_TO_LED_CLOSE_COUNT;
         break;
@@ -287,6 +289,12 @@ uint8 updataNodeCache(uint16 id, uint8 type, uint8 errCode, uint8 seq, uint8 pro
         cltor_shadow[id].nodeRssi = rssiQ;
         
         cltor[id].login_count = MAX_MASTER_NODE_TO_LED_CLOSE_COUNT;
+        if(id > 1 && cltor[id].loginNo == 0)
+        {
+            cltor[id].loginNo = (++guc_SwitchSeq)%3;
+            if(cltor[id].loginNo == 0) cltor[id].loginNo = 1;
+            SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100);
+        }
         break;
     default:
         break;

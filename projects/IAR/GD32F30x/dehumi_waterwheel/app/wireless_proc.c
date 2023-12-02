@@ -597,7 +597,10 @@ void wireless_mng(void)//状态机处理
                 SYS_Dev_OptBlinkSet(LED_FAR_TX, 1, 5, 2, 0);        
                 break;
             }
-
+#ifdef MASTER_NODE 
+            extern uint32_t gn_loginTO;
+            gn_loginTO = 0;
+#endif 
             //frm.chninfo = channel & PST_FRM_CHNNO;  //通道号
             pkt->protocol = protocal;
     

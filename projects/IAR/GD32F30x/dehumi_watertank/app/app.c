@@ -60,7 +60,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033016;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23033017;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="RF-WT-R(V0.";
 
@@ -590,6 +590,7 @@ if(event & CON_KEY14_BIT)               //KEY13
 
 #endif
             SYS_RF_Write(NULL);
+            guc_SwitchSeq=0;
         }
         
         if(event & 2)               //KEY2
