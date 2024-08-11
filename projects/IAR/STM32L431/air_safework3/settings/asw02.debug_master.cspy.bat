@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework\settings\asw02.debug_master.general.xcl" --backend -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework\settings\asw02.debug_master.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework3\settings\asw02.debug_master.general.xcl" --backend -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework3\settings\asw02.debug_master.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework\settings\asw02.debug_master.general.xcl" "--debug_file=%~1" --backend -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework\settings\asw02.debug_master.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework3\settings\asw02.debug_master.general.xcl" "--debug_file=%~1" --backend -f "D:\project\embed_platform\projects\IAR\STM32L431\air_safework3\settings\asw02.debug_master.driver.xcl" 
 
 @echo off 
 :end
