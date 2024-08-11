@@ -809,7 +809,9 @@ void SYS_RFMng_Task(void * arg)
                     {
                         krhino_timer_start(&g_rf_tick_timer);
                         msleep(1);
-                        SYS_RF_Init(0,0,0,nParentMacAddr+2);
+                        //SYS_RF_Init(0,0,0,nParentMacAddr+2);
+                        
+						Radio->Reset(nParentMacAddr+2);
 //                        Radio->wake_up();
                         gs_RFVar.sleep = 0;
                         SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 

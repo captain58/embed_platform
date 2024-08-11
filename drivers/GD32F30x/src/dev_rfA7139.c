@@ -15,7 +15,7 @@
 #include "App_Public.h"
 #include "user_func.h"
 
-
+#include "log.h"
 #define CON_FIFO_LEN 64
 
 //	void  INIT_MCU_RF_MAP(void)
@@ -187,7 +187,7 @@ void A7139_POR(void);
 //	uint8_t InitRF(void);
 uint8_t A7139_Config(void);
 uint8_t A7139_WriteID(uint8_t * pid);
-uint8_t A7139_Cal(void);
+uint8_t A7139_Cal(uint32_t ch);
 //	void StrobeCMD(uint8_t);
 void ByteSend(uint8_t);
 uint8_t ByteRead(void);
@@ -808,69 +808,91 @@ uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr, uint8_t *
 
 //    GIO1=1;
 //    GIO2=1;
-    Init_SPI(&gs_RFSpiPort);
+    int i;
+    for(i = 0; i < 3; i++)
+    {
+        Init_SPI(&gs_RFSpiPort);
+        
+        if(A7139_WriteID(pid))     //write ID code
+            continue ;
+
+        
+        A7139_POR();
+        
+        msleep(1);            //delay 1ms for regulator stabilized
+    //	    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
+        SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
+        msleep(1);
+        
+        if(A7139_Config())      //config A7139 chip
+            continue;
+
+        msleep(1);          //delay 800us for crystal stabilized
+
+        uint32_t code = pid[0] * 0x1000000 + pid[1] * 0x10000 + pid[2] * 0x100 + pid[3];
+        if(A7139_Cal(code))         //IF and VCO Calibration
+            continue;
+
+        if(A7139_WriteID(pid))     //write ID code
+            continue;
+        
+        break;
+    }
     
-    if(A7139_WriteID(pid))     //write ID code
-        return 1;
-
-    
-    A7139_POR();
-    
-    msleep(1);            //delay 1ms for regulator stabilized
-//	    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
-    SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
-    msleep(1);
-    
-    if(A7139_Config())      //config A7139 chip
-        return 1;
-
-    msleep(1);          //delay 800us for crystal stabilized
-
-
-    if(A7139_Cal())         //IF and VCO Calibration
-        return 1;
-
-    if(A7139_WriteID(pid))     //write ID code
-        return 1;
-
-    
-    uint32_t code = pid[0] * 0x1000000 + pid[1] * 0x10000 + pid[2] * 0x100 + pid[3];
-
-    A7139_Frequency_Set(A7139_Channel[1 + code%(CON_CHANNEL_NUM - 1)]);
-
+//    uint32_t code = pid[0] * 0x1000000 + pid[1] * 0x10000 + pid[2] * 0x100 + pid[3];
+//
+//    A7139_Frequency_Set(A7139_Channel[1 + code%(CON_CHANNEL_NUM - 1)]);
+    if(i >= 3)
+    {
+      LOG_ERROR("SYS_RF_Init failed\n");
+      return 1;
+    }
+    LOG_DEBUG("SYS_RF_Init success\n");
     return 0;
 }
 
 uint8_t SYS_RF_Reset(uint8_t * pid)
 {
-    Init_SPI(&gs_RFSpiPort);
-    
-    if(A7139_WriteID(pid))     //write ID code
-        return 1;
+    int i;
+    for(i = 0; i < 3; i++)
+    {
+      
+        Init_SPI(&gs_RFSpiPort);
+        
+        if(A7139_WriteID(pid))     //write ID code
+            continue;
 
-    
-    A7139_POR();
-    
-    msleep(1);            //delay 1ms for regulator stabilized
-//	    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
-    SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
-    msleep(1);  
-    if(A7139_Config())      //config A7139 chip
-        return 1;
+        
+        A7139_POR();
+        
+        msleep(1);            //delay 1ms for regulator stabilized
+    //	    StrobeCMD(CMD_RF_RST);  //reset A7139 chip
+        SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
+        msleep(1);  
+        if(A7139_Config())      //config A7139 chip
+            continue;
 
-    msleep(1);          //delay 800us for crystal stabilized
+        msleep(1);          //delay 800us for crystal stabilized
+        uint32_t code = pid[0] * 0x1000000 + pid[1] * 0x10000 + pid[2] * 0x100 + pid[3];
+        if(A7139_Cal(code))         //IF and VCO Calibration
+            continue;
 
-    if(A7139_Cal())         //IF and VCO Calibration
-        return 1;
-
-    if(A7139_WriteID(pid))     //write ID code
-        return 1;
+        if(A7139_WriteID(pid))     //write ID code
+            continue;
 
 //	    if(A7139_Cal())         //IF and VCO Calibration
 //	        return 1;
-    uint32_t code = pid[0] * 0x1000000 + pid[1] * 0x10000 + pid[2] * 0x100 + pid[3];
+        
+        break;
 
-    A7139_Frequency_Set(A7139_Channel[1 + code%(CON_CHANNEL_NUM - 1)]);
+    }
+
+    if(i >= 3)
+    {
+      LOG_ERROR("SYS_RF_Reset failed\n");
+      return 1;
+    }
+    LOG_DEBUG("SYS_RF_Reset success\n");
     return 0;
 
 }
@@ -1045,7 +1067,7 @@ uint8_t A7139_ReaDID(uint8_t * pid)
 *********************************************************************/
  uint8_t vb,vbcf;
  uint8_t fb_old, fcd, fbcf;  	//IF Filter
-uint8_t A7139_Cal(void)
+uint8_t A7139_Cal(uint32_t ch)
 {
     uint8_t i;
 //    uint8_t fb_old, fcd, fbcf;  	//IF Filter
@@ -1142,9 +1164,9 @@ uint8_t A7139_Cal(void)
 //	    {
 //	        A7139_WriteReg(PLL1_REG, Freq_Cal_Tab[i*2]);
 //	        A7139_WriteReg(PLL2_REG, Freq_Cal_Tab[i*2+1]);
-        A7139_WriteReg(PLL1_REG, A7139Config[PLL1_REG]);
-        A7139_WriteReg(PLL2_REG, A7139Config[PLL2_REG]);
-
+//        A7139_WriteReg(PLL1_REG, A7139Config[PLL1_REG]);
+//        A7139_WriteReg(PLL2_REG, A7139Config[PLL2_REG]);
+        A7139_Frequency_Set(A7139_Channel[1 + ch%(CON_CHANNEL_NUM - 1)]);
         A7139_WriteReg(MODE_REG, A7139Config[MODE_REG] | 0x0004);   //VCO Band Calibration
         do{
             tmp = A7139_ReadReg(MODE_REG);
