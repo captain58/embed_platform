@@ -41,7 +41,7 @@ extern void hw_start_hal(void);
 
 #include "aos/hal/uart.h"
 //#include "hal/hal_uart_stm32l4.h"
-#include "gd32f30x.h"
+//#include "gd32f30x.h"
 #include "board.h"
 #if defined (AOS_OTA_RECOVERY_TYPE)
 #include "rec_clear_ota_flag.h"
