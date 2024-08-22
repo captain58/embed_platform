@@ -5646,7 +5646,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>7.70.1.11471</state>
+                    <state>8.40.1.21529</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -5692,7 +5692,7 @@
                 </option>
                 <option>
                     <name>RTConfigPath2</name>
-                    <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Full.h</state>
+                    <state>$TOOLKIT_DIR$\inc\c\DLib_Config_Full.h</state>
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
@@ -5778,7 +5778,7 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>TrustZone</name>
@@ -5820,7 +5820,7 @@
                     <state>_PLATFORM_ALIOS</state>
                     <state>_NOBOOT_</state>
                     <state>DEBUG</state>
-                    <state>GD32F30X_HD</state>
+                    <state>STM32L431xx</state>
                     <state>MASTER_NODE</state>
                 </option>
                 <option>
@@ -5950,11 +5950,12 @@
                     <state>$PROJ_DIR$\..\..\..\..\include\aos\hal</state>
                     <state>$PROJ_DIR$\..\..\..\..\include\network</state>
                     <state>$PROJ_DIR$\..\..\..\..\platform\arch\arm\armv7m\common</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\CMSIS</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\aos</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\hal</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\Inc</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\CMSIS\Core\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\CMSIS\Device\ST\STM32L4xx\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\aos</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\hal</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw</state>
                     <state>$PROJ_DIR$\..\..\..\..\kernel\rhino\include</state>
                     <state>$PROJ_DIR$\..\..\..\..\kernel\debug\include</state>
                     <state>$PROJ_DIR$\..\..\..\..\kernel\init\include</state>
@@ -5978,12 +5979,14 @@
                     <state>$PROJ_DIR$\configM</state>
                     <state>$PROJ_DIR$\inc</state>
                     <state>$PROJ_DIR$\app</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\inc</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Include</state>
-                    <state>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\CMSIS\GD\GD32F30x\Include</state>
-                    <state>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\inc</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Core\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy</state>
+                    <state>$PROJ_DIR$\..\..\..\..\drivers\stm32l431</state>
+                    <state>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\inc</state>
                     <state>$PROJ_DIR$\..\..\..\..\platform\arch</state>
                     <state>$PROJ_DIR$\config</state>
                     <state>$PROJ_DIR$\..\..\..\..\middleware\frm</state>
@@ -6642,7 +6645,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>asw02_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -9128,6 +9131,9 @@
         <name>hal</name>
         <group>
             <name>chip</name>
+            <excluded>
+                <configuration>debug_master</configuration>
+            </excluded>
             <file>
                 <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_adc.c</name>
             </file>
@@ -9201,32 +9207,341 @@
                 <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_wwdgt.c</name>
             </file>
         </group>
+        <group>
+            <name>chip2</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_adc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_adc_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_can.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_comp.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_cortex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_crc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_crc_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_cryp.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_cryp_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dac.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dac_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dcmi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dfsdm.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dfsdm_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dma.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dma2d.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dma_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dsi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_exti.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_firewall.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_flash.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_flash_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_flash_ramfunc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_gfxmmu.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_gpio.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_hash.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_hash_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_hcd.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_i2c.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_i2c_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_irda.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_iwdg.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_lcd.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_lptim.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_ltdc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_ltdc_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_mmc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_mmc_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_msp_template.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_nand.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_nor.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_opamp.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_opamp_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_ospi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_pcd.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_pcd_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_pka.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_pssi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_pwr.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_pwr_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_qspi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rcc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rcc_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rng.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rng_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rtc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rtc_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_sai.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_sai_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_sd.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_sd_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_smartcard.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_smartcard_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_smbus.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_smbus_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_spi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_spi_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_sram.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_swpmi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_tim.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_tim_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_timebase_tim_template.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_tsc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_uart.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_uart_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_usart.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_usart_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_wwdg.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_adc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_comp.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_crc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_crs.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_dac.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_dma.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_dma2d.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_exti.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_fmc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_gpio.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_i2c.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_lptim.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_lpuart.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_opamp.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_pka.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_pwr.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_rcc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_rng.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_rtc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_sdmmc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_spi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_swpmi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_tim.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_usart.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_usb.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_utils.c</name>
+            </file>
+        </group>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\src\hal_flash.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_flash.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\src\hal_gpio.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_gpio.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\src\hal_hwtimer.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_hwtimer.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\src\hal_rtc.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_rtc.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\src\hal_spiio2.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_spiio2.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\src\hal_uartx.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\hw.c</name>
-            <excluded>
-                <configuration>debug</configuration>
-                <configuration>debug_master</configuration>
-                <configuration>debug_slave</configuration>
-                <configuration>debug_master_sal</configuration>
-            </excluded>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_uartx.c</name>
         </file>
     </group>
     <group>
@@ -9363,47 +9678,45 @@
             </file>
         </group>
         <group>
-            <name>board</name>
+            <name>board2</name>
+            <group>
+                <name>core</name>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Core\Src\main.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Core\Src\stm32l4xx_hal_msp.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Core\Src\stm32l4xx_it.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Core\Src\system_stm32l4xx.c</name>
+                </file>
+            </group>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\Src\main.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\aos\soc_init.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\startup_gd32f30x_cl.s</name>
+                <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Src\main.c</name>
                 <excluded>
                     <configuration>debug_master</configuration>
-                    <configuration>debug_slave</configuration>
-                    <configuration>debug_master_sal</configuration>
                 </excluded>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\startup_gd32f30x_hd.s</name>
+                <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\aos\soc_init.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\CMSIS\GD\GD32F30x\Source\system_gd32f30x.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\startup_stm32l431xx.s</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Core\Src\system_stm32l4xx.c</name>
+                <excluded>
+                    <configuration>debug_master</configuration>
+                </excluded>
             </file>
         </group>
         <group>
             <name>kernel_init</name>
             <file>
                 <name>$PROJ_DIR$\..\..\..\..\kernel\init\aos_init.c</name>
-            </file>
-        </group>
-        <group>
-            <name>osal_aos</name>
-            <excluded>
-                <configuration>debug</configuration>
-                <configuration>debug_master</configuration>
-                <configuration>debug_slave</configuration>
-                <configuration>debug_master_sal</configuration>
-            </excluded>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\osal\aos\kv.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\osal\aos\vfs.c</name>
             </file>
         </group>
         <group>
@@ -9482,46 +9795,19 @@
             </file>
         </group>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx_cube\aos\aos.c</name>
-            <excluded>
-                <configuration>debug</configuration>
-                <configuration>debug_master</configuration>
-                <configuration>debug_slave</configuration>
-                <configuration>debug_master_sal</configuration>
-            </excluded>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\aos\aos.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\aos\aos.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\osal\aos\common.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx_cube\aos\hook_impl.c</name>
-            <excluded>
-                <configuration>debug</configuration>
-                <configuration>debug_master</configuration>
-                <configuration>debug_slave</configuration>
-                <configuration>debug_master_sal</configuration>
-            </excluded>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\aos\hook_impl.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\aos\hook_impl.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\osal\aos\rhino.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx_cube\aos\soc_impl.c</name>
-            <excluded>
-                <configuration>debug</configuration>
-                <configuration>debug_master</configuration>
-                <configuration>debug_slave</configuration>
-                <configuration>debug_master_sal</configuration>
-            </excluded>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\aos\soc_impl.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\aos\soc_impl.c</name>
         </file>
     </group>
 </project>
