@@ -83,109 +83,109 @@ typedef enum{
 //	#define ALS_INT HAL_GPIO_24
 //	#define WIFI_WU HAL_GPIO_25
 
-
-typedef enum {
-	GPIO_MODEM_ONOFF,
-	GPIO_MODEM_PWR,
-	GPO_485_PWR,
-	GPO_BLE_PWR,
-	GPO_BLE_MODE,
-	GPO_BLE_UART_CTL,
-//		GPIO_LCD_DCX,
-//		GPIO_LCD_PWR,
-//		GPIO_LCD_RST,
-//		GPIO_LED_ALS,
-//		GPIO_LED_GS,
-//		GPIO_LED_HTS,
-//		GPIO_LED_PS,
-//		GPIO_SW_FUNC_A,
-//		GPIO_SW_FUNC_B,
-//		GPIO_SW_WIFI,
-//		GPIO_WIFI_RST,
-//		GPIO_WIFI_WU,
-//		MAX_GPIO_NUM
-    GPO_NUM,
-} BOARD_GPIO, GPOENUM;
-    
-typedef struct _led_dev_priv
-{
-    uint8_t * set;
-    uint8_t * rvs;
-}led_dev_priv;
-
-typedef enum {
-	GPIO_LED_RUN,
-	GPIO_LED_485,    
-	GPIO_LED_GPRS,   	
-	GPIO_LED_ERR,   	
-	
-    LED_NUM,
-} LedNo;
-
-#define FGPI_STT_ENG        0x00000008         //置位表示供电正常
-
-/******************************************************************************
-**快速输入口配置
-******************************************************************************/
-#define SYS_FGPI_GATE    3               //快速输入口扫描门限
-#define SYS_LGPI_GATE    2               //按键扫描门限
-#define SYS_LGPI_LAST    15              //按键长按门限
-
-typedef enum
-{
-    KEY1,
-//	    GPI_CARD,
-//	    GPI_HALL1,
-//	    GPI_HALL2,
-//	    GPI_CARD_SDA,
-//	    GPI_ESAM_SDA, 
-    BLE_LINK,
-    KEY2,
-    EXT_PWR,
-    PRGM,
-    GPI_NUM,
-//	    LGPI_KEY_NUM,
-}GPIENUM;
-
-#define LGPI_KEY_NUM 5
-
-
-/******************************************************************************
-**AD口定义
-**成员举例:P1.31
-**0x1, 31,  (IOCON_FUNC3 | IOCON_MODE_INACT ), LPC_ADC, 
-******************************************************************************/
-typedef struct
-{
 //
-//		uint32 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员
-//		uint32 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
-//		uint32 pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
-//		uint32 modefunc:18;                 //Function and mode     //来自PINMUX_GRP_T成员
+//typedef enum {
+//	GPIO_MODEM_ONOFF,
+//	GPIO_MODEM_PWR,
+//	GPO_485_PWR,
+//	GPO_BLE_PWR,
+//	GPO_BLE_MODE,
+//	GPO_BLE_UART_CTL,
+////		GPIO_LCD_DCX,
+////		GPIO_LCD_PWR,
+////		GPIO_LCD_RST,
+////		GPIO_LED_ALS,
+////		GPIO_LED_GS,
+////		GPIO_LED_HTS,
+////		GPIO_LED_PS,
+////		GPIO_SW_FUNC_A,
+////		GPIO_SW_FUNC_B,
+////		GPIO_SW_WIFI,
+////		GPIO_WIFI_RST,
+////		GPIO_WIFI_WU,
+////		MAX_GPIO_NUM
+//    GPO_NUM,
+//} BOARD_GPIO, GPOENUM;
 //    
-    uint16_t port;
-    GPIO_TypeDef * gpio;
-    ADC_TypeDef* adc;                     //ADC寄存器
-   // uint8_t adcChan;
-    uint32_t channel;
-    uint16_t vref;                        //参考电压
-    uint8_t  vnum;                        //分频数
-//	    uint8_t  chn;                         //通道号
-
-//	    uint8_t opt : 2;//0:一次采样//1:持续采样
-//	    uint8_t resolution : 2;//0:8bit//1:10bit
-//	    uint8_t VREFU : 2;//0:VDD//1:
-//	    uint8_t VREFD : 2;//0:VSS//1: 
-    
-}ADItem;
-
-typedef struct
-{
-    ADC_HandleTypeDef * adhandle;
-    uint8_t chnum;
-    uint8_t choffset;
-    ADItem * item;
-}ADPORT;
+//typedef struct _led_dev_priv
+//{
+//    uint8_t * set;
+//    uint8_t * rvs;
+//}led_dev_priv;
+//
+//typedef enum {
+//	GPIO_LED_RUN,
+//	GPIO_LED_485,    
+//	GPIO_LED_GPRS,   	
+//	GPIO_LED_ERR,   	
+//	
+//    LED_NUM,
+//} LedNo;
+//
+//#define FGPI_STT_ENG        0x00000008         //置位表示供电正常
+//
+///******************************************************************************
+//**快速输入口配置
+//******************************************************************************/
+//#define SYS_FGPI_GATE    3               //快速输入口扫描门限
+//#define SYS_LGPI_GATE    2               //按键扫描门限
+//#define SYS_LGPI_LAST    15              //按键长按门限
+//
+//typedef enum
+//{
+//    KEY1,
+////	    GPI_CARD,
+////	    GPI_HALL1,
+////	    GPI_HALL2,
+////	    GPI_CARD_SDA,
+////	    GPI_ESAM_SDA, 
+//    BLE_LINK,
+//    KEY2,
+//    EXT_PWR,
+//    PRGM,
+//    GPI_NUM,
+////	    LGPI_KEY_NUM,
+//}GPIENUM;
+//
+//#define LGPI_KEY_NUM 5
+//
+//
+///******************************************************************************
+//**AD口定义
+//**成员举例:P1.31
+//**0x1, 31,  (IOCON_FUNC3 | IOCON_MODE_INACT ), LPC_ADC, 
+//******************************************************************************/
+//typedef struct
+//{
+////
+////		uint32 pingrp:4;                    //Pin group             //来自PINMUX_GRP_T成员
+////		uint32 pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
+////		uint32 pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
+////		uint32 modefunc:18;                 //Function and mode     //来自PINMUX_GRP_T成员
+////    
+//    uint16_t port;
+//    GPIO_TypeDef * gpio;
+//    ADC_TypeDef* adc;                     //ADC寄存器
+//   // uint8_t adcChan;
+//    uint32_t channel;
+//    uint16_t vref;                        //参考电压
+//    uint8_t  vnum;                        //分频数
+////	    uint8_t  chn;                         //通道号
+//
+////	    uint8_t opt : 2;//0:一次采样//1:持续采样
+////	    uint8_t resolution : 2;//0:8bit//1:10bit
+////	    uint8_t VREFU : 2;//0:VDD//1:
+////	    uint8_t VREFD : 2;//0:VSS//1: 
+//    
+//}ADItem;
+//
+//typedef struct
+//{
+//    ADC_HandleTypeDef * adhandle;
+//    uint8_t chnum;
+//    uint8_t choffset;
+//    ADItem * item;
+//}ADPORT;
 
 
 #define AD_NUM      3      //AD个数

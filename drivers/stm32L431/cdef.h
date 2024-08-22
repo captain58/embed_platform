@@ -269,11 +269,12 @@ typedef struct
     //
 	uint32_t pingrp;                    //Pin group             //来自PINMUX_GRP_T成员
 	uint32_t pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
-	uint32_t pinseg:2;                    //pin pfseg 1:通用io, 0:段寄存器
+	uint32_t pinseg:3;                    //pin pfseg 1:通用io, 0:段寄存器
 	uint32_t modefunc:8;                 //Function and mode     //来自PINMUX_GRP_T成员
-    uint32_t speed:10;
+        uint32_t speed:10;
+        uint32_t pull:3;
     //
-    uint8_t dir;                          //1:输出,0:输入
+        uint8_t dir;                          //1:输出,0:输入
 
 }COMPORT;
 

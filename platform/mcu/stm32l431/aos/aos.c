@@ -42,6 +42,7 @@ extern void hw_start_hal(void);
 #include "aos/hal/uart.h"
 //#include "hal/hal_uart_stm32l4.h"
 //#include "gd32f30x.h"
+#include "stm32l4xx_hal.h"
 #include "board.h"
 #if defined (AOS_OTA_RECOVERY_TYPE)
 #include "rec_clear_ota_flag.h"
@@ -87,14 +88,15 @@ extern void stm32_soc_init(void);
 */
 void systick_config(void)
 {
-    uint32_t ahb_frequency = 0;
-    ahb_frequency = rcu_clock_freq_get(CK_AHB);
-    /* setup systick timer for 1000Hz interrupts */
-    if (SysTick_Config(ahb_frequency / RHINO_CONFIG_TICKS_PER_SECOND)){
-        /* capture error */
-        while (1){
-        }
-    }
+//    uint32_t ahb_frequency = 0;
+//    ahb_frequency = rcu_clock_freq_get(CK_AHB);
+//    /* setup systick timer for 1000Hz interrupts */
+//    if (SysTick_Config(ahb_frequency / RHINO_CONFIG_TICKS_PER_SECOND)){
+//        /* capture error */
+//        while (1){
+//        }
+//    }
+    HAL_SetTickFreq(HAL_TICK_FREQ_100HZ);
     /* configure the systick handler priority */
     NVIC_SetPriority(SysTick_IRQn, 0x00U);
     NVIC_SetPriority(PendSV_IRQn, 0x00U);

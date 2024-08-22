@@ -257,7 +257,7 @@ void SystemClock_Config(void)
 //	  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
 //	  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
 
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  if (HAL_RCC_OscCo nfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
