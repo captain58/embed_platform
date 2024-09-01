@@ -42,6 +42,7 @@
 #define __MAIN_H__
 
 /* Includes ------------------------------------------------------------------*/
+#include "aos/bdef.h"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 /* USER CODE BEGIN Includes */
@@ -83,15 +84,7 @@
 
 /* USER CODE END Private defines */
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-void _Error_Handler(char *, int);
 
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MAIN_H__ */
 

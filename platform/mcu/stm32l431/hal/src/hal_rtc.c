@@ -269,8 +269,8 @@ uint8_t usart_scanf(uint32_t value)
 
     while (index < 2){
         /* loop until RBNE = 1 */
-        while (usart_flag_get(USART0, USART_FLAG_RBNE) == RESET);
-        tmp[index++] = (usart_data_receive(USART0));
+//        while (usart_flag_get(USART0, USART_FLAG_RBNE) == RESET);
+//        tmp[index++] = (usart_data_receive(USART0));
 
         if ((tmp[index - 1] < 0x30) || (tmp[index - 1] > 0x39)){
 //            printf("\n\rPlease enter valid number between 0 and 9\n");
@@ -333,6 +333,7 @@ void time_adjust(void)
     /* wait until last write operation on RTC registers has finished */
     rtc_lwoff_wait();
 }
+
 /************************************************************************
  * @Function: HAL_InitRTC
  * @Description: ³õÊ¼»¯RTCÄ£¿é

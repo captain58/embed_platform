@@ -171,7 +171,7 @@ uint8_t ADC_Wait_Finish(void)
 //		return ret;
 //	}
 
-
+ADC_HandleTypeDef hadc1;
 /*******************************************************************************
  * @function_name:  SYS_AD_Scan
  * @function_file:  dev_ad.c
@@ -207,69 +207,87 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
 //	    }
     
     HAL_GPIO_PinConfig(&lp->item->gpio);
-    
-    /* ADC mode config */
-    adc_mode_config(ADC_MODE_FREE);
-    /* ADC data alignment config */
-    adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
-    /* ADC channel length config */
-    adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
-    
-    /* ADC trigger config */
-    adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
-    /* ADC external trigger config */
-    adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
-    
-    /* enable ADC interface */
-    adc_enable(lp->item->adcHandle);
-    msleep(1U);
-    /* ADC calibration and reset calibration */
-    adc_calibration_enable(lp->item->adcHandle);/* ADC mode config */
-    adc_mode_config(ADC_MODE_FREE);
-    /* ADC data alignment config */
-    adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
-    /* ADC channel length config */
-    adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
-    
-    /* ADC trigger config */
-    adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
-    /* ADC external trigger config */
-    adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
-    
-    /* enable ADC interface */
-    adc_enable(lp->item->adcHandle);
-    msleep(1U);
-    /* ADC calibration and reset calibration */
-    adc_calibration_enable(lp->item->adcHandle);
 
+    ADC_ChannelConfTypeDef sConfig = {0};
 
-    /* ADC regular channel config */
-    adc_regular_channel_config(lp->item->adcHandle, 0U, lp->item->channel, ADC_SAMPLETIME_7POINT5);
-    /* ADC software trigger enable */
-    adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_CHANNEL);
+     /* USER CODE BEGIN ADC1_MspInit 0 */
 
-    /* wait the end of conversion flag */
-    while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
-    /* clear the end of conversion flag */
-    adc_flag_clear(lp->item->adcHandle, ADC_FLAG_EOC);
-    /* return regular channel sample value */
-    adc_regular_data_read(lp->item->adcHandle);
+  /* USER CODE END ADC1_MspInit 0 */
+    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+    /** Initializes the peripherals clock
+    */
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+    PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
+    PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSI;
+    PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
+    PeriphClkInit.PLLSAI1.PLLSAI1N = 8;
+    PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
+    PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
+    PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
+    PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_ADC1CLK;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+    {
+      Error_Handler();
+    }
+   
+  /* USER CODE BEGIN ADC1_Init 1 */
 
-    
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+    hadc1.Instance = ADC1;
+    hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+    hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+    hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.LowPowerAutoWait = DISABLE;
+    hadc1.Init.ContinuousConvMode = DISABLE;
+    hadc1.Init.NbrOfConversion = 1;
+    hadc1.Init.DiscontinuousConvMode = DISABLE;
+    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+    hadc1.Init.OversamplingMode = DISABLE;
+    if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    {
+    Error_Handler();
+    }
+
+    /** Configure Regular Channel
+    */
+    sConfig.Channel = ADC_CHANNEL_6;
+    sConfig.Rank = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+    sConfig.SingleDiff = ADC_SINGLE_ENDED;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset = 0;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+    Error_Handler();
+    }
+
+      /* 启动ADC */
+    HAL_ADC_Start(&hadc1);
     fTempADC = 0;
     for(i=0; i<4; i++)
     {
     //			ANAC_ADCIF_ADC_IF_Clr();			//清除中断标志
 
         /* ADC software trigger enable */
-        adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_INSERTED_CHANNEL);
-        
-        /* wait the end of conversion flag */
-        while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
-        /* clear the end of conversion flag */
-        adc_flag_clear(lp->item->adcHandle, ADC_FLAG_EOC);
-        /* return regular channel sample value */
-        ADCData[i] = adc_regular_data_read(lp->item->adcHandle);
+//        adc_software_trigger_enable(lp->item->adcHandle, ADC_REGULAR_INSERTED_CHANNEL);
+//        
+//        /* wait the end of conversion flag */
+//        while(!adc_flag_get(lp->item->adcHandle, ADC_FLAG_EOC));
+//        /* clear the end of conversion flag */
+//        adc_flag_clear(lp->item->adcHandle, ADC_FLAG_EOC);
+//        /* return regular channel sample value */
+//        ADCData[i] = adc_regular_data_read(lp->item->adcHandle);
+      /* 读取ADC值 */
+        HAL_ADC_Start(&hadc1);
+    uint32_t adcValue = HAL_ADC_GetValue(&hadc1);
         fTempADC += ADCData[i];
         
 
@@ -339,7 +357,7 @@ void SYS_AD_Init(void)
 //	    RCC_PERCLK_SetableEx(ANACCLK, ENABLE);      //模拟电路总线时钟使能
 //	    RCC_PERCLK_SetableEx(ADCCLK, ENABLE);       //ADC时钟使能
 //	    RCC_PERCLKCON2_ADCCKSEL_Set(RCC_PERCLKCON2_ADCCKSEL_RCHFDIV16); //ADC工作时钟配置，不可高于1M
-    rcu_periph_clock_enable(RCU_ADC0);
+//    rcu_periph_clock_enable(RCU_ADC0);
     //申请缓存
     gsp_AdStt = &__AdStt;//(ADC*)m_malloc(sizeof(ADC));
     memset((uint8*)gsp_AdStt, 0, sizeof(ADC));
@@ -356,38 +374,38 @@ void SYS_AD_Init(void)
         HAL_GPIO_PinConfig(&lp->item->gpio);
 
         /* ADC mode config */
-        adc_mode_config(ADC_MODE_FREE);
-        /* ADC data alignment config */
-        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
-        /* ADC channel length config */
-        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
-        
-        /* ADC trigger config */
-        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
-        /* ADC external trigger config */
-        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
-
-        /* enable ADC interface */
-        adc_enable(lp->item->adcHandle);
-        msleep(1U);
-        /* ADC calibration and reset calibration */
-        adc_calibration_enable(lp->item->adcHandle);/* ADC mode config */
-        adc_mode_config(ADC_MODE_FREE);
-        /* ADC data alignment config */
-        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
-        /* ADC channel length config */
-        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
-        
-        /* ADC trigger config */
-        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
-        /* ADC external trigger config */
-        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
-
-        /* enable ADC interface */
-        adc_enable(lp->item->adcHandle);
-        msleep(1U);
-        /* ADC calibration and reset calibration */
-        adc_calibration_enable(lp->item->adcHandle);
+//        adc_mode_config(ADC_MODE_FREE);
+//        /* ADC data alignment config */
+//        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
+//        /* ADC channel length config */
+//        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
+//        
+//        /* ADC trigger config */
+//        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
+//        /* ADC external trigger config */
+//        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
+//
+//        /* enable ADC interface */
+//        adc_enable(lp->item->adcHandle);
+//        msleep(1U);
+//        /* ADC calibration and reset calibration */
+//        adc_calibration_enable(lp->item->adcHandle);/* ADC mode config */
+//        adc_mode_config(ADC_MODE_FREE);
+//        /* ADC data alignment config */
+//        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
+//        /* ADC channel length config */
+//        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
+//        
+//        /* ADC trigger config */
+//        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
+//        /* ADC external trigger config */
+//        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
+//
+//        /* enable ADC interface */
+//        adc_enable(lp->item->adcHandle);
+//        msleep(1U);
+//        /* ADC calibration and reset calibration */
+//        adc_calibration_enable(lp->item->adcHandle);
 
 
 //	        Chip_ADC_Init(lp->adc, &adc_clock); // 12位模式和正常的电源设置ADC

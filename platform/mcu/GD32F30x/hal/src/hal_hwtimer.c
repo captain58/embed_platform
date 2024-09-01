@@ -141,7 +141,7 @@ void HAL_InitSysTimer(void)
     }
 }
 
-extern void Error_Handler(void);
+//extern void Error_Handler(void);
 
 static uint8 Hal_Timer_Config(uint8 tmrIdx)
 {

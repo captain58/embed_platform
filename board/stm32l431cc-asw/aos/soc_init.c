@@ -50,11 +50,11 @@ static void stduart_init(void);
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
     { PORT_UART_STD,     LPUART1, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 512} },
-    { PORT_UART_AT,      UART4,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
+//    { PORT_UART_AT,      UART4,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
     { NETP_PORT_NO,      USART1,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 256} },
     { NETP2_PORT_NO,     USART3,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 256} },
     { NETP3_PORT_NO,     USART2,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 256} },
-    { NETP4_PORT_NO,     UART5,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 256} },
+//    { NETP4_PORT_NO,     UART5,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 256} },
 };
 
 
@@ -138,20 +138,20 @@ const SPIIO_PORTS gs_FlashSpiPort =
 /******************************************************************************
 **ADGPI端口信息
 ******************************************************************************/
-const ADItem gs_ADItem[] = 
-{
-    {GPIO_PIN_1, GPIOB,  ADC1, ADC_CHANNEL_16,  3300, 11},//, 1, 0, 1, 0, 0},      //超级电容电压检测
-    {GPIO_PIN_3, GPIOC,  ADC1, ADC_CHANNEL_4,  3300, 1},//, 1, 0, 1, 0, 0},
-    {GPIO_PIN_2, GPIOC,  ADC1, ADC_CHANNEL_3,  3300, 1},//, 1, 0, 1, 0, 0},
-};
-extern ADC_HandleTypeDef hadc1;
-ADPORT gs_ADPort[] =
-{
-    {&hadc1, 3, 0, gs_ADItem},
-};
+//const ADItem gs_ADItem[] = 
+//{
+//    {GPIO_PIN_1, (uint32_t)GPIOB,  (uint32_t)ADC1, ADC_CHANNEL_16,  3300, 11},//, 1, 0, 1, 0, 0},      //超级电容电压检测
+//    {GPIO_PIN_3, (uint32_t)GPIOC,  (uint32_t)ADC1, ADC_CHANNEL_4,  3300, 1},//, 1, 0, 1, 0, 0},
+//    {GPIO_PIN_2, (uint32_t)GPIOC,  (uint32_t)ADC1, ADC_CHANNEL_3,  3300, 1},//, 1, 0, 1, 0, 0},
+//};
+//extern ADC_HandleTypeDef hadc1;
+//ADPORT gs_ADPort[] =
+//{
+//    {&hadc1, 3, 0, gs_ADItem},
+//};
 
 
-const uint16 AD_PORT_NUM = (sizeof(gs_ADPort) / sizeof(ADPORT));
+//const uint16 AD_PORT_NUM = (sizeof(gs_ADPort) / sizeof(ADPORT));
 
 
 //IWDG_HandleTypeDef hiwdg;
@@ -238,74 +238,75 @@ extern void SystemClock_Config(void);
 extern void MX_GPIO_Init(void);
 void MX_DMA_Init(void);
 /* ADC1 init function */
-void MX_ADC1_Init(void)
-{
-  ADC_ChannelConfTypeDef sConfig;
+//ADC_HandleTypeDef hadc1;
+//void MX_ADC1_Init(void)
+//{
+//  ADC_ChannelConfTypeDef sConfig;
+//
+//    /**Common config 
+//    */
+//  hadc1.Instance = ADC1;
+//  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+//  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+//  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+//  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+//  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+//  hadc1.Init.LowPowerAutoWait = DISABLE;
+//  hadc1.Init.ContinuousConvMode = ENABLE;
+//  hadc1.Init.NbrOfConversion = 3;
+//  hadc1.Init.DiscontinuousConvMode = DISABLE;
+//  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+//  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+//  hadc1.Init.DMAContinuousRequests = ENABLE;
+//  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+//  hadc1.Init.OversamplingMode = DISABLE;
+//  HAL_ADC_Init(&hadc1);
+//
+//    /**Configure Regular Channel 
+//    */
+//  sConfig.Channel = ADC_CHANNEL_16;
+//  sConfig.Rank = 1;
+//  sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
+//  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+//  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+//  sConfig.Offset = 0;
+//  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+//
+//    /**Configure Regular Channel 
+//    */
+//  sConfig.Channel = ADC_CHANNEL_4;
+//  sConfig.Rank = 2;
+//  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+//
+//    /**Configure Regular Channel 
+//    */
+//  sConfig.Channel = ADC_CHANNEL_3;
+//  sConfig.Rank = 3;
+//  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+////	  sConfig.Channel = ADC_CHANNEL_16;
+////	  sConfig.Rank = 4;
+////	  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+//}
+//
+//
+//int32_t MX_ADC1_DeInit(void)
+//{
+//    int32_t ret = -1;
+//
+//    /* adc1 deinitialization */
+//    ret = HAL_ADC_DeInit(&hadc1);
+//
+//    return ret;
+//}
 
-    /**Common config 
-    */
-  hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
-  hadc1.Init.NbrOfConversion = 3;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.DMAContinuousRequests = ENABLE;
-  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc1.Init.OversamplingMode = DISABLE;
-  HAL_ADC_Init(&hadc1);
 
-    /**Configure Regular Channel 
-    */
-  sConfig.Channel = ADC_CHANNEL_16;
-  sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-
-    /**Configure Regular Channel 
-    */
-  sConfig.Channel = ADC_CHANNEL_4;
-  sConfig.Rank = 2;
-  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-
-    /**Configure Regular Channel 
-    */
-  sConfig.Channel = ADC_CHANNEL_3;
-  sConfig.Rank = 3;
-  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-//	  sConfig.Channel = ADC_CHANNEL_16;
-//	  sConfig.Rank = 4;
-//	  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-}
-
-
-int32_t MX_ADC1_DeInit(void)
-{
-    int32_t ret = -1;
-
-    /* adc1 deinitialization */
-    ret = HAL_ADC_DeInit(&hadc1);
-
-    return ret;
-}
-
-
-extern aos_sem_t   g_admutex;
-/* USER CODE BEGIN 4 */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-    aos_sem_signal(&g_admutex);
-	HAL_ADC_Stop_DMA(&hadc1);
-}
+//extern aos_sem_t   g_admutex;
+///* USER CODE BEGIN 4 */
+//void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+//{
+//    aos_sem_signal(&g_admutex);
+//	HAL_ADC_Stop_DMA(&hadc1);
+//}
 
 
 static void MX_LPTIM1_Init(void)

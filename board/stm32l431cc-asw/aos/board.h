@@ -27,7 +27,7 @@ typedef enum{
 
 #define PORT_UART_BLE   PORT_UART_STD
 #define PST_CHN_TCP     PORT_UART_AT
-#define PST_CHN_SET     PORT_UART_STD
+//#define PST_CHN_SET     PORT_UART_STD
 #define PST_CHN_NETP    NETP_PORT_NO
 #define PORT_UART_PST   PORT_UART_STD
 #define SETP_PORT_NO    NETP_PORT_NO
@@ -107,11 +107,11 @@ typedef enum{
 //    GPO_NUM,
 //} BOARD_GPIO, GPOENUM;
 //    
-//typedef struct _led_dev_priv
-//{
-//    uint8_t * set;
-//    uint8_t * rvs;
-//}led_dev_priv;
+typedef struct _led_dev_priv
+{
+    uint8_t * set;
+    uint8_t * rvs;
+}led_dev_priv;
 //
 //typedef enum {
 //	GPIO_LED_RUN,
@@ -123,7 +123,11 @@ typedef enum{
 //} LedNo;
 //
 //#define FGPI_STT_ENG        0x00000008         //置位表示供电正常
-//
+
+#define GPIO_LED_485 GPIO_LED_NULL//GPIO_LED_SUB1_NORM
+#define LED_FAR_RX GPIO_LED_NULL//GPIO_LED_MASTER_BAT_LOW
+#define LED_FAR_TX GPIO_LED_NULL//GPIO_LED_SUB2_ERR
+
 ///******************************************************************************
 //**快速输入口配置
 //******************************************************************************/

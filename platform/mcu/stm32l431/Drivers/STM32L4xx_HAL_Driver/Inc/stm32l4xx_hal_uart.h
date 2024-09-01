@@ -222,6 +222,7 @@ typedef uint32_t HAL_UART_RxEventTypeTypeDef;
   */
 typedef struct __UART_HandleTypeDef
 {
+  uint8_t id;
   USART_TypeDef            *Instance;                /*!< UART registers base address        */
 
   UART_InitTypeDef         Init;                     /*!< UART communication parameters      */

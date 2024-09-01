@@ -5612,11 +5612,11 @@
                 </option>
                 <option>
                     <name>Input description</name>
-                    <state>Full formatting.</state>
+                    <state>Full formatting, with multibyte support.</state>
                 </option>
                 <option>
                     <name>Output description</name>
-                    <state>Full formatting.</state>
+                    <state>Full formatting, with multibyte support.</state>
                 </option>
                 <option>
                     <name>GOutputBinary</name>
@@ -5658,7 +5658,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state>GD32F303xC	GD GD32F303xC</state>
+                    <state>STM32L431CC	ST STM32L431CC</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -5718,7 +5718,7 @@
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>GD32F303xC	GD GD32F303xC</state>
+                    <state>STM32L431CC	ST STM32L431CC</state>
                 </option>
                 <option>
                     <name>FPU2</name>
@@ -5988,7 +5988,6 @@
                     <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431</state>
                     <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\inc</state>
                     <state>$PROJ_DIR$\..\..\..\..\platform\arch</state>
-                    <state>$PROJ_DIR$\config</state>
                     <state>$PROJ_DIR$\..\..\..\..\middleware\frm</state>
                     <state>$PROJ_DIR$\linked</state>
                     <state>$PROJ_DIR$\archives</state>
@@ -6940,7 +6939,7 @@
                     <state>_PLATFORM_ALIOS</state>
                     <state>_NOBOOT_</state>
                     <state>DEBUG</state>
-                    <state>GD32F30X_HD</state>
+                    <state>STM32L431xx</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -7069,11 +7068,12 @@
                     <state>$PROJ_DIR$\..\..\..\..\include\aos\hal</state>
                     <state>$PROJ_DIR$\..\..\..\..\include\network</state>
                     <state>$PROJ_DIR$\..\..\..\..\platform\arch\arm\armv7m\common</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\CMSIS</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\aos</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\hal</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw\Inc</state>
-                    <state>$PROJ_DIR$\..\..\..\..\board\GD32F30x-asw</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\CMSIS\Core\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\CMSIS\Device\ST\STM32L4xx\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\aos</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\hal</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw</state>
                     <state>$PROJ_DIR$\..\..\..\..\kernel\rhino\include</state>
                     <state>$PROJ_DIR$\..\..\..\..\kernel\debug\include</state>
                     <state>$PROJ_DIR$\..\..\..\..\kernel\init\include</state>
@@ -7097,17 +7097,19 @@
                     <state>$PROJ_DIR$\config</state>
                     <state>$PROJ_DIR$\inc</state>
                     <state>$PROJ_DIR$\app</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\hal\inc</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Include</state>
-                    <state>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\CMSIS\GD\GD32F30x\Include</state>
-                    <state>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\inc</state>
-                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Core\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy</state>
+                    <state>$PROJ_DIR$\..\..\..\..\drivers\stm32l431</state>
+                    <state>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\inc</state>
                     <state>$PROJ_DIR$\..\..\..\..\platform\arch</state>
-                    <state>$PROJ_DIR$\config</state>
                     <state>$PROJ_DIR$\..\..\..\..\middleware\frm</state>
                     <state>$PROJ_DIR$\linked</state>
                     <state>$PROJ_DIR$\archives</state>
+                    <state>$PROJ_DIR$\..\..\..\..\drivers\sal\gprs\elfin-eg41a</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -7760,7 +7762,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>asw02_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -9073,140 +9075,50 @@
         </file>
     </group>
     <group>
-        <name>drv</name>
+        <name>drv2</name>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\apis.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\apis.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_ad.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_ad.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_file.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_file.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_frm.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_frm.c</name>
             <excluded>
                 <configuration>debug_master</configuration>
                 <configuration>debug_slave</configuration>
-                <configuration>debug_master_sal</configuration>
             </excluded>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_gpi.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_gpi.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_gpo.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_gpo.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_icm522.c</name>
-            <excluded>
-                <configuration>debug_master</configuration>
-                <configuration>debug_master_sal</configuration>
-            </excluded>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_led.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_led.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_msgloop.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_msgloop.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_realtime.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_realtime.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_rfA7139.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_rfA7139.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_rfid.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_rfid.c</name>
-            <excluded>
-                <configuration>debug_master</configuration>
-                <configuration>debug_master_sal</configuration>
-            </excluded>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_uart2.c</name>
+            <name>$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_uart2.c</name>
         </file>
     </group>
     <group>
         <name>hal</name>
-        <group>
-            <name>chip</name>
-            <excluded>
-                <configuration>debug_master</configuration>
-            </excluded>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_adc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_bkp.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_can.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_crc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_ctc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_dac.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_dbg.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_dma.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_enet.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_exmc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_exti.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_fmc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_fwdgt.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_gpio.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_i2c.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_misc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_pmu.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_rcu.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_rtc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_sdio.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_spi.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_timer.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_usart.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\GD32F30x\Drivers\GD32F30x_standard_peripheral\Source\gd32f30x_wwdgt.c</name>
-            </file>
-        </group>
         <group>
             <name>chip2</name>
             <file>
@@ -9328,6 +9240,9 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_msp_template.c</name>
+                <excluded>
+                    <configuration>debug_slave</configuration>
+                </excluded>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_nand.c</name>
@@ -9536,6 +9451,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_rtc.c</name>
+            <excluded>
+                <configuration>debug_slave</configuration>
+            </excluded>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_rtc2.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_spiio2.c</name>
@@ -9698,6 +9619,7 @@
                 <name>$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Src\main.c</name>
                 <excluded>
                     <configuration>debug_master</configuration>
+                    <configuration>debug_slave</configuration>
                 </excluded>
             </file>
             <file>
@@ -9710,6 +9632,7 @@
                 <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Core\Src\system_stm32l4xx.c</name>
                 <excluded>
                     <configuration>debug_master</configuration>
+                    <configuration>debug_slave</configuration>
                 </excluded>
             </file>
         </group>

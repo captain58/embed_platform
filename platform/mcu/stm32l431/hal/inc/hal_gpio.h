@@ -136,7 +136,8 @@
  ************************************************************************/
 STATIC INLINE bool HAL_GPIO_GetPinState(void * GPIOx, uint8 pin)
 {
-    return (bool)(gpio_input_bit_get(((COMPORT *)GPIOx)->pingrp, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
+//    return (bool)(gpio_input_bit_get(((COMPORT *)GPIOx)->pingrp, 1 << pin));//&((GPIO_TypeDef  *)GPIOA)[port]
+    return (bool)HAL_GPIO_ReadPin((GPIO_TypeDef*)(((COMPORT *)GPIOx)->pingrp), 1 << pin);
 }
 
 

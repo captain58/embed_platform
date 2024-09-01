@@ -972,14 +972,14 @@ int application_start(int argc, char *argv[])
     \param[out] none
     \retval     none
 */
-void EXTI10_15_IRQHandler(void)
-{
-    if (RESET != exti_interrupt_flag_get(EXTI_14)) {
-        exti_interrupt_flag_clear(EXTI_14);
-        gs_SysVar.mLPstt |= HLV_LPTASK_SWITCH;
-        gs_SysVar.mDGcnt = 2;
-    }
-}
+//void EXTI10_15_IRQHandler(void)
+//{
+//    if (RESET != exti_interrupt_flag_get(EXTI_14)) {
+//        exti_interrupt_flag_clear(EXTI_14);
+//        gs_SysVar.mLPstt |= HLV_LPTASK_SWITCH;
+//        gs_SysVar.mDGcnt = 2;
+//    }
+//}
 
 //	uint8_t guc_CardID[16];
 extern uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];

@@ -557,6 +557,8 @@ recv:
 
     
 }
+
+#include "board.h"
 //extern tRadioDriver *Radio;
 extern uint8 g_ucUpgradeFlgForPush;
 extern uint32 g_ucUpgradeCount;

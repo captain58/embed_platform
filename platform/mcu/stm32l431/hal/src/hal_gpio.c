@@ -35,17 +35,17 @@ void HAL_InitGPIO(void)
     //开启IOCON功率模块
 //    Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_IOCON);
     
-    rcu_periph_clock_enable(RCU_GPIOA);
-    rcu_periph_clock_enable(RCU_GPIOB);
-
-//	    uint32_t temp_reg = AFIO_PCF0;
-//	    temp_reg &= PCF_SWJCFG_MASK;
-//	    temp_reg |= 0x04000000;
-//	
-//	    AFIO_PCF0 = temp_reg;
-    rcu_periph_clock_enable(RCU_AF);
-
-    gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP,ENABLE);
+//    rcu_periph_clock_enable(RCU_GPIOA);
+//    rcu_periph_clock_enable(RCU_GPIOB);
+//
+////	    uint32_t temp_reg = AFIO_PCF0;
+////	    temp_reg &= PCF_SWJCFG_MASK;
+////	    temp_reg |= 0x04000000;
+////	
+////	    AFIO_PCF0 = temp_reg;
+//    rcu_periph_clock_enable(RCU_AF);
+//
+//    gpio_pin_remap_config(GPIO_SWJ_SWDPENABLE_REMAP,ENABLE);
 
     //开启GPIO功率模块(传入参数用不到)
 //	Chip_GPIO_Init(LPC_GPIO);
@@ -53,6 +53,15 @@ void HAL_InitGPIO(void)
 //    __HAL_RCC_GPIOA_CLK_ENABLE();
 //    __HAL_RCC_GPIOB_CLK_ENABLE(); 
 //    __HAL_RCC_GPIOC_CLK_ENABLE();
+    /* GPIO Ports Clock Enable */
+//  __HAL_RCC_GPIOC_CLK_ENABLE();
+//  __HAL_RCC_GPIOH_CLK_ENABLE();
+//  __HAL_RCC_GPIOA_CLK_ENABLE();
+//  __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
 }
 
 
@@ -73,8 +82,15 @@ void HAL_InitGPIO(void)
  ************************************************************************/
 void HAL_GPIO_PinConfig(COMPORT * pGpio)
 {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = 1 << pGpio->pinnum;
+    GPIO_InitStruct.Mode = pGpio->modefunc;
+    GPIO_InitStruct.Pull = pGpio->pull;
+    GPIO_InitStruct.Speed = pGpio->speed;
+    GPIO_InitStruct.Alternate = pGpio->pinseg;
+    HAL_GPIO_Init((GPIO_TypeDef *)pGpio->pingrp, &GPIO_InitStruct);
   
-    gpio_init(pGpio->pingrp, pGpio->modefunc, pGpio->speed, 1 << pGpio->pinnum);
+//    gpio_init((GPIO_TypeDef *)pGpio->pingrp, pGpio->modefunc, pGpio->speed, 1 << pGpio->pinnum);
 //    GPIO_InitTypeDef GPIO_InitStruct = {0};
 //
 ////    uint32 modefunc = 0;

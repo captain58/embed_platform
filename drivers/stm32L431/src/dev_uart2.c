@@ -65,20 +65,47 @@ extern const uint8_t _ucPortMap[];
 //    switch(ss.parit)
 //    {
 //    case Parit_E:
-//        us->ParityBit = EVEN;
+//        us->Parity = UART_PARITY_EVEN;
 //        break;
 //    case Parit_O:
-//        us->ParityBit = ODD;
+//        us->Parity = UART_PARITY_ODD;
 //        break;   
 //    case Parit_N:
 //    default:
-//        us->ParityBit = NONE;
+//        us->Parity = UART_PARITY_NONE;
 //      break;
 //        
 //    }
-//
-//    us->StopBit = (UART_StopBitTypeDef)ss.stopbits;
-//    us->DataBit = (UART_DataBitTypeDef)ss.databits;
+//    switch(ss.stopbits)
+//    {
+//    case StopBits_1:
+//        us->StopBits = UART_STOPBITS_1;
+//        break;
+//    case StopBits_2:
+//        us->StopBits = UART_STOPBITS_2;
+//        break;        
+//    default:
+//        us->StopBits = UART_STOPBITS_1;
+//        break;
+//    }
+//    switch(ss.databits)
+//    {
+//    case DataBits_8bits:
+//        us->WordLength = UART_WORDLENGTH_8B;
+//        break;
+//    case DataBits_7bits:
+//        us->WordLength = UART_WORDLENGTH_7B;
+//        break;        
+//    case DataBits_9bits:
+//        us->WordLength = UART_WORDLENGTH_9B;
+//        break;
+//    default:
+//        us->WordLength = UART_WORDLENGTH_8B;
+//        break;
+//    }
+//    
+////    us->StopBit = (UART_StopBitTypeDef)ss.stopbits;
+////    us->DataBit = (UART_DataBitTypeDef)ss.databits;
 //
 //    return 0;
 ////	    

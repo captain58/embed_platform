@@ -70,7 +70,10 @@ void Uartx_StartSend(const SerialID* sid);
 void Uartx_Close(const SerialID* sid);
 void Uartx_Open(const SerialID* sid);
 uint8_t Uartx_WaitSendBufNull(const SerialID* sid);
-
+void Uartx_RxISR_16BIT(UART_HandleTypeDef *huart);
+void Uartx_RxISR_8BIT(UART_HandleTypeDef *huart);
+void Uartx_TxISR_16BIT(UART_HandleTypeDef *huart);
+void Uartx_TxISR_8BIT(UART_HandleTypeDef *huart);
 #endif
 
 

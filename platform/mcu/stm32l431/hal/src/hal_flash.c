@@ -26,7 +26,7 @@
 #define FLS_ERR_WRITE   (uint8)0x40
 
 
-#define FLASH_SIZE     0x040000         //128k
+#define FLASH_FULL_SIZE     0x040000         //128k
 #define FLASH_PAGE     2048              //512
 #define FLASH_PAGE_MASK     (FLASH_PAGE-1)              //512
 #define FLASH_ADDR_BASE     0x08000000
@@ -41,7 +41,7 @@
 
 #define WRITE_PROTECTION_DISABLE
 #define FMC_PAGES_PROTECTED (OB_WP_6 | OB_WP_7)
-__IO fmc_state_enum fmc_state = FMC_READY;
+//__IO fmc_state_enum fmc_state = FMC_READY;
 
 /************************************************************************
 **定义FLASH Buffer
@@ -55,28 +55,28 @@ uint8_t Flash_Erase_Sector( uint32_t address )
 {
 	uint16_t i;
 	uint8_t Result = 0;
-	uint32_t *PFlash;
-    fmc_flag_clear(FMC_FLAG_BANK0_END);
-    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
-    address += FLASH_ADDR_BASE;
-//	if(SectorNum < 32) return 2;//禁止擦除boot区
-	PFlash = (uint32_t *)(uint32_t)(address);
-//		if( OperateKey == FLASHOPKEY )
+//	uint32_t *PFlash;
+//    fmc_flag_clear(FMC_FLAG_BANK0_END);
+//    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
+//    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
+//    address += FLASH_ADDR_BASE;
+////	if(SectorNum < 32) return 2;//禁止擦除boot区
+//	PFlash = (uint32_t *)(uint32_t)(address);
+////		if( OperateKey == FLASHOPKEY )
+////		{
+////	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
+////		}
+////		FLASH_Erase_Sector( address );
+////	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
+//	fmc_page_erase(address);
+//	for( i=0;i<128;i++ )
+//	{
+//		if( PFlash[i] != 0xFFFFFFFF ) 
 //		{
-//	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
+//			Result = 1;
+//			break;
 //		}
-//		FLASH_Erase_Sector( address );
-//	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
-	fmc_page_erase(address);
-	for( i=0;i<128;i++ )
-	{
-		if( PFlash[i] != 0xFFFFFFFF ) 
-		{
-			Result = 1;
-			break;
-		}
-	}
+//	}
 	
 	return Result;
 }
@@ -91,42 +91,42 @@ uint8_t Flsah_Write_String( uint32_t prog_addr,uint8_t* prog_data, uint16_t Len 
 	uint8_t Result = 0;
 	uint8_t *PFlash;
 	uint8_t step = 2;
-    fmc_flag_clear(FMC_FLAG_BANK0_END);
-    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
-    fmc_state_enum sta = FMC_READY;
-    prog_addr += FLASH_ADDR_BASE;
-//		if( OperateKey == FLASHOPKEY )
+//    fmc_flag_clear(FMC_FLAG_BANK0_END);
+//    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
+//    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
+//    fmc_state_enum sta = FMC_READY;
+//    prog_addr += FLASH_ADDR_BASE;
+////		if( OperateKey == FLASHOPKEY )
+////		{
+////	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
+////		}
+////		FLASH_Prog_ByteString( prog_addr, prog_data, Len);
+////	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
+////		sta = fmc_halfword_program(Address, data);
+//    for (i = 0; i < Len; i += step)
+//    {
+//        __disable_irq();
+////	        ret = HAL_FLASH_Program(TypeProgram,
+////	                              address + i,
+////	                              *(pData + (i / step)));
+//        sta = fmc_halfword_program(prog_addr + i, *(uint16_t *)(prog_data + i));
+//        __enable_irq();
+//        if (sta != FMC_READY)
+//        {
+//            break;
+//        }
+//    }
+//
+//
+//	PFlash = (uint8_t*)prog_addr;
+//	for( i=0;i<Len;i++ )
+//	{
+//		if( PFlash[i] != prog_data[i] ) 
 //		{
-//	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
+//			Result = 1;
+//			break;
 //		}
-//		FLASH_Prog_ByteString( prog_addr, prog_data, Len);
-//	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
-//		sta = fmc_halfword_program(Address, data);
-    for (i = 0; i < Len; i += step)
-    {
-        __disable_irq();
-//	        ret = HAL_FLASH_Program(TypeProgram,
-//	                              address + i,
-//	                              *(pData + (i / step)));
-        sta = fmc_halfword_program(prog_addr + i, *(uint16_t *)(prog_data + i));
-        __enable_irq();
-        if (sta != FMC_READY)
-        {
-            break;
-        }
-    }
-
-
-	PFlash = (uint8_t*)prog_addr;
-	for( i=0;i<Len;i++ )
-	{
-		if( PFlash[i] != prog_data[i] ) 
-		{
-			Result = 1;
-			break;
-		}
-	}	
+//	}	
 	
 	return Result;
 }
@@ -644,54 +644,54 @@ uint8 HAL_IFlash_Init(void)
     gp_ucfBuffer = (uint8*)m_malloc(LEN_FLS_SECTOR);
     uint32_t wp_value = 0xFFFFFFFF, protected_pages = 0x0;
     /* unlock the flash program/erase controller */
-    fmc_unlock();
-    ob_unlock();
+//    fmc_unlock();
+//    ob_unlock();
 
-    fmc_flag_clear(FMC_FLAG_BANK0_END);
-    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
-
-    /* Get pages write protection status */
-    wp_value = ob_write_protection_get();
-
-#ifdef WRITE_PROTECTION_DISABLE
-    /* Get pages already write protected */
-    protected_pages = ~(wp_value | FMC_PAGES_PROTECTED);
-  
-    /* Check if desired pages are already write protected */
-    if((wp_value | (~FMC_PAGES_PROTECTED)) != 0xFFFFFFFF ){
-        /* Erase all the option Bytes */
-        fmc_state = ob_erase();
-
-        /* Check if there is write protected pages */
-        if(protected_pages != 0x0){
-            /* Restore write protected pages */
-            fmc_state = ob_write_protection_enable(protected_pages);
-        }
-        /* Generate System Reset to load the new option byte values */
-        NVIC_SystemReset();
-    }
-
-#elif defined WRITE_PROTECTION_ENABLE
-    /* Get current write protected pages and the new pages to be protected */
-    protected_pages =  (~wp_value) | FMC_PAGES_PROTECTED; 
-
-    /* Check if desired pages are not yet write protected */
-    if(((~wp_value) & FMC_PAGES_PROTECTED )!= FMC_PAGES_PROTECTED){
-
-        /* Erase all the option Bytes because if a program operation is 
-        performed on a protected page, the Flash memory returns a 
-        protection error */
-        fmc_state = ob_erase();
-
-        /* Enable the pages write protection */
-        fmc_state = ob_write_protection_enable(protected_pages);
-
-        /* Generate System Reset to load the new option byte values */
-        NVIC_SystemReset();
-    }
-#endif /* WRITE_PROTECTION_DISABLE */
-
+//    fmc_flag_clear(FMC_FLAG_BANK0_END);
+//    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
+//    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
+//
+//    /* Get pages write protection status */
+//    wp_value = ob_write_protection_get();
+//
+//#ifdef WRITE_PROTECTION_DISABLE
+//    /* Get pages already write protected */
+//    protected_pages = ~(wp_value | FMC_PAGES_PROTECTED);
+//  
+//    /* Check if desired pages are already write protected */
+//    if((wp_value | (~FMC_PAGES_PROTECTED)) != 0xFFFFFFFF ){
+//        /* Erase all the option Bytes */
+//        fmc_state = ob_erase();
+//
+//        /* Check if there is write protected pages */
+//        if(protected_pages != 0x0){
+//            /* Restore write protected pages */
+//            fmc_state = ob_write_protection_enable(protected_pages);
+//        }
+//        /* Generate System Reset to load the new option byte values */
+//        NVIC_SystemReset();
+//    }
+//
+//#elif defined WRITE_PROTECTION_ENABLE
+//    /* Get current write protected pages and the new pages to be protected */
+//    protected_pages =  (~wp_value) | FMC_PAGES_PROTECTED; 
+//
+//    /* Check if desired pages are not yet write protected */
+//    if(((~wp_value) & FMC_PAGES_PROTECTED )!= FMC_PAGES_PROTECTED){
+//
+//        /* Erase all the option Bytes because if a program operation is 
+//        performed on a protected page, the Flash memory returns a 
+//        protection error */
+//        fmc_state = ob_erase();
+//
+//        /* Enable the pages write protection */
+//        fmc_state = ob_write_protection_enable(protected_pages);
+//
+//        /* Generate System Reset to load the new option byte values */
+//        NVIC_SystemReset();
+//    }
+//#endif /* WRITE_PROTECTION_DISABLE */
+//
 
 
     

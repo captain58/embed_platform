@@ -325,14 +325,16 @@ void SYS_GPI_Init(void)
         {
 //	            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_LGPI_Scan, NULL);
             /* enable and set key EXTI interrupt to the lowest priority */
-            nvic_irq_enable(gpi->IRQn, 2U, 0U);
-        
+//            nvic_irq_enable(gpi->IRQn, 2U, 0U);
+            HAL_NVIC_SetPriority(gpi->IRQn, 1, 0);
+            HAL_NVIC_EnableIRQ(gpi->IRQn);
+
             /* connect key EXTI line to key GPIO pin */
-            gpio_exti_source_select(gpi->exit_port, gpi->exit_pin);
-        
-            /* configure key EXTI line */
-            exti_init(gpi->exit_line, EXTI_INTERRUPT, gpi->exit_edge);
-            exti_interrupt_flag_clear(gpi->exit_line);
+//            gpio_exti_source_select(gpi->exit_port, gpi->exit_pin);
+//        
+//            /* configure key EXTI line */
+//            exti_init(gpi->exit_line, EXTI_INTERRUPT, gpi->exit_edge);
+//            exti_interrupt_flag_clear(gpi->exit_line);
 
         }
 

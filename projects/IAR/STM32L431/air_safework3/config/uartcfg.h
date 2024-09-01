@@ -113,6 +113,7 @@
 
 #if  SYS_UART1_EN > 0
     SerialBuffer gs_Uart1Buffer;
+    UART_HandleTypeDef gs_Uart1Handle;
     unsigned char guc_Uart1BufRcv[LEN_OF_RECV1];
     unsigned char guc_Uart0BufSnd[LEN_OF_SND1];
     
@@ -136,11 +137,50 @@
     {
        
         /* enable GPIO clock */
-        rcu_periph_clock_enable(RCU_GPIOA);
-        
-        gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_2);
-        /* connect port to USARTx_Rx */
-        gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_3);
+//        rcu_periph_clock_enable(RCU_GPIOA);
+//        
+//        gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_2);
+//        /* connect port to USARTx_Rx */
+//        gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_3);
+        GPIO_InitTypeDef GPIO_InitStruct = {0};
+        RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+    //  if(huart->Instance==USART1)
+    //  {
+      /* USER CODE BEGIN USART1_MspInit 0 */
+
+      /* USER CODE END USART1_MspInit 0 */
+
+      /** Initializes the peripherals clock
+      */
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
+        PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+        {
+          Error_Handler();
+        }
+
+        /* Peripheral clock enable */
+        __HAL_RCC_USART1_CLK_ENABLE();
+
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        /**USART1 GPIO Configuration
+        PB6     ------> USART1_TX
+        PB7     ------> USART1_RX
+        */
+        GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* USART1 interrupt Init */
+//    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+//    HAL_NVIC_EnableIRQ(USART1_IRQn);
+  /* USER CODE BEGIN USART1_MspInit 1 */
+
+  /* USER CODE END USART1_MspInit 1 */
+//  }      
     
     };
         void Uart1_Msp(void)
@@ -160,11 +200,13 @@
     const SerialID gs_Uart1SID = 
     {
         1,
+        SYS_UART1_IDX,
         PRI_UART1,
         USART1_IRQn,
         &gucs_UartInited[SYS_UART1_IDX],
-        USART1,
-        RCU_USART1,
+        (uint32_t)USART1,
+        0,
+        &gs_Uart1Handle,
         Uart1_PinCfg,
         Uart1_Msp,
         NULL,//(SerialTRC *)&_rs485_usart2,
@@ -192,6 +234,7 @@
     
 #if  SYS_UART2_EN > 0
     SerialBuffer gs_Uart2Buffer;
+    UART_HandleTypeDef gs_Uart2Handle;
     unsigned char guc_Uart2BufRcv[LEN_OF_RECV2];
     unsigned char guc_Uart2BufSnd[LEN_OF_SND2];
     
@@ -199,13 +242,41 @@
     void Uart2_PinCfg(void)
     {
        
-        /* enable GPIO clock */
-        rcu_periph_clock_enable(RCU_GPIOB);
+//        /* enable GPIO clock */
+//        rcu_periph_clock_enable(RCU_GPIOB);
+//        
+//        gpio_init(GPIOB, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_10);
+//        /* connect port to USARTx_Rx */
+//        gpio_init(GPIOB, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_11);
+        GPIO_InitTypeDef GPIO_InitStruct = {0};
+        RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
         
-        gpio_init(GPIOB, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_10);
-        /* connect port to USARTx_Rx */
-        gpio_init(GPIOB, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_11);
-    
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2;
+        PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+        {
+          Error_Handler();
+        }
+
+        /* Peripheral clock enable */
+        __HAL_RCC_USART2_CLK_ENABLE();
+
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        /**USART2 GPIO Configuration
+        PA2     ------> USART2_TX
+        PA3     ------> USART2_RX
+        */
+        GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        /* USART2 interrupt Init */
+//        HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+//        HAL_NVIC_EnableIRQ(USART2_IRQn);      
+      
     };
         void Uart2_Msp(void)
     {
@@ -224,11 +295,13 @@
     const SerialID gs_Uart2SID = 
     {
         2,
+        SYS_UART2_IDX,
         PRI_UART2,
         USART2_IRQn,
         &gucs_UartInited[SYS_UART2_IDX],
-        USART2,
-        RCU_USART2,
+        (uint32_t)USART2,
+        0,
+        &gs_Uart2Handle,
         Uart2_PinCfg,
         Uart2_Msp,
         NULL,//(SerialTRC *)&_rs485_usart2,

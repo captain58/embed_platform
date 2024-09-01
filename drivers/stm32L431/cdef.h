@@ -19,7 +19,7 @@
 #define _CDEF_H_
 
 
-
+#include "stm32l4xx_hal.h"
 
 /*******************************************************************************
 **串口收发的数据位的枚举
@@ -27,7 +27,8 @@
 typedef enum 
 {
     DataBits_7bits = 0,
-    DataBits_8bits
+    DataBits_8bits,
+    DataBits_9bits
 }SerialDataBits;
 
 /*******************************************************************************
@@ -128,16 +129,19 @@ typedef struct
 typedef struct
 {
     uint8_t uart_no;                      //物理串口号(软串口固定为0xff)
+    uint8_t uart_id;
     uint8_t irqPri;                       //串口中断优先级
     uint8_t irqn;
     uint8_t * inited;
     
     uint32_t pUART;//USART_TypeDef * pUART;
+
     uint32_t clk;
+    UART_HandleTypeDef * huart;    
     TCallback   pinConfig;               //串口管脚配置函数宏
 //    uint8_t rs485;//
     TCallback   msp;
-
+    
     SerialTRC* rs485;                   //RS485的收发切换操作(无效赋值__NULL)
     SerialBuffer*  buffer;              //串口缓存
     uint8* recvFlag;                    //数据接收完毕标志
@@ -266,16 +270,13 @@ typedef struct
 ******************************************************************************/
 typedef struct
 {
-    //
 	uint32_t pingrp;                    //Pin group             //来自PINMUX_GRP_T成员
 	uint32_t pinnum:8;                    //Pin number            //来自PINMUX_GRP_T成员
-	uint32_t pinseg:3;                    //pin pfseg 1:通用io, 0:段寄存器
-	uint32_t modefunc:8;                 //Function and mode     //来自PINMUX_GRP_T成员
-        uint32_t speed:10;
-        uint32_t pull:3;
-    //
-        uint8_t dir;                          //1:输出,0:输入
-
+	uint32_t pinseg;                    //pin pfseg 1:通用io, 0:段寄存器
+	uint32_t modefunc;                 //Function and mode     //来自PINMUX_GRP_T成员
+    uint32_t speed:10;
+    uint32_t pull:3;
+    uint8_t dir;                          //1:输出,0:输入
 }COMPORT;
 
 
