@@ -417,7 +417,7 @@ void SYS_SER_ReadDataExport(uint8 port, TDataExport func)
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
+int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint32_t opt)
 {
     volatile SerialBuffer* uart = gss_UartSID[_ucPortMap[port]]->buffer;
                                     //参数合法性判断
@@ -456,10 +456,15 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
     _UartWriteHook(_ucPortMap[port], buffer, length);
 #endif
 //	    uint16_t tick = 100000;
-    while(1)
+    int stick = HAL_GetTick();
+    int ongoingTick = HAL_GetTick();
+    uint8_t bFinish = 1;
+    while(0 == opt || (ongoingTick >= stick && ongoingTick - stick < opt)
+          || (ongoingTick < stick && (ongoingTick - stick + 0xffffffff) < opt))
     {
         if(uart->tcnt == 0)
         {
+            bFinish = 0;
             break;
         }
         
@@ -486,10 +491,13 @@ int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt)
             stcnt = uart->tcnt;
 #endif              
         }
+        
+        ongoingTick = HAL_GetTick();
     }
 //    msleep(1);
 //    Uartx_WaitSendBufNull(gss_UartSID[_ucPortMap[port]]);
-    SYS_OK();
+//    SYS_OK();
+    return bFinish;
 }
 
 
@@ -518,7 +526,7 @@ uint8_t SYS_SER_Write(uint8_t port, uint8_t* buffer, uint16_t length, uint32_t t
 
   
   
-    return SYS_SER_WriteOption(port, buffer, length, 0);
+    return SYS_SER_WriteOption(port, buffer, length, to);
 }
 
 
@@ -1208,7 +1216,7 @@ void SYS_UART_Init(void)
 
     SerialSets ss;
 //    UART_InitTypeDef us;
-    ss.baudrate = 115200;
+    ss.baudrate = 38400;
     ss.databits = DataBits_8bits;
     ss.parit = Parit_N;
     ss.stopbits = StopBits_1;

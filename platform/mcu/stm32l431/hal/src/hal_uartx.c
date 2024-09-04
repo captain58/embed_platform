@@ -326,6 +326,7 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
 //    usart_interrupt_enable(sid->pUART, USART_INT_TC);
 //    
 //    nvic_irq_enable(sid->irqn
+    HAL_UART_DeInit(sid->huart);
     sid->huart->Instance = (USART_TypeDef *)sid->pUART;
     
     UART_InitTypeDef us;
@@ -342,6 +343,13 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
     sid->huart->Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     sid->huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
     
+    
+    if (HAL_UART_Init(sid->huart) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    
+
 /* Set the Rx ISR function pointer according to the data word length */
     if ((sid->huart->Init.WordLength == UART_WORDLENGTH_9B) && (sid->huart->Init.Parity == UART_PARITY_NONE))
     {
@@ -355,17 +363,12 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
       /* Set the Tx ISR function pointer according to the data word length */
     if ((sid->huart->Init.WordLength == UART_WORDLENGTH_9B) && (sid->huart->Init.Parity == UART_PARITY_NONE))
     {
-    sid->huart->TxISR = Uartx_TxISR_16BIT;
+        sid->huart->TxISR = Uartx_TxISR_16BIT;
     }
     else
     {
-    sid->huart->TxISR = Uartx_TxISR_8BIT;
-    }    
-    
-    if (HAL_UART_Init(&sid->huart) != HAL_OK)
-    {
-        Error_Handler();
-    }
+        sid->huart->TxISR = Uartx_TxISR_8BIT;
+    }        
          /* Enable the UART Parity Error interrupt and Data Register Not Empty interrupt */
 #if defined(USART_CR1_FIFOEN)
     SET_BIT(sid->huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE_RXFNEIE);
@@ -421,8 +424,11 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
 //    usart_receive_config(sid->pUART, USART_RECEIVE_ENABLE);
 //    usart_transmit_config(sid->pUART, USART_TRANSMIT_ENABLE);
 //    usart_enable(sid->pUART);
-    HAL_NVIC_DisableIRQ(sid->irqn); 
+
     sid->huart->Instance = (USART_TypeDef *)sid->pUART;
+    
+    HAL_NVIC_DisableIRQ(sid->irqn); 
+    HAL_UART_DeInit(sid->huart);
     
     UART_InitTypeDef us;
     _UartSSToUS(* ss, &us);
@@ -439,6 +445,13 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
     sid->huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
     
     
+    
+    if (HAL_UART_Init(sid->huart) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    
+
     /* Set the Rx ISR function pointer according to the data word length */
     if ((sid->huart->Init.WordLength == UART_WORDLENGTH_9B) && (sid->huart->Init.Parity == UART_PARITY_NONE))
     {
@@ -452,19 +465,12 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
       /* Set the Tx ISR function pointer according to the data word length */
     if ((sid->huart->Init.WordLength == UART_WORDLENGTH_9B) && (sid->huart->Init.Parity == UART_PARITY_NONE))
     {
-    sid->huart->TxISR = Uartx_TxISR_16BIT;
+        sid->huart->TxISR = Uartx_TxISR_16BIT;
     }
     else
     {
-    sid->huart->TxISR = Uartx_TxISR_8BIT;
+        sid->huart->TxISR = Uartx_TxISR_8BIT;
     }     
-    
-    if (HAL_UART_Init(&sid->huart) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    
-
     //初始化信息结构体变量
     gps_uartInfoList[sid->uart_no] = sid;
     memset((uint8*)sid->buffer, 0, sizeof(SerialBuffer));
@@ -510,12 +516,13 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
 //        nvic_irq_enable(sid->irqn, 0, 0);
 #if defined(USART_CR1_FIFOEN)
         SET_BIT(sid->huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE_RXFNEIE);
+        SET_BIT(sid->huart->Instance->CR3, USART_CR3_TXFTIE);
 #else
         SET_BIT(sid->huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
 #endif        
       /* Enable the Transmit Data Register Empty interrupt */
 #if defined(USART_CR1_FIFOEN)
-      SET_BIT(sid->huart->Instance->CR1, USART_CR1_TXEIE_TXFNFIE);  
+        SET_BIT(sid->huart->Instance->CR1, USART_CR1_TXEIE_TXFNFIE);  
 #else
       SET_BIT(sid->huart->Instance->CR1, USART_CR1_TXEIE);  
 #endif        
@@ -869,7 +876,7 @@ void Uartx_RxISR_8BIT(UART_HandleTypeDef *huart)
     SerialBuffer* gsp_Uartx = sid->buffer;
     uint8 rflag = 0;
     /* Check that a Rx process is ongoing */
-    if(huart->RxState == HAL_UART_STATE_BUSY_RX)
+//    if(huart->RxState == HAL_UART_STATE_BUSY_RX)
     {
         uhdata = (uint16_t) READ_REG(huart->Instance->RDR);
         rflag = 1;
@@ -923,16 +930,16 @@ void Uartx_RxISR_8BIT(UART_HandleTypeDef *huart)
         }
 
                                                 //启动定时从而来判断是否接收完一帧
-        if(rflag)
+//        if(rflag)
         {
             casHwTimerStart(ID_CASHWTIMR_UARTROT(sid->uart_no));
         }    
     }
-    else
-    {
-        /* Clear RXNE interrupt flag */
-        __HAL_UART_SEND_REQ(huart, UART_RXDATA_FLUSH_REQUEST);
-    }
+//    else
+//    {
+//        /* Clear RXNE interrupt flag */
+//        __HAL_UART_SEND_REQ(huart, UART_RXDATA_FLUSH_REQUEST);
+//    }
 }        
 
 /**
@@ -944,19 +951,19 @@ void Uartx_RxISR_8BIT(UART_HandleTypeDef *huart)
   */
 void Uartx_TxISR_8BIT(UART_HandleTypeDef *huart)
 {
-  SerialID * sid = gps_uartInfoList[huart->id];
+    SerialID * sid = gps_uartInfoList[huart->id];
     SerialBuffer* gsp_Uartx = sid->buffer;
   /* Check that a Tx process is ongoing */
-  if (huart->gState == HAL_UART_STATE_BUSY_TX)
+//  if (huart->gState == HAL_UART_STATE_BUSY_TX)
   {
 //    if(huart->TxXferCount == 0)
 //    {
 //      /* Disable the UART Transmit Data Register Empty Interrupt */
-//#if defined(USART_CR1_FIFOEN)
-//      CLEAR_BIT(huart->Instance->CR1, USART_CR1_TXEIE_TXFNFIE);
-//#else
-//      CLEAR_BIT(huart->Instance->CR1, USART_CR1_TXEIE);
-//#endif
+#if defined(USART_CR1_FIFOEN)
+      CLEAR_BIT(huart->Instance->CR1, USART_CR1_TXEIE_TXFNFIE);
+#else
+      CLEAR_BIT(huart->Instance->CR1, USART_CR1_TXEIE);
+#endif
 //      
 //      /* Enable the UART Transmit Complete Interrupt */
 //      SET_BIT(huart->Instance->CR1, USART_CR1_TCIE);
@@ -968,7 +975,7 @@ void Uartx_TxISR_8BIT(UART_HandleTypeDef *huart)
 //    }
         if(gsp_Uartx->tcnt > 0)
         {                                   //发送一个字节
-        
+            SET_BIT(huart->Instance->CR1,  USART_CR1_TXEIE); 
 //            pUART->INTSTS |= UART_INTSTS_TXDONEIF;
            
             if(gsp_Uartx->tp < gsp_Uartx->tlen)
@@ -977,7 +984,9 @@ void Uartx_TxISR_8BIT(UART_HandleTypeDef *huart)
 //	                UARTx_TXREG_Write(pUART, dd);
 //                pUART->DATA = dd;
 //                usart_data_transmit(sid->pUART, dd);
-                huart->Instance->TDR = dd;
+//                huart->Instance->TDR = dd;
+                
+                HAL_UART_Transmit(huart, &dd, 1, 1);           //将接收数据发送出去
             }
             
             if(gsp_Uartx->tp >= gsp_Uartx->tlen)

@@ -94,7 +94,7 @@ void SYS_UART_RevMessageLoop(void)
 //	            }
 //	            else                        //否则,进行接收消息分发
 //	            {
-            UartRevMessageDelivery(uartidx, MSG_UART0 + uartidx);
+            //UartRevMessageDelivery(uartidx, MSG_UART0 + uartidx);
 //	            }
             gucs_UartRevFlag[uartidx] = 0;
         }

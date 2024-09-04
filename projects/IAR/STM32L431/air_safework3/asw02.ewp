@@ -6777,7 +6777,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state>GD32F303xC	GD GD32F303xC</state>
+                    <state>STM32L431CC	ST STM32L431CC</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -6837,17 +6837,17 @@
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>GD32F303xC	GD GD32F303xC</state>
+                    <state>STM32L431CC	ST STM32L431CC</state>
                 </option>
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>NEON</name>
@@ -7406,11 +7406,11 @@
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>asw02_slave23112312.bin</state>
+                    <state>asw02.bin</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -7465,7 +7465,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>testL476_IAR_V7.out</state>
+                    <state>testL431_IAR_V7.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -7529,7 +7529,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>$PROJ_DIR$\icf\GD32F303xC.icf</state>
+                    <state>$PROJ_DIR$\icf\stm32l431xx_flash.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>

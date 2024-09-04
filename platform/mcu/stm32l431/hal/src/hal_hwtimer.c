@@ -64,7 +64,7 @@ uint32_t g_timer_tick = 0;
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    krhino_intrpt_enter();
+    
   /* Prevent unused argument(s) compilation warning */
 //  UNUSED(htim);
     if (htim->Instance == TIM1)
@@ -75,7 +75,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     else if (htim->Instance == TIM2)
     {
         g_timer_tick++;
-        gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
+        gfs_hwTimerDelay[1](paraHwTimerDelay[1]);
     }
     krhino_intrpt_exit();
   /* NOTE : This function should not be modified, when the callback is needed,
@@ -99,32 +99,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //
 //}
 
-/**
-  * @brief This function handles TIM1 trigger and commutation interrupts.
-  */
-void TIM1_TRG_COM_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM1_TRG_COM_IRQn 0 */
-
-  /* USER CODE END TIM1_TRG_COM_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim1);
-  /* USER CODE BEGIN TIM1_TRG_COM_IRQn 1 */
-
-  /* USER CODE END TIM1_TRG_COM_IRQn 1 */
-}
 
 /**
-  * @brief This function handles TIM1 capture compare interrupt.
+  * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
   */
-void TIM1_CC_IRQHandler(void)
+void TIM1_UP_TIM16_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM1_CC_IRQn 0 */
+  krhino_intrpt_enter();
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
 
-  /* USER CODE END TIM1_CC_IRQn 0 */
+  /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
-  /* USER CODE BEGIN TIM1_CC_IRQn 1 */
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
 
-  /* USER CODE END TIM1_CC_IRQn 1 */
+  /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
+  krhino_intrpt_exit();
 }
 
 /**
@@ -132,6 +121,7 @@ void TIM1_CC_IRQHandler(void)
   */
 void TIM2_IRQHandler(void)
 {
+  krhino_intrpt_enter();
   /* USER CODE BEGIN TIM2_IRQn 0 */
 
   /* USER CODE END TIM2_IRQn 0 */
@@ -139,6 +129,7 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 1 */
 
   /* USER CODE END TIM2_IRQn 1 */
+  krhino_intrpt_exit();
 }
 
 
@@ -232,126 +223,95 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
         case 0:
             {
               
-                 /* USER CODE BEGIN TIM1_Init 1 */
-
-                  /* USER CODE END TIM1_Init 1 */
-                  htim1.Instance = TIM1;
-                  htim1.Init.Prescaler = 0;
-                  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-                  htim1.Init.Period = 65535;
-                  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-                  htim1.Init.RepetitionCounter = 0;
-                  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-                  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
-                  {
-                    Error_Handler();
-                  }
-                  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-                  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
-                  {
-                    Error_Handler();
-                  }
-                  if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
-                  {
-                    Error_Handler();
-                  }
-                  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
-                  sSlaveConfig.InputTrigger = TIM_TS_ITR0;
-                  if (HAL_TIM_SlaveConfigSynchro(&htim1, &sSlaveConfig) != HAL_OK)
-                  {
-                    Error_Handler();
-                  }
-                  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-                  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
-                  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-                  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-                  {
-                    Error_Handler();
-                  }
-                  sConfigOC.OCMode = TIM_OCMODE_TIMING;
-                  sConfigOC.Pulse = 0;
-                  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-                  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-                  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-                  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-                  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-                  if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-                  {
-                    Error_Handler();
-                  }
-                  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-                  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-                  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-                  sBreakDeadTimeConfig.DeadTime = 0;
-                  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-                  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-                  sBreakDeadTimeConfig.BreakFilter = 0;
-                  sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
-                  sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
-                  sBreakDeadTimeConfig.Break2Filter = 0;
-                  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-                  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
-                  {
-                    Error_Handler();
-                  }
-
+                htim1.Instance = TIM1;
+                htim1.Init.Prescaler = 72;
+                htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+                htim1.Init.Period = 1000;
+                htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+                htim1.Init.RepetitionCounter = 0;
+                htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+                if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+                {
+                Error_Handler();
+                }
+                sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+                if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+                {
+                Error_Handler();
+                }
+                if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
+                {
+                Error_Handler();
+                }
+                sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
+                sSlaveConfig.InputTrigger = TIM_TS_ITR0;
+                if (HAL_TIM_SlaveConfigSynchro(&htim1, &sSlaveConfig) != HAL_OK)
+                {
+                Error_Handler();
+                }
+                sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+                sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+                sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+                if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+                {
+                Error_Handler();
+                }
+                sConfigOC.OCMode = TIM_OCMODE_TIMING;
+                sConfigOC.Pulse = 0;
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+                sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+                sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+                sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+                sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+                if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+                {
+                Error_Handler();
+                }
+                sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+                sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+                sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+                sBreakDeadTimeConfig.DeadTime = 0;
+                sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+                sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+                sBreakDeadTimeConfig.BreakFilter = 0;
+                sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
+                sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
+                sBreakDeadTimeConfig.Break2Filter = 0;
+                sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+                if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+                {
+                Error_Handler();
+                }
             }
             break;
         case 1:
             {
                 //信号源参数
-//                rcu_periph_clock_enable(RCU_TIMER1);
-//
-//                timer_deinit(TIMER1);
-//
-//                /* TIMER0 configuration */
-//                timer_initpara.prescaler         = 119;
-//                timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
-//                timer_initpara.counterdirection  = TIMER_COUNTER_UP;
-//                timer_initpara.period            = cycle * 400 -1;//399;
-//                timer_initpara.clockdivision     = TIMER_CKDIV_DIV1;
-//                timer_initpara.repetitioncounter = 0;
-//                timer_init(TIMER1,&timer_initpara);
-//
-//    			timer_auto_reload_shadow_enable(TIMER1);
-//				timer_slave_mode_select(TIMER1,TIMER_SLAVE_MODE_EVENT);
-            /* USER CODE BEGIN TIM2_Init 1 */
+                /* USER CODE BEGIN TIM2_Init 1 */
 
-              /* USER CODE END TIM2_Init 1 */
-              htim2.Instance = TIM2;
-              htim2.Init.Prescaler = 0;
-              htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-              htim2.Init.Period = 4294967295;
-              htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-              htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-              if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-              {
+                /* USER CODE END TIM2_Init 1 */
+                htim2.Instance = TIM2;
+                htim2.Init.Prescaler = 72;
+                htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+                htim2.Init.Period = 1000;
+                htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+                htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+                if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+                {
                 Error_Handler();
-              }
-              if (HAL_TIM_OC_Init(&htim2) != HAL_OK)
-              {
+                }
+                sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
+                sSlaveConfig.InputTrigger = TIM_TS_ITR0;
+                if (HAL_TIM_SlaveConfigSynchro(&htim2, &sSlaveConfig) != HAL_OK)
+                {
                 Error_Handler();
-              }
-              sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
-              sSlaveConfig.InputTrigger = TIM_TS_ITR0;
-              if (HAL_TIM_SlaveConfigSynchro(&htim2, &sSlaveConfig) != HAL_OK)
-              {
+                }
+                sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+                sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+                if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+                {
                 Error_Handler();
-              }
-              sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-              sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-              if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-              {
-                Error_Handler();
-              }
-              sConfigOC.OCMode = TIM_OCMODE_TIMING;
-              sConfigOC.Pulse = 0;
-              sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-              sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-              if (HAL_TIM_OC_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-              {
-                Error_Handler();
-              }              
+                }         
 
             }
             break;
@@ -436,12 +396,14 @@ uint8 SysTimer_DlyStart(uint8 tmrIdx)
 //		timer_enable(TIMER0);
 //
 //		nvic_irq_enable(TIMER0_Channel_IRQn, 0, 1);
-        __HAL_RCC_TIM1_CLK_ENABLE();
-        /* TIM1 interrupt Init */
-        HAL_NVIC_SetPriority(TIM1_TRG_COM_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TIM1_TRG_COM_IRQn);
-        HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
+//        __HAL_RCC_TIM1_CLK_ENABLE();
+//        /* TIM1 interrupt Init */
+//        HAL_NVIC_SetPriority(TIM1_TRG_COM_IRQn, 0, 0);
+//        HAL_NVIC_EnableIRQ(TIM1_TRG_COM_IRQn);
+//        HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
+//        HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
+        //HAL_TIM_Base_Start_IT(&htim1);
+        
         break;
     case 1:
         //信号源参数
@@ -453,11 +415,11 @@ uint8 SysTimer_DlyStart(uint8 tmrIdx)
 //		/* TIMER1 counter enable */
 //		timer_enable(TIMER1);
 //		nvic_irq_enable(TIMER1_IRQn, 0, 1);
-        __HAL_RCC_TIM2_CLK_ENABLE();
-        /* TIM2 interrupt Init */
-        HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TIM2_IRQn);
-
+//        __HAL_RCC_TIM2_CLK_ENABLE();
+//        /* TIM2 interrupt Init */
+//        HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+//        HAL_NVIC_EnableIRQ(TIM2_IRQn);
+        //HAL_TIM_Base_Start_IT(&htim2);
         break;        
     default:
    
@@ -499,13 +461,13 @@ uint8 SysTimer_DlyStop(uint8 tmrIdx)
 
           /* USER CODE END TIM1_MspDeInit 0 */
             /* Peripheral clock disable */
-            __HAL_RCC_TIM1_CLK_DISABLE();
-
-            /* TIM1 interrupt DeInit */
-            HAL_NVIC_DisableIRQ(TIM1_TRG_COM_IRQn);
-            HAL_NVIC_DisableIRQ(TIM1_CC_IRQn);
+//            __HAL_RCC_TIM1_CLK_DISABLE();
+//
+//            /* TIM1 interrupt DeInit */
+//            HAL_NVIC_DisableIRQ(TIM1_TRG_COM_IRQn);
+//            HAL_NVIC_DisableIRQ(TIM1_CC_IRQn);
           /* USER CODE BEGIN TIM1_MspDeInit 1 */
-
+            HAL_TIM_Base_Stop_IT(&htim1);
           /* USER CODE END TIM1_MspDeInit 1 */
             break;
         case 1:                         //关闭中断功能
@@ -518,10 +480,11 @@ uint8 SysTimer_DlyStop(uint8 tmrIdx)
 //			timer_disable(TIMER1);
 //
         //			nvic_irq_disable(TIMER1_IRQn);
-            __HAL_RCC_TIM2_CLK_DISABLE();
-
-            /* TIM2 interrupt DeInit */
-            HAL_NVIC_DisableIRQ(TIM2_IRQn);
+//            __HAL_RCC_TIM2_CLK_DISABLE();
+//
+//            /* TIM2 interrupt DeInit */
+//            HAL_NVIC_DisableIRQ(TIM2_IRQn);
+            HAL_TIM_Base_Start_IT(&htim2);
             break;
 
         default:
@@ -569,7 +532,7 @@ bool SysTimer_GetStatus(uint8 tmrIdx)
             return false;
             break;
     }
-    if(HAL_TIM_STATE_RESET != stt)
+    if(HAL_TIM_STATE_BUSY == stt)
     {
         return true;
     }

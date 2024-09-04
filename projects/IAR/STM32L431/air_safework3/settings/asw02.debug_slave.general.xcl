@@ -2,13 +2,13 @@
 
 "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\bin\armjlink2.dll" 
 
-"D:\project\embed_platform\projects\IAR\STM32L431\air_safework3\debug_slave\Exe\testL476_IAR_V7.out" 
+"D:\project\embed_platform\projects\IAR\STM32L431\air_safework3\debug_slave\Exe\testL431_IAR_V7.out" 
 
 --plugin="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\bin\armbat.dll" 
 
---device_macro="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\config\debugger\GD\GD32F30x.dmac" 
+--device_macro="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\config\debugger\ST\STM32L4xx.dmac" 
 
---flash_loader="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\config\flashloader\GD\FlashGD32F303xC.board" 
+--flash_loader="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\config\flashloader\ST\FlashSTM32L43xxC.board" 
 
 
 

@@ -67,7 +67,7 @@ void TIM6_DAC_IRQHandler(void);
   * @param  TickPriority Tick interrupt priority.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
+__weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
   RCC_ClkInitTypeDef    clkconfig;
   uint32_t              uwTimclock, uwAPB1Prescaler;

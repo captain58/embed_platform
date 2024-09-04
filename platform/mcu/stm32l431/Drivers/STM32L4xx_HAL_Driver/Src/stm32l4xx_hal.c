@@ -256,7 +256,7 @@ __weak void HAL_MspDeInit(void)
   * @param TickPriority  Tick interrupt priority.
   * @retval HAL status
   */
-__weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
   HAL_StatusTypeDef  status = HAL_OK;
 
@@ -366,7 +366,7 @@ HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 
     /* Update uwTickFreq global variable used by HAL_InitTick() */
     uwTickFreq = Freq;
-
+    uwTickPrio = (1UL << __NVIC_PRIO_BITS) - 1;
     /* Apply the new tick Freq  */
     status = HAL_InitTick(uwTickPrio);
     if (status != HAL_OK)

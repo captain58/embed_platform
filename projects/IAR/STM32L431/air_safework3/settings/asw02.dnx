@@ -12,10 +12,12 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <DebugChecksum>
-        <Checksum>570851089</Checksum>
+        <Checksum>3603182642</Checksum>
     </DebugChecksum>
     <CodeCoverage>
-        <Enabled>_ 0</Enabled>
+        <Enabled>0</Enabled>
+        <ShowSource>0</ShowSource>
+        <HideCovered>0</HideCovered>
     </CodeCoverage>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -25,6 +27,7 @@
         <ShowArgs>0</ShowArgs>
     </CallStack>
     <Disassembly>
+        <InstrCount>0</InstrCount>
         <MixedMode>1</MixedMode>
     </Disassembly>
     <JLinkDriver>
@@ -39,11 +42,11 @@
     </JLinkDriver>
     <SWOTraceHWSettings>
         <OverrideDefaultClocks>0</OverrideDefaultClocks>
-        <CpuClock>72000000</CpuClock>
+        <CpuClock>80000000</CpuClock>
         <ClockAutoDetect>0</ClockAutoDetect>
         <ClockWanted>2000000</ClockWanted>
         <JtagSpeed>2000000</JtagSpeed>
-        <Prescaler>36</Prescaler>
+        <Prescaler>40</Prescaler>
         <TimeStampPrescIndex>0</TimeStampPrescIndex>
         <TimeStampPrescData>0</TimeStampPrescData>
         <PcSampCYCTAP>1</PcSampCYCTAP>
@@ -69,6 +72,18 @@
         <Freq>10000000</Freq>
         <MultiCoreRunAll>1</MultiCoreRunAll>
     </Simulator>
+    <Trace1>
+        <Enabled>0</Enabled>
+        <ShowSource>1</ShowSource>
+    </Trace1>
+    <Log_file>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+        <Category>_ 0</Category>
+    </Log_file>
+    <Disassemble_mode>
+        <mode>0</mode>
+    </Disassemble_mode>
     <struct_types>
         <Fmt0>COMPORT-pingrp	4	0</Fmt0>
         <Fmt1>GPIO_IN-gpistt	4	0</Fmt1>
@@ -102,27 +117,31 @@
         <Fmt3>{W}1:addrOfSector	4	0</Fmt3>
         <Fmt4>{W}1:address	4	0</Fmt4>
         <Fmt5>{W}1:code	4	0</Fmt5>
-        <Fmt6>{W}1:data	4	0</Fmt6>
-        <Fmt7>{W}1:dd	4	0</Fmt7>
-        <Fmt8>{W}1:guc_RegisterStat	4	0</Fmt8>
-        <Fmt9>{W}1:gul_netid	4	0</Fmt9>
-        <Fmt10>{W}1:op-&gt;addr	4	0</Fmt10>
-        <Fmt11>{W}1:pEzTxPkt-&gt;TxPkt.len	3	0</Fmt11>
-        <Fmt12>{W}1:prog_addr	4	0</Fmt12>
-        <Fmt13>{W}1:stt	4	0</Fmt13>
-        <Fmt14>{W}1:timeframe	3	0</Fmt14>
-        <Fmt15>{W}1:tmp	4	0</Fmt15>
-        <Fmt16>{W}1:to	3	0</Fmt16>
-        <Fmt17>{W}2:address	4	0</Fmt17>
-        <Fmt18>{W}2:code	4	0</Fmt18>
-        <Fmt19>{W}2:dataWord	4	0</Fmt19>
-        <Fmt20>{W}2:lp-&gt;item-&gt;adcHandle	4	0</Fmt20>
-        <Fmt21>{W}2:pGpio-&gt;pingrp	4	0</Fmt21>
+        <Fmt6>{W}1:cr1its	4	0</Fmt6>
+        <Fmt7>{W}1:data	4	0</Fmt7>
+        <Fmt8>{W}1:dd	4	0</Fmt8>
+        <Fmt9>{W}1:gs_Uart1Handle.Instance-&gt;CR1	4	0</Fmt9>
+        <Fmt10>{W}1:gs_Uart1Handle.Instance-&gt;ISR	4	0</Fmt10>
+        <Fmt11>{W}1:gs_Uart2Handle.Instance-&gt;CR1	4	0</Fmt11>
+        <Fmt12>{W}1:gs_Uart2Handle.Instance-&gt;ISR	4	0</Fmt12>
+        <Fmt13>{W}1:gs_Uart2Handle.Instance-&gt;TDR	4	0</Fmt13>
+        <Fmt14>{W}1:guc_RegisterStat	4	0</Fmt14>
+        <Fmt15>{W}1:gul_netid	4	0</Fmt15>
+        <Fmt16>{W}1:isrflags	4	0</Fmt16>
+        <Fmt17>{W}1:op-&gt;addr	4	0</Fmt17>
+        <Fmt18>{W}1:pEzTxPkt-&gt;TxPkt.len	3	0</Fmt18>
+        <Fmt19>{W}1:prog_addr	4	0</Fmt19>
+        <Fmt20>{W}1:stt	4	0</Fmt20>
+        <Fmt21>{W}1:timeframe	3	0</Fmt21>
+        <Fmt22>{W}1:tmp	4	0</Fmt22>
+        <Fmt23>{W}1:to	3	0</Fmt23>
+        <Fmt24>{W}1:uhdata	5	0</Fmt24>
+        <Fmt25>{W}2:address	4	0</Fmt25>
+        <Fmt26>{W}2:code	4	0</Fmt26>
+        <Fmt27>{W}2:dataWord	4	0</Fmt27>
+        <Fmt28>{W}2:lp-&gt;item-&gt;adcHandle	4	0</Fmt28>
+        <Fmt29>{W}2:pGpio-&gt;pingrp	4	0</Fmt29>
     </watch_formats>
-    <Trace1>
-        <Enabled>0</Enabled>
-        <ShowSource>1</ShowSource>
-    </Trace1>
     <Trace2>
         <Enabled>0</Enabled>
         <ShowSource>0</ShowSource>
@@ -153,6 +172,14 @@
         <SumEnabled>0</SumEnabled>
         <ShowTimeSum>1</ShowTimeSum>
     </DataLog>
+    <InterruptLog>
+        <LogEnabled>0</LogEnabled>
+        <GraphEnabled>0</GraphEnabled>
+        <ShowTimeLog>1</ShowTimeLog>
+        <SumEnabled>0</SumEnabled>
+        <ShowTimeSum>1</ShowTimeSum>
+        <SumSortOrder>0</SumSortOrder>
+    </InterruptLog>
     <EventLog>
         <Title_0>Ch3</Title_0>
         <Symbol_0>0 4 1</Symbol_0>
@@ -169,29 +196,51 @@
         <ShowTimeSum>1</ShowTimeSum>
         <SumSortOrder>0</SumSortOrder>
     </EventLog>
-    <InterruptLog>
-        <LogEnabled>0</LogEnabled>
-        <GraphEnabled>0</GraphEnabled>
-        <ShowTimeLog>1</ShowTimeLog>
-        <SumEnabled>0</SumEnabled>
-        <ShowTimeSum>1</ShowTimeSum>
-        <SumSortOrder>0</SumSortOrder>
-    </InterruptLog>
-    <Log_file>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-        <Category>_ 0</Category>
-    </Log_file>
+    <DisassembleMode>
+        <mode>0</mode>
+    </DisassembleMode>
+    <Breakpoints2>
+        <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\drv_sys_tick.c}.2013.2" 0 0 1 "" 0 "" 0</Bp0>
+        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\drv_sys_tick.c}.1172.11" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\star_rf_func.c}.1089.5" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\user_func.c}.4544.5" 0 0 1 "" 0 "" 0</Bp3>
+        <Bp4>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_ad.c}.165.5" 0 0 1 "" 0 "" 0</Bp4>
+        <Bp5>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\star_rf_func.c}.1880.13" 0 0 1 "" 0 "" 0</Bp5>
+        <Bp6>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\star_rf_func.c}.1605.5" 0 0 1 "" 0 "" 0</Bp6>
+        <Bp7>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_timebase_tim_template.c}.85.5" 0 0 1 "" 0 "" 0</Bp7>
+        <Bp8>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_timebase_tim_template.c}.123.9" 0 0 1 "" 0 "" 0</Bp8>
+        <Bp9>_ 0 "EMUL_CODE" "{D:\project\embed_platform\kernel\rhino\k_mm.c}.795.9" 0 0 1 "" 0 "" 0</Bp9>
+        <Bp10>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_uartx.c}.466.5" 0 0 1 "" 0 "" 0</Bp10>
+        <Bp11>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.1055.5" 0 0 1 "" 0 "" 0</Bp11>
+        <Bp12>_ 1 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.1048.5" 0 0 1 "" 0 "" 0</Bp12>
+        <Bp13>_ 1 "EMUL_CODE" "{$PROJ_DIR$\app\pst.c}.371.5" 0 0 1 "" 0 "" 0</Bp13>
+        <Bp14>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Core\Src\main.c}.125.1" 0 0 1 "" 0 "" 0</Bp14>
+        <Bp15>_ 1 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.1130.17" 0 0 1 "" 0 "" 0</Bp15>
+        <Bp16>_ 1 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.1044.5" 0 0 1 "" 0 "" 0</Bp16>
+        <Bp17>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_msgloop.c}.60.13" 0 0 1 "" 0 "" 0</Bp17>
+        <Bp18>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\aos\aos.c}.67.5" 0 0 1 "" 0 "" 0</Bp18>
+        <Bp19>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_hwtimer.c}.128.3" 0 0 1 "" 0 "" 0</Bp19>
+        <Bp20>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\hal\src\hal_hwtimer.c}.112.3" 0 0 1 "" 0 "" 0</Bp20>
+        <Count>21</Count>
+    </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
     </TermIOLog>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+        <Category>_ 0</Category>
+    </LogFile>
+    <Aliases>
+        <Count>0</Count>
+        <SuppressDialog>0</SuppressDialog>
+    </Aliases>
     <DriverProfiling>
         <Enabled>0</Enabled>
         <Mode>1</Mode>
         <Graph>0</Graph>
         <Symbiont>0</Symbiont>
-        <Exclusions />
     </DriverProfiling>
     <CallStackLog>
         <Enabled>0</Enabled>
@@ -204,24 +253,4 @@
         <Probe0>I0</Probe0>
         <ProbeSetup0>2 1 1 2 0 0</ProbeSetup0>
     </PowerProbe>
-    <Disassemble_mode>
-        <mode>0</mode>
-    </Disassemble_mode>
-    <DisassembleMode>
-        <mode>0</mode>
-    </DisassembleMode>
-    <Breakpoints2>
-        <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\drv_sys_tick.c}.2013.2" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\drv_sys_tick.c}.1172.11" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\star_rf_func.c}.1089.5" 0 0 1 "" 0 "" 0</Bp2>
-        <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\user_func.c}.4544.5" 0 0 1 "" 0 "" 0</Bp3>
-        <Bp4>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\drivers\GD32F30x\src\dev_ad.c}.165.5" 0 0 1 "" 0 "" 0</Bp4>
-        <Bp5>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\star_rf_func.c}.1880.13" 0 0 1 "" 0 "" 0</Bp5>
-        <Bp6>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\star_rf_func.c}.1605.5" 0 0 1 "" 0 "" 0</Bp6>
-        <Count>7</Count>
-    </Breakpoints2>
-    <Aliases>
-        <Count>0</Count>
-        <SuppressDialog>0</SuppressDialog>
-    </Aliases>
 </settings>

@@ -2140,7 +2140,7 @@ HAL_StatusTypeDef HAL_UART_AbortTransmit_IT(UART_HandleTypeDef *huart)
       huart->TxXferCount = 0U;
 
       /* Clear TxISR function pointers */
-      huart->TxISR = NULL;
+      //huart->TxISR = NULL;
 
       /* Restore huart->gState to Ready */
       huart->gState = HAL_UART_STATE_READY;
@@ -2161,7 +2161,7 @@ HAL_StatusTypeDef HAL_UART_AbortTransmit_IT(UART_HandleTypeDef *huart)
     huart->TxXferCount = 0U;
 
     /* Clear TxISR function pointers */
-    huart->TxISR = NULL;
+    //huart->TxISR = NULL;
 
 #if defined(USART_CR1_FIFOEN)
     /* Flush the whole TX FIFO (if needed) */
@@ -2481,6 +2481,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
         huart->ErrorCode = HAL_UART_ERROR_NONE;
       }
     }
+    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_FEF);
     return;
 
   } /* End if some error occurs */
@@ -2570,7 +2571,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
         huart->ReceptionType = HAL_UART_RECEPTION_STANDARD;
 
         /* Clear RxISR function pointer */
-        huart->RxISR = NULL;
+//        huart->RxISR = NULL;
 
         ATOMIC_CLEAR_BIT(huart->Instance->CR1, USART_CR1_IDLEIE);
 
@@ -2618,6 +2619,11 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
       && ((cr1its & USART_CR1_TXEIE) != 0U))
 #endif /* USART_CR1_FIFOEN */
   {
+//    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
+//    __HAL_UART_CLEAR_FLAG(huart, USART_ICR_TCCF);
+//    __HAL_UART_CLEAR_FLAG(huart, USART_ICR_TCBGTCF);
+//    __HAL_UART_CLEAR_FLAG(huart, USART_ICR_PECF);
+    
     if (huart->TxISR != NULL)
     {
       huart->TxISR(huart);
@@ -3612,7 +3618,7 @@ HAL_StatusTypeDef UART_Start_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pDat
   huart->pRxBuffPtr  = pData;
   huart->RxXferSize  = Size;
   huart->RxXferCount = Size;
-  huart->RxISR       = NULL;
+//  huart->RxISR       = NULL;
 
   /* Computation of UART mask to apply to RDR register */
   UART_MASK_COMPUTATION(huart);
@@ -3786,8 +3792,8 @@ static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
   ATOMIC_CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE));
   ATOMIC_CLEAR_BIT(huart->Instance->CR3, (USART_CR3_EIE | USART_CR3_RXFTIE));
 #else
-  ATOMIC_CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
-  ATOMIC_CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+  //ATOMIC_CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
+  //ATOMIC_CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
 #endif /* USART_CR1_FIFOEN */
 
   /* In case of reception waiting for IDLE event, disable also the IDLE IE interrupt source */
@@ -3801,7 +3807,7 @@ static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
   huart->ReceptionType = HAL_UART_RECEPTION_STANDARD;
 
   /* Reset RxIsr function pointer */
-  huart->RxISR = NULL;
+//  huart->RxISR = NULL;
 }
 
 
@@ -4362,7 +4368,7 @@ static void UART_EndTransmit_IT(UART_HandleTypeDef *huart)
   huart->gState = HAL_UART_STATE_READY;
 
   /* Cleat TxISR function pointer */
-  huart->TxISR = NULL;
+  //huart->TxISR = NULL;
 
 #if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
   /*Call registered Tx complete callback*/
@@ -4407,7 +4413,7 @@ static void UART_RxISR_8BIT(UART_HandleTypeDef *huart)
       huart->RxState = HAL_UART_STATE_READY;
 
       /* Clear RxISR function pointer */
-      huart->RxISR = NULL;
+//      huart->RxISR = NULL;
 
       /* Initialize type of RxEvent to Transfer Complete */
       huart->RxEventType = HAL_UART_RXEVENT_TC;
@@ -4504,7 +4510,7 @@ static void UART_RxISR_16BIT(UART_HandleTypeDef *huart)
       huart->RxState = HAL_UART_STATE_READY;
 
       /* Clear RxISR function pointer */
-      huart->RxISR = NULL;
+//      huart->RxISR = NULL;
 
       /* Initialize type of RxEvent to Transfer Complete */
       huart->RxEventType = HAL_UART_RXEVENT_TC;
@@ -4649,7 +4655,7 @@ static void UART_RxISR_8BIT_FIFOEN(UART_HandleTypeDef *huart)
         huart->RxState = HAL_UART_STATE_READY;
 
         /* Clear RxISR function pointer */
-        huart->RxISR = NULL;
+//        huart->RxISR = NULL;
 
         /* Initialize type of RxEvent to Transfer Complete */
         huart->RxEventType = HAL_UART_RXEVENT_TC;
@@ -4813,7 +4819,7 @@ static void UART_RxISR_16BIT_FIFOEN(UART_HandleTypeDef *huart)
         huart->RxState = HAL_UART_STATE_READY;
 
         /* Clear RxISR function pointer */
-        huart->RxISR = NULL;
+//        huart->RxISR = NULL;
 
         /* Initialize type of RxEvent to Transfer Complete */
         huart->RxEventType = HAL_UART_RXEVENT_TC;

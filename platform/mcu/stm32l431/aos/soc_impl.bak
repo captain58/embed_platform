@@ -76,7 +76,7 @@ void aos_heap_set(void)
         (g_iram1_start + g_iram1_total_size - (size_t)&Image$$RW_IRAM1$$ZI$$Limit);
 }
 #elif defined (__ICCARM__)/* IAR */
-#define HEAP_BUFFER_SIZE 1024*15
+#define HEAP_BUFFER_SIZE 1024*24
 #pragma location = ".mmm"
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
@@ -105,7 +105,7 @@ void soc_err_proc(kstat_t err)
 {
     (void)err;
 
-    assert(0);
+    //assert(0);
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;

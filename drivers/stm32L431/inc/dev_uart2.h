@@ -174,7 +174,7 @@ void SYS_SER_ReadDataExport(uint8 port, TDataExport func);
  *-----------------------------------------------------------------------
  * @History: 
  ************************************************************************/
-int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint16 opt);
+int SYS_SER_WriteOption(uint8 port, uint8* buffer, uint16 length, uint32_t opt);
 
 
 /************************************************************************

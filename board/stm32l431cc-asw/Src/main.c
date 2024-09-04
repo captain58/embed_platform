@@ -59,7 +59,7 @@ DMA_HandleTypeDef hdma_usart1_tx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
+//void SystemClock_Config(void);
 int SystemClock_Stop(void);
 
 void MX_GPIO_Init(void);

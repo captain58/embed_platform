@@ -169,7 +169,7 @@
         */
         GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -268,7 +268,7 @@
         */
         GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -467,7 +467,7 @@ const SerialID* const gss_UartSID[NO_OF_SERIAL] =
 
 };
 
-const uint8_t _ucPortMap[] = {SYS_UART1_IDX,SYS_UART0_IDX,SYS_UART0_IDX};
+const uint8_t _ucPortMap[] = {SYS_UART2_IDX,SYS_UART1_IDX,SYS_UART1_IDX};
 
 //	#endif                                  //#ifdef _USR_MAIN
 
