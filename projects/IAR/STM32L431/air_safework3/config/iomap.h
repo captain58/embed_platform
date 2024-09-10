@@ -227,8 +227,11 @@ typedef enum
         {(COMPORT*)&gs_GpiKey2,       1, 0, 0},      //key2
         {(COMPORT*)&gs_GpiDIO1,       1, 0, 0},      //key3     
         {(COMPORT*)&gs_GpiDIO2,       1, 0, 0},      //key1
-        {(COMPORT*)&gs_GpiSwitch,     1, 0, 1, 0, 
-            0, 0, 0, 0},     //¹´×Ó
+        {(COMPORT*)&gs_GpiSwitch,     1, 0, 
+        1, 
+        EXTI15_10_IRQn, 
+        (uint32_t)GPIOB, 
+         14, 0, 0},     //¹´×Ó
 //        {(COMPORT*)&gs_GpiHall2,      false, 0, 0},      //key2
 //        {(COMPORT*)&gs_GpiCardSda,    false, 0, 0},      //cpu¿¨sda½Å
 //        {(COMPORT*)&gs_GpiEsamSda,    false, 0, 0},      //Esam sda½Å
@@ -299,8 +302,8 @@ typedef enum
 ******************************************************************************/
 #ifdef EXT_RF
     
-    const COMPORT gs_RFSpiMISO = {(uint32_t)GPIOA, 6,  0, GPIO_MODE_INPUT,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,   0};
-    const COMPORT gs_RFSpiMOSI = {(uint32_t)GPIOA, 7,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,   0};
+    const COMPORT gs_RFSpiMISO = {(uint32_t)GPIOA, 7,  0, GPIO_MODE_INPUT,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,   0};
+    const COMPORT gs_RFSpiMOSI = {(uint32_t)GPIOA, 7,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,   0};
     const COMPORT gs_RFSpiSCK  = {(uint32_t)GPIOA, 5,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,   0};
     const COMPORT gs_RFSpiCS   = {(uint32_t)GPIOA, 4,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    0};
     const COMPORT gs_RFSpiPWR  = {(uint32_t)GPIOB, 1,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    0};

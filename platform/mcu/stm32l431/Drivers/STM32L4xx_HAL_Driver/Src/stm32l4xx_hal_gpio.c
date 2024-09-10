@@ -506,7 +506,7 @@ HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   * @param  GPIO_Pin Specifies the port pin connected to corresponding EXTI line.
   * @retval None
   */
-void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
+__weak void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
 {
   /* EXTI line interrupt detected */
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_Pin) != 0x00u)

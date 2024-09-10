@@ -154,7 +154,8 @@ void systick_config(void)
     HAL_SetTickFreq(HAL_TICK_FREQ_100HZ);
     /* configure the systick handler priority */
     NVIC_SetPriority(SysTick_IRQn, 0x00U);
-    NVIC_SetPriority(PendSV_IRQn, 0x00U);
+    //NVIC_SetPriority(PendSV_IRQn, (1UL << __NVIC_PRIO_BITS) - 1);
+    NVIC_SetPriority(PendSV_IRQn, 0);
 }
 //    extern LPTIM_HandleTypeDef hlptim1;
 static void sys_start(void)

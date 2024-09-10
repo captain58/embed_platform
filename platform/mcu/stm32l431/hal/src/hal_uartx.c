@@ -368,7 +368,8 @@ int Uartx_Config(SerialSets * ss, const SerialID* sid)
     else
     {
         sid->huart->TxISR = Uartx_TxISR_8BIT;
-    }        
+    }     
+    UART_MASK_COMPUTATION(sid->huart);
          /* Enable the UART Parity Error interrupt and Data Register Not Empty interrupt */
 #if defined(USART_CR1_FIFOEN)
     SET_BIT(sid->huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE_RXFNEIE);
@@ -471,6 +472,7 @@ int32_t Uartx_Init( SerialID* sid, SerialSets * ss)
     {
         sid->huart->TxISR = Uartx_TxISR_8BIT;
     }     
+    UART_MASK_COMPUTATION(sid->huart);
     //初始化信息结构体变量
     gps_uartInfoList[sid->uart_no] = sid;
     memset((uint8*)sid->buffer, 0, sizeof(SerialBuffer));
@@ -874,7 +876,7 @@ void Uartx_RxISR_8BIT(UART_HandleTypeDef *huart)
     uint16_t  uhdata;
     SerialID * sid = gps_uartInfoList[huart->id];
     SerialBuffer* gsp_Uartx = sid->buffer;
-    uint8 rflag = 0;
+    uint8 rflag = 0, dd = 0;
     /* Check that a Rx process is ongoing */
 //    if(huart->RxState == HAL_UART_STATE_BUSY_RX)
     {
@@ -930,7 +932,7 @@ void Uartx_RxISR_8BIT(UART_HandleTypeDef *huart)
         }
 
                                                 //启动定时从而来判断是否接收完一帧
-//        if(rflag)
+        if(rflag)
         {
             casHwTimerStart(ID_CASHWTIMR_UARTROT(sid->uart_no));
         }    

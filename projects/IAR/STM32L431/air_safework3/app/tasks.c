@@ -95,12 +95,12 @@ void SYS_TASKS_Init(void)
         {
             continue;
         }
-        
+        SYS_ENTER_SCRT();
         //开始创建进程
         memset(dec->ktask->stack, 0xFF, dec->stklen * sizeof(cpu_stack_t));//yzy 初始化栈,便于观察是否溢出
         krhino_task_create(dec->ktask->handle, dec->ktask->name, dec->ktask->arg, dec->ktask->prior, 
             50, dec->ktask->stack, dec->stklen, dec->ktask->pfunc, 1);
-
+        SYS_EXIT_SCRT();
         aos_msleep(100);
 
     }

@@ -57,6 +57,8 @@ TIM_HandleTypeDef htim2;
 #define HWTIMER_IRQn    TIMER_32_0_IRQn
 
 uint32_t g_timer_tick = 0;
+uint32_t g_timer1_tick = 0;
+uint32_t g_timer2_tick = 0;
 /**
   * @brief  Period elapsed callback in non-blocking mode
   * @param  htim TIM handle
@@ -69,15 +71,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //  UNUSED(htim);
     if (htim->Instance == TIM1)
     {
-        g_timer_tick++;
+        g_timer1_tick++;
         gfs_hwTimerDelay[0](paraHwTimerDelay[0]);
     }
     else if (htim->Instance == TIM2)
     {
-        g_timer_tick++;
+        g_timer2_tick++;
         gfs_hwTimerDelay[1](paraHwTimerDelay[1]);
     }
-    krhino_intrpt_exit();
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
    */
@@ -224,9 +226,9 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
             {
               
                 htim1.Instance = TIM1;
-                htim1.Init.Prescaler = 72;
+                htim1.Init.Prescaler = SystemCoreClock / 10000 - 1;
                 htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-                htim1.Init.Period = 1000;
+                htim1.Init.Period = cycle*10 - 1;
                 htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
                 htim1.Init.RepetitionCounter = 0;
                 htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -291,12 +293,17 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
 
                 /* USER CODE END TIM2_Init 1 */
                 htim2.Instance = TIM2;
-                htim2.Init.Prescaler = 72;
+                htim2.Init.Prescaler = SystemCoreClock / 10000 - 1;
                 htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-                htim2.Init.Period = 1000;
+                htim2.Init.Period = cycle*10 - 1;
                 htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
                 htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
                 if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+                {
+                Error_Handler();
+                }
+                sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+                if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
                 {
                 Error_Handler();
                 }
@@ -311,7 +318,7 @@ static uint8 Hal_Timer_Config(uint8 tmrIdx)
                 if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
                 {
                 Error_Handler();
-                }         
+                }        
 
             }
             break;
@@ -402,7 +409,7 @@ uint8 SysTimer_DlyStart(uint8 tmrIdx)
 //        HAL_NVIC_EnableIRQ(TIM1_TRG_COM_IRQn);
 //        HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
 //        HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
-        //HAL_TIM_Base_Start_IT(&htim1);
+        HAL_TIM_Base_Start_IT(&htim1);
         
         break;
     case 1:
@@ -419,7 +426,7 @@ uint8 SysTimer_DlyStart(uint8 tmrIdx)
 //        /* TIM2 interrupt Init */
 //        HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
 //        HAL_NVIC_EnableIRQ(TIM2_IRQn);
-        //HAL_TIM_Base_Start_IT(&htim2);
+        HAL_TIM_Base_Start_IT(&htim2);
         break;        
     default:
    

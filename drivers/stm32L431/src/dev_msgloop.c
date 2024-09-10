@@ -57,7 +57,10 @@ void UartRevMessageDelivery(uint8 uartidx, uint8 msg_recv)
 //	
 //	            msg = MSG_YEAR;
 //	            dec+=(uc_i << 3) + subtk;
-            krhino_buf_queue_send(dec[(uc_i << 3) + subtk].ktask->msg, &msg_recv, 1);
+            if (dec[(uc_i << 3) + subtk].ktask->msg->blk_obj.obj_type == RHINO_BUF_QUEUE_OBJ_TYPE)
+            {
+                krhino_buf_queue_send(dec[(uc_i << 3) + subtk].ktask->msg, &msg_recv, 1);
+            }
 
             
             tkmap &= ~Bit_Map8[subtk];
@@ -94,7 +97,7 @@ void SYS_UART_RevMessageLoop(void)
 //	            }
 //	            else                        //否则,进行接收消息分发
 //	            {
-            //UartRevMessageDelivery(uartidx, MSG_UART0 + uartidx);
+            UartRevMessageDelivery(uartidx, MSG_UART0 + uartidx);
 //	            }
             gucs_UartRevFlag[uartidx] = 0;
         }

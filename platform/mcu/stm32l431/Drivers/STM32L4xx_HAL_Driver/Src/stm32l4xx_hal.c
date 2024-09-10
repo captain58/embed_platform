@@ -366,7 +366,7 @@ HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 
     /* Update uwTickFreq global variable used by HAL_InitTick() */
     uwTickFreq = Freq;
-    uwTickPrio = (1UL << __NVIC_PRIO_BITS) - 1;
+    uwTickPrio = (1UL << __NVIC_PRIO_BITS) - 2;
     /* Apply the new tick Freq  */
     status = HAL_InitTick(uwTickPrio);
     if (status != HAL_OK)

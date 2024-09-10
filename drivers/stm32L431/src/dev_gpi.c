@@ -326,7 +326,7 @@ void SYS_GPI_Init(void)
 //	            HAL_GPIO_EInt_Cfg(gpi->handleno, &gpi->gpio[gpi->pingrp], gpi->pinnum, gpi->edge, SYS_LGPI_Scan, NULL);
             /* enable and set key EXTI interrupt to the lowest priority */
 //            nvic_irq_enable(gpi->IRQn, 2U, 0U);
-            HAL_NVIC_SetPriority(gpi->IRQn, 1, 0);
+            HAL_NVIC_SetPriority(gpi->IRQn, 2, 0);
             HAL_NVIC_EnableIRQ(gpi->IRQn);
 
             /* connect key EXTI line to key GPIO pin */

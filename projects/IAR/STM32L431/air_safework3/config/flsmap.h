@@ -29,7 +29,7 @@
 
 //usr区范围限制
 #define  FLS_APPSTART_ADDR      0x08003000
-#define  FLS_APPEND_ADDR        0x0007FFFF
+#define  FLS_APPEND_ADDR        0x0001FFFF
 
 //usr区定义
 #define  FLS_USRMARKA_ADDR      (FLS_APPSTART_ADDR + 0x200) //用户程序调试程序有效性标志
@@ -43,7 +43,7 @@
 
 
 #define FLS_CHIP_NO     1
-#define FLASH1_SIZE     0x2000000        //32MM
+#define FLASH1_SIZE     0x40000        //32MM
 #define FLASH2_SIZE     0x200000        //2M 2010-01-10
 
 
@@ -88,7 +88,7 @@ __root const S_FILEBLOCKS gss_FileBlocks[] =
     //起始文件号, 同类项, 最小数据块数
     
     {DB_CODE,         0, 54, TDB_MODE_RW},    //远程升级
-    {DB_UPDATE,         0, 48, TDB_MODE_RW},    //远程升级
+    {DB_UPDATE,         0, 2, TDB_MODE_RW},    //远程升级
 //	    {DB_FACTORY,        0, 2, TDB_MODE_RW},     //出厂配置    
     
     {DB_PARA,           0, 2,  TDB_MODE_RW},    //参数

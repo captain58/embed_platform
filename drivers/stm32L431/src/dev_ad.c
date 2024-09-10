@@ -171,6 +171,7 @@ uint8_t ADC_Wait_Finish(void)
 //		return ret;
 //	}
 
+//ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc1;
 /*******************************************************************************
  * @function_name:  SYS_AD_Scan
@@ -213,22 +214,22 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
      /* USER CODE BEGIN ADC1_MspInit 0 */
 
   /* USER CODE END ADC1_MspInit 0 */
-    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-    /** Initializes the peripherals clock
-    */
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-    PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
-    PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSI;
-    PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
-    PeriphClkInit.PLLSAI1.PLLSAI1N = 8;
-    PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
-    PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
-    PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
-    PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_ADC1CLK;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-    {
-      Error_Handler();
-    }
+//    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+//    /** Initializes the peripherals clock
+//    */
+//    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+//    PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
+//    PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSI;
+//    PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
+//    PeriphClkInit.PLLSAI1.PLLSAI1N = 8;
+//    PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
+//    PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
+//    PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
+//    PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_ADC1CLK;
+//    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+//    {
+//      Error_Handler();
+//    }
    
   /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -270,7 +271,7 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
     }
 
       /* 启动ADC */
-    HAL_ADC_Start(&hadc1);
+    
     fTempADC = 0;
     for(i=0; i<4; i++)
     {
@@ -286,8 +287,13 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
 //        /* return regular channel sample value */
 //        ADCData[i] = adc_regular_data_read(lp->item->adcHandle);
       /* 读取ADC值 */
+//        HAL_ADC_Start(&hadc1);
         HAL_ADC_Start(&hadc1);
-    uint32_t adcValue = HAL_ADC_GetValue(&hadc1);
+        if (HAL_ADC_PollForConversion(&hadc1, 10) != HAL_OK)
+        {
+            Error_Handler();
+        }
+        ADCData[i] = HAL_ADC_GetValue(&hadc1);
         fTempADC += ADCData[i];
         
 
@@ -353,6 +359,7 @@ void SYS_AD_Init(void)
 {
     uint8   uc_i = 0;  
     ADPORT* lp;
+      RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 //	    ADC_CLOCK_SETUP_T adc_clock;
 //	    RCC_PERCLK_SetableEx(ANACCLK, ENABLE);      //模拟电路总线时钟使能
 //	    RCC_PERCLK_SetableEx(ADCCLK, ENABLE);       //ADC时钟使能
@@ -373,54 +380,28 @@ void SYS_AD_Init(void)
 //	        HAL_GPIO_SetPinState(&lp->gpio[lp->pingrp], lp->pinnum, lp->lpval);
         HAL_GPIO_PinConfig(&lp->item->gpio);
 
-        /* ADC mode config */
-//        adc_mode_config(ADC_MODE_FREE);
-//        /* ADC data alignment config */
-//        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
-//        /* ADC channel length config */
-//        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
-//        
-//        /* ADC trigger config */
-//        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
-//        /* ADC external trigger config */
-//        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
-//
-//        /* enable ADC interface */
-//        adc_enable(lp->item->adcHandle);
-//        msleep(1U);
-//        /* ADC calibration and reset calibration */
-//        adc_calibration_enable(lp->item->adcHandle);/* ADC mode config */
-//        adc_mode_config(ADC_MODE_FREE);
-//        /* ADC data alignment config */
-//        adc_data_alignment_config(lp->item->adcHandle, ADC_DATAALIGN_RIGHT);
-//        /* ADC channel length config */
-//        adc_channel_length_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, 1U);
-//        
-//        /* ADC trigger config */
-//        adc_external_trigger_source_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE); 
-//        /* ADC external trigger config */
-//        adc_external_trigger_config(lp->item->adcHandle, ADC_REGULAR_CHANNEL, ENABLE);
-//
-//        /* enable ADC interface */
-//        adc_enable(lp->item->adcHandle);
-//        msleep(1U);
-//        /* ADC calibration and reset calibration */
-//        adc_calibration_enable(lp->item->adcHandle);
-
-
-//	        Chip_ADC_Init(lp->adc, &adc_clock); // 12位模式和正常的电源设置ADC
-
-        //Chip_ADC_SetSampleRate(lp->adc, &adc_clock, ADC_MAX_SAMPLE_RATE);// 设置为最大的ADC时钟速率 
-
-//	        Chip_IOCON_PinMuxSet(LPC_IOCON, lp->pingrp, lp->pinnum, lp->modefunc ); // 禁止上拉/下拉和禁用数字模式
-//	        Chip_ADC_SetSequencerBits(lp->adc, lp->seq, 1 << lp->chn);
-        //Chip_ADC_Int_SetChannelCmd(lp->adc, 1<<lp->chn, ENABLE);
+  /* USER CODE END ADC1_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_ADC_CLK_ENABLE();
+        /* ADC Periph interface clock configuration */
+        __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
+//        RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+//        /** Initializes the peripherals clock
+//        */
+//        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+//        PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
+//        PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSI;
+//        PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
+//        PeriphClkInit.PLLSAI1.PLLSAI1N = 8;
+//        PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
+//        PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
+//        PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
+//        PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_ADC1CLK;
+//        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+//        {
+//          Error_Handler();
+//        }        
         
-        //Chip_ADC_SetBurstCmd(lp->adc, DISABLE);
-        
-        //Chip_ADC_EnableChannel(lp->adc, (ADC_CHANNEL_T)lp->chn, ENABLE);
-        
-//	        Chip_ADC_SetStartMode(lp->adc, lp->seq);
     }
 //	    ANAC_ADCCON_ADC_IE_Setable(DISABLE);        //中断禁止
 //	    ANAC_ADCCON_ADC_EN_Setable(DISABLE);        //ADC关闭

@@ -347,7 +347,7 @@ typedef struct
 
     uint8_t handleen;
     uint8_t IRQn;
-    uint8_t exit_port;
+    uint32_t exit_port;
     uint8_t exit_pin;
     uint32_t exit_line;
     uint8_t exit_edge;

@@ -58,7 +58,7 @@
 /*******************************************************************************
 **ÓÃ»§³ÌÐò°æ±¾ºÅ
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x23090212;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x24090813;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 
@@ -460,7 +460,8 @@ void KeyProc(uint8 key)
         {
 	        LOG_DEBUG("key 1 failing!\n");
             gs_SysVar.terstt.bit.DI0linked = 1; 
-            
+            extern kbuf_queue_t gs_RFMngQueue;
+            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_WAKE_UP], 1);
 //	            gs_SysVar.AI0 = SYS_AD_GetValue(AD_ID_AI0)/100;
 //	            gs_SysVar.AI1 = SYS_AD_GetValue(AD_ID_AI1)/100;
 
@@ -476,12 +477,12 @@ void KeyProc(uint8 key)
 //            if((gs_SysVar.mLPstt & HLV_LPTASK_TST) == 0)
 //                g_ucPutcharEn = 1;
             gs_SysVar.terstt.bit.blecheck = 0;
-//		        LOG_DEBUG("key 2 failing!\n");
+	        LOG_DEBUG("key 2 failing!\n");
         }
         
         if(event & 4)               //KEY3
         {
-//		        LOG_DEBUG("key 3 failing!\n");
+	        LOG_DEBUG("key 3 failing!\n");
 //	            gs_SysVar.terstt.bit.DI1linked = 1; 
 //	            msg = MSG_CARD_INSERT;
 //	            krhino_buf_queue_send(&gs_MainQueue, &msg, 1);
@@ -496,7 +497,7 @@ void KeyProc(uint8 key)
         {
 	
             SYS_RF_Set_FallingEdge(GPI_DIO2);
-//	            LOG_DEBUG("key 4 failing!\n");
+            LOG_DEBUG("key 4 failing!\n");
         }
         
         if(event & 0x10)               //KEY5
@@ -546,17 +547,17 @@ void KeyProc(uint8 key)
         if(event & 2)               //KEY2
         {
 
-//		        LOG_DEBUG("key 2 keep!\n");
+	        LOG_DEBUG("key 2 keep!\n");
         }
         
         if(event & 4)               //KEY3
         {
-//		        LOG_DEBUG("key 3 keep!\n");
+	        LOG_DEBUG("key 3 keep!\n");
         }
         
         if(event & 8)               //KEY4
         {
-//	            LOG_DEBUG("key 4 keep!\n");
+            LOG_DEBUG("key 4 keep!\n");
         }
         
         if(event & 0x10)               //KEY5
@@ -602,12 +603,12 @@ void KeyProc(uint8 key)
 //	            hal_gpio_output_high(&brd_gpio_table[GPO_BLE_UART_CTL]);
 //            gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,true);
 
-//		        LOG_DEBUG("key 2 right!\n");
+	        LOG_DEBUG("key 2 right!\n");
         }
         
         if(event & 4)               //KEY3
         {
-//	            LOG_DEBUG("key 3 right!\n");
+            LOG_DEBUG("key 3 right!\n");
 //		        gs_SysVar.terstt.bit.DI0linked = 0; 
 
 #ifdef MASTER_NODE
@@ -619,7 +620,7 @@ void KeyProc(uint8 key)
         
         if(event & 8)               //KEY4
         {
-//	            LOG_DEBUG("key 4 right!\n");
+            LOG_DEBUG("key 4 right!\n");
         }
         
         if(event & 0x10)               //KEY4
@@ -943,15 +944,16 @@ int application_start(int argc, char *argv[])
 //#ifndef DEBUG        
 //    HAL_IWDG_Refresh(&hiwdg); //Î¹¹·
 //#endif
-    SYS_APP_Init();
+    
 //    
 //#ifndef DEBUG        
 //    HAL_IWDG_Refresh(&hiwdg); //Î¹¹·
 //#endif
 //    
     printf("nano entry here!\r\n");
+    SYS_APP_Init();
     SYS_TASKS_Init();
-    
+
 
     while(1) {
 //	        printf("hello world!!! count %d \r\n", count++);
@@ -972,14 +974,13 @@ int application_start(int argc, char *argv[])
     \param[out] none
     \retval     none
 */
-//void EXTI10_15_IRQHandler(void)
-//{
-//    if (RESET != exti_interrupt_flag_get(EXTI_14)) {
-//        exti_interrupt_flag_clear(EXTI_14);
-//        gs_SysVar.mLPstt |= HLV_LPTASK_SWITCH;
-//        gs_SysVar.mDGcnt = 2;
-//    }
-//}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+
+       gs_SysVar.mLPstt |= HLV_LPTASK_SWITCH;
+    gs_SysVar.mDGcnt = 2;
+
+}
 
 //	uint8_t guc_CardID[16];
 extern uint8 nDeviceMacAddr[METER_ADDRESS_LENGTH_MAX];
@@ -1050,7 +1051,7 @@ void SYS_MAIN_Task(void * arg)
     //Flash_Test();
 //	    SYS_IFLS_Test();
     uint8_t tmp[10] = {98,3,5,0,0,0,0,0,0,0};
-    //GD_Para_RW(F251_PADDR, tmp, 10, true);
+    GD_Para_RW(F251_PADDR, tmp, 10, true);
     memset(tmp,0,10);
     GD_Para_RW(F251_PADDR, tmp, 10, false);
 //	    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
@@ -1066,8 +1067,10 @@ void SYS_MAIN_Task(void * arg)
 //	                MAIN_SecProc();
 //	                SYS_ReadDateTime(&time);
                 extern uint32_t g_timer_tick;
+                extern uint32_t g_timer1_tick;
+                extern uint32_t g_timer2_tick;
                 g_timer_tick++;
-                LOG_DEBUG("second ! %d\n", g_timer_tick);
+                LOG_DEBUG("second ! %d time1[%d] time2[%d]\n", g_timer_tick, g_timer1_tick, g_timer2_tick);
 #ifndef   MASTER_NODE
                 if(gs_SysVar.mDGcnt > 0)
                 {

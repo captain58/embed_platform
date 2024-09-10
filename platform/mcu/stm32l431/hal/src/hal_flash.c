@@ -47,7 +47,46 @@
 **定义FLASH Buffer
  ************************************************************************/
 uint8* gp_ucfBuffer;
+/* USER CODE END 0 */
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+uint32_t FirstPage = 0, NbOfPages = 0, BankNumber = 0;
+uint32_t Address = 0, PAGEError = 0;
+__IO uint32_t data32 = 0 , MemoryProgramStatus = 0;
+/*Variable used for Erase procedure*/
+static FLASH_EraseInitTypeDef EraseInitStruct;
 
+/**
+  * @brief  Gets the page of a given address
+  * @param  Addr: Address of the FLASH Memory
+  * @retval The page of a given address
+  */
+static uint32_t GetPage(uint32_t Addr)
+{
+  uint32_t page = 0;
+  
+  if (Addr < (FLASH_BASE + FLASH_BANK_SIZE))
+  {
+    /* Bank 1 */
+    page = (Addr - FLASH_BASE) / FLASH_PAGE_SIZE;
+  }
+  else
+  {
+    /* Bank 2 */
+    page = (Addr - (FLASH_BASE + FLASH_BANK_SIZE)) / FLASH_PAGE_SIZE;
+  }
+  
+  return page;
+}
+/**
+  * @brief  Gets the bank of a given address
+  * @param  Addr: Address of the FLASH Memory
+  * @retval The bank of a given address
+  */
+static uint32_t GetBank(uint32_t Addr)
+{
+  return FLASH_BANK_1;
+}
 //扇区擦函数(每个扇区512字节) 
 //输入参数：SectorNum   需要擦除扇区的扇区号
 //			OperateKey  flash操作验证码(出于可靠性考虑，具体数据用户自定义，存储在ee或者flash中，操作flash前读取赋值给OperateKey)
@@ -55,29 +94,34 @@ uint8_t Flash_Erase_Sector( uint32_t address )
 {
 	uint16_t i;
 	uint8_t Result = 0;
-//	uint32_t *PFlash;
-//    fmc_flag_clear(FMC_FLAG_BANK0_END);
-//    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-//    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
-//    address += FLASH_ADDR_BASE;
-////	if(SectorNum < 32) return 2;//禁止擦除boot区
-//	PFlash = (uint32_t *)(uint32_t)(address);
-////		if( OperateKey == FLASHOPKEY )
-////		{
-////	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
-////		}
-////		FLASH_Erase_Sector( address );
-////	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
-//	fmc_page_erase(address);
-//	for( i=0;i<128;i++ )
-//	{
-//		if( PFlash[i] != 0xFFFFFFFF ) 
-//		{
-//			Result = 1;
-//			break;
-//		}
-//	}
-	
+    address += FLASH_ADDR_BASE;
+    /* Unlock the Flash to enable the flash control register access *************/
+    HAL_FLASH_Unlock();
+
+    /* Erase the user Flash area
+    (area defined by FLASH_USER_START_ADDR and FLASH_USER_END_ADDR) ***********/
+
+    /* Clear OPTVERR bit set on virgin samples */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR); 
+    /* Get the 1st page to erase */
+    FirstPage = GetPage(address);
+    /* Get the number of pages to erase from 1st page */
+    NbOfPages = GetPage(FLASH_ADDR_BASE+FLASH_FULL_SIZE-1) - FirstPage + 1;
+    /* Get the bank */
+    BankNumber = GetBank(address);
+    /* Fill EraseInit structure*/
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.Banks       = BankNumber;
+    EraseInitStruct.Page        = FirstPage;
+    EraseInitStruct.NbPages     = NbOfPages;
+
+    /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+     you have to make sure that these data are rewritten before they are accessed during code
+     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+     DCRST and ICRST bits in the FLASH_CR register. */
+    Result = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+ 
+    HAL_FLASH_Lock();
 	return Result;
 }
 //连续写flash函数
@@ -90,44 +134,33 @@ uint8_t Flsah_Write_String( uint32_t prog_addr,uint8_t* prog_data, uint16_t Len 
 	uint16_t i;
 	uint8_t Result = 0;
 	uint8_t *PFlash;
-	uint8_t step = 2;
-//    fmc_flag_clear(FMC_FLAG_BANK0_END);
-//    fmc_flag_clear(FMC_FLAG_BANK0_WPERR);
-//    fmc_flag_clear(FMC_FLAG_BANK0_PGERR);
-//    fmc_state_enum sta = FMC_READY;
-//    prog_addr += FLASH_ADDR_BASE;
-////		if( OperateKey == FLASHOPKEY )
-////		{
-////	RCC_PERCLK_SetableEx(FLSEPCLK, ENABLE);	//Flash擦写控制器时钟使能，用完就关
-////		}
-////		FLASH_Prog_ByteString( prog_addr, prog_data, Len);
-////	RCC_PERCLK_SetableEx(FLSEPCLK, DISABLE);	//Flash擦写控制器时钟使能，用完就关
-////		sta = fmc_halfword_program(Address, data);
-//    for (i = 0; i < Len; i += step)
-//    {
-//        __disable_irq();
-////	        ret = HAL_FLASH_Program(TypeProgram,
-////	                              address + i,
-////	                              *(pData + (i / step)));
-//        sta = fmc_halfword_program(prog_addr + i, *(uint16_t *)(prog_data + i));
-//        __enable_irq();
-//        if (sta != FMC_READY)
-//        {
-//            break;
-//        }
-//    }
-//
-//
-//	PFlash = (uint8_t*)prog_addr;
-//	for( i=0;i<Len;i++ )
-//	{
-//		if( PFlash[i] != prog_data[i] ) 
-//		{
-//			Result = 1;
-//			break;
-//		}
-//	}	
-	
+	uint8_t step = 8;
+    HAL_FLASH_Unlock();
+    uint32_t address = prog_addr + FLASH_ADDR_BASE;
+    int sta = 0;
+    for (i = 0; i < Len; i += step)
+    {
+        __disable_irq();
+
+        sta = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address + i, *(uint64_t *)(prog_data + i));// != HAL_OK)
+        __enable_irq();
+        if (sta != HAL_OK)
+        {
+            break;
+        }
+    }
+
+
+	PFlash = (uint8_t*)address;
+	for( i=0;i<Len;i++ )
+	{
+		if( PFlash[i] != prog_data[i] ) 
+		{
+			Result = 1;
+			break;
+		}
+	}	
+	HAL_FLASH_Lock();
 	return Result;
 }
 
@@ -205,7 +238,7 @@ uint8 HAL_IFLASH_Write(uint8* buffer, uint32 addr, uint16 length)
     uint32 addrOfSector;                    //
     uint16 ui_len = 0;                      //单个SECTOR中写入的长度
                                             //读取的位置不对,不允许跨片读取
-    SYS_VAR_CHECK(length + addr > FLASH_SIZE);
+    SYS_VAR_CHECK(length + addr > FLASH_END);
     SYS_VAR_CHECK(length == 0);
 
     /************************************************************************
