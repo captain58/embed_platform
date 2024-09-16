@@ -1016,6 +1016,9 @@ void SYS_SLV_Task(void)
                         }
 
                         SYS_AD_Scan(0, &gn_VBat);
+                        
+                        LOG_DEBUG("Bat value=%d mv\n", gn_VBat);
+                        
                         if(gn_VBat >= 3400)
                         {
                             SYS_Dev_OptBlinkSet(SYS_LED_BAT, 3, 0, 0, 0); 

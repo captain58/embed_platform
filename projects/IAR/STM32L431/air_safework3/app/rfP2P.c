@@ -756,6 +756,7 @@ void SYS_RFMng_Task(void * arg)
             {
                 case MSG_SEC:
                     RF_WMSecondProc();
+                    //gs_SysVar.mLPsysstt |= HLV_STT_NENG; 
                     break;
 
 

@@ -312,11 +312,13 @@ int SYS_AD_Scan(uint8_t ch, uint32_t * value)
     if( i == 4 )
     {
     	fTempADC = fTempADC/4.0;
-    ret = 0;
+        ret = 0;
     }
 	fVlotage = fTempADC * lp->item->vref / 4096 ;//AD值转换为电压
 
     *value = (uint32_t)(fVlotage * 1000 * lp->item->vnum )/1000;
+    
+    
     gsp_AdStt->value[ch] =  *value;
 
 

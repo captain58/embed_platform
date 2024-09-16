@@ -1293,14 +1293,20 @@ void entry_deep_sleep_mode(void)
 //	    StrobeCMD(CMD_SLEEP);               //entry sleep mode
 //	    delay100us(6);                      //delay 600us for VDD_A shutdown, C load=0.1uF
     msleep(1);
+    SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+    
+    msleep(2);
     SPI_Write((SPIIO*)&gs_RFSleep, &gs_RFSpiPort);
     
 //			StrobeCMD(CMD_DEEP_SLEEP);          //entry deep sleep mode
 		
-            
+    msleep(1);        
     SPI_Write((SPIIO*)&gs_RFDeepSleep, &gs_RFSpiPort);//entry deep sleep mode
 //	    delay100us(2);                      //delay 200us for VDD_D shutdown, C load=0.1uF
     msleep(1);
+    SPI_Write((SPIIO*)&gs_RFSleep, &gs_RFSpiPort);
+    msleep(1);
+    SPI_Write((SPIIO*)&gs_RFDeepSleep, &gs_RFSpiPort);
 }
 
 /*********************************************************************

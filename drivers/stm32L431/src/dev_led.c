@@ -239,6 +239,14 @@ void SYS_BlinkDev_Init(void)
 #endif
 #endif
 }
+void SYS_BlinkDev_Restart(void)
+{
+    SysTimer_DlyStart(1);
+}
+void SYS_BlinkDev_DeInit(void)
+{
+    SysTimer_DlyStop(1);
+}
 
 void SYS_BlinkDev_Idel()
 {

@@ -491,7 +491,7 @@ uint8 SysTimer_DlyStop(uint8 tmrIdx)
 //
 //            /* TIM2 interrupt DeInit */
 //            HAL_NVIC_DisableIRQ(TIM2_IRQn);
-            HAL_TIM_Base_Start_IT(&htim2);
+            HAL_TIM_Base_Stop_IT(&htim2);
             break;
 
         default:

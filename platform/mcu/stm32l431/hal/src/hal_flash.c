@@ -288,7 +288,7 @@ uint8 HAL_IFLASH_Write(uint8* buffer, uint32 addr, uint16 length)
             addrInSector = addr & FLASH_PAGE_MASK;
                                             //转移需要写入的数据
             memcpy(gp_ucfBuffer + addrInSector, buffer, ui_len);
-            if(fera)                        //需要擦除
+//            if(fera)                        //需要擦除
             {
 WRITE_DIR: 
                 Flash_Erase_Sector(addrOfSector);
@@ -306,59 +306,26 @@ WRITE_DIR:
                 
                 }
             }
-            else                            //需要写入的页
-            {
-//	                sidx = addrInSector >> 8;
-//	                eidx = (addrInSector + ui_len) >> 8;
-//	                if((addrInSector + ui_len) & 0xFF)
-//	                {
-//	                    eidx += 1;
-//	                }
-//	                for(m = 0; m < 3; m++)          //循环写,最多写3次
-//	                {
-//	                    if(Flsah_Write_String(addr, buffer, ui_len) != FLS_ERR_OK)
-//	                    {
-//	//	                        Flash_Erase_Sector(addrOfSector);
-//	                    }
-//	                    else
-//	                    {
-//	                        break;
-//	                    }
-//	                
-//	                }
-                addrInSector = addr & FLASH_PAGE_WRBYTE_MASK;
-                uint16_t wr_len = (ui_len + FLASH_BYTE_SIZE - 1) / FLASH_BYTE_SIZE * FLASH_BYTE_SIZE;
-                for(m = 0; m < 3; m++)          //循环写,最多写3次
-                {
-                    if(Flsah_Write_String(addr&(~(FLASH_BYTE_SIZE-1)), (uint8_t *)(gp_ucfBuffer + addrInSector), wr_len) != FLS_ERR_OK)
-                    {
-//                          Flash_Erase_Sector(addrOfSector);
-                        goto WRITE_DIR;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                
-                }
-
-            }
-                                            //转移需要写入的数据
-//	            MoveBuffer(buffer, gcp_FlsBuffer + addrInSector, ui_len);
-//	                                            // 
-//	            for(m = 0; m < 3; m++)          //循环写,最多写3次
-//	            {
-//	
-//	                if(Flsah_Write_String(gcp_FlsBuffer, addrOfSector, FLASH_PAGE) != FLS_ERR_OK)
-//	                {
-//	                    Flash_Erase_Sector(addrOfSector);
-//	                }
-//	                else
-//	                {
-//	                    break;
-//	                }
-//	  
-//	            }
+//            else                            //需要写入的页
+//            {
+//
+//                addrInSector = addr & FLASH_PAGE_WRBYTE_MASK;
+//                uint16_t wr_len = (ui_len + FLASH_BYTE_SIZE - 1) / FLASH_BYTE_SIZE * FLASH_BYTE_SIZE;
+//                for(m = 0; m < 3; m++)          //循环写,最多写3次
+//                {
+//                    if(Flsah_Write_String(addr&(~(FLASH_BYTE_SIZE-1)), (uint8_t *)(gp_ucfBuffer + addrInSector), wr_len) != FLS_ERR_OK)
+//                    {
+////                          Flash_Erase_Sector(addrOfSector);
+//                        goto WRITE_DIR;
+//                    }
+//                    else
+//                    {
+//                        break;
+//                    }
+//                
+//                }
+//
+//            }
             
             if(m >= 3)
             {

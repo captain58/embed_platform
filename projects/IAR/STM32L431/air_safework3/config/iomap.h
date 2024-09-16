@@ -69,7 +69,7 @@ ADPORT gs_ADPort[] =
     ******************************************************************************/
     const GPO_PORTS gs_LedPort[] = 
     {
-        {(COMPORT*)&gs_LedRun,     0, 1, 1},     //true:低电平点亮
+        {(COMPORT*)&gs_LedRun,     0, 0, 1},     //true:低电平点亮
 //	        {(COMPORT*)&gs_LedSwitch,     1, 0, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedBat,     0, 1, 1},     //true:低电平点亮
         {(COMPORT*)&gs_LedCard,     0, 1, 1},     //true:低电平点亮
@@ -219,7 +219,7 @@ typedef enum
     const COMPORT gs_GpiKey2      = {(uint32_t)GPIOA, 0,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,   0};//key2
     const COMPORT gs_GpiDIO1      = {(uint32_t)GPIOB, 0,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH,GPIO_NOPULL,  0};//key1
     const COMPORT gs_GpiDIO2      = {(uint32_t)GPIOA, 6,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,  0};//key2
-    const COMPORT gs_GpiSwitch    = {(uint32_t)GPIOB, 14, 1, GPIO_MODE_IT_RISING_FALLING,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP, 0};
+    const COMPORT gs_GpiSwitch    = {(uint32_t)GPIOB, 14, 1, GPIO_MODE_IT_RISING_FALLING,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLDOWN, 0};
     
     const GPI_PORTS gs_LGPIPort[] = 
     {

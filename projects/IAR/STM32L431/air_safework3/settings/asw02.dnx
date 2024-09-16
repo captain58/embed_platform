@@ -12,7 +12,7 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <DebugChecksum>
-        <Checksum>1013251659</Checksum>
+        <Checksum>2348586199</Checksum>
     </DebugChecksum>
     <CodeCoverage>
         <Enabled>0</Enabled>
@@ -204,12 +204,11 @@
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\user_func.c}.4544.5" 0 0 1 "" 0 "" 0</Bp0>
         <Bp1>_ 0 "EMUL_CODE" "{D:\project\embed_platform\kernel\rhino\k_sched.c}.478.5" 0 0 1 "" 0 "" 0</Bp1>
         <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_realtime.c}.911.13" 0 0 1 "" 0 "" 0</Bp2>
-        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rcc_ex.c}.655.7" 0 0 1 "" 0 "" 0</Bp3>
-        <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.506.13" 0 0 1 "" 0 "" 0</Bp4>
-        <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.629.13" 0 0 1 "" 0 "" 0</Bp5>
-        <Bp6>_ 1 "EMUL_CODE" "{$PROJ_DIR$\app\scan.c}.997.21" 0 0 1 "" 0 "" 0</Bp6>
-        <Bp7>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\drivers\stm32L431\src\dev_ad.c}.312.5" 0 0 1 "" 0 "" 0</Bp7>
-        <Count>8</Count>
+        <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l431\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rcc_ex.c}.655.7" 0 0 1 "" 0 "" 0</Bp3>
+        <Bp4>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.629.13" 0 0 1 "" 0 "" 0</Bp4>
+        <Bp5>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\board\stm32l431cc-asw\Core\Src\main.c}.642.5" 0 0 1 "" 0 "" 0</Bp5>
+        <Bp6>_ 0 "EMUL_CODE" "{$PROJ_DIR$\app\app.c}.1284.5" 0 0 1 "" 0 "" 0</Bp6>
+        <Count>7</Count>
     </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>

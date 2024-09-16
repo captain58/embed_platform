@@ -53,8 +53,8 @@ void SYS_BlinkDev_OnOff(uint32 led, bool oc);
  * @History: 
  ************************************************************************/
 void SYS_BlinkDev_Init(void);
-
-
+void SYS_BlinkDev_DeInit(void);
+void SYS_BlinkDev_Restart(void);
 /************************************************************************
  * @Function: SYS_LED_BlinkSet
  * @Description: LED操作接口函数(50%占空比)

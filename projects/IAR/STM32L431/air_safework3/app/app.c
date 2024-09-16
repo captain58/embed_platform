@@ -58,7 +58,7 @@
 /*******************************************************************************
 **ÓÃ»§³ÌÐò°æ±¾ºÅ
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x24090813;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x24091320;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 
@@ -866,7 +866,7 @@ void SYS_TIMER_Init(void)
 void SYS_APP_Init()
 {
     UART_Init();
-//	
+//	MX_GPIO_DeInit();
     SYS_FILE_Init();
 //    SYS_FILE_Start();
 #if SYS_GPO_EN > 0
@@ -1050,10 +1050,11 @@ void SYS_MAIN_Task(void * arg)
 //    SYS_SER_Write(PORT_UART_STD, "\nVS Project %s  Softver[%x] Hardver[%x]!\n", strlen("\nVS Project %s  Softver[%x] Hardver[%x]!\n"), 300);
     //Flash_Test();
 //	    SYS_IFLS_Test();
-    uint8_t tmp[10] = {98,3,5,0,0,0,0,0,0,0};
-    GD_Para_RW(F251_PADDR, tmp, 10, true);
+    uint8_t tmp[20] = {99,3,6,0,0,0,0,11,0,0};
+    //GD_Para_RW(F251_PADDR, tmp, 10, true);
     memset(tmp,0,10);
     GD_Para_RW(F251_PADDR, tmp, 10, false);
+    //gs_SysVar.mDGcnt = 10;
 //	    SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 0); 
     //Reset_Hash_Table();
     for(;;)
@@ -1227,6 +1228,55 @@ extern const _F_UART gs_Uart;
 extern void SystemClock_Config_16M(void);
 extern int SystemClock_Stop(void);
 
+void hwInit()
+{
+      /* Enable Power Clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  
+  /* Ensure that MSI is wake-up system clock */ 
+  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+}
+
+/**
+  * @brief  Configures system clock after wake-up from STOP: enable MSI, PLL
+  *         and select PLL as system clock source.
+  * @param  None
+  * @retval None
+  */
+static void SYSCLKConfig_STOP(void)
+{
+//  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+//  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+//  uint32_t pFLatency = 0;
+//
+//  /* Enable Power Control clock */
+//  __HAL_RCC_PWR_CLK_ENABLE();
+//
+//  /* Get the Oscillators configuration according to the internal RCC registers */
+//  HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
+//
+//  /* Enable PLL */
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_NONE;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+//  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /* Get the Clocks configuration according to the internal RCC registers */
+//  HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &pFLatency);
+//
+//  /* Select PLL as system clock source and keep HCLK, PCLK1 and PCLK2 clocks dividers as before */
+//  RCC_ClkInitStruct.ClockType     = RCC_CLOCKTYPE_SYSCLK;
+//  RCC_ClkInitStruct.SYSCLKSource  = RCC_SYSCLKSOURCE_PLLCLK;
+//  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, pFLatency) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+    SystemClock_Config2();
+    
+      
+}
 void hwEnterSleep()
 {
 //    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
@@ -1236,11 +1286,22 @@ void hwEnterSleep()
 //    {
 //        aos_reboot();
 //    }
-    system_clock_8m_irc8m();
-    pmu_to_sleepmode(WFI_CMD);
-//        pmu_to_standbymode(WFE_CMD);
-//        pmu_to_deepsleepmode(PMU_LDO_NORMAL,WFE_CMD);
-    SystemInit();    
+//    system_clock_8m_irc8m();
+//    pmu_to_sleepmode(WFI_CMD);
+////        pmu_to_standbymode(WFE_CMD);
+////        pmu_to_deepsleepmode(PMU_LDO_NORMAL,WFE_CMD);
+//    SystemInit();    
+/* Enter STOP 1 mode */
+    HAL_PWREx_EnterSTOP1Mode(PWR_STOPENTRY_WFI);
+
+    /* Enter STOP 2 mode */
+    //HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+    /* ... STOP 1 mode ... */
+
+
+    /* Re-configure the system clock to 80 MHz based on MSI, enable and
+       select PLL as system clock source (PLL is disabled in STOP mode) */
+    SYSCLKConfig_STOP();    
     RHINO_CPU_INTRPT_ENABLE();
 
 }
@@ -1270,12 +1331,17 @@ void SuspendSleep()
 //	    gs_Uart.Close(PORT_UART_STD);      
 //    gs_GPIO.GPO_Out(GPO_485_PWR,false);  
 //    gs_GPIO.GPO_Out(GPO_BLE_UART_CTL,false);
-    SYS_Dev_OptBlinkSetAll(3, 0, 0, 0); 
+    
+
 //	    brd_gpio_suspend();
     //hal_rtc_finalize(&g_stRtcDev);
 
 //	    MX_ADC1_DeInit();
-    MX_GPIO_Init();
+    //MX_GPIO_Init();
+    HAL_SuspendTick();
+    MX_GPIO_DeInit();
+    SYS_Dev_OptBlinkSetAll(3, 0, 0, 0); 
+    SYS_BlinkDev_DeInit();
 #ifndef DEBUG        
     HAL_IWDG_Refresh(&hiwdg); //Î¹¹·
 #endif
@@ -1291,7 +1357,7 @@ void ResumeSleep()
 //	    {
 //	
 //	    }
-//	    MX_GPIO_Init();
+    MX_GPIO_Init();
 
 //	    MX_DMA_Init();
 //	//	
@@ -1304,6 +1370,8 @@ void ResumeSleep()
     
 //	    gs_Uart.Init(PORT_UART_STD, NULL);
 //    SYS_FILE_Start();
+    HAL_ResumeTick();
+    SYS_BlinkDev_Restart();
 #ifndef DEBUG        
     HAL_IWDG_Refresh(&hiwdg); //Î¹¹·
 #endif

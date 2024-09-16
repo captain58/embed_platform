@@ -1252,7 +1252,7 @@ uint8 fSRFFTD03(const CMD_TABLE_t* tbl, SRF_Frame* frm)
             
             if(switchstt != cltor_shadow[id].nodestatus.switchstt && frm->bNeedReAllocate)
             {
-                SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 100);
+                SYS_Dev_OptBlinkSet(GPIO_BUZ_CARD, 2, 0, 0, 500);
             }
             cltor_shadow[id].nodestatus.switchstt = switchstt;
 

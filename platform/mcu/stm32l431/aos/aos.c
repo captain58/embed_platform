@@ -179,7 +179,7 @@ static void sys_start(void)
 //        delay(1000000);
 //    }
     aos_init();
-    
+    //delay(1000000);
     //krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
     krhino_task_create(&demo_task_obj, "aos-init", 0,AOS_DEFAULT_APP_PRI, 
         0, demo_task_buf, AOS_START_STACK, (task_entry_t)sys_init, 1);

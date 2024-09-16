@@ -756,6 +756,7 @@ void SYS_RFMng_Task(void * arg)
             {
                 case MSG_SEC:
                     RF_WMSecondProc();
+                    gs_SysVar.mLPsysstt |= HLV_STT_NENG; 
                     break;
 
 
@@ -811,20 +812,7 @@ void SYS_RFMng_Task(void * arg)
                         msleep(1);
                         //SYS_RF_Init(0,0,0,nParentMacAddr+2);
                         
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-Radio->Reset(nParentMacAddr+2);
+						Radio->Reset(nParentMacAddr+2);
 //                        Radio->wake_up();
                         gs_RFVar.sleep = 0;
                         SYS_Dev_OptBlinkSet(SYS_LED_RUN, 1, 50, 50, 0); 
