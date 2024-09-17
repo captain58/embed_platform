@@ -883,6 +883,13 @@ uint8_t airsafe_mng_init()
 #define CON_AIR_SAFE_STATUS_WAIT    0x04        //钩子拿开后继续保持60秒通讯
 #define CON_AIR_SAFE_SLEEP_RUN_1M   0x08
 
+
+uint8_t ClearDelay()
+{
+    gst_asw_mng.delay = CON_WIRELESS_WORK_DELAY;
+    return 0;
+}
+
 uint8_t get_status(void)
 {
     
@@ -907,7 +914,7 @@ uint8_t get_status(void)
     }
     else
     {
-        if(gst_asw_mng.delay >0)//钩子掉线后，运行一段时间
+        if(gst_asw_mng.delay > 0)//钩子掉线后，运行一段时间
         {
             ret |= CON_AIR_SAFE_STATUS_WAIT;
         }
@@ -917,6 +924,8 @@ uint8_t get_status(void)
 //            {
 //                ret |= CON_AIR_SAFE_SLEEP_RUN_1M;
 //            }
+            extern kbuf_queue_t gs_RFMngQueue;
+            krhino_buf_queue_send(&gs_RFMngQueue, &msgidA[MSG_ENTER_SLEEP], 1);
         }
     }
 

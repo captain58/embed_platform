@@ -54,13 +54,13 @@ ADPORT gs_ADPort[] =
 
 
 #ifdef EXT_LED                          //LED端口定义
-    const COMPORT gs_LedRun       = {(uint32_t)GPIOB, 1,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,   1};
+    const COMPORT gs_LedRun       = {(uint32_t)GPIOB, 1,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,   1};
 
-    const COMPORT gs_LedBat       = {(uint32_t)GPIOB, 12,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,    1};
-    const COMPORT gs_LedCard       = {(uint32_t)GPIOA, 8,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,    1};
+    const COMPORT gs_LedBat       = {(uint32_t)GPIOB, 12,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    1};
+    const COMPORT gs_LedCard       = {(uint32_t)GPIOA, 8,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    1};
 
-    const COMPORT gs_BuzCard       = {(uint32_t)GPIOB, 13,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,    1};
-    const COMPORT gs_LedNull       = {(uint32_t)GPIOB, 4,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,    1};
+    const COMPORT gs_BuzCard       = {(uint32_t)GPIOB, 13,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    1};
+    const COMPORT gs_LedNull       = {(uint32_t)GPIOB, 4,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    1};
 
     
     
@@ -217,7 +217,7 @@ typedef enum
     
     const COMPORT gs_GpiKey1      = {(uint32_t)GPIOB, 15, 0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH,  GPIO_NOPULL,  0};//key1
     const COMPORT gs_GpiKey2      = {(uint32_t)GPIOA, 0,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,   0};//key2
-    const COMPORT gs_GpiDIO1      = {(uint32_t)GPIOB, 0,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH,GPIO_NOPULL,  0};//key1
+    const COMPORT gs_GpiDIO1      = {(uint32_t)GPIOB, 0,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH,GPIO_PULLUP,  0};//key1
     const COMPORT gs_GpiDIO2      = {(uint32_t)GPIOA, 6,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,  0};//key2
     const COMPORT gs_GpiSwitch    = {(uint32_t)GPIOB, 14, 1, GPIO_MODE_IT_RISING_FALLING,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLDOWN, 0};
     
@@ -308,6 +308,10 @@ typedef enum
     const COMPORT gs_RFSpiCS   = {(uint32_t)GPIOA, 4,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    0};
     const COMPORT gs_RFSpiPWR  = {(uint32_t)GPIOB, 1,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    0};
     const COMPORT gs_RFSpiWP   = {(uint32_t)GPIOB, 1,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    0};
+    //const COMPORT gs_RFSpiPWR  = {(uint32_t)GPIOB, 1,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    0};
+    //const COMPORT gs_RFSpiWP   = {(uint32_t)GPIOB, 1,  0, GPIO_MODE_OUTPUT_PP,GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL,    0};
+    const COMPORT gs_GpiDIO1Alias      = {(uint32_t)GPIOB, 0,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH,GPIO_PULLUP,  0};//key1
+    const COMPORT gs_GpiDIO2Alias      = {(uint32_t)GPIOA, 6,  0, GPIO_MODE_INPUT,  GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP,  0};//key2
     
     const SPIIO_PORTS gs_RFSpiPort = 
     {
@@ -317,8 +321,8 @@ typedef enum
         (COMPORT*)&gs_RFSpiPWR,        //电源脚        
         (COMPORT*)&gs_RFSpiCS,         //FLA,FLASH片选
         (COMPORT*)&gs_RFSpiWP,         //写保护
-        NULL,
-        NULL,
+        (COMPORT*)&gs_GpiDIO1Alias,
+        (COMPORT*)&gs_GpiDIO2Alias,
         NULL,
         NULL,
         NULL,

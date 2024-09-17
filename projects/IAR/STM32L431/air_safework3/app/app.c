@@ -58,7 +58,7 @@
 /*******************************************************************************
 **用户程序版本号
 ********************************************************************************/
-const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x24091320;
+const __root uint32 gul_UsrFuncVer@FLS_USRVER_ADDR = 0x24091722;
 const __root uint8 gucs_PrjCode[6]@FLS_USRPRJ_ADDR = "RTU01";
 const __root uint8_t gucs_softVer[]="4G-LS-R(V0.";
 
@@ -968,6 +968,7 @@ int application_start(int argc, char *argv[])
     };
 }
 
+
 /*!
     \brief      this function handles external lines 10 to 15 interrupt request
     \param[in]  none
@@ -977,9 +978,10 @@ int application_start(int argc, char *argv[])
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 
-       gs_SysVar.mLPstt |= HLV_LPTASK_SWITCH;
+    gs_SysVar.mLPstt |= HLV_LPTASK_SWITCH;
     gs_SysVar.mDGcnt = 2;
-
+//    gst_asw_mng.delay = CON_WIRELESS_WORK_DELAY;
+    ClearDelay();
 }
 
 //	uint8_t guc_CardID[16];
@@ -1051,7 +1053,7 @@ void SYS_MAIN_Task(void * arg)
     //Flash_Test();
 //	    SYS_IFLS_Test();
     uint8_t tmp[20] = {99,3,6,0,0,0,0,11,0,0};
-    //GD_Para_RW(F251_PADDR, tmp, 10, true);
+    GD_Para_RW(F251_PADDR, tmp, 10, true);
     memset(tmp,0,10);
     GD_Para_RW(F251_PADDR, tmp, 10, false);
     //gs_SysVar.mDGcnt = 10;
@@ -1357,7 +1359,7 @@ void ResumeSleep()
 //	    {
 //	
 //	    }
-    MX_GPIO_Init();
+//    MX_GPIO_Init();
 
 //	    MX_DMA_Init();
 //	//	

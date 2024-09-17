@@ -768,6 +768,7 @@ void A7139_POR(void)
     
 //	    StrobeCMD(CMD_RF_RST);  	//reset A7139 chip
     SPI_Write((SPIIO*)&gs_RFRst, &gs_RFSpiPort);
+    msleep(2); 
 //	
 //	    while(A7139_WriteID(NULL))		//check SPI
 //	    {
@@ -854,13 +855,18 @@ uint8_t SYS_RF_Init(int freqCode, unsigned char ch, unsigned char pwr, uint8_t *
 uint8_t SYS_RF_Reset(uint8_t * pid)
 {
     int i;
+    
+
     for(i = 0; i < 3; i++)
     {
       
         Init_SPI(&gs_RFSpiPort);
         
-        if(A7139_WriteID(pid))     //write ID code
-            continue;
+        SPI_Write((SPIIO*)&gs_RFSTBY, &gs_RFSpiPort);
+        msleep(2);        
+        
+//        if(A7139_WriteID(pid))     //write ID code
+//            continue;
 
         
         A7139_POR();
@@ -1290,6 +1296,8 @@ void entry_deep_sleep_mode(void)
 
     A7139_WriteReg(PIN_REG, A7139Config[PIN_REG] | 0x0800);             //SCMDS=1
     A7139_WritePageA(PM_PAGEA, A7139Config_PageA[PM_PAGEA] | 0x1010);   //STS=1, QDS=1
+    
+    A7139_WritePageA(GIO_PAGEA, (A7139Config_PageA[GIO_PAGEA] & 0xF000) | 0);  //GIO1=PMDO, GIO2=WTR
 //	    StrobeCMD(CMD_SLEEP);               //entry sleep mode
 //	    delay100us(6);                      //delay 600us for VDD_A shutdown, C load=0.1uF
     msleep(1);
@@ -1303,10 +1311,10 @@ void entry_deep_sleep_mode(void)
     msleep(1);        
     SPI_Write((SPIIO*)&gs_RFDeepSleep, &gs_RFSpiPort);//entry deep sleep mode
 //	    delay100us(2);                      //delay 200us for VDD_D shutdown, C load=0.1uF
-    msleep(1);
-    SPI_Write((SPIIO*)&gs_RFSleep, &gs_RFSpiPort);
-    msleep(1);
-    SPI_Write((SPIIO*)&gs_RFDeepSleep, &gs_RFSpiPort);
+//    msleep(1);
+//    SPI_Write((SPIIO*)&gs_RFSleep, &gs_RFSpiPort);
+//    msleep(1);
+//    SPI_Write((SPIIO*)&gs_RFDeepSleep, &gs_RFSpiPort);
 }
 
 /*********************************************************************
